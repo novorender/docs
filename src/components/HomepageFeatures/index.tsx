@@ -34,7 +34,7 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, description}: FeatureItem) {
+function Feature({ title, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
@@ -51,7 +51,7 @@ function Feature({title, description}: FeatureItem) {
 export default function HomepageFeatures(): JSX.Element {
   return (
     <section className={styles.features}>
-      <div className="container">
+      <div className="container" style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
