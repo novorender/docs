@@ -1,0 +1,11 @@
+[data-theme='light'] .editorSvgIcon {
+    fill: rgb(0, 0, 0);
+}
+
+[data-theme='dark'] .editorSvgIcon {
+    fill: var(--ifm-color-primary);
+}
+
+.editorSvgIcon path {
+    transform: scale(0.035)
+}

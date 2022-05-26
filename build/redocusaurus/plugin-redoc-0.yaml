@@ -1,0 +1,697 @@
+openapi: 3.0.1
+info:
+  title: Novorender Data API
+  version: v1
+paths:
+  /api/MetaData/{sceneId}/update:
+    get:
+      tags:
+        - MetaData
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /api/MetaData/{sceneId}/{id}:
+    get:
+      tags:
+        - MetaData
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  /api/MetaData/{sceneId}:
+    post:
+      tags:
+        - MetaData
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/MetaData/{sceneId}/search:
+    post:
+      tags:
+        - MetaData
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Resources:
+    get:
+      tags:
+        - Resources
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items: {}
+            application/json:
+              schema:
+                type: array
+                items: {}
+            text/json:
+              schema:
+                type: array
+                items: {}
+    post:
+      tags:
+        - Resources
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/ResourceInfo'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceInfo'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ResourceInfo'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ResourceInfo'
+      responses:
+        '200':
+          description: Success
+  /api/Resources/{id}:
+    delete:
+      tags:
+        - Resources
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    get:
+      tags:
+        - Resources
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /api/Resources/{id}/download:
+    get:
+      tags:
+        - Resources
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /api/Scenes:
+    get:
+      tags:
+        - Scenes
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items: {}
+            application/json:
+              schema:
+                type: array
+                items: {}
+            text/json:
+              schema:
+                type: array
+                items: {}
+  /api/Scenes/{id}:
+    delete:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mainscene
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/isviewer:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: boolean
+            application/json:
+              schema:
+                type: boolean
+            text/json:
+              schema:
+                type: boolean
+  /api/Scenes/{id}/config:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/group/{groupId}:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/bookmarks:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/bookmarks/{group}:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/personalbookmarks:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/personalbookmarks/{group}:
+    get:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/{title}:
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mainscene
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/{id}/{title}/{mainscene}:
+    post:
+      tags:
+        - Scenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mainscene
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/revise:
+    post:
+      tags:
+        - Scenes
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+  /api/Scenes/bim360:
+    get:
+      tags:
+        - Scenes
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Scenes
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema: {}
+          application/json:
+            schema: {}
+          text/json:
+            schema: {}
+          application/*+json:
+            schema: {}
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: boolean
+            application/json:
+              schema:
+                type: boolean
+            text/json:
+              schema:
+                type: boolean
+  /api/user:
+    get:
+      tags:
+        - User
+      responses:
+        '200':
+          description: Success
+  /api/user/login:
+    post:
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+      responses:
+        '200':
+          description: Success
+  /api/user/token:
+    get:
+      tags:
+        - User
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    LoginModel:
+      required:
+        - password
+        - userName
+      type: object
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+      additionalProperties: false
+    ResourceInfo:
+      type: object
+      properties:
+        partitionKey:
+          type: string
+          nullable: true
+        rowKey:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+        eTag:
+          type: string
+          nullable: true
+        organization:
+          type: string
+          nullable: true
+        id:
+          type: string
+          nullable: true
+        lastModified:
+          type: string
+          format: date-time
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+        original:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        revision:
+          type: string
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        tags:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        size:
+          type: integer
+          format: int64
+          nullable: true
+        deleted:
+          type: boolean
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: Please insert JWT with Bearer into field
+      name: Authorization
+      in: header
+security:
+  - Bearer: []
