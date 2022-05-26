@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website_001=self.webpackChunkmy_website_001||[]).push([[7918],{56922:function(e,s,t){var c=t(67294),a=Object.assign({React:c},c);s.Z=a}}]);

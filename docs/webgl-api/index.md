@@ -1,6 +1,6 @@
 ---
 id: "index"
-title: "my-website-001"
+title: "novorender-api-docs"
 slug: "/webgl-api/"
 sidebar_label: "Readme"
 sidebar_position: 0
