@@ -25,11 +25,12 @@ const config = {
             ({
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
-                    editUrl: `${baseGithub}/webgl-api-doc-test/edit/main`,
+                    editUrl: `${baseGithub}/docs/edit/main`,
+                    showLastUpdateTime: true,
                 },
                 blog: {
                     showReadingTime: true,
-                    editUrl: `${baseGithub}/webgl-api-doc-test`,
+                    editUrl: `${baseGithub}/docs`,
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -43,7 +44,7 @@ const config = {
               specs: [
                 {
                   spec: 'openapi.json',
-                  route: '/api/',
+                  route: '/rest-api/',
                 },
               ],
               // Theme Options for modifying how redoc renders them
@@ -77,7 +78,7 @@ const config = {
                         label: 'WebGL API',
                     },
                     {
-                        to: '/api/',
+                        to: '/rest-api/',
                         position: 'left',
                         label: 'Rest API',
                     },
@@ -99,28 +100,29 @@ const config = {
                                 label: 'WebGL API',
                                 to: '/docs/webgl-api',
                             },
+                            {
+                                label: 'Rest API',
+                                to: '/rest-api/',
+                            },
                         ],
                     },
-                    /**
-                     * @todo enable later with proper links
-                     */
-                    // {
-                    //     title: 'Community',
-                    //     items: [
-                    //         {
-                    //             label: 'Stack Overflow',
-                    //             href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-                    //         },
+                    {
+                        title: 'Community',
+                        items: [
+                            {
+                                label: 'Stack Overflow',
+                                href: 'https://stackoverflow.com/questions/tagged/novorender',
+                            },
                     //         {
                     //             label: 'Discord',
                     //             href: 'https://discordapp.com/invite/docusaurus',
                     //         },
-                    //         {
-                    //             label: 'Twitter',
-                    //             href: 'https://twitter.com/docusaurus',
-                    //         },
-                    //     ],
-                    // },
+                            {
+                                label: 'Twitter',
+                                href: 'https://twitter.com/novorender',
+                            },
+                        ],
+                    },
                     {
                         title: 'More',
                         items: [
