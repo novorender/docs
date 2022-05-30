@@ -157,7 +157,7 @@ const config = {
             {
                 entryPoints: ['webgl-api.ts'],
                 out: 'webgl-api',
-                readme: require.resolve("@novorender/webgl-api/README.md"),
+                readme: require.resolve("./temp-readme.md"),
                 disableSources: true,
                 sidebar: {
                     categoryLabel: 'WebGL API'
