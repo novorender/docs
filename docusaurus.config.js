@@ -40,20 +40,20 @@ const config = {
         [
             'redocusaurus',
             {
-              // Plugin Options for loading OpenAPI files
-              specs: [
-                {
-                  spec: 'https://data.novorender.com/swagger/v1/swagger.json',
-                  route: '/rest-api/',
+                // Plugin Options for loading OpenAPI files
+                specs: [
+                    {
+                        spec: 'https://data.novorender.com/swagger/v1/swagger.json',
+                        route: '/rest-api/',
+                    },
+                ],
+                // Theme Options for modifying how redoc renders them
+                theme: {
+                    // Change with your site colors
+                    primaryColor: '#d61e5c',
                 },
-              ],
-              // Theme Options for modifying how redoc renders them
-              theme: {
-                // Change with your site colors
-                primaryColor: '#d61e5c',
-              },
             },
-          ],
+        ],
     ],
 
     themeConfig:
@@ -78,9 +78,14 @@ const config = {
                         label: 'WebGL API',
                     },
                     {
+                        to: 'docs/data-js-api',
+                        position: 'left',
+                        label: 'Data JS API',
+                    },
+                    {
                         to: '/rest-api/',
                         position: 'left',
-                        label: 'Rest API',
+                        label: 'Data Rest API',
                     },
                     // { to: '/blog', label: 'Blog', position: 'left' },
                     {
@@ -101,7 +106,11 @@ const config = {
                                 to: '/docs/webgl-api',
                             },
                             {
-                                label: 'Rest API',
+                                label: 'Data JS API',
+                                to: '/docs/data-js-api',
+                            },
+                            {
+                                label: 'Data Rest API',
                                 to: '/rest-api/',
                             },
                         ],
@@ -113,10 +122,10 @@ const config = {
                                 label: 'Stack Overflow',
                                 href: 'https://stackoverflow.com/questions/tagged/novorender',
                             },
-                    //         {
-                    //             label: 'Discord',
-                    //             href: 'https://discordapp.com/invite/docusaurus',
-                    //         },
+                            //         {
+                            //             label: 'Discord',
+                            //             href: 'https://discordapp.com/invite/docusaurus',
+                            //         },
                             {
                                 label: 'Twitter',
                                 href: 'https://twitter.com/novorender',
@@ -147,7 +156,7 @@ const config = {
                 defaultMode: 'dark',
                 disableSwitch: false,
                 respectPrefersColorScheme: false,
-              }
+            }
         }),
     plugins: [
         [
@@ -155,6 +164,7 @@ const config = {
 
             // Plugin / TypeDoc options
             {
+                id: 'webgl-api',
                 entryPoints: ['webgl-api.ts'],
                 out: 'webgl-api',
                 readme: require.resolve("./temp-readme.md"),
@@ -164,6 +174,20 @@ const config = {
                 }
             },
         ],
+        // [
+        //     'docusaurus-plugin-typedoc',
+        //     {
+        //         id: 'data-js-api',
+        //         entryPoints: ['src/test2/data-js-api.ts'],
+        //         out: 'data-js-api',
+        //         // readme: require.resolve("./temp-readme.md"),
+        //         disableSources: true,
+        //         includes: 'src/test2',
+        //         sidebar: {
+        //             categoryLabel: 'Data JS API'
+        //         }
+        //     },
+        // ],
         require.resolve("@cmfcmf/docusaurus-search-local")
     ],
     scripts: [
