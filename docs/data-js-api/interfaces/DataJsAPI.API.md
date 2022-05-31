@@ -124,7 +124,7 @@ ___
 
 ### getGroupIds
 
-▸ **getGroupIds**(`sceneId`, `id`): `Promise`<`any`[]\>
+▸ **getGroupIds**(`sceneId`, `id`): `Promise`<`number`[]\>
 
 #### Parameters
 
@@ -135,7 +135,7 @@ ___
 
 #### Returns
 
-`Promise`<`any`[]\>
+`Promise`<`number`[]\>
 
 ___
 
@@ -272,18 +272,18 @@ ___
 
 ### latLon2tm
 
-▸ **latLon2tm**(`coords`, `tmZone`): `any`
+▸ **latLon2tm**(`coords`, `tmZone`): `vec3`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `coords` | `any` |
+| `coords` | `GeoLocation` |
 | `tmZone` | `string` |
 
 #### Returns
 
-`any`
+`vec3`
 
 ___
 
@@ -341,18 +341,18 @@ ___
 
 ### tm2LatLon
 
-▸ **tm2LatLon**(`position`, `tmZone`): `any`
+▸ **tm2LatLon**(`position`, `tmZone`): `GeoLocation`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `position` | `any` |
+| `position` | `vec3` |
 | `tmZone` | `string` |
 
 #### Returns
 
-`any`
+`GeoLocation`
 
 ___
 

@@ -33,6 +33,6 @@ ___
 
 ### planes
 
-• **planes**: readonly `any`[]
+• **planes**: readonly `ReadonlyVec4`[]
 
 List of clipping planes (max 6), expressed as plane normal (x,y,z) and offset from origo (w) in a 4D world space vector.

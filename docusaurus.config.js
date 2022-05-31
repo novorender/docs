@@ -165,8 +165,9 @@ const config = {
             // Plugin / TypeDoc options
             {
                 id: 'webgl-api',
-                entryPoints: ['webgl-api.ts'],
+                entryPoints: ['type-definitions/webgl-api.ts'],
                 out: 'webgl-api',
+                tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("./temp-readme.md"),
                 disableSources: true,
                 sidebar: {
@@ -174,15 +175,16 @@ const config = {
                 }
             },
         ],
+        /** @todo: uncomment when issues are fixed within data-js-api package */
         // [
         //     'docusaurus-plugin-typedoc',
         //     {
         //         id: 'data-js-api',
-        //         entryPoints: ['src/test2/data-js-api.ts'],
+        //         entryPoints: ['type-definitions/data-js-api.ts'],
         //         out: 'data-js-api',
-        //         // readme: require.resolve("./temp-readme.md"),
+        //         tsconfig: 'type-definitions/tsconfig.json',
+        //         readme: require.resolve("@novorender/data-js-api/README.md"),
         //         disableSources: true,
-        //         includes: 'src/test2',
         //         sidebar: {
         //             categoryLabel: 'Data JS API'
         //         }

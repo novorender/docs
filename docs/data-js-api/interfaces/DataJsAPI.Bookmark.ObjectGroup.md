@@ -29,7 +29,7 @@ ___
 
 ### ids
 
-• `Optional` **ids**: `any`
+• `Optional` **ids**: `ObjectIdArray`
 
 Object Ids array
 

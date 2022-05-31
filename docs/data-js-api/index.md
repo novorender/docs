@@ -7,44 +7,34 @@ sidebar_position: 0
 custom_edit_url: null
 ---
 
-# Website
+<img src="https://novorender.com/wp-content/uploads/2021/06/novorender_logo_RGB_2021.png"/>
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+# [NovoRender](http://novorender.com/)
 
-### Installation
+> A Data JS API for managing scalable Novorender 3D rendering in the cloud.
 
-```
-$ yarn
-```
+[![Latest NPM Version](https://img.shields.io/npm/v/@novorender/data-js-api.svg?label=@novorender/data-js-api)](https://www.npmjs.com/package/@novorender/data-js-api)  
+Build version: 0.2.21  
+Build date: Tue, 31 May 2022 07:41:12 GMT  
 
-### Local Development
+### NPM Module
 
-```
-$ yarn start
-```
+## Installation
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+Data JS API is available as an [NPM](https://www.npmjs.com/package/@novorender/data-js-api) package. You can install Data JS API in your project's directory with npm:
 
-### Build
-
-```
-$ yarn build
+```bash
+$ npm install @novorender/data-js-api
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+For bleeding edge builds:
 
-### Deployment
-
-Using SSH:
-
-```
-$ USE_SSH=true yarn deploy
+```bash
+$ npm install @novorender/data-js-api@next
 ```
 
-Not using SSH:
+The package contains pre-bundled ES6 and UMD modules and typescript definition file that you can use for both local development and include in your web deployment.
 
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
+## Further information
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Data JS API is a wrapper for REST API, please visit [data.novorender.com](https://data.novorender.com/swagger).

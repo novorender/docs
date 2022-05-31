@@ -13,7 +13,7 @@ Scene objects group
 
 ### color
 
-• **color**: `any`
+• **color**: readonly [`number`, `number`, `number`] \| `Float32Array` \| readonly [`number`, `number`, `number`, `number`]
 
 Group color when selected.
 
@@ -45,7 +45,7 @@ ___
 
 ### ids
 
-• `Optional` **ids**: `any`
+• `Optional` **ids**: `ObjectIdArray`
 
 List of selected object id's.
 
@@ -75,7 +75,7 @@ ___
 
 ### search
 
-• `Optional` **search**: `any`[]
+• `Optional` **search**: `SearchPattern`[]
 
 Group filling search criterias.
 

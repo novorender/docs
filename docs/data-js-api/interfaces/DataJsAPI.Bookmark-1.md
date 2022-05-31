@@ -13,7 +13,7 @@ Bookmark, used to store camera parameters such as postion, rotation, fov etc.
 
 ### camera
 
-• `Optional` **camera**: `any`
+• `Optional` **camera**: `CameraProperties`
 
 Bookmark camera position.
 
@@ -60,9 +60,22 @@ ___
 
 ### grid
 
-• `Optional` **grid**: `any`
+• `Optional` **grid**: `Object`
 
 Grid settings
+
+#### Type declaration
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `axisX` | `vec3` | X axis of the grid, length determines the distance between lines |
+| `axisY` | `vec3` | Y axis of the grid, length determines the distance between lines |
+| `enabled` | `boolean` | Enable grid plane. |
+| `majorColor` | `ReadonlyVec3` | Color of major grid lines |
+| `majorLineCount` | `number` | Number of major lines, odd number needed to have lines go through origo. |
+| `minorColor` | `ReadonlyVec3` | Color of minor grid lines |
+| `minorLineCount` | `number` | Number of minor lines between major lines. |
+| `origo` | `vec3` | Origo of the grid |
 
 ___
 
@@ -92,7 +105,7 @@ ___
 
 ### measurement
 
-• `Optional` **measurement**: `any`[]
+• `Optional` **measurement**: `vec3`[]
 
 Measurement points
 
@@ -124,7 +137,7 @@ ___
 
 ### ortho
 
-• `Optional` **ortho**: `any`
+• `Optional` **ortho**: `OrthoControllerParams`
 
 Bookmark ortho camera.
 

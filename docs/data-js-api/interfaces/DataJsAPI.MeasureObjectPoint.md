@@ -17,10 +17,10 @@ ___
 
 ### pos
 
-• **pos**: `any`
+• **pos**: `vec3`
 
 ___
 
 ### settings
 
-• `Optional` **settings**: `any`
+• `Optional` **settings**: `MeasureSettings`

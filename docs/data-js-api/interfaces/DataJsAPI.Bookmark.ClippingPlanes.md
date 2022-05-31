@@ -17,7 +17,7 @@ This is useful for rendering various cross sections and revealing internal geome
 
 ### bounds
 
-• **bounds**: `any`
+• **bounds**: `AABB`
 
 The axis aligned bounding volume.
 

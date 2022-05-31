@@ -19,7 +19,7 @@ ___
 
 ### camera
 
-• `Optional` **camera**: `Required`<`any`\>
+• `Optional` **camera**: `Required`<`CameraControllerParams`\>
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 ### db
 
-• `Optional` **db**: `any`
+• `Optional` **db**: `ObjectDB`
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 ### settings
 
-• `Optional` **settings**: `any`
+• `Optional` **settings**: `RenderSettings`
 
 ___
 
