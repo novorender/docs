@@ -43,7 +43,7 @@ const config = {
               // Plugin Options for loading OpenAPI files
               specs: [
                 {
-                  spec: 'openapi.json',
+                  spec: 'https://data.novorender.com/swagger/v1/swagger.json',
                   route: '/rest-api/',
                 },
               ],
