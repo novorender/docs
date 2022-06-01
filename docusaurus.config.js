@@ -59,6 +59,11 @@ const config = {
     themeConfig:
         /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
+            docs: {
+                sidebar: {
+                    hideable: true,
+                },
+            },
             navbar: {
                 title: '',
                 logo: {
@@ -171,7 +176,8 @@ const config = {
                 readme: require.resolve("./temp-readme.md"),
                 disableSources: true,
                 sidebar: {
-                    categoryLabel: 'WebGL API'
+                    categoryLabel: 'WebGL API',
+                    position: 1
                 }
             },
         ],
@@ -187,6 +193,7 @@ const config = {
         //         disableSources: true,
         //         sidebar: {
         //             categoryLabel: 'Data JS API'
+        //             position: 2
         //         }
         //     },
         // ],

@@ -3,7 +3,7 @@ id: "index"
 title: "novorender-api-docs"
 slug: "/data-js-api/"
 sidebar_label: "Readme"
-sidebar_position: 0
+sidebar_position: 2
 custom_edit_url: null
 ---
 
