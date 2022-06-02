@@ -192,6 +192,8 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
                 }
 
             })();
+        } else {
+            view.settings.environment = undefined;
         }
     }, [environment]);
 

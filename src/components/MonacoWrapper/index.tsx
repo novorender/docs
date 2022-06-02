@@ -268,6 +268,7 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
                 <div className="navbar__item dropdown dropdown--hoverable">
                   <button className="button button--sm button--primary" style={{ height: 26, paddingLeft: 10, paddingRight: 10 }}>{currentEnv?.name || 'Environments'}</button>
                   <ul className="dropdown__menu">
+                    <li><a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentEnv(undefined); }} href="#">None</a></li>
                     {
                       environmentsList.map((env, i) => (
                         <li key={i}>
