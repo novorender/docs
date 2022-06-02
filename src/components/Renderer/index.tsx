@@ -153,7 +153,14 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
             isDoingActivity(true); // toggle loader
             (async () => {
                 try {
+                    // need to reset the current env here, else you
+                    // get the `detached ArrayBuffer` error from the API
+                    view.settings.environment = undefined;
                     view.scene = await apiInstance.loadScene(scene);
+                    
+                    if (environment) { // re-apply the selected env again
+                        view.settings.environment = await apiInstance.loadEnvironment(environment);
+                    }
                 } catch (e) {
                     console.log('ERROR: Failed to update scene, ', e);
                 } finally {
