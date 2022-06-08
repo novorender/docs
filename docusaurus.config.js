@@ -1,6 +1,9 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+// @ts-expect-error
+const packageJson = require('./package');
+
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
@@ -201,7 +204,7 @@ const config = {
     ],
     scripts: [
         {
-            src: 'https://novorenderapi.blob.core.windows.net/scripts/v0.3.81/index_umd.js',
+            src: `https://novorenderapi.blob.core.windows.net/scripts/v${packageJson.devDependencies['@novorender/webgl-api']}/index_umd.js`,
             async: true
         }
     ]
