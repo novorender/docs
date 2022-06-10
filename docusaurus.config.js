@@ -1,6 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+const { webpackPlugin } = require('./src/plugins');
+
 // @ts-expect-error
 const packageJson = require('./package');
 
@@ -167,6 +169,7 @@ const config = {
             }
         }),
     plugins: [
+        webpackPlugin,
         [
             'docusaurus-plugin-typedoc',
 
