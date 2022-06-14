@@ -9,7 +9,7 @@ export default function About(): JSX.Element {
     >
       {() => {
         const { API } = require('@stoplight/elements');
-        require('@stoplight/elements/styles.min.css');
+        require('./index.css');
         return (
           <Layout>
             <API router="hash" basePath="/" layout="sidebar" apiDescriptionUrl="https://data.novorender.com/swagger/v1/swagger.json" />
