@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
 
 export default function DataRestAPI(): JSX.Element {
+
+  useEffect(() => {
+    const ele: HTMLDivElement = document.querySelector('div.main-wrapper');
+    ele.classList.add('data-rest-api-wrapper');
+  }, [])
+
   return (
     <BrowserOnly
       fallback={<h1>loading</h1>}

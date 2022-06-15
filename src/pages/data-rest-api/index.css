@@ -2565,10 +2565,10 @@ samp {
     height: 60px
 }
 
-.main-wrapper,
-.main-wrapper > div,
-.main-wrapper > div > div ,
-.main-wrapper > div > div > div{
+.data-rest-api-wrapper,
+.data-rest-api-wrapper > div,
+.data-rest-api-wrapper > div > div ,
+.data-rest-api-wrapper > div > div > div:first-child {
     min-height: 100%;
     display: flex;
     flex-direction: column;
