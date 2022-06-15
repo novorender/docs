@@ -33,7 +33,7 @@ export default function DataRestAPI(): JSX.Element {
 
   return (
     <BrowserOnly
-      fallback={<Spinner wrapperStyles={{ width: 32, height: 32, display: 'flex', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} />}
+      fallback={<Spinner wrapperStyles={{ width: 32, height: 32, position: "absolute", margin: "auto", top: 0, bottom: 0, left: 0, right: 0 }} />}
     >
       {() => {
         const { API } = require('@stoplight/elements');
