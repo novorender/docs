@@ -41,24 +41,7 @@ const config = {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
             }),
-        ],
-        [
-            'redocusaurus',
-            {
-                // Plugin Options for loading OpenAPI files
-                specs: [
-                    {
-                        spec: 'https://data.novorender.com/swagger/v1/swagger.json',
-                        route: '/rest-api/',
-                    },
-                ],
-                // Theme Options for modifying how redoc renders them
-                theme: {
-                    // Change with your site colors
-                    primaryColor: '#d61e5c',
-                },
-            },
-        ],
+        ]
     ],
 
     themeConfig:
@@ -93,7 +76,7 @@ const config = {
                         label: 'Data JS API',
                     },
                     {
-                        to: '/rest-api/',
+                        to: '/data-rest-api/',
                         position: 'left',
                         label: 'Data Rest API',
                     },
@@ -121,7 +104,7 @@ const config = {
                             },
                             {
                                 label: 'Data Rest API',
-                                to: '/rest-api/',
+                                to: '/data-rest-api/',
                             },
                         ],
                     },
