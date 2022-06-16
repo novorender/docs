@@ -1,6 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+const { webpackPlugin } = require('./src/plugins');
+
 // @ts-expect-error
 const packageJson = require('./package');
 
@@ -8,6 +10,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const baseGithub = 'https://github.com/novorender';
+const baseAPI = 'https://data.novorender.com';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -39,24 +42,7 @@ const config = {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
             }),
-        ],
-        [
-            'redocusaurus',
-            {
-                // Plugin Options for loading OpenAPI files
-                specs: [
-                    {
-                        spec: 'https://data.novorender.com/swagger/v1/swagger.json',
-                        route: '/rest-api/',
-                    },
-                ],
-                // Theme Options for modifying how redoc renders them
-                theme: {
-                    // Change with your site colors
-                    primaryColor: '#d61e5c',
-                },
-            },
-        ],
+        ]
     ],
 
     themeConfig:
@@ -91,7 +77,7 @@ const config = {
                         label: 'Data JS API',
                     },
                     {
-                        to: '/rest-api/',
+                        to: '/data-rest-api/',
                         position: 'left',
                         label: 'Data Rest API',
                     },
@@ -119,7 +105,7 @@ const config = {
                             },
                             {
                                 label: 'Data Rest API',
-                                to: '/rest-api/',
+                                to: '/data-rest-api/',
                             },
                         ],
                     },
@@ -167,6 +153,7 @@ const config = {
             }
         }),
     plugins: [
+        webpackPlugin,
         [
             'docusaurus-plugin-typedoc',
 
@@ -207,7 +194,11 @@ const config = {
             src: `https://novorenderapi.blob.core.windows.net/scripts/v${packageJson.devDependencies['@novorender/webgl-api']}/index_umd.js`,
             async: true
         }
-    ]
+    ],
+    customFields: {
+        swaggerUI: `${baseAPI}/swagger`,
+        swaggerJSON: `${baseAPI}/swagger/v1/swagger.json`
+    }
 };
 
 module.exports = config;
