@@ -10,11 +10,11 @@ export default function prismIncludeLanguages(PrismObject) {
   // avoid polluting global namespace.
   // You can mutate PrismObject: registering plugins, deleting languages... As
   // long as you don't re-assign it
-  globalThis.Prism = PrismObject;
-  additionalLanguages.forEach((lang) => {
-    // eslint-disable-next-line global-require, import/no-dynamic-require
-    require(`prismjs/components/prism-${lang}`);
-  });  
+  globalThis.Prism = PrismObject; // @stoplight/elements needs this global instance to work
+  // additionalLanguages.forEach((lang) => {
+  //   // eslint-disable-next-line global-require, import/no-dynamic-require
+  //   require(`prismjs/components/prism-${lang}`);
+  // });  
 
   // delete globalThis.Prism;
 }
