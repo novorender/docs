@@ -10,6 +10,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const baseGithub = 'https://github.com/novorender';
+const baseAPI = 'https://data.novorender.com';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -193,7 +194,11 @@ const config = {
             src: `https://novorenderapi.blob.core.windows.net/scripts/v${packageJson.devDependencies['@novorender/webgl-api']}/index_umd.js`,
             async: true
         }
-    ]
+    ],
+    customFields: {
+        swaggerUI: `${baseAPI}/swagger`,
+        swaggerJSON: `${baseAPI}/swagger/v1/swagger.json`
+    }
 };
 
 module.exports = config;

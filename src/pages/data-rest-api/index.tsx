@@ -2,8 +2,14 @@ import React, { useEffect } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
 import Spinner from '@site/src/components/misc/spinner';
+import Link from '@docusaurus/Link';
+import IconExternalLink from '@theme/IconExternalLink';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function DataRestAPI(): JSX.Element {
+
+  const { siteConfig } = useDocusaurusContext();
+  const { customFields: { swaggerUI, swaggerJSON } } = siteConfig;
 
   useEffect(() => {
     const ele: HTMLDivElement = document.querySelector('div.main-wrapper');
@@ -40,7 +46,13 @@ export default function DataRestAPI(): JSX.Element {
         require('./index.css');
         return (
           <Layout>
-            <API router="hash" layout="sidebar" apiDescriptionUrl="https://data.novorender.com/swagger/v1/swagger.json" />
+
+            <Link style={{ position: 'absolute', right: 25, top: 70 }} to={swaggerUI as string}>
+              Swagger
+              <IconExternalLink />
+            </Link>
+
+            <API router="hash" layout="sidebar" apiDescriptionUrl={swaggerJSON} />
           </Layout>
         )
       }}
