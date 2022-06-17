@@ -134,8 +134,25 @@ const config = {
                                 label: 'GitHub',
                                 href: baseGithub,
                             },
+                            {
+                                label: 'Resources',
+                                href: 'https://novorender.com/resources/'
+                            }
                         ],
                     },
+                    {
+                        title: 'Legal',
+                        items: [
+                            {
+                                label: 'Privacy Policy',
+                                href: 'https://novorender.com/privacy-policy/',
+                            },
+                            {
+                                label: 'Cookie Policy',
+                                href: 'https://novorender.com/cookie-policy/',
+                            },
+                        ],
+                    }
                 ],
                 copyright: `Copyright © ${new Date().getFullYear()} Novorender.`,
             },
@@ -147,7 +164,13 @@ const config = {
                 defaultMode: 'dark',
                 disableSwitch: false,
                 respectPrefersColorScheme: false,
-            }
+            },
+            announcementBar: {
+                id: 'wip_info',
+                content: 'ℹ️ The Novorender documentation site is in active development, so expect frequent updates and new content!',
+                backgroundColor: '#303846',
+                textColor: '#fff',
+            },
         }),
     plugins: [
         webpackPlugin,
