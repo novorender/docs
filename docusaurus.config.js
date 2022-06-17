@@ -3,9 +3,6 @@
 
 const { webpackPlugin } = require('./src/plugins');
 
-// @ts-expect-error
-const packageJson = require('./package');
-
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
@@ -188,12 +185,6 @@ const config = {
         //     },
         // ],
         require.resolve("@cmfcmf/docusaurus-search-local")
-    ],
-    scripts: [
-        {
-            src: `https://novorenderapi.blob.core.windows.net/scripts/v${packageJson.devDependencies['@novorender/webgl-api']}/index_umd.js`,
-            async: true
-        }
     ],
     customFields: {
         swaggerUI: `${baseAPI}/swagger`,

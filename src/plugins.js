@@ -1,4 +1,5 @@
 const { ProvidePlugin, DefinePlugin } = require('webpack');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const webpackPlugin = (context, options) => {
     return {
@@ -8,9 +9,16 @@ const webpackPlugin = (context, options) => {
                 plugins: [
                     new DefinePlugin({
                         "process.env.DEBUG": "runtime_process_env.DEBUG"
-                      }),
+                    }),
                     new ProvidePlugin({
                         process: require.resolve('process/browser'),
+                        "NovoRender": require.resolve('@novorender/webgl-api'),
+                    }),
+                    new CopyPlugin({
+                        patterns: [
+                            { from: "node_modules/@novorender/webgl-api/render.js", to: config.mode === 'development' ? "[name][ext]" : "assets/js/[name][ext]" },
+                            { from: "node_modules/@novorender/webgl-api/geometry.js", to: config.mode === 'development' ? "[name][ext]" : "assets/js/[name][ext]" }
+                        ],
                     })
                 ],
                 resolve: {
@@ -31,4 +39,3 @@ const webpackPlugin = (context, options) => {
 };
 
 module.exports = { webpackPlugin };
-

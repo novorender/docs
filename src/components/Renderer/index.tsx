@@ -3,8 +3,6 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
 import { WellKnownSceneUrls } from '@site/src/shared';
 
-declare const NovoRender: typeof import("@novorender/webgl-api");
-
 let isComponentUnmounted = false;
 
 const createView = async (api: API, scene: WellKnownSceneUrls, canvas: HTMLCanvasElement) => {
@@ -62,11 +60,11 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void }): JSX.Element {
+export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any }): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
-    const [apiInstance, setApiInstance] = useState<API>(NovoRender.createAPI()); // Create API
+    const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     // const [isRenderView, setIsRenderView] = useState(false);
 
     // const renderView = async () => {

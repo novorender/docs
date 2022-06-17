@@ -69,7 +69,7 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
   const [isActivity, setIsActivity] = useState<boolean>(false);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
   const [apiVersion, setApiVersion] = useState<string>(null);
-
+  const [api, setApiInstance] = useState<any>(); // Create API
 
 
   useEffect(() => {
@@ -145,12 +145,17 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
     // set initial value of current scene.
     setCurrentScene(getEnumKeyByValue(scene));
 
-    // import dynamically for SSR
-    const apiInstance = require('@novorender/webgl-api');
-    const api = apiInstance.createAPI();
+    (async () => {
+      // import dynamically for SSR
+      const api = await import('@novorender/webgl-api');
 
-    api.availableEnvironments("https://api.novorender.com/assets/env/index.json")
-      .then((envs: EnvironmentDescription[]) => setEnvironmentsList(envs));
+      setApiInstance(api);
+
+      const apiInstance = api.createAPI();
+
+      const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
+      setEnvironmentsList(envs as EnvironmentDescription[]);
+    })()
 
   }, []);
 
@@ -308,7 +313,7 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
               <p>{codeError.message}</p>
             </Admonition>
             : (render_config
-              ? <Renderer config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} />
+              ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} />
               : <div style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>)
           }
 
