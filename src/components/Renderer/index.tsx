@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
 import { WellKnownSceneUrls } from '@site/src/shared';
+import { PlaygroundConfig } from "../PlaygroundComponent";
 
 let isComponentUnmounted = false;
 
@@ -60,7 +61,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any }): JSX.Element {
+export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, playgroundConfig }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, playgroundConfig: PlaygroundConfig }): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -198,7 +199,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: 300, overflow: 'hidden' }}>
+                () => <div style={{ height: playgroundConfig.mode === 'inline' ? 300 : 'calc(60vh - 134px)', overflow: 'hidden' }}>
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                 </div>
             }

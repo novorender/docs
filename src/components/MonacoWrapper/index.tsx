@@ -16,8 +16,7 @@ import styles from './styles.module.css';
 // @ts-expect-error
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
 
-import { predefined_scenes } from '../Playground';
-import Head from '@docusaurus/Head';
+import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
@@ -49,7 +48,7 @@ function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue
 }
 
-export default function MonacoWrapper({ children, scene, demoName }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string }): JSX.Element {
+export default function MonacoWrapper({ children, scene, demoName, playgroundConfig }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string, playgroundConfig: PlaygroundConfig }): JSX.Element {
 
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -287,34 +286,37 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
             </div>
           </nav>
 
-          <Editor
-            height="30vh"
-            defaultLanguage="typescript"
-            defaultValue={initialCode}
-            onChange={codeChangeHandler}
-            loading="loading the playground"
-            theme={theme}
-            options={{
-              minimap: { enabled: false },
-              formatOnPaste: true,
-              formatOnType: true,
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              contextmenu: false,
-              folding: true,
-              showFoldingControls: "always",
-              guides: { indentation: true },
-            }}
-            onMount={handleEditorDidMount}
-            onValidate={handleEditorValidation}
-          />
-          {codeError ?
-            <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
-              <p>{codeError.message}</p>
-            </Admonition>
-            : (render_config
-              ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} />
-              : <div style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>)
+          <div style={{ position: 'relative' }}>
+            <Editor
+              height={playgroundConfig.mode === 'inline' ? '30vh' : '40vh'}
+              defaultLanguage="typescript"
+              defaultValue={initialCode}
+              onChange={codeChangeHandler}
+              loading="loading the playground"
+              theme={theme}
+              options={{
+                minimap: { enabled: false },
+                formatOnPaste: true,
+                formatOnType: true,
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                contextmenu: false,
+                folding: true,
+                showFoldingControls: "always",
+                guides: { indentation: true },
+              }}
+              onMount={handleEditorDidMount}
+              onValidate={handleEditorValidation}
+            />
+            {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, left: 30 }}>
+              <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
+                <p>{codeError.message}</p>
+              </Admonition>
+            </div>}
+          </div>
+          {render_config
+            ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} playgroundConfig={playgroundConfig} />
+            : <div style={{ height: playgroundConfig.mode === 'inline' ? 300 : 'calc(70vh - 62px)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
           }
 
           <textarea
