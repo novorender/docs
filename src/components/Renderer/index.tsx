@@ -61,7 +61,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, playgroundConfig }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, playgroundConfig: PlaygroundConfig }): JSX.Element {
+export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, height }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, height: number }): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -138,6 +138,23 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
         }
     }, [config]);
 
+    // handle canvas resize when split pane size changes.
+    useEffect(() => {
+        if (!view || !canvas) {
+            console.log('View or Canvas not found, couldn\'t apply the settings ');
+            return;
+        }
+        if (height) {
+            const { clientWidth: width, clientHeight: height } = canvas.current;
+            try {
+                // handle resizes
+                view.applySettings({ display: { width, height } });
+            } catch (e) {
+                console.log('[canvas size update]: couldn\'t resize, ', e);
+            }
+        }
+    }, [height]);
+
     // handle scene updates.
     useEffect(() => {
         console.log('[Renderer]: new scene to change ==> ', scene);
@@ -156,7 +173,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
                     // get the `detached ArrayBuffer` error from the API
                     view.settings.environment = undefined;
                     view.scene = await apiInstance.loadScene(scene);
-                    
+
                     if (environment) { // re-apply the selected env again
                         view.settings.environment = await apiInstance.loadEnvironment(environment);
                     }
@@ -199,7 +216,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: playgroundConfig.mode === 'inline' ? 300 : 'calc(60vh - 134px)', overflow: 'hidden' }}>
+                () => <div style={{ height: height, overflow: 'hidden' }}>
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                 </div>
             }
