@@ -76,6 +76,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
   const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
   const [rendererHeight, setRendererHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
+  const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
 
   useEffect(() => {
     if (children) {
@@ -302,10 +303,14 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
           </nav>
 
           <div style={{ height: Boolean(editorHeight) && Boolean(rendererHeight) && (editorHeight + rendererHeight) }}>
-            {force_rerender_allotment && <Allotment onChange={(e) => {
-              if (splitPaneDirectionVertical && e?.length > 1) {
-                setEditorHeight(e[0]);
-                setRendererHeight(e[1]);
+            {force_rerender_allotment && <Allotment onChange={(e: Array<number>) => {
+              if (e?.length > 1) {
+                if (splitPaneDirectionVertical) {
+                  setEditorHeight(e[0]);
+                  setRendererHeight(e[1]);
+                } else {
+                  setRendererPaneWidth(e[1]);
+                }
               }
             }}
               vertical={splitPaneDirectionVertical}>
@@ -339,7 +344,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
                 </div>}
               </div>
               {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} height={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} />
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}

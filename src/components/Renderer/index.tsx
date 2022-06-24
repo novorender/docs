@@ -61,7 +61,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, height }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, height: number }): JSX.Element {
+export default function Renderer({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, panesHeight, panesWidth }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, panesHeight: number, panesWidth: number }): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -144,7 +144,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
             console.log('View or Canvas not found, couldn\'t apply the settings ');
             return;
         }
-        if (height) {
+        if (panesHeight || panesWidth) {
             const { clientWidth: width, clientHeight: height } = canvas.current;
             try {
                 // handle resizes
@@ -153,7 +153,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
                 console.log('[canvas size update]: couldn\'t resize, ', e);
             }
         }
-    }, [height]);
+    }, [panesHeight, panesWidth]);
 
     // handle scene updates.
     useEffect(() => {
@@ -216,7 +216,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: height, overflow: 'hidden' }}>
+                () => <div style={{ height: panesHeight, overflow: 'hidden' }}>
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                 </div>
             }
