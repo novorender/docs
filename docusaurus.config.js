@@ -78,6 +78,11 @@ const config = {
                         position: 'left',
                         label: 'Data Rest API',
                     },
+                    {
+                        to: '/playground/',
+                        position: 'left',
+                        label: 'Playground',
+                    },
                     // { to: '/blog', label: 'Blog', position: 'left' },
                     {
                         href: baseGithub,

@@ -45,7 +45,7 @@ export default function DataRestAPI(): JSX.Element {
         const { API } = require('@stoplight/elements');
         require('./index.css');
         return (
-          <Layout>
+          <Layout title={`Data Rest API`} description="Data Rest API Documentation">
 
             <Link style={{ position: 'absolute', right: 25, top: 70 }} to={swaggerUI as string}>
               Swagger

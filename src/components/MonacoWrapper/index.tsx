@@ -6,18 +6,20 @@ import Admonition from '@theme/Admonition';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { Allotment } from "allotment";
 import type { EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
 import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
+import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import { WellKnownSceneUrls } from '@site/src/shared';
 import styles from './styles.module.css';
+import "allotment/dist/style.css";
 
 // @ts-expect-error
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
 
-import { predefined_scenes } from '../Playground';
-import Head from '@docusaurus/Head';
+import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
@@ -49,7 +51,7 @@ function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue
 }
 
-export default function MonacoWrapper({ children, scene, demoName }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string }): JSX.Element {
+export default function MonacoWrapper({ children, scene, demoName, playgroundConfig }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string, playgroundConfig: PlaygroundConfig }): JSX.Element {
 
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -70,7 +72,11 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
   const [apiVersion, setApiVersion] = useState<string>(null);
   const [api, setApiInstance] = useState<any>(); // Create API
-
+  const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
+  const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
+  const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
+  const [rendererHeight, setRendererHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
+  const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
 
   useEffect(() => {
     if (children) {
@@ -241,11 +247,20 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
     link.remove();
   }
 
+  // change split pane mode to vertical or horizontal
+  function changeSplitPaneRotation(): void {
+    set_force_rerender_allotment(false); // hide the allotment component
+    setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
+    setTimeout(() => {
+      set_force_rerender_allotment(true); // render the allotment component again
+    });
+  };
+
   return (
     <BrowserOnly>
       {
         () => <Fragment>
-          <nav className="navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
+          <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
             <div className="navbar__inner">
               <div className="navbar__items">
                 {demoName}
@@ -287,56 +302,78 @@ export default function MonacoWrapper({ children, scene, demoName }: { children:
             </div>
           </nav>
 
-          <Editor
-            height="30vh"
-            defaultLanguage="typescript"
-            defaultValue={initialCode}
-            onChange={codeChangeHandler}
-            loading="loading the playground"
-            theme={theme}
-            options={{
-              minimap: { enabled: false },
-              formatOnPaste: true,
-              formatOnType: true,
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              contextmenu: false,
-              folding: true,
-              showFoldingControls: "always",
-              guides: { indentation: true },
+          <div style={{ height: Boolean(editorHeight) && Boolean(rendererHeight) && (editorHeight + rendererHeight) }}>
+            {force_rerender_allotment && <Allotment onChange={(e: Array<number>) => {
+              if (e?.length > 1) {
+                if (splitPaneDirectionVertical) {
+                  setEditorHeight(e[0]);
+                  setRendererHeight(e[1]);
+                } else {
+                  setRendererPaneWidth(e[1]);
+                }
+              }
             }}
-            onMount={handleEditorDidMount}
-            onValidate={handleEditorValidation}
-          />
-          {codeError ?
-            <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
-              <p>{codeError.message}</p>
-            </Admonition>
-            : (render_config
-              ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} />
-              : <div style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>)
-          }
+              vertical={splitPaneDirectionVertical}>
 
+              <div style={{ position: 'relative' }}>
+                <Editor
+                  height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
+                  defaultLanguage="typescript"
+                  defaultValue={initialCode}
+                  onChange={codeChangeHandler}
+                  loading="loading the playground"
+                  theme={theme}
+                  options={{
+                    minimap: { enabled: false },
+                    formatOnPaste: true,
+                    formatOnType: true,
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    contextmenu: false,
+                    folding: true,
+                    showFoldingControls: "always",
+                    guides: { indentation: true },
+                  }}
+                  onMount={handleEditorDidMount}
+                  onValidate={handleEditorValidation}
+                />
+                {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, left: 30 }}>
+                  <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
+                    <p>{codeError.message}</p>
+                  </Admonition>
+                </div>}
+              </div>
+              {render_config
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
+                : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
+              }
+            </Allotment>}
+          </div>
           <textarea
             ref={textAreaInstance}
             defaultValue={tsCodeForClipboard}
             style={{ position: 'absolute', width: 0, height: 0, top: 5 }}
           />
 
-          <nav className="navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
+          <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
             <div className="navbar__inner">
               <div className="navbar__items">
                 <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
               </div>
 
               <div className="navbar__items navbar__items--right">
+                {/* Pane mode change */}
+                <button onClick={changeSplitPaneRotation} className='clean-btn navbar__item' title='Change split pane mode' style={{ marginTop: '-2px' }}>
+                  <RotationIconSvg className={styles.editorSvgIcon} />
+                </button>
+
                 {/* Download image */}
                 <button onClick={downloadCanvasAsImage} disabled={!canvasRef} className='clean-btn navbar__item' title='Download current view as image' style={{ marginTop: '-2px' }}>
                   <DownloadIconSvg className={styles.editorSvgIcon} />
                 </button>
 
                 {/* Copy snippet */}
-                <button onClick={copyToClipboard} className='clean-btn  navbar__item' title='Copy TypeScript code to clipboard' style={{ marginTop: '-2px' }}>
+                <button onClick={copyToClipboard} className='clean-btn navbar__item' title='Copy TypeScript code to clipboard' style={{ marginTop: '-2px' }}>
                   <CopyIconSvg className={styles.editorSvgIcon} />
                 </button>
 
