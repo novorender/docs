@@ -1,0 +1,16 @@
+import React from 'react';
+import Layout from '@theme/Layout';
+import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import { simpleCubeConfig } from '@site/demo-snippets/index';
+// import styles from './about.module.css';
+
+
+export default function Playground(): JSX.Element {
+    return (
+        <Layout
+            title={`Playground`}
+            description="Webgl-api playground">
+            <PlaygroundComponent demoName={simpleCubeConfig.demoName} scene={simpleCubeConfig.scene} config={{ mode: 'fill', clickToRun: false }}>{simpleCubeConfig.renderSettings}</PlaygroundComponent>
+        </Layout>
+    );
+} 

@@ -17,9 +17,9 @@
   /* Typography */
   --ifm-font-family-base: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 
-   /* Search bar palette */
-   --aa-primary-color-rgb: 214, 30, 92 !important;
-   --aa-muted-color-rgb: 214, 30, 92 !important;
+  /* Search bar palette */
+  --aa-primary-color-rgb: 214, 30, 92 !important;
+  --aa-muted-color-rgb: 214, 30, 92 !important;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -50,4 +50,11 @@
 
 [data-theme='dark'] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
+}
+
+@media screen and (max-width: 996px) {
+  /* don't hide playground navbar buttons on < md */
+  .playground_navbar .navbar__item {
+    display: inline-block;
+  }
 }

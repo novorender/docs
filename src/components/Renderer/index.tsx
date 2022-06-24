@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
 import { WellKnownSceneUrls } from '@site/src/shared';
+import { PlaygroundConfig } from "../PlaygroundComponent";
 
 let isComponentUnmounted = false;
 
@@ -60,7 +61,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Render({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any }): JSX.Element {
+export default function Renderer({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, panesHeight, panesWidth }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, panesHeight: number, panesWidth: number }): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -104,6 +105,10 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
                 isDoingActivity(true); // toggle loader
                 const _view = await createView(apiInstance, scene, canvas.current);
                 _view.applySettings(config);
+                if (environment) { // apply the env if available via props
+                    console.log("an env was found, applying it now");
+                    _view.settings.environment = await apiInstance.loadEnvironment(environment);
+                }
                 renderLoop(canvas.current, _view);
                 setView(_view);
             } catch (e) {
@@ -137,6 +142,23 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
         }
     }, [config]);
 
+    // handle canvas resize when split pane size changes.
+    useEffect(() => {
+        if (!view || !canvas) {
+            console.log('View or Canvas not found, couldn\'t apply the settings ');
+            return;
+        }
+        if (panesHeight || panesWidth) {
+            const { clientWidth: width, clientHeight: height } = canvas.current;
+            try {
+                // handle resizes
+                view.applySettings({ display: { width, height } });
+            } catch (e) {
+                console.log('[canvas size update]: couldn\'t resize, ', e);
+            }
+        }
+    }, [panesHeight, panesWidth]);
+
     // handle scene updates.
     useEffect(() => {
         console.log('[Renderer]: new scene to change ==> ', scene);
@@ -155,7 +177,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
                     // get the `detached ArrayBuffer` error from the API
                     view.settings.environment = undefined;
                     view.scene = await apiInstance.loadScene(scene);
-                    
+
                     if (environment) { // re-apply the selected env again
                         view.settings.environment = await apiInstance.loadEnvironment(environment);
                     }
@@ -198,7 +220,7 @@ export default function Render({ config, scene, environment, demoName, isDoingAc
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: 300, overflow: 'hidden' }}>
+                () => <div style={{ height: panesHeight, overflow: 'hidden' }}>
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                 </div>
             }
