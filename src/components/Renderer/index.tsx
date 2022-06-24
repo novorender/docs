@@ -105,6 +105,10 @@ export default function Renderer({ config, scene, environment, demoName, isDoing
                 isDoingActivity(true); // toggle loader
                 const _view = await createView(apiInstance, scene, canvas.current);
                 _view.applySettings(config);
+                if (environment) { // apply the env if available via props
+                    console.log("an env was found, applying it now");
+                    _view.settings.environment = await apiInstance.loadEnvironment(environment);
+                }
                 renderLoop(canvas.current, _view);
                 setView(_view);
             } catch (e) {
