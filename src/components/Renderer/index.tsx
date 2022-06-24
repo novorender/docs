@@ -1,8 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
 import { WellKnownSceneUrls } from '@site/src/shared';
-import { PlaygroundConfig } from "../PlaygroundComponent";
+import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
+
+interface props {
+    config: RenderSettingsParams,
+    scene: WellKnownSceneUrls,
+    environment: EnvironmentDescription,
+    isDoingActivity: (a: boolean) => void,
+    canvasRef: (a: HTMLCanvasElement) => void,
+    api: any,
+    panesHeight: number,
+    panesWidth: number
+};
 
 let isComponentUnmounted = false;
 
@@ -61,7 +71,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Renderer({ config, scene, environment, demoName, isDoingActivity, canvasRef, apiVersion, api, panesHeight, panesWidth }: { config: RenderSettingsParams, scene: WellKnownSceneUrls, environment: EnvironmentDescription, demoName: string, isDoingActivity: (a: boolean) => void, canvasRef: (a: HTMLCanvasElement) => void, apiVersion: (v: string) => void, api: any, panesHeight: number, panesWidth: number }): JSX.Element {
+export default function Renderer({ config, scene, environment, isDoingActivity, canvasRef, api, panesHeight, panesWidth }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -120,7 +130,7 @@ export default function Renderer({ config, scene, environment, demoName, isDoing
         })();
 
         isComponentUnmounted = false;
-        apiVersion(apiInstance.version);
+
         return () => {
             console.log('[Render useEffect]: Cleanup');
             isComponentUnmounted = true;

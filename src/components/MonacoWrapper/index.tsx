@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import Renderer from '@site/src/components/Renderer';
-import Spinner from '@site/src/components/misc/spinner';
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import Admonition from '@theme/Admonition';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { Allotment } from "allotment";
-import type { EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
+import Renderer from '@site/src/components/Renderer';
+import Spinner from '@site/src/components/misc/spinner';
 import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
 import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import { WellKnownSceneUrls } from '@site/src/shared';
+import type { EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 import styles from './styles.module.css';
 import "allotment/dist/style.css";
 
@@ -24,6 +24,13 @@ import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
 const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
+
+interface props {
+  children: RenderSettingsParams,
+  scene: WellKnownSceneUrls,
+  demoName: string,
+  playgroundConfig: PlaygroundConfig
+};
 
 function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSceneUrls {
   const indexOfKey = Object.values(WellKnownSceneUrls).indexOf(value as unknown as WellKnownSceneUrls);
@@ -51,7 +58,7 @@ function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue
 }
 
-export default function MonacoWrapper({ children, scene, demoName, playgroundConfig }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string, playgroundConfig: PlaygroundConfig }): JSX.Element {
+export default function MonacoWrapper({ children, scene, demoName, playgroundConfig }: props): JSX.Element {
 
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -158,6 +165,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
       setApiInstance(api);
 
       const apiInstance = api.createAPI();
+      setApiVersion(apiInstance.version);
 
       const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
       setEnvironmentsList(envs as EnvironmentDescription[]);
@@ -344,7 +352,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
                 </div>}
               </div>
               {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} demoName={demoName} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} apiVersion={setApiVersion} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}

@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import { CSSTransition } from 'react-transition-group';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import { PlaygroundContext } from '@site/src/theme/context';
+import { WellKnownSceneUrls } from '@site/src/shared';
 import type { RenderSettingsParams } from '@novorender/webgl-api';
 import MonacoWrapper from '../MonacoWrapper';
 import './index.styles.css';
-import { PlaygroundContext } from '@site/src/theme/context';
-import { WellKnownSceneUrls } from '@site/src/shared';
 
 export const predefined_scenes = ['cube', 'condos', 'oilrig', 'empty'] as const;
 
@@ -14,7 +14,14 @@ export interface PlaygroundConfig {
     clickToRun?: boolean
 };
 
-export default function PlaygroundComponent({ children, scene, demoName, config = { mode: 'inline', clickToRun: true } }: { children: RenderSettingsParams, scene: WellKnownSceneUrls, demoName: string, config?: PlaygroundConfig }): JSX.Element {
+interface props {
+    children: RenderSettingsParams,
+    scene: WellKnownSceneUrls,
+    demoName: string,
+    config?: PlaygroundConfig
+};
+
+export default function PlaygroundComponent({ children, scene, demoName, config = { mode: 'inline', clickToRun: true } }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
