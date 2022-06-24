@@ -260,7 +260,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
     <BrowserOnly>
       {
         () => <Fragment>
-          <nav className="navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
+          <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
             <div className="navbar__inner">
               <div className="navbar__items">
                 {demoName}
@@ -355,7 +355,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
             style={{ position: 'absolute', width: 0, height: 0, top: 5 }}
           />
 
-          <nav className="navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
+          <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
             <div className="navbar__inner">
               <div className="navbar__items">
                 <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
