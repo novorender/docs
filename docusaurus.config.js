@@ -86,8 +86,9 @@ const config = {
                     // { to: '/blog', label: 'Blog', position: 'left' },
                     {
                         href: baseGithub,
-                        label: 'GitHub',
+                        className: 'header-github-link',
                         position: 'right',
+                        'aria-label': 'GitHub repository'
                     },
                 ],
             },
