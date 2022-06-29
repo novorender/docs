@@ -11,8 +11,9 @@ import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
 import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
+import SettingsIconSvg from '@site/static/img/settings.svg';
 import { WellKnownSceneUrls } from '@site/src/shared';
-import type { EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
+import type { CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 import styles from './styles.module.css';
 import "allotment/dist/style.css";
 
@@ -20,6 +21,7 @@ import "allotment/dist/style.css";
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
 
 import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
+import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
@@ -29,7 +31,8 @@ interface props {
   children: RenderSettingsParams,
   scene: WellKnownSceneUrls,
   demoName: string,
-  playgroundConfig: PlaygroundConfig
+  playgroundConfig: PlaygroundConfig,
+  cameraController: CameraControllerParams
 };
 
 function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSceneUrls {
@@ -38,8 +41,7 @@ function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSce
   const key = Object.keys(WellKnownSceneUrls)[indexOfKey];
 
   return key as keyof typeof WellKnownSceneUrls;
-}
-
+};
 
 /**
  * @todo move to separate file
@@ -58,7 +60,7 @@ function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue
 }
 
-export default function MonacoWrapper({ children, scene, demoName, playgroundConfig }: props): JSX.Element {
+export default function MonacoWrapper({ children, scene, demoName, cameraController, playgroundConfig }: props): JSX.Element {
 
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -66,13 +68,14 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
   const editorInstance = useRef(null);
   const textAreaInstance = useRef<HTMLTextAreaElement>(null);
   const [renderConfig, setRenderConfig] = useState<RenderSettingsParams>(null);
-  const render_config = useDebounce<RenderSettingsParams>(renderConfig, 500);
+  const render_config = useDebounce<RenderSettingsParams>(renderConfig, 800);
   const [codeOutput, setCodeOutput] = useState<string>(null);
   const [codeError, setCodeError] = useState(null);
   const [initialCode, setInitialCode] = useState<string>(null);
   const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
   const [theme, setTheme] = useState<'light' | 'vs-dark' | ''>('');
   const [currentScene, setCurrentScene] = useState<keyof typeof WellKnownSceneUrls>();
+  const [currentCameraController, setCurrentCameraController] = useState<CameraControllerParams | ICameraTypes>(cameraController);
   const [environmentsList, setEnvironmentsList] = useState<EnvironmentDescription[]>([]);
   const [currentEnv, setCurrentEnv] = useState<EnvironmentDescription>();
   const [isActivity, setIsActivity] = useState<boolean>(false);
@@ -119,11 +122,12 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
    * @param transpiledOutput string that contains config
    * @returns RenderConfig
    */
-  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<RenderSettingsParams> => {
+  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams }> => {
     const encodedJs = encodeURIComponent(transpiledOutput);
     const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-    const { config } = await import(/* webpackIgnore: true */dataUri);
-    return config;
+    const { config, cameraConfig } = await import(/* webpackIgnore: true */dataUri);
+
+    return { config, cameraConfig };
   };
 
   const codeChangeHandler = async (tsCode: string) => {
@@ -145,10 +149,11 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
     // set current output in state so we can compare later
     setCodeOutput(output);
 
-    const config = await returnRenderConfigFromOutput(output);
+    const { config, cameraConfig } = await returnRenderConfigFromOutput(output);
 
     // set render config for output
     setRenderConfig(config);
+    if (cameraConfig) { setCurrentCameraController(cameraConfig) };
     setIsActivity(false) // toggle spinner.
 
   }
@@ -169,7 +174,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
 
       const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
       setEnvironmentsList(envs as EnvironmentDescription[]);
-    })()
+    })();
 
   }, []);
 
@@ -222,7 +227,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
     await editor.getAction('editor.action.formatDocument').run();
     const output = await returnTranspiledOutput(editor, monaco);
     setCodeOutput(output);
-    const config = await returnRenderConfigFromOutput(output);
+    const { config } = await returnRenderConfigFromOutput(output);
     setRenderConfig(config);
 
     setIsActivity(false); // toggle spinner
@@ -261,7 +266,48 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
     setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
     setTimeout(() => {
       set_force_rerender_allotment(true); // render the allotment component again
-    });
+    }, 50);
+  };
+
+  /**
+   * @description handle the camera controller change
+   * @param cameraType 
+   * @param isConfiguringInEditor 
+   */
+  function configureCameraController(cameraType: ICameraTypes, isConfiguringInEditor: boolean): void {
+
+    let editorValue: string = editorInstance.current.getModel().getValue();
+
+    const regex = /(export\s*const\s*cameraConfig(.*?){(.*?)};)/gs // regex to match camera controller config object.
+    const isMatch = regex.test(editorValue);
+    const newCameraConfig = `\nexport const cameraConfig ${cameraType.configObject};`
+
+    if (isMatch) { // there's already a config object in the editor
+
+      if (isConfiguringInEditor) { // is camera configuration being done manually in the editor
+        editorValue = editorValue.replace(regex, newCameraConfig);
+      } else {
+        editorValue = editorValue.replace(regex, '');
+        setCurrentCameraController(cameraType);
+      }
+
+      setInitialCode(editorValue);
+
+    } else {
+
+      if (isConfiguringInEditor) { // is camera configuration being done manually in the editor
+        const lineCount = editorInstance.current.getModel().getLineCount();
+        var range = new monaco.Range(lineCount + 1, 1, lineCount + 1, 1);
+        var id = { major: 1, minor: 1 };
+        const text = `\n${newCameraConfig}`
+        var op = { identifier: id, range, text, forceMoveMarkers: true };
+        editorInstance.current.executeEdits("edit1", [op]);
+      } else {
+        setCurrentCameraController(cameraType);
+      }
+
+    }
+
   };
 
   return (
@@ -276,6 +322,23 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
               </div>
 
               <div className="navbar__items navbar__items--right">
+
+                {/* Camera controller type drop-down */}
+                <div className="navbar__item dropdown dropdown--hoverable">
+                  <button className="button button--sm button--primary" style={{ height: 26, paddingLeft: 10, paddingRight: 10 }}>Camera: {currentCameraController?.kind}</button>
+                  <ul className="dropdown__menu">
+                    {
+                      cameraTypes.map((c, i) => (
+                        <li key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <a className="dropdown__link" style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false) }} href="#">{c.kind}</a>
+                          <button onClick={() => { configureCameraController(c, true) }} className='clean-btn' style={{ padding: '0 6px' }} title='Configure camera controller via editor'>
+                            <SettingsIconSvg className={styles.editorSvgIcon} />
+                          </button>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </div>
 
 
                 {/* Scene drop-down */}
@@ -327,7 +390,7 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
                 <Editor
                   height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
                   defaultLanguage="typescript"
-                  defaultValue={initialCode}
+                  value={initialCode}
                   onChange={codeChangeHandler}
                   loading="loading the playground"
                   theme={theme}
@@ -345,14 +408,14 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
                   onMount={handleEditorDidMount}
                   onValidate={handleEditorValidation}
                 />
-                {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, left: 30 }}>
+                {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, maxWidth: '600px' }}>
                   <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
                     <p>{codeError.message}</p>
                   </Admonition>
                 </div>}
               </div>
               {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}
@@ -387,7 +450,6 @@ export default function MonacoWrapper({ children, scene, demoName, playgroundCon
 
                 {/* Edit snippet */}
                 <a href={`${siteConfig.presets[0][1]['docs'].editUrl}/demo-snippets/${demoName}/render-settings.ts`} className="navbar__item" title='Edit this code snippet on Github' style={{ marginTop: '-2px' }} target="_blank"><EditIconSvg className={styles.editorSvgIcon} /></a>
-
               </div>
             </div>
           </nav>

@@ -3,7 +3,7 @@ import { CSSTransition } from 'react-transition-group';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { PlaygroundContext } from '@site/src/theme/context';
 import { WellKnownSceneUrls } from '@site/src/shared';
-import type { RenderSettingsParams } from '@novorender/webgl-api';
+import type { CameraControllerParams, RenderSettingsParams } from '@novorender/webgl-api';
 import MonacoWrapper from '../MonacoWrapper';
 import './index.styles.css';
 
@@ -18,10 +18,11 @@ interface props {
     children: RenderSettingsParams,
     scene: WellKnownSceneUrls,
     demoName: string,
-    config?: PlaygroundConfig
+    config?: PlaygroundConfig,
+    cameraController?: CameraControllerParams
 };
 
-export default function PlaygroundComponent({ children, scene, demoName, config = { mode: 'inline', clickToRun: true } }: props): JSX.Element {
+export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config = { mode: 'inline', clickToRun: true } }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
@@ -51,7 +52,7 @@ export default function PlaygroundComponent({ children, scene, demoName, config 
                             </CSSTransition>
                             <img src={require(`@site/static/assets/demo-screenshots/${demoName}.jpg`).default} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />
                         </div>
-                        : <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={config}>{children}</MonacoWrapper>}
+                        : <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={config} cameraController={cameraController}>{children}</MonacoWrapper>}
                 </div>
             }
         </BrowserOnly>
