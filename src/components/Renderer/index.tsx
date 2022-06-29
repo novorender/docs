@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import { WellKnownSceneUrls } from '@site/src/shared';
-import type { API, RenderSettingsParams, View, EnvironmentDescription } from "@novorender/webgl-api";
+import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
+import { ICameraTypes } from "../MonacoWrapper/camera_controllers_config";
 
 interface props {
     config: RenderSettingsParams,
     scene: WellKnownSceneUrls,
     environment: EnvironmentDescription,
+    cameraController: CameraControllerParams | ICameraTypes,
     isDoingActivity: (a: boolean) => void,
     canvasRef: (a: HTMLCanvasElement) => void,
     api: any,
@@ -26,7 +28,7 @@ const createView = async (api: API, scene: WellKnownSceneUrls, canvas: HTMLCanva
         view.scene = await api.loadScene(scene);
 
         // provide a controller, available controller types are static, orbit, flight and turntable
-        view.camera.controller = api.createCameraController({ kind: 'static' } as any, canvas);
+        // view.camera.controller = api.createCameraController({ kind: 'static' } as any, canvas);
 
         console.log('returning view', view);
 
@@ -47,7 +49,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
 
         console.log('Render loop');
 
-        if (isComponentUnmounted) { break; } // cleanup
+        if (isComponentUnmounted) { console.log('[Renderer]: component was unmounted, breaking render loop'); break; } // cleanup
 
         const { clientWidth: width, clientHeight: height } = canvas;
 
@@ -71,7 +73,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Renderer({ config, scene, environment, isDoingActivity, canvasRef, api, panesHeight, panesWidth }: props): JSX.Element {
+export default function Renderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -118,6 +120,10 @@ export default function Renderer({ config, scene, environment, isDoingActivity, 
                 if (environment) { // apply the env if available via props
                     console.log("an env was found, applying it now");
                     _view.settings.environment = await apiInstance.loadEnvironment(environment);
+                }
+                if (cameraController) { // apply the cameraController if available via props
+                    console.log("a cameraController was found, applying it now");
+                    _view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
                 }
                 renderLoop(canvas.current, _view);
                 setView(_view);
@@ -226,6 +232,27 @@ export default function Renderer({ config, scene, environment, isDoingActivity, 
             view.settings.environment = undefined;
         }
     }, [environment]);
+
+    // handle camera controller updates.
+    useEffect(() => {
+        console.log('[Renderer]: new camera controller to change ==> ', cameraController);
+        if (!view) {
+            console.log('View not found, couldn\'t change the cameraController ', view);
+            return;
+        }
+
+        if (cameraController) {
+            isDoingActivity(true); // toggle loader
+            try {
+                view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
+                isDoingActivity(false); // toggle loader
+            } catch (e) {
+                console.log('ERROR: Failed to update environment, ', e);
+            } finally {
+                isDoingActivity(false); // toggle loader
+            }
+        }
+    }, [cameraController]);
 
     return (
         <BrowserOnly>

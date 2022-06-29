@@ -10,7 +10,7 @@ export default function Playground(): JSX.Element {
         <Layout
             title={`Playground`}
             description="Webgl-api playground">
-            <PlaygroundComponent demoName={simpleCubeConfig.demoName} scene={simpleCubeConfig.scene} config={{ mode: 'fill', clickToRun: false }}>{simpleCubeConfig.renderSettings}</PlaygroundComponent>
+            <PlaygroundComponent demoName={simpleCubeConfig.demoName} scene={simpleCubeConfig.scene} cameraController={simpleCubeConfig.cameraController} config={{ mode: 'fill', clickToRun: false }}>{simpleCubeConfig.renderSettings}</PlaygroundComponent>
         </Layout>
     );
 } 
