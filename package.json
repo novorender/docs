@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.21",
-    "@novorender/data-js-api": "0.2.21",
+    "@novorender/data-js-api": "0.2.22",
     "@novorender/webgl-api": "0.3.84",
     "@tsconfig/docusaurus": "1.0.5",
     "@tsconfig/node16": "^1.0.2",

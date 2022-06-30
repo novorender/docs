@@ -5,6 +5,7 @@
 /build
 /docs/api
 /docs/webgl-api
+/docs/data-js-api
 
 # Generated files
 .docusaurus

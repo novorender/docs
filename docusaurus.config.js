@@ -197,22 +197,21 @@ const config = {
                 }
             },
         ],
-        /** @todo: uncomment when issues are fixed within data-js-api package */
-        // [
-        //     'docusaurus-plugin-typedoc',
-        //     {
-        //         id: 'data-js-api',
-        //         entryPoints: ['type-definitions/data-js-api.ts'],
-        //         out: 'data-js-api',
-        //         tsconfig: 'type-definitions/tsconfig.json',
-        //         readme: require.resolve("@novorender/data-js-api/README.md"),
-        //         disableSources: true,
-        //         sidebar: {
-        //             categoryLabel: 'Data JS API'
-        //             position: 2
-        //         }
-        //     },
-        // ],
+        [
+            'docusaurus-plugin-typedoc',
+            {
+                id: 'data-js-api',
+                entryPoints: ['type-definitions/data-js-api.ts'],
+                out: 'data-js-api',
+                tsconfig: 'type-definitions/tsconfig.json',
+                readme: require.resolve("@novorender/data-js-api/README.md"),
+                disableSources: true,
+                sidebar: {
+                    categoryLabel: 'Data JS API',
+                    position: 2
+                }
+            },
+        ],
         require.resolve("@cmfcmf/docusaurus-search-local")
     ],
     customFields: {
