@@ -19,7 +19,7 @@
   overflow: hidden;
   align-items: flex-start;
   height: calc(100vh - 60px);
-  min-height: -webkit-fill-available;
+  max-height: calc(100% - 60px);
 }
 
 .headerTagLine {
