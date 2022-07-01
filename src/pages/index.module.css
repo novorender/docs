@@ -19,7 +19,6 @@
   overflow: hidden;
   align-items: flex-start;
   height: calc(100vh - 60px);
-  max-height: calc(100% - 60px);
 }
 
 .headerTagLine {
@@ -51,45 +50,87 @@
   color: var(--ifm-color-secondary);
 }
 
+.headerWaves {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
+
+.wavesInverted {
+  width: 100%;
+  height: 75px
+}
+
 @media screen and (max-width: 599px) {
   .headerContainer {
     margin: 0 auto;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
   }
 
   .headerTagLine {
     text-align: center;
     font-size: 10vw;
   }
+
+  .wavesInverted {
+    width: unset;
+    height: 200px;
+  }
+
+  .headerWaves {
+    width: unset;
+    height: 400px;
+  }
+
+  .featuresContainer {
+    overflow: hidden;
+  }
 }
 
 @media screen and (min-width: 600px) and (max-width: 959px) {
   .headerContainer {
     margin-left: 100px;
-    justify-content: center;    
+    justify-content: center;
+    overflow: hidden;
   }
 
   .headerTagLine {
-       font-size: 8vw;
+    font-size: 8vw;
   }
+
+  .wavesInverted {
+    width: unset;
+    height: 150px;
+  }
+
+  .headerWaves {
+    width: unset;
+    height: 300px;
+  }
+
+  .featuresContainer {
+    overflow: hidden;
+  }
+
 }
 
 @media screen and (min-width: 960px) and (max-width: 1279px) {
   .headerContainer {
     margin-left: 100px;
-    justify-content: center;    
+    justify-content: center;
   }
 
   .headerTagLine {
-       font-size: 7vw;
+    font-size: 7vw;
   }
 }
 
 @media screen and (min-width: 1280px) and (max-width: 1919px) {
   .headerContainer {
     /* margin-left: 100px; */
-    justify-content: center;    
+    justify-content: center;
   }
 }
 

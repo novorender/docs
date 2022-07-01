@@ -2,14 +2,12 @@ import React from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Waves from '@site/static/img/waves.svg';
 import WavesInverted from '@site/static/img/waves_inverted.svg';
 
 function HomepageHeader() {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero', styles.headerBanner)}>
       <div className={clsx(styles.headerContainer, 'container')}>
@@ -24,20 +22,19 @@ function HomepageHeader() {
           </Link>
         </div>
       </div>
-      <Waves style={{ position: 'absolute', bottom: 0, width: '100%' }} />
+      <Waves className={styles.headerWaves} />
     </header>
   );
 }
 
 export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
       title={`API Docs`}
       description="Novorender API Documentation <head />">
       <HomepageHeader />
-      <main>
-        <WavesInverted style={{width: '100%', height: 75}} />
+      <main className={styles.featuresContainer}>
+        <WavesInverted className={styles.wavesInverted} />
         <HomepageFeatures />
       </main>
     </Layout>
