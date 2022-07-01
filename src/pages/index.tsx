@@ -6,6 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Waves from '@site/static/img/waves.svg';
+import WavesInverted from '@site/static/img/waves_inverted.svg';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -36,6 +37,7 @@ export default function Home(): JSX.Element {
       description="Novorender API Documentation <head />">
       <HomepageHeader />
       <main>
+        <WavesInverted style={{width: '100%', height: 75}} />
         <HomepageFeatures />
       </main>
     </Layout>
