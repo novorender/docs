@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
 import Spinner from '@site/src/components/misc/spinner';
@@ -10,8 +10,12 @@ export default function DataRestAPI(): JSX.Element {
 
   const { siteConfig } = useDocusaurusContext();
   const { customFields: { swaggerUI, swaggerJSON } } = siteConfig;
+  const [isMD, setIsMD] = useState<boolean>(); // use to switch API layout on < MD devices
 
   useEffect(() => {
+
+    setIsMD(innerWidth <= 996);
+
     const ele: HTMLDivElement = document.querySelector('div.main-wrapper');
 
     let observer: MutationObserver;
@@ -52,7 +56,7 @@ export default function DataRestAPI(): JSX.Element {
               <IconExternalLink />
             </Link>
 
-            <API router="hash" layout="sidebar" apiDescriptionUrl={swaggerJSON} />
+            <API router="hash" layout={isMD ? 'stacked' : 'sidebar'} apiDescriptionUrl={swaggerJSON} />
           </Layout>
         )
       }}
