@@ -13,7 +13,8 @@ interface props {
     canvasRef: (a: HTMLCanvasElement) => void,
     api: any,
     panesHeight: number,
-    panesWidth: number
+    panesWidth: number,
+    onMessagesAndAlert: (m: string) => void
 };
 
 let isComponentUnmounted = false;
@@ -73,7 +74,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function Renderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth }: props): JSX.Element {
+export default function Renderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);
@@ -116,6 +117,11 @@ export default function Renderer({ config, scene, environment, cameraController,
             try {
                 isDoingActivity(true); // toggle loader
                 const _view = await createView(apiInstance, scene, canvas.current);
+
+                if (_view.performanceStatistics.weakDevice) {
+                    onMessagesAndAlert('Device detected with insufficient resources, performance may be affected.');
+                };
+
                 _view.applySettings(config);
                 if (environment) { // apply the env if available via props
                     console.log("an env was found, applying it now");
