@@ -68,6 +68,17 @@
   line-height: 1;
 }
 
+.canvas-overscroll-fix {
+  overflow: auto;
+  overscroll-behavior: contain;
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.canvas-overscroll-fix::-webkit-scrollbar {
+  display: none;
+}
+
 /* Search bar customization */
 
 .aa-DetachedSearchButton {

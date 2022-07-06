@@ -257,7 +257,7 @@ export default function Renderer({ config, scene, environment, cameraController,
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: panesHeight, overflow: 'hidden' }}>
+                () => <div style={{ height: panesHeight }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                 </div>
             }
