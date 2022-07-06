@@ -5,6 +5,7 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { Allotment } from "allotment";
+import { Popover } from 'react-tiny-popover'
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
@@ -12,6 +13,7 @@ import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import SettingsIconSvg from '@site/static/img/settings.svg';
+import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
 import { WellKnownSceneUrls } from '@site/src/shared';
 import type { CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 import styles from './styles.module.css';
@@ -87,6 +89,8 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
   const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
   const [rendererHeight, setRendererHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
   const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+  const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
 
   useEffect(() => {
     if (children) {
@@ -415,7 +419,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                 </div>}
               </div>
               {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} />
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts([...messagesAndAlerts, m])} />
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}
@@ -430,6 +434,17 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
             <div className="navbar__inner">
               <div className="navbar__items">
                 <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
+                
+                {/* Messages/alert popover */}
+                <Popover
+                  isOpen={isPopoverOpen}
+                  positions={['top', 'right', 'bottom', 'left']}
+                  content={<div className={styles.popoverContent}><ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol></div>}
+                >
+                  <button onMouseEnter={() => { setIsPopoverOpen(true) }} onMouseLeave={() => { setIsPopoverOpen(false) }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
+                    <AlertsIconSvg className={styles.editorSvgIcon} style={ messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
+                  </button>
+                </Popover>
               </div>
 
               <div className="navbar__items navbar__items--right">
