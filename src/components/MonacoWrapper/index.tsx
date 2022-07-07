@@ -8,16 +8,25 @@ import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover'
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
+import { WellKnownSceneUrls } from '@site/src/shared';
+import type { CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
+
+/** CSS */
+import styles from './styles.module.css';
+import "allotment/dist/style.css";
+/** CSS END */
+
+/** Icons */
 import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
 import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import SettingsIconSvg from '@site/static/img/settings.svg';
 import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
-import { WellKnownSceneUrls } from '@site/src/shared';
-import type { CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
-import styles from './styles.module.css';
-import "allotment/dist/style.css";
+import CameraControllerIconSvg from '@site/static/img/camera-solid.svg';
+import SceneIconSvg from '@site/static/img/mountain-solid.svg';
+import EnvironmentIconSvg from '@site/static/img/image-solid.svg';
+/** Icons END */
 
 // @ts-expect-error
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
@@ -329,12 +338,14 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
 
                 {/* Camera controller type drop-down */}
                 <div className="navbar__item dropdown dropdown--hoverable">
-                  <button className="button button--sm button--primary" style={{ height: 26, paddingLeft: 10, paddingRight: 10 }}>Camera: {currentCameraController?.kind}</button>
+                  <button className={`button button--sm button--primary ${styles.controllerButton}`}>
+                    <CameraControllerIconSvg className={styles.controllersIcon} /> {currentCameraController?.kind}
+                  </button>
                   <ul className="dropdown__menu">
                     {
                       cameraTypes.map((c, i) => (
                         <li key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <a className="dropdown__link" style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false) }} href="#">{c.kind}</a>
+                          <a className={`dropdown__link ${currentCameraController.kind === c.kind && styles.controllerDropDownActive}`} style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false) }} href="#">{c.kind}</a>
                           <button onClick={() => { configureCameraController(c, true) }} className='clean-btn' style={{ padding: '0 6px' }} title='Configure camera controller via editor'>
                             <SettingsIconSvg className={styles.editorSvgIcon} />
                           </button>
@@ -344,15 +355,16 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                   </ul>
                 </div>
 
-
                 {/* Scene drop-down */}
                 <div className="navbar__item dropdown dropdown--hoverable">
-                  <button className="button button--sm button--primary" style={{ height: 26, paddingLeft: 10, paddingRight: 10 }}>Scene: {currentScene}</button>
+                  <button className={`button button--sm button--primary ${styles.controllerButton}`}>
+                    <SceneIconSvg /> {currentScene}
+                  </button>
                   <ul className="dropdown__menu">
                     {
                       predefined_scenes.map((s, i) => (
                         <li key={i}>
-                          <a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentScene(s); }} href="#">{s}</a>
+                          <a className={`dropdown__link ${currentScene === s && styles.controllerDropDownActive}`} onClick={(e) => { e.preventDefault(); setCurrentScene(s); }} href="#">{s}</a>
                         </li>
                       ))
                     }
@@ -361,13 +373,15 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
 
                 {/* Env drop-down */}
                 <div className="navbar__item dropdown dropdown--hoverable">
-                  <button className="button button--sm button--primary" style={{ height: 26, paddingLeft: 10, paddingRight: 10 }}>{currentEnv?.name || 'Environments'}</button>
+                  <button className={`button button--sm button--primary ${styles.controllerButton}`}>
+                    <EnvironmentIconSvg /> {currentEnv?.name || 'None'}
+                  </button>
                   <ul className="dropdown__menu">
                     <li><a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentEnv(undefined); }} href="#">None</a></li>
                     {
                       environmentsList.map((env, i) => (
                         <li key={i}>
-                          <a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentEnv(env); }} href="#">{env.name}</a>
+                          <a className={`dropdown__link ${currentEnv?.name === env.name && styles.controllerDropDownActive}`} onClick={(e) => { e.preventDefault(); setCurrentEnv(env); }} href="#">{env.name}</a>
                         </li>
                       ))
                     }
@@ -434,7 +448,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
             <div className="navbar__inner">
               <div className="navbar__items">
                 <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
-                
+
                 {/* Messages/alert popover */}
                 <Popover
                   isOpen={isPopoverOpen}
@@ -442,7 +456,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                   content={<div className={styles.popoverContent}><ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol></div>}
                 >
                   <button onMouseEnter={() => { setIsPopoverOpen(true) }} onMouseLeave={() => { setIsPopoverOpen(false) }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
-                    <AlertsIconSvg className={styles.editorSvgIcon} style={ messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
+                    <AlertsIconSvg className={styles.editorSvgIcon} style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
                   </button>
                 </Popover>
               </div>

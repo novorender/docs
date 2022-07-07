@@ -10,6 +10,33 @@
     transform: scale(0.035)
 }
 
+.controllerButton {
+    height: 26px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.controllerButton svg {
+    margin-right: 3px;
+}
+
+.controllerButton svg path {
+    transform: scale(0.030)
+}
+
+.controllerDropDownActive {
+    background-color: var(--ifm-dropdown-hover-background-color);
+    color: var(--ifm-dropdown-link-color);
+    text-decoration: none;
+}
+
+[data-theme='light'] .controllerButton svg {
+    fill: #fff;
+}
+
 .popoverContent {
     background: var(--ifm-navbar-background-color);
     padding: 5px;
