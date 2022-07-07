@@ -119,7 +119,7 @@ export default function Renderer({ config, scene, environment, cameraController,
                 const _view = await createView(apiInstance, scene, canvas.current);
 
                 if (_view.performanceStatistics.weakDevice) {
-                    onMessagesAndAlert('Device detected with insufficient resources, performance may be affected.');
+                    onMessagesAndAlert('⚠ Device detected with insufficient resources, performance may be affected.');
                 };
 
                 _view.applySettings(config);

@@ -183,6 +183,10 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
       setApiInstance(api);
 
       const apiInstance = api.createAPI();
+
+      if (!apiInstance['supportsOffscreenCanvas']) {
+        setMessagesAndAlerts([...messagesAndAlerts, '⚠ OffscreenCanvas is not supported in this browser.']);
+      }
       setApiVersion(apiInstance.version);
 
       const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
