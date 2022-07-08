@@ -6,6 +6,7 @@ import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover'
+import stringify from "json-stringify-pretty-compact";
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import { WellKnownSceneUrls } from '@site/src/shared';
@@ -104,8 +105,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
   useEffect(() => {
     if (children) {
       setInitialCode(
-        `export const config: NovoRender.RenderSettingsParams =
-        ${JSON.stringify(children)};`
+        `export const config: NovoRender.RenderSettingsParams = ${stringify(children, { indent: 8 })};`
       )
     }
   }, [children]);

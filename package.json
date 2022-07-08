@@ -31,6 +31,7 @@
     "@stoplight/elements": "^7.5.20",
     "allotment": "^1.14.2",
     "clsx": "1.1.1",
+    "json-stringify-pretty-compact": "^4.0.0",
     "monaco-editor": "^0.33.0",
     "raw-loader": "^4.0.2",
     "react": "17.0.2",
