@@ -380,11 +380,12 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                   <button className={`button button--sm button--primary ${styles.controllerButton}`}>
                     <EnvironmentIconSvg /> {currentEnv?.name || 'None'}
                   </button>
-                  <ul className="dropdown__menu">
+                  <ul className={`dropdown__menu ${styles.envDropdown}`}>
                     <li><a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentEnv(undefined); }} href="#">None</a></li>
                     {
                       environmentsList.map((env, i) => (
                         <li key={i}>
+                          <img src={env.thumnbnailURL} />
                           <a className={`dropdown__link ${currentEnv?.name === env.name && styles.controllerDropDownActive}`} onClick={(e) => { e.preventDefault(); setCurrentEnv(env); }} href="#">{env.name}</a>
                         </li>
                       ))

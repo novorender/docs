@@ -45,3 +45,19 @@
     border-radius: 4px;
     box-shadow: var(--ifm-global-shadow-lw);
 }
+
+.envDropdown {
+    left: -80px;
+}
+
+.envDropdown li {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.envDropdown img {
+    width: 30px;
+    border-radius: 50%;
+    margin-right: 3px;
+}
