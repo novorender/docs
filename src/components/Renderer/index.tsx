@@ -52,7 +52,9 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
 
         if (isComponentUnmounted) { console.log('[Renderer]: component was unmounted, breaking render loop'); break; } // cleanup
 
-        const { clientWidth: width, clientHeight: height } = canvas;
+        const { clientWidth, clientHeight } = canvas;
+        const width = clientWidth * devicePixelRatio;
+        const height = clientHeight * devicePixelRatio;
 
         try {
             // handle resizes
@@ -171,7 +173,11 @@ export default function Renderer({ config, scene, environment, cameraController,
             return;
         }
         if (panesHeight || panesWidth) {
-            const { clientWidth: width, clientHeight: height } = canvas.current;
+
+            const { clientWidth, clientHeight } = canvas.current;
+            const width = clientWidth * devicePixelRatio;
+            const height = clientHeight * devicePixelRatio;
+
             try {
                 // handle resizes
                 view.applySettings({ display: { width, height } });
