@@ -3,7 +3,7 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
 import Spinner from '@site/src/components/misc/spinner';
 import Link from '@docusaurus/Link';
-import IconExternalLink from '@theme/IconExternalLink';
+import IconExternalLink from '@theme/Icon/ExternalLink';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function DataRestAPI(): JSX.Element {
