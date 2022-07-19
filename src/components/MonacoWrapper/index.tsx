@@ -79,6 +79,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
   const { colorMode } = useColorMode();
   const editorInstance = useRef(null);
   const textAreaInstance = useRef<HTMLTextAreaElement>(null);
+  const editorNavbarInstance = useRef<HTMLTextAreaElement>(null);
   const [renderConfig, setRenderConfig] = useState<RenderSettingsParams>(null);
   const render_config = useDebounce<RenderSettingsParams>(renderConfig, 800);
   const [codeOutput, setCodeOutput] = useState<string>(null);
@@ -449,7 +450,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
             style={{ position: 'absolute', width: 0, height: 0, top: 5 }}
           />
 
-          <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
+          <nav className="navbar playground_navbar" ref={editorNavbarInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
             <div className="navbar__inner">
               <div className="navbar__items">
                 <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
@@ -458,6 +459,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                 <Popover
                   isOpen={isPopoverOpen}
                   positions={['top', 'right', 'bottom', 'left']}
+                  parentElement={playgroundConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                   content={<div className={styles.popoverContent}><ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol></div>}
                 >
                   <button onMouseEnter={() => { setIsPopoverOpen(true) }} onMouseLeave={() => { setIsPopoverOpen(false) }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
