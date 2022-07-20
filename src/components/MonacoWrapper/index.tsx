@@ -22,6 +22,7 @@ import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
 import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
+import ExpandIconSvg from '@site/static/img/expand.svg';
 import SettingsIconSvg from '@site/static/img/settings.svg';
 import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
 import CameraControllerIconSvg from '@site/static/img/camera-solid.svg';
@@ -287,6 +288,15 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
     }, 50);
   };
 
+  // toggle canvas fullscreen mode
+  function toggleCanvasFullscreenMode(): void {
+    canvasRef.requestFullscreen()
+      .catch(e => {
+        console.log('Failed to request fullscreen => ', e);
+        alert('Failed to expand canvas');
+      });
+  }
+
   /**
    * @description handle the camera controller change
    * @param cameraType 
@@ -469,6 +479,11 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
               </div>
 
               <div className="navbar__items navbar__items--right">
+                {/* expand canvas to fullscreen */}
+                <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen' style={{ marginTop: '-2px' }}>
+                  <ExpandIconSvg className={styles.editorSvgIcon} />
+                </button>
+
                 {/* Pane mode change */}
                 <button onClick={changeSplitPaneRotation} className='clean-btn navbar__item' title='Change split pane mode' style={{ marginTop: '-2px' }}>
                   <RotationIconSvg className={styles.editorSvgIcon} />

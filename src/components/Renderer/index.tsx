@@ -154,6 +154,24 @@ export default function Renderer({ config, scene, environment, cameraController,
         };
     }, []);
 
+    useEffect(() => {
+        document.addEventListener('fullscreenchange', resizeScene, false);
+        return () => { document.removeEventListener('fullscreenchange', resizeScene, false); }
+    });
+
+    // resizes the scene/view to fit the viewport
+    function resizeScene() {
+        const { clientWidth, clientHeight } = canvas.current;
+        const width = clientWidth * devicePixelRatio;
+        const height = clientHeight * devicePixelRatio;
+        try {
+            // handle resizes
+            view.applySettings({ display: { width, height } });
+        } catch (e) {
+            console.log('[canvas size update]: couldn\'t resize, ', e);
+        }
+    }
+
     // handle config updates.
     useEffect(() => {
         console.log('[Renderer]: config changed ', config);
@@ -173,17 +191,7 @@ export default function Renderer({ config, scene, environment, cameraController,
             return;
         }
         if (panesHeight || panesWidth) {
-
-            const { clientWidth, clientHeight } = canvas.current;
-            const width = clientWidth * devicePixelRatio;
-            const height = clientHeight * devicePixelRatio;
-
-            try {
-                // handle resizes
-                view.applySettings({ display: { width, height } });
-            } catch (e) {
-                console.log('[canvas size update]: couldn\'t resize, ', e);
-            }
+            resizeScene();
         }
     }, [panesHeight, panesWidth]);
 
