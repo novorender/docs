@@ -449,7 +449,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                 </div>}
               </div>
               {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts([...messagesAndAlerts, m])} />
+                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}
