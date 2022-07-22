@@ -59,7 +59,7 @@ const config = {
                 },
                 items: [
                     {
-                        to: 'docs/intro',
+                        to: 'docs/category/documentation',
                         position: 'left',
                         label: 'Docs',
                     },
@@ -74,14 +74,14 @@ const config = {
                         label: 'Data JS API',
                     },
                     {
-                        to: 'docs/measure-api/',
-                        position: 'left',
-                        label: 'Measure API'
-                    },
-                    {
                         to: '/data-rest-api/',
                         position: 'left',
                         label: 'Data Rest API',
+                    },
+                    {
+                        to: 'docs/measure-api/',
+                        position: 'left',
+                        label: 'Measure API'
                     },
                     {
                         to: '/playground/',
@@ -112,12 +112,12 @@ const config = {
                                 to: '/docs/data-js-api',
                             },
                             {
-                                to: '/measure-api/',
-                                label: 'Measure API'
-                            },
-                            {
                                 label: 'Data Rest API',
                                 to: '/data-rest-api/',
+                            },
+                            {
+                                to: '/measure-api/',
+                                label: 'Measure API'
                             },
                         ],
                     },
@@ -199,9 +199,8 @@ const config = {
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("./temp-readme.md"),
                 disableSources: true,
-                sidebar: {
-                    categoryLabel: 'WebGL API',
-                    position: 1
+                frontmatter: {
+                    description: 'A Web API for scalable 3D rendering in the cloud.'
                 }
             },
         ],
@@ -214,9 +213,8 @@ const config = {
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("@novorender/data-js-api/README.md"),
                 disableSources: true,
-                sidebar: {
-                    categoryLabel: 'Data JS API',
-                    position: 2
+                frontmatter: {
+                    description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.'
                 }
             },
         ],

@@ -31,6 +31,13 @@
   line-height: 1;
 }
 
+.headerSubTagLine {
+  font-size: 1rem;
+  text-align: left;
+  max-width: 750px;
+  color: var(--landing-header-sub-tagline-color);
+}
+
 .headerButtonMain {
   color: white;
   background: linear-gradient(93deg, #12C2E9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
@@ -75,6 +82,10 @@
     font-size: 10vw;
   }
 
+  .headerSubTagLine {
+    text-align: center;
+  }
+
   .wavesInverted {
     width: unset;
     height: 200px;
@@ -99,6 +110,10 @@
 
   .headerTagLine {
     font-size: 8vw;
+  }
+
+  .headerSubTagLine {
+    padding-right: 25px;
   }
 
   .wavesInverted {
@@ -130,7 +145,6 @@
 
 @media screen and (min-width: 1280px) and (max-width: 1919px) {
   .headerContainer {
-    /* margin-left: 100px; */
     justify-content: center;
   }
 }

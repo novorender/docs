@@ -5,6 +5,7 @@ import Spinner from '@site/src/components/misc/spinner';
 import Link from '@docusaurus/Link';
 import IconExternalLink from '@theme/Icon/ExternalLink';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Head from '@docusaurus/Head';
 
 export default function DataRestAPI(): JSX.Element {
 
@@ -49,6 +50,12 @@ export default function DataRestAPI(): JSX.Element {
         const { API } = require('@stoplight/elements');
         require('./index.css');
         return (
+          <>
+          <Head>
+            <meta name="description" content="NovoRender Data Rest API Documentation" />
+            <meta property="og:description" content="NovoRender Data Rest API Documentation" />
+            <title>NovoRender | Data Rest API Documentation</title>
+          </Head>
           <Layout title={`Data Rest API`} description="Data Rest API Documentation">
 
             <Link style={{ position: 'absolute', right: 25, top: 70 }} to={swaggerUI as string}>
@@ -58,6 +65,7 @@ export default function DataRestAPI(): JSX.Element {
 
             <API router="hash" layout={isMD ? 'stacked' : 'sidebar'} apiDescriptionUrl={swaggerJSON} />
           </Layout>
+          </>
         )
       }}
     </BrowserOnly>
