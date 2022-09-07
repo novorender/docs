@@ -11,7 +11,8 @@ export const predefined_scenes = ['cube', 'condos', 'oilrig', 'empty'] as const;
 
 export interface PlaygroundConfig {
     mode: 'inline' | 'fill',
-    clickToRun?: boolean
+    clickToRun?: boolean,
+    useManagedRenderer?: boolean
 };
 
 interface props {
@@ -22,7 +23,7 @@ interface props {
     cameraController?: CameraControllerParams
 };
 
-export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config = { mode: 'inline', clickToRun: true } }: props): JSX.Element {
+export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
@@ -30,6 +31,11 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
 
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
+
+        if (!config.mode) config.mode = 'inline';
+        if (config.clickToRun === undefined) config.clickToRun = true;
+        if (config.useManagedRenderer === undefined) config.useManagedRenderer = true;
+
     }, []);
 
     const runPlayground = (): void => {

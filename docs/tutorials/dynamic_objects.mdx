@@ -1,11 +1,7 @@
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
-import { simpleCubeConfig, anotherTestCubeConfig } from '@site/demo-snippets/index';
+import { tutorialDemo } from '@site/demo-snippets/index';
 
 ### Demo 1
 
-<PlaygroundComponent scene={simpleCubeConfig.scene} demoName={simpleCubeConfig.demoName}>{simpleCubeConfig.renderSettings}</PlaygroundComponent>
-
-### Demo 2
-
-<PlaygroundComponent scene={anotherTestCubeConfig.scene} demoName={anotherTestCubeConfig.demoName}>{anotherTestCubeConfig.renderSettings}</PlaygroundComponent>
+<PlaygroundComponent demoName={tutorialDemo.demoName} config={{useManagedRenderer: false, clickToRun: false}}>{tutorialDemo.main}</PlaygroundComponent>
 

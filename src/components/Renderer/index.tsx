@@ -1,14 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { WellKnownSceneUrls } from '@site/src/shared';
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
-import { ICameraTypes } from "../MonacoWrapper/camera_controllers_config";
 
 interface props {
-    config: RenderSettingsParams,
-    scene: WellKnownSceneUrls,
-    environment: EnvironmentDescription,
-    cameraController: CameraControllerParams | ICameraTypes,
+    main: any,
     isDoingActivity: (a: boolean) => void,
     canvasRef: (a: HTMLCanvasElement) => void,
     api: any,
@@ -17,81 +12,108 @@ interface props {
     onMessagesAndAlert: (m: string) => void
 };
 
-let isComponentUnmounted = false;
+// let isComponentUnmounted = false;
 
-const createView = async (api: API, scene: WellKnownSceneUrls, canvas: HTMLCanvasElement) => {
+// const createView = async (api: API, scene: WellKnownSceneUrls, canvas: HTMLCanvasElement) => {
 
-    try {
-        // Create a view
-        const view = await api.createView({}, canvas);
+//     try {
+//         // Create a view
+//         const view = await api.createView({}, canvas);
 
-        // load a predefined scene into the view, available views are cube, oilrig, condos
-        view.scene = await api.loadScene(scene);
+//         // load a predefined scene into the view, available views are cube, oilrig, condos
+//         view.scene = await api.loadScene(scene);
 
-        // provide a controller, available controller types are static, orbit, flight and turntable
-        // view.camera.controller = api.createCameraController({ kind: 'static' } as any, canvas);
+//         // provide a controller, available controller types are static, orbit, flight and turntable
+//         // view.camera.controller = api.createCameraController({ kind: 'static' } as any, canvas);
 
-        console.log('returning view', view);
+//         console.log('returning view', view);
 
-        return view;
+//         return view;
 
-    } catch (error) {
-        console.log('Error caught ', error);
-    }
-}
+//     } catch (error) {
+//         console.log('Error caught ', error);
+//     }
+// }
 
-const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
+// const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
 
-    console.log('canvas, ', canvas);
-    console.log('view ', view);
-    const ctx = canvas.getContext("bitmaprenderer");
-    // start a render loop
-    for (; ;) {
+//     console.log('canvas, ', canvas);
+//     console.log('view ', view);
+//     const ctx = canvas.getContext("bitmaprenderer");
+//     // start a render loop
+//     for (; ;) {
 
-        console.log('Render loop');
+//         console.log('Render loop');
 
-        if (isComponentUnmounted) { console.log('[Renderer]: component was unmounted, breaking render loop'); break; } // cleanup
+//         if (isComponentUnmounted) { console.log('[Renderer]: component was unmounted, breaking render loop'); break; } // cleanup
 
-        const { clientWidth, clientHeight } = canvas;
-        const width = clientWidth * devicePixelRatio;
-        const height = clientHeight * devicePixelRatio;
+//         const { clientWidth, clientHeight } = canvas;
+//         const width = clientWidth * devicePixelRatio;
+//         const height = clientHeight * devicePixelRatio;
 
-        try {
-            // handle resizes
-            view.applySettings({ display: { width, height } });
-        } catch (e) {
-            console.log('[Render Loop]: couldn\'t applySettings, ', e);
-        }
+//         try {
+//             // handle resizes
+//             view.applySettings({ display: { width, height } });
+//         } catch (e) {
+//             console.log('[Render Loop]: couldn\'t applySettings, ', e);
+//         }
 
-        const output = await view.render();
+//         const output = await view.render();
 
-        {
-            const image = await output.getImage();
-            if (image) {
-                // display in canvas
-                ctx.transferFromImageBitmap(image);
-            }
-        }
-        (output as any).dispose();
-    }
-}
+//         {
+//             const image = await output.getImage();
+//             if (image) {
+//                 // display in canvas
+//                 ctx.transferFromImageBitmap(image);
+//             }
+//         }
+//         (output as any).dispose();
+//     }
+// }
 
-export default function Renderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
-    const [view, setView] = useState<View>(null);
+    // const [view, setView] = useState<View>(null);
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
-    // const [isRenderView, setIsRenderView] = useState(false);
 
-    // const renderView = async () => {
-    //     // setIsRenderView(true);
-    //     if (ExecutionEnvironment.canUseDOM) {
-    //         console.log('canvas ', canvas);
+    // dispose view and local state
+    // const _dispose = (view: View) => {
+    //     (view as any).dispose();
+    //     apiInstance.dispose();
+    //     // setIsRenderView(false);
+    //     setApiInstance(null);
+    //     setView(null);
+    // }
+
+    // useEffect(() => {
+    //     console.log('[Render useEffect]: Init');
+    //     console.log('canvas ', canvas);
+
+    //     (async () => {
     //         try {
     //             isDoingActivity(true); // toggle loader
-    //             const _view = await createView(apiInstance, scene, canvas.current);
-    //             _view.applySettings(config);
-    //             renderLoop(canvas.current, _view);
+    //             // const _view = await createView(apiInstance, scene, canvas.current);
+    //             const _view = await apiInstance.createView({}, canvas.current);
+
+    //             console.log('view init ', _view)
+    //             // await main(apiInstance, view);
+
+    //             // if (_view.performanceStatistics.weakDevice) {
+    //             //     onMessagesAndAlert('⚠ Device detected with insufficient resources, performance may be affected.');
+    //             // };
+
+    //             // _view.applySettings(config);
+    //             // if (environment) { // apply the env if available via props
+    //             //     console.log("an env was found, applying it now");
+    //             //     _view.settings.environment = await apiInstance.loadEnvironment(environment);
+    //             // }
+    //             // if (cameraController) { // apply the cameraController if available via props
+    //             //     console.log("a cameraController was found, applying it now");
+    //             //     _view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
+    //             // }
+    //             // renderLoop(canvas.current, _view);
+
     //             setView(_view);
     //         } catch (e) {
     //             console.log('Something went wrong while rendering view, ', e);
@@ -99,60 +121,47 @@ export default function Renderer({ config, scene, environment, cameraController,
     //             isDoingActivity(false);  // toggle loader
     //             canvasRef(canvas.current);
     //         }
-    //     }
-    // };
+    //     })();
 
-    // dispose view and local state
-    const _dispose = (view: View) => {
-        (view as any).dispose();
-        apiInstance.dispose();
-        // setIsRenderView(false);
-        setApiInstance(null);
-        setView(null);
-    }
+    //     // isComponentUnmounted = false;
+
+    //     return () => {
+    //         console.log('[Render useEffect]: Cleanup');
+    //         // isComponentUnmounted = true;
+    //         if (view) {
+    //             _dispose(view);
+    //         }
+    //     };
+    // }, []);
 
     useEffect(() => {
-        console.log('[Render useEffect]: Init');
-        console.log('canvas ', canvas);
-
+        console.log('main from renderer', main);
+        // console.log("view 123456 ", view)
+        console.log('api from renderer', apiInstance);
+        canvasRef(canvas.current);
         (async () => {
             try {
-                isDoingActivity(true); // toggle loader
-                const _view = await createView(apiInstance, scene, canvas.current);
 
-                if (_view.performanceStatistics.weakDevice) {
-                    onMessagesAndAlert('⚠ Device detected with insufficient resources, performance may be affected.');
-                };
+                // console.log('TRY vkigggg')
 
-                _view.applySettings(config);
-                if (environment) { // apply the env if available via props
-                    console.log("an env was found, applying it now");
-                    _view.settings.environment = await apiInstance.loadEnvironment(environment);
-                }
-                if (cameraController) { // apply the cameraController if available via props
-                    console.log("a cameraController was found, applying it now");
-                    _view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
-                }
-                renderLoop(canvas.current, _view);
-                setView(_view);
-            } catch (e) {
-                console.log('Something went wrong while rendering view, ', e);
-            } finally {
-                isDoingActivity(false);  // toggle loader
-                canvasRef(canvas.current);
+                // if (!view) {
+                //     const _view = await apiInstance.createView({}, canvas.current);
+                //     setView(_view);
+                // }
+
+                // if (main) {
+                    // isDoingActivity(true); // toggle loader
+                    // const _view = await createView(apiInstance, scene, canvas.current);
+                    // const view = await apiInstance.createView({}, canvas.current);
+                    // if(view){
+                        await main(apiInstance,canvas.current);
+                    // }
+                // }
+            } catch(err) {
+                console.log('something got caught ', err)
             }
-        })();
-
-        isComponentUnmounted = false;
-
-        return () => {
-            console.log('[Render useEffect]: Cleanup');
-            isComponentUnmounted = true;
-            if (view) {
-                _dispose(view);
-            }
-        };
-    }, []);
+        })()
+    }, [main])
 
     useEffect(() => {
         document.addEventListener('fullscreenchange', resizeScene, false);
@@ -166,28 +175,28 @@ export default function Renderer({ config, scene, environment, cameraController,
         const height = clientHeight * devicePixelRatio;
         try {
             // handle resizes
-            view.applySettings({ display: { width, height } });
+            // view.applySettings({ display: { width, height } });
         } catch (e) {
             console.log('[canvas size update]: couldn\'t resize, ', e);
         }
     }
 
     // handle config updates.
-    useEffect(() => {
-        console.log('[Renderer]: config changed ', config);
-        if (!view) {
-            console.log('View not found, couldn\'t apply the config ', view);
-            return;
-        }
-        if (config) {
-            view.applySettings(config);
-        }
-    }, [config]);
+    // useEffect(() => {
+    //     console.log('[Renderer]: config changed ', config);
+    //     if (!view) {
+    //         console.log('View not found, couldn\'t apply the config ', view);
+    //         return;
+    //     }
+    //     if (config) {
+    //         view.applySettings(config);
+    //     }
+    // }, [config]);
 
     // handle canvas resize when split pane size changes.
     useEffect(() => {
-        if (!view || !canvas) {
-            console.log('View or Canvas not found, couldn\'t apply the settings ');
+        if (!canvas) {
+            console.log('View or Canvas not found, couldn\'t apply the settings ', canvas);
             return;
         }
         if (panesHeight || panesWidth) {
@@ -196,83 +205,83 @@ export default function Renderer({ config, scene, environment, cameraController,
     }, [panesHeight, panesWidth]);
 
     // handle scene updates.
-    useEffect(() => {
-        console.log('[Renderer]: new scene to change ==> ', scene);
-        if (!view) {
-            console.log('View not found, couldn\'t change the scene ', view);
-            return;
-        }
-        if (scene) {
+    // useEffect(() => {
+    //     console.log('[Renderer]: new scene to change ==> ', scene);
+    //     if (!view) {
+    //         console.log('View not found, couldn\'t change the scene ', view);
+    //         return;
+    //     }
+    //     if (scene) {
 
-            console.log('view ', view);
+    //         console.log('view ', view);
 
-            isDoingActivity(true); // toggle loader
-            (async () => {
-                try {
-                    // need to reset the current env here, else you
-                    // get the `detached ArrayBuffer` error from the API
-                    view.settings.environment = undefined;
-                    view.scene = await apiInstance.loadScene(scene);
+    //         isDoingActivity(true); // toggle loader
+    //         (async () => {
+    //             try {
+    //                 // need to reset the current env here, else you
+    //                 // get the `detached ArrayBuffer` error from the API
+    //                 view.settings.environment = undefined;
+    //                 view.scene = await apiInstance.loadScene(scene);
 
-                    if (environment) { // re-apply the selected env again
-                        view.settings.environment = await apiInstance.loadEnvironment(environment);
-                    }
-                } catch (e) {
-                    console.log('ERROR: Failed to update scene, ', e);
-                } finally {
-                    isDoingActivity(false); // toggle loader
-                }
-            })();
-        }
-    }, [scene]);
+    //                 if (environment) { // re-apply the selected env again
+    //                     view.settings.environment = await apiInstance.loadEnvironment(environment);
+    //                 }
+    //             } catch (e) {
+    //                 console.log('ERROR: Failed to update scene, ', e);
+    //             } finally {
+    //                 isDoingActivity(false); // toggle loader
+    //             }
+    //         })();
+    //     }
+    // }, [scene]);
 
     // handle env updates.
-    useEffect(() => {
-        console.log('[Renderer]: new env to change ==> ', environment);
-        if (!view) {
-            console.log('View not found, couldn\'t change the environment ', view);
-            return;
-        }
+    // useEffect(() => {
+    //     console.log('[Renderer]: new env to change ==> ', environment);
+    //     if (!view) {
+    //         console.log('View not found, couldn\'t change the environment ', view);
+    //         return;
+    //     }
 
-        if (environment) {
-            isDoingActivity(true); // toggle loader
+    //     if (environment) {
+    //         isDoingActivity(true); // toggle loader
 
-            (async () => {
-                try {
-                    view.settings.environment = await apiInstance.loadEnvironment(environment);
-                    isDoingActivity(false); // toggle loader
-                } catch (e) {
-                    console.log('ERROR: Failed to update environment, ', e);
-                } finally {
-                    isDoingActivity(false); // toggle loader
-                }
+    //         (async () => {
+    //             try {
+    //                 view.settings.environment = await apiInstance.loadEnvironment(environment);
+    //                 isDoingActivity(false); // toggle loader
+    //             } catch (e) {
+    //                 console.log('ERROR: Failed to update environment, ', e);
+    //             } finally {
+    //                 isDoingActivity(false); // toggle loader
+    //             }
 
-            })();
-        } else {
-            view.settings.environment = undefined;
-        }
-    }, [environment]);
+    //         })();
+    //     } else {
+    //         view.settings.environment = undefined;
+    //     }
+    // }, [environment]);
 
     // handle camera controller updates.
-    useEffect(() => {
-        console.log('[Renderer]: new camera controller to change ==> ', cameraController);
-        if (!view) {
-            console.log('View not found, couldn\'t change the cameraController ', view);
-            return;
-        }
+    // useEffect(() => {
+    //     console.log('[Renderer]: new camera controller to change ==> ', cameraController);
+    //     if (!view) {
+    //         console.log('View not found, couldn\'t change the cameraController ', view);
+    //         return;
+    //     }
 
-        if (cameraController) {
-            isDoingActivity(true); // toggle loader
-            try {
-                view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
-                isDoingActivity(false); // toggle loader
-            } catch (e) {
-                console.log('ERROR: Failed to update environment, ', e);
-            } finally {
-                isDoingActivity(false); // toggle loader
-            }
-        }
-    }, [cameraController]);
+    //     if (cameraController) {
+    //         isDoingActivity(true); // toggle loader
+    //         try {
+    //             view.camera.controller = apiInstance.createCameraController(cameraController as any, canvas.current);
+    //             isDoingActivity(false); // toggle loader
+    //         } catch (e) {
+    //             console.log('ERROR: Failed to update environment, ', e);
+    //         } finally {
+    //             isDoingActivity(false); // toggle loader
+    //         }
+    //     }
+    // }, [cameraController]);
 
     return (
         <BrowserOnly>

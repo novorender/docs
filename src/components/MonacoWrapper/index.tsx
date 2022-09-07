@@ -7,6 +7,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover'
 import stringify from "json-stringify-pretty-compact";
+import ManagedRenderer from '@site/src/components/RendererManaged';
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import { WellKnownSceneUrls } from '@site/src/shared';
@@ -41,7 +42,7 @@ import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
 
 interface props {
-  children: RenderSettingsParams,
+  children: RenderSettingsParams | string,
   scene: WellKnownSceneUrls,
   demoName: string,
   playgroundConfig: PlaygroundConfig,
@@ -103,12 +104,20 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
   const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
+  const [main, setMain] = useState<any>();
 
   useEffect(() => {
+
+    console.log('playgroundConfig ', playgroundConfig);
+
     if (children) {
-      setInitialCode(
-        `export const config: NovoRender.RenderSettingsParams = ${stringify(children, { indent: 8 })};`
-      )
+      if (playgroundConfig.useManagedRenderer) {
+        setInitialCode(
+          `export const config: NovoRender.RenderSettingsParams = ${stringify(children, { indent: 8 })};`
+        )
+      } else {
+        setInitialCode(children as string)
+      }
     }
   }, [children]);
 
@@ -137,12 +146,14 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
    * @param transpiledOutput string that contains config
    * @returns RenderConfig
    */
-  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams }> => {
+  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any }> => {
     const encodedJs = encodeURIComponent(transpiledOutput);
     const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-    const { config, cameraConfig } = await import(/* webpackIgnore: true */dataUri);
+    const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
 
-    return { config, cameraConfig };
+    console.log('main ==> ', main);
+
+    return { config, cameraConfig, main };
   };
 
   const codeChangeHandler = async (tsCode: string) => {
@@ -164,8 +175,10 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
     // set current output in state so we can compare later
     setCodeOutput(output);
 
-    const { config, cameraConfig } = await returnRenderConfigFromOutput(output);
-
+    const { config, cameraConfig, main } = await returnRenderConfigFromOutput(output);
+    if (!playgroundConfig.useManagedRenderer && main) {
+      setMain(() => main);
+    }
     // set render config for output
     setRenderConfig(config);
     if (cameraConfig) { setCurrentCameraController(cameraConfig) };
@@ -349,7 +362,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                 {isActivity && <Spinner />}
               </div>
 
-              <div className="navbar__items navbar__items--right">
+              {playgroundConfig.useManagedRenderer && <div className="navbar__items navbar__items--right">
 
                 {/* Camera controller type drop-down */}
                 <div className="navbar__item dropdown dropdown--hoverable">
@@ -403,7 +416,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                     }
                   </ul>
                 </div>
-              </div>
+              </div>}
             </div>
           </nav>
 
@@ -448,8 +461,10 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                   </Admonition>
                 </div>}
               </div>
-              {render_config
-                ? <Renderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
+              {render_config || main
+                ? <>{playgroundConfig.useManagedRenderer
+                  ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
+                  : <Renderer api={api} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
               }
             </Allotment>}
