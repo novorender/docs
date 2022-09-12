@@ -27,14 +27,18 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
+    const [playgroundConfig, setPlaygroundConfig] = useState<PlaygroundConfig>();
     const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
 
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
+        console.log("config.useManagedRenderer ", config.useManagedRenderer);
 
-        if (!config.mode) config.mode = 'inline';
-        if (config.clickToRun === undefined) config.clickToRun = true;
-        if (config.useManagedRenderer === undefined) config.useManagedRenderer = true;
+        setPlaygroundConfig({
+            mode: config.mode || 'inline',
+            clickToRun: config.clickToRun !== undefined ? config.clickToRun : true,
+            useManagedRenderer: config.useManagedRenderer !== undefined ? config.useManagedRenderer : true
+        });
 
     }, []);
 
@@ -58,7 +62,7 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
                             </CSSTransition>
                             <img src={require(`@site/static/assets/demo-screenshots/${demoName}.jpg`).default} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />
                         </div>
-                        : <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={config} cameraController={cameraController}>{children}</MonacoWrapper>}
+                        : <>{playgroundConfig && <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController}>{children}</MonacoWrapper>}</>}
                 </div>
             }
         </BrowserOnly>
