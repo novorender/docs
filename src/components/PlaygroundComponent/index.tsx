@@ -19,11 +19,12 @@ interface props {
     children: RenderSettingsParams,
     scene: WellKnownSceneUrls,
     demoName: string,
+    editUrl?: string,
     config?: PlaygroundConfig,
     cameraController?: CameraControllerParams
 };
 
-export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config }: props): JSX.Element {
+export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config, editUrl }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
@@ -62,7 +63,7 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
                             </CSSTransition>
                             <img src={require(`@site/static/assets/demo-screenshots/${demoName}.jpg`).default} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />
                         </div>
-                        : <>{playgroundConfig && <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController}>{children}</MonacoWrapper>}</>}
+                        : <>{playgroundConfig && <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}>{children}</MonacoWrapper>}</>}
                 </div>
             }
         </BrowserOnly>

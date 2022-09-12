@@ -46,7 +46,8 @@ interface props {
   scene: WellKnownSceneUrls,
   demoName: string,
   playgroundConfig: PlaygroundConfig,
-  cameraController: CameraControllerParams
+  cameraController: CameraControllerParams,
+  editUrl?: string
 };
 
 function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSceneUrls {
@@ -74,7 +75,7 @@ function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue
 }
 
-export default function MonacoWrapper({ children, scene, demoName, cameraController, playgroundConfig }: props): JSX.Element {
+export default function MonacoWrapper({ children, scene, demoName, cameraController, playgroundConfig, editUrl }: props): JSX.Element {
 
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -520,7 +521,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
                 </button>
 
                 {/* Edit snippet */}
-                <a href={`${siteConfig.presets[0][1]['docs'].editUrl}/demo-snippets/${demoName}/render-settings.ts`} className="navbar__item" title='Edit this code snippet on Github' style={{ marginTop: '-2px' }} target="_blank"><EditIconSvg className={styles.editorSvgIcon} /></a>
+                <a href={`${siteConfig.presets[0][1]['docs'].editUrl}${editUrl ? '/'+editUrl : '/demo-snippets/'+demoName+'/render-settings.ts'}`} className="navbar__item" title='Edit this code snippet on Github' style={{ marginTop: '-2px' }} target="_blank"><EditIconSvg className={styles.editorSvgIcon} /></a>
               </div>
             </div>
           </nav>
