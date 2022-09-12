@@ -259,8 +259,13 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
     await editor.getAction('editor.action.formatDocument').run();
     const output = await returnTranspiledOutput(editor, monaco);
     setCodeOutput(output);
-    const { config } = await returnRenderConfigFromOutput(output);
+    const { config, main } = await returnRenderConfigFromOutput(output);
+
     setRenderConfig(config);
+
+    if (!playgroundConfig.useManagedRenderer && main) {
+      setMain(() => main);
+    }
 
     setIsActivity(false); // toggle spinner
   }
