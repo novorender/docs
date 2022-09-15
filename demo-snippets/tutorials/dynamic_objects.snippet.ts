@@ -1,5 +1,5 @@
-import * as NovoRender from "@novorender/webgl-api"; // make this work in live editor pls!
-// import { vec3 } from "gl-matrix"; // would be nice if this worked too
+import * as NovoRender from "@novorender/webgl-api";
+import { vec3 } from "gl-matrix";
 
 export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
     // create a view

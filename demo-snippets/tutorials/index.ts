@@ -1,8 +1,9 @@
 /**
  * every snippet file must follow the same structure as below.
  */
+// @ts-expect-error
+import main from '!!raw-loader!./dynamic_objects.snippet.ts';
 
-import main from "./dynamic_objects.snippet";
 const demoName: string = 'dynamic-objects';
 
 export {

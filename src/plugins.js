@@ -32,10 +32,7 @@ const webpackPlugin = (context, options) => {
                     alias: {
                         process: 'process/browser.js',
                     },
-                },
-                module: {
-                    rules: [{ test: /\.snippet$/, use: 'raw-loader' }],
-                },
+                }
             };
         },
     };
