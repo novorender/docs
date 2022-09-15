@@ -39,7 +39,7 @@ import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
-const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
+// const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
 
 interface props {
   children: RenderSettingsParams | string,
@@ -237,7 +237,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
 
       const libUri = "index.d.ts";
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        dts_fixed,
+        WebglDTS,
         libUri
       );
 
@@ -245,7 +245,7 @@ export default function MonacoWrapper({ children, scene, demoName, cameraControl
       // Creating a model for the library allows "peek definition/references" commands to work with the library.
       if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
         monaco.editor.createModel(
-          dts_fixed,
+          WebglDTS,
           "typescript",
           monaco.Uri.parse(libUri)
         );
