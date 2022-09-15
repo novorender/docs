@@ -33,6 +33,9 @@ const webpackPlugin = (context, options) => {
                         process: 'process/browser.js',
                     },
                 },
+                module: {
+                    rules: [{ test: /\.snippet$/, use: 'raw-loader' }],
+                },
             };
         },
     };
