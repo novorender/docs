@@ -3,7 +3,7 @@ import * as NovoRender from "@novorender/webgl-api"; // make this work in live e
 
 export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
     // create a view
-    const view = await api.createView({ background: { color: [0, 0, 10, 1] } }, canvas);
+    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
     // provide a camera controller
     view.camera.controller = api.createCameraController({ kind: "flight" }, canvas);
