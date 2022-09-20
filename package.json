@@ -16,7 +16,6 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "gen:docs-screenshots": "node node screenshot-gen.js --baseURL='http://localhost:3000/' --directoryToCrawl='docs'",
     "validate:json-config": "ajv validate -s scene-screenshot-gen/schema.json -d scene-screenshot-gen/config.json",
     "gen:demo-screenshots": "tsc -p scene-screenshot-gen/tsconfig.json && node scene-screenshot-gen/index.js",
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --"
