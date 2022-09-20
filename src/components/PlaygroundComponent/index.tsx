@@ -33,7 +33,7 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
 
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
-        console.log("config.useManagedRenderer ", config.useManagedRenderer);
+        console.log("config ", config);
 
         setPlaygroundConfig({
             mode: config.mode || 'inline',
@@ -55,8 +55,8 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
     return (
         <BrowserOnly fallback={<div>Loading...</div>}>
             {
-                () => <div style={config.mode === 'inline' ? { width: 769, border: '2px solid #d5275d33', padding: 5 } : { height: 'calc(100vh - 60px)', overflow: 'hidden', paddingTop: 2 }}>
-                    {config.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ?
+                () => <div style={playgroundConfig.mode === 'inline' ? { width: 769, border: '2px solid #d5275d33', padding: 5 } : { height: 'calc(100vh - 60px)', overflow: 'hidden', paddingTop: 2 }}>
+                    {playgroundConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ?
                         <div style={{ position: 'relative' }} onMouseEnter={() => { toggleTip(true) }} onMouseLeave={() => { toggleTip(false) }}>
                             <CSSTransition in={showTip} timeout={300} classNames={'alert'} unmountOnExit>
                                 <button onClick={runPlayground} className="button button--lg button--success" style={{ position: 'absolute', zIndex: 99, right: 0, left: 0, margin: 'auto', top: 0, width: 300, bottom: 0, height: 60 }}>Run this demo</button>
