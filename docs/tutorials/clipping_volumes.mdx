@@ -1,0 +1,96 @@
+---
+title: 'Clipping Volumes'
+---
+
+import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import { tutorials } from '@site/demo-snippets/index';
+
+Clipping allows you to render only part of a scene. 
+This can be useful to reveal internal structures that would otherwise be obscured by surrounding geometry, such as walls and outer shells.
+
+> Clipping volumes does not currently apply to dynamic objects or the test cube scene!
+
+Clipping volumes are formed by a set of planes, or halfspaces.
+Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (negative distance) along that vector `o`.
+From this we can compute a signed distance to that plane for any given 3D coordinate (x,y,z).
+
+```typescript
+signed_distance = (x,y,z) => x*nx + y*ny + z*nz + o
+```
+
+This can be expressed as a 4D dot product where the w component of the input is 1.
+
+```typescript
+signed_distance = dot_product([x,y,z,1], [nx,ny,nz,o])
+```
+
+The positive side of this plane, i.e. signed_distance > 0, is considered "outside" the halfspace, whereas the negative sinde "inside".
+Points that lie outside will we clipped, while the negative ones will be rendered.
+
+### Single plane
+
+To illustrate this, let's create a simple clipping volume with a single plane along the yz axes, effectively clipping everything to the right of center.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.single}></PlaygroundComponent>
+
+### Single plane with offset
+
+We used the center of the scene (which is far from origo) to position the plane.
+Let's add a few meters extra to observe the effets
+
+<PlaygroundComponent {...tutorials.clippingVolumes.offset}></PlaygroundComponent>
+
+### Single plane, flipped
+
+You may flip the plane by flipping the direction of the normal.
+When doing so, also remember to negate the offset.
+Or, to put another way, simply negate all the elements `[-nx,-ny,-nz,-o]`.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.flipped}></PlaygroundComponent>
+
+### Single plane, rotated
+
+Of course, you may use any normal you like for the plane, as long as it's length = 1.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.rotated}></PlaygroundComponent>
+
+### Dual plane
+
+Adding additional planes allows us to further shape the clipping volume.
+Each plane forms a half space, which you may think of as the volume of everything that lies on the positive side of the plane to infinity.
+When combining multiple such half spaces, we must determine whether to use the intersection or union of thes halfspace volumes.
+Put simply, intersection is the volume that lies on the positive side of all the planes, while union is the volume that lines on the positive side of any of the planes.
+
+```typescript
+intersection = sd1 > 0 && sd2 > 0
+union = sd1 > 0 || sd2 > 0
+```
+
+> For those familiar with [CSG (constructive solid geometry)](https://en.wikipedia.org/wiki/Constructive_solid_geometry), the clipping volume is defined by a simple CSG expression.
+
+Let's create a more complex clipping volume with an additional plane along the xz axes, effectively clipping everything to the right and above center.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.dual}></PlaygroundComponent>
+
+### Dual plane, slab
+
+A perhaps more useful volume is a slab, consisting of a top and bottom plane, but otherwise extending into infinty.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.slab}></PlaygroundComponent>
+
+### Inverted slab
+
+If you wish to clip everything inside of the volume, rather than outside, simply flip the planes (negate all elements) and change the combination mode.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.slab_inv}></PlaygroundComponent>
+
+### Box
+
+We currently sypport up to 6 planes, allowing you to define simple polyhedra of any size, rotation and position.
+Let's define an axis aligned clipping box.
+
+<PlaygroundComponent {...tutorials.clippingVolumes.box}></PlaygroundComponent>
+
+> Using clipping volumes currently does not affect memory usage or significantly impact rendering performance.
+They simply work by excluding pixels that lie outside the volume at the very last stage of the rendering pipeline.
+Their intended use it as a visual aid, not as an optimization.

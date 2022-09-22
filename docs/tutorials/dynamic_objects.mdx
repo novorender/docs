@@ -3,7 +3,7 @@ title: 'Dynamic Objects'
 ---
 
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
-import { tutorialDemo } from '@site/demo-snippets/index';
+import { tutorials } from '@site/demo-snippets/index';
 
 While NovoRender is mostly about streaming and rendering large, static 3D scenes, sometimes you may want to add smaller, dynamic 3D objects into the view.
 Dynamic objects are meant for small and lightweight objects, such as 3D widgets or avatars.
@@ -56,7 +56,7 @@ instance.visible = true;
 
 ### Demo
 
-<PlaygroundComponent demoName={tutorialDemo.demoName} config={{useManagedRenderer: false, clickToRun: true }} editUrl={'demo-snippets/tutorials/dynamic_objects.snippet.ts'}>{tutorialDemo.main}</PlaygroundComponent>
+<PlaygroundComponent {...tutorials.dynamicObjects.demo1}></PlaygroundComponent>
 
 ### Disposing
 

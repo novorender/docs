@@ -1,3 +1,4 @@
+const path = require('path');
 const { ProvidePlugin, DefinePlugin } = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
 
@@ -32,6 +33,17 @@ const webpackPlugin = (context, options) => {
                     alias: {
                         process: 'process/browser.js',
                     },
+                },
+                module: {
+                    rules: [
+                        {
+                            resourceQuery: /raw/,
+                            type: "asset/source",
+                            generator: {
+                                filename: "[hash]"
+                            }
+                        }
+                    ]
                 }
             };
         },

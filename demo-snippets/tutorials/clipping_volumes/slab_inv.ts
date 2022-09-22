@@ -6,17 +6,25 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
     const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
     // provide a camera controller
-    view.camera.controller = api.createCameraController({ kind: "flight" }, canvas);
+    view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
 
-    // create an empty scene
-    const scene = view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.empty);
+    // load scene
+    const scene = view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
-    // load dynamic object asset
-    const asset = await api.loadAsset(new URL("https://api.novorender.com/assets/gltf/shaderball.glb"));
+    // get center of scene
+    const [cx, cy, cz] = scene.boundingSphere.center;
 
-    // Add instance into scene
-    const instance = scene.createDynamicObject(asset); // we can make multiple instances from same asset.
-    instance.visible = true;
+    // apply clipping volume
+    view.applySettings({
+        clippingVolume: {
+            enabled: true,
+            mode: "intersection",
+            planes: [
+                [0, 1, 0, -(cy + 4)], // bottom plane
+                [0, -1, 0, (cy + 8)], // top plane
+            ]
+        }
+    });
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
@@ -37,8 +45,8 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
             if (image) {
                 // display in canvas
                 ctx?.transferFromImageBitmap(image);
+                image.close();
             }
-            image?.close();
         }
     }
 }

@@ -4,18 +4,13 @@
 
 import * as simpleCubeConfig from './simple-cube';
 import * as anotherTestCubeConfig from './another-test-cube';
-import * as tutorialDemo from './tutorials';
-
+import * as tutorials from './tutorials';
+// export * as clippingVolumes from "./tutorials/clipping_volumes";
 
 export const configs = [
     simpleCubeConfig,
     anotherTestCubeConfig,
-    tutorialDemo
+    // tutorials,
 ];
 
-export {
-    simpleCubeConfig,
-    anotherTestCubeConfig,
-    tutorialDemo
-}
-
+export { simpleCubeConfig, anotherTestCubeConfig, tutorials }

@@ -16,7 +16,7 @@ export interface PlaygroundConfig {
 };
 
 interface props {
-    children: RenderSettingsParams,
+    children: RenderSettingsParams | string,
     scene: WellKnownSceneUrls,
     demoName: string,
     editUrl?: string,
@@ -34,6 +34,7 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
         console.log("config ", config);
+        console.log(children);
 
         setPlaygroundConfig({
             mode: config.mode || 'inline',
