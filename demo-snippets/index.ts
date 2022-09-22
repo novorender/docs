@@ -7,10 +7,5 @@ import * as anotherTestCubeConfig from './another-test-cube';
 import * as tutorials from './tutorials';
 // export * as clippingVolumes from "./tutorials/clipping_volumes";
 
-export const configs = [
-    simpleCubeConfig,
-    anotherTestCubeConfig,
-    // tutorials,
-];
 
 export { simpleCubeConfig, anotherTestCubeConfig, tutorials }

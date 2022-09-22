@@ -6,11 +6,11 @@ function demo<T extends string>(name: T, code: string) {
             {
                 demoName: "dynamic-objects", // this is really more of an image url thing
                 config: {
-                    useManagedRenderer: false,
                     clickToRun: true,
                 },
                 editUrl: `demo-snippets/tutorials/dynamic_objects/${name}.ts`,
-                children: code,
+                code: code,
+                previewImageUrl: 'assets/demo-screenshots/simple-cube.jpg'
             } as const
     } as const;
 }

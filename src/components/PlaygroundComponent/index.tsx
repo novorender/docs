@@ -6,25 +6,27 @@ import { WellKnownSceneUrls } from '@site/src/shared';
 import type { CameraControllerParams, RenderSettingsParams } from '@novorender/webgl-api';
 import MonacoWrapper from '../MonacoWrapper';
 import './index.styles.css';
+import useBaseUrl from "@docusaurus/useBaseUrl";
 
 export const predefined_scenes = ['cube', 'condos', 'oilrig', 'empty'] as const;
 
 export interface PlaygroundConfig {
-    mode: 'inline' | 'fill',
-    clickToRun?: boolean,
-    useManagedRenderer?: boolean;
+    mode: 'inline' | 'fill'; // using `fill` will make the playground to take entire viewport's width and height, `inline` is default
+    clickToRun?: boolean;
 };
 
 interface props {
-    children: RenderSettingsParams | string,
-    scene: WellKnownSceneUrls,
-    demoName: string,
-    editUrl?: string,
-    config?: PlaygroundConfig,
-    cameraController?: CameraControllerParams;
+    code?: string; // code to run in the editor, only required if `renderSettings` is not provided.
+    renderSettings?: RenderSettingsParams; // renderSettings for the view, only required if `code` is not provided
+    scene?: WellKnownSceneUrls; // default scene to select, only required if `renderSettings` is provided
+    demoName: string; // a name for this demo
+    editUrl?: string; // relative path to the file that contains the demo code snippet, e.g. `demo-snippets/tutorials/some-snippet.ts`
+    previewImageUrl?: string; // path to the placeholder image file that will be shown when the editor is not running, e.g. `assets/demo-screenshots/some-image.jpg`
+    config?: PlaygroundConfig; // editor/playground internal config
+    cameraController?: CameraControllerParams; // default camera controller to select, optionally required if `renderSettings` is provided.
 };
 
-export default function PlaygroundComponent({ children, scene, demoName, cameraController = { kind: 'static' }, config, editUrl }: props): JSX.Element {
+export default function PlaygroundComponent({ code, renderSettings, scene, demoName, cameraController = { kind: 'static' }, config, editUrl, previewImageUrl }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [showTip, setShowTip] = useState<boolean>(false);
@@ -34,12 +36,11 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
         console.log("config ", config);
-        console.log(children);
+        // console.log(children);
 
         setPlaygroundConfig({
-            mode: config.mode || 'inline',
-            clickToRun: config.clickToRun !== undefined ? config.clickToRun : true,
-            useManagedRenderer: config.useManagedRenderer !== undefined ? config.useManagedRenderer : true
+            mode: config && config.mode || 'inline',
+            clickToRun: config && config.clickToRun !== undefined ? config.clickToRun : true
         });
 
     }, []);
@@ -65,9 +66,9 @@ export default function PlaygroundComponent({ children, scene, demoName, cameraC
                                         <CSSTransition in={showTip} timeout={300} classNames={'alert'} unmountOnExit>
                                             <button onClick={runPlayground} className="button button--lg button--success" style={{ position: 'absolute', zIndex: 99, right: 0, left: 0, margin: 'auto', top: 0, width: 300, bottom: 0, height: 60 }}>Run this demo</button>
                                         </CSSTransition>
-                                        <img src={require(`@site/static/assets/demo-screenshots/${demoName}.jpg`).default} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />
+                                        {previewImageUrl && <img src={useBaseUrl(previewImageUrl)} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />}
                                     </div>
-                                    : <>{playgroundConfig && <MonacoWrapper scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}>{children}</MonacoWrapper>}</>}
+                                    : <>{playgroundConfig && <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}</>}
                             </div>
                         }
                     </div>
