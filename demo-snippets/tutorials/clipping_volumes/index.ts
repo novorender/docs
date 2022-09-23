@@ -17,7 +17,7 @@ function demo<T extends string>(name: T, code: string) {
                 },
                 editUrl: `demo-snippets/tutorials/clipping_volumes/${name}.ts`,
                 code: code,
-                previewImageUrl: 'assets/demo-screenshots/simple-cube.jpg'
+                previewImageUrl: `assets/demo-screenshots/${name}.png`
             } as const
     } as const;
 }

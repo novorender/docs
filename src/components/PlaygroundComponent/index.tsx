@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { CSSTransition } from 'react-transition-group';
 import BrowserOnly from '@docusaurus/BrowserOnly';
+import { useColorMode } from '@docusaurus/theme-common';
 import { PlaygroundContext } from '@site/src/theme/context';
 import { WellKnownSceneUrls } from '@site/src/shared';
 import type { CameraControllerParams, RenderSettingsParams } from '@novorender/webgl-api';
@@ -29,9 +29,9 @@ interface props {
 export default function PlaygroundComponent({ code, renderSettings, scene, demoName, cameraController = { kind: 'static' }, config, editUrl, previewImageUrl }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
-    const [showTip, setShowTip] = useState<boolean>(false);
     const [playgroundConfig, setPlaygroundConfig] = useState<PlaygroundConfig>();
     const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
+    const { colorMode } = useColorMode();
 
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
@@ -50,9 +50,6 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
         setIsPlaygroundActive(true);
     };
 
-    const toggleTip = (state: boolean): void => {
-        setShowTip(state);
-    };
 
     return (
         <BrowserOnly fallback={<div>Loading...</div>}>
@@ -62,11 +59,12 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                         {playgroundConfig &&
                             <div style={playgroundConfig.mode === 'inline' ? { width: 769, border: '2px solid #d5275d33', padding: 5 } : { height: 'calc(100vh - 60px)', overflow: 'hidden', paddingTop: 2 }}>
                                 {playgroundConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ?
-                                    <div style={{ position: 'relative' }} onMouseEnter={() => { toggleTip(true); }} onMouseLeave={() => { toggleTip(false); }}>
-                                        <CSSTransition in={showTip} timeout={300} classNames={'alert'} unmountOnExit>
-                                            <button onClick={runPlayground} className="button button--lg button--success" style={{ position: 'absolute', zIndex: 99, right: 0, left: 0, margin: 'auto', top: 0, width: 300, bottom: 0, height: 60 }}>Run this demo</button>
-                                        </CSSTransition>
-                                        {previewImageUrl && <img src={useBaseUrl(previewImageUrl)} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />}
+                                    <div style={{ position: 'relative' }}>
+                                        <button onClick={runPlayground} className="cu-button">Click to run the demo</button>
+                                        {previewImageUrl && <>
+                                            <img src={useBaseUrl(`assets/playground-placeholder-${colorMode}.png`)} style={{ filter: 'blur(2px)' }} />
+                                            <img src={useBaseUrl(previewImageUrl)} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
+                                        </>}
                                     </div>
                                     : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
                             </div>
