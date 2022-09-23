@@ -4,7 +4,7 @@ function demo<T extends string>(name: T, code: string) {
     return {
         [name]:
             {
-                demoName: "dynamic-objects", // this is really more of an image url thing
+                demoName: name,
                 config: {
                     clickToRun: true,
                 },
