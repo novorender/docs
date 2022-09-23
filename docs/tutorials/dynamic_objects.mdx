@@ -10,8 +10,10 @@ Dynamic objects are meant for small and lightweight objects, such as 3D widgets 
 Currently we support [glTF 2.0](https://www.khronos.org/gltf/) (.gltf/.glb).
 You can download these from any url, but we do provide a few gltf models on our server: https://api.novorender.com/assets/gltf/
 
-> Please note that we don't currently support any glTF extensions. Nor do we support animations or skinning, among other things.
- We recommend verifying your files using https://github.khronos.org/glTF-Validator/ or similar before use.
+:::caution
+Please note that we don't currently support any glTF extensions. Nor do we support animations or skinning, among other things.
+We recommend verifying your files using https://github.khronos.org/glTF-Validator/ or similar before use.
+:::
 
 ### Creation
 
@@ -21,8 +23,9 @@ To download and parse a gltf file, call the `api.loadAsset()' function with a va
 const asset = await api.loadAsset(new URL("https://api.novorender.com/assets/gltf/logo.glb"));
 ```
 
-> Avoid using large gltf files on mobile devices as these have quite severe memory and triangle restrictions!
-
+:::caution
+Avoid using large gltf files on mobile devices as these have quite severe memory and triangle restrictions!
+:::
 Now you can create instances of this asset in your scenes. You may reuse the same asset in multiple scenes.
 
 ```typescript
@@ -31,8 +34,10 @@ const instance = scene.createDynamicObject(asset);
 
 By default, new objects will have position `[0,0,0]` and no rotation `[0,0,0,1]`.
 
-> The size of the gltf files should match the size of your scene.
+:::info
+The size of the gltf files should match the size of your scene.
 The camera will not autofit to dynamic objects, so make sure the units are in meters and that the coordinates are in the same space as your scene, which could be geo-referenced.
+:::
 
 To change object orientation, assign new position and/or rotation.
 
@@ -71,7 +76,8 @@ Once you've disposed all the instances of an asset, you may dispose the asset it
 asset.dispose();
 ```
 
-> Note that when disposing an asset, the render pipeline may still have a reference to the model for the next frame.
+:::note
+When disposing an asset, the render pipeline may still have a reference to the model for the next frame.
 If so, you would get an error.
 You may want to render a frame or two first, to flush out any such lingering references.
-
+:::

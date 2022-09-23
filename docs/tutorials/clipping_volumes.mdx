@@ -8,7 +8,9 @@ import { tutorials } from '@site/demo-snippets/index';
 Clipping allows you to render only part of a scene. 
 This can be useful to reveal internal structures that would otherwise be obscured by surrounding geometry, such as walls and outer shells.
 
-> Clipping volumes does not currently apply to dynamic objects or the test cube scene!
+:::note
+Clipping volumes does not currently apply to dynamic objects or the test cube scene!
+:::
 
 Clipping volumes are formed by a set of planes, or halfspaces.
 Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (negative distance) along that vector `o`.
@@ -91,6 +93,8 @@ Let's define an axis aligned clipping box.
 
 <PlaygroundComponent {...tutorials.clippingVolumes.box}></PlaygroundComponent>
 
-> Using clipping volumes currently does not affect memory usage or significantly impact rendering performance.
+:::info
+Using clipping volumes currently does not affect memory usage or significantly impact rendering performance.
 They simply work by excluding pixels that lie outside the volume at the very last stage of the rendering pipeline.
 Their intended use it as a visual aid, not as an optimization.
+:::
