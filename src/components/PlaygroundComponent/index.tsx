@@ -68,7 +68,7 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                                         </CSSTransition>
                                         {previewImageUrl && <img src={useBaseUrl(previewImageUrl)} style={{ width: '100%', height: '100%', display: 'block', filter: showTip ? 'brightness(0.4)' : '' }} />}
                                     </div>
-                                    : <>{playgroundConfig && <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}</>}
+                                    : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
                             </div>
                         }
                     </div>
