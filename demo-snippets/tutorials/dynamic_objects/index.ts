@@ -10,7 +10,7 @@ function demo<T extends string>(name: T, code: string) {
                 },
                 editUrl: `demo-snippets/tutorials/dynamic_objects/${name}.ts`,
                 code: code,
-                previewImageUrl: 'assets/demo-screenshots/box.png'
+                previewImageUrl: `assets/demo-screenshots/${name}.png`
             } as const
     } as const;
 }
