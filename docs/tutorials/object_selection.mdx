@@ -1,0 +1,66 @@
+---
+title: 'Object Selection'
+---
+
+import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import { tutorials } from '@site/demo-snippets/index';
+
+NovoRender lets you highlight sets of objects.
+This could be used to visualize current object selection, or groups of objects, for instance the results of data queries.
+
+### Object Identity
+
+All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as `ObjectId`.
+
+One way of obtaining such an id is using the `pick()` function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
+
+```typescript
+const result = await renderOutput.pick(x, y);
+if (result) {
+    const {objectId} = result;
+}
+```
+
+### Object highlighting
+
+To highlight the picked object, we must create a highlight object.
+Highlighting works by performing a linear transform of the red, green, blue and alpha (opacity) channels.
+For now, we'll simply make the selected object lime green.
+
+```typescript
+const red = 0.0;
+const green = 1.0;
+const blue = 0.0;
+const highlightGroup1 = api.createHighlight({kind: "color", color: [red,green,blue]});
+```
+
+Highlights are applied to groups of objects.
+By default, all objects are assigned to group #0.
+To make our picked object stand out, we assign it to group #1.
+
+```typescript
+scene.objectHighlighter.objectHighlightIndices[objectId] = 1;
+scene.objectHighlighter.commit(); // call this to commit all changes
+```
+
+To make our selected objects stand out even further, we make all other objects less colorful by halving their color saturation.
+
+```typescript
+const highlightGroup0 = api.createHighlight({kind: "hsla", saturation: 0.5});
+```
+
+We then assign these highlights to our two groups, default and selected respectively:
+
+```typescript
+view.settings.objectHighlights = [highlightGroup0, highlightGroup1];
+```
+
+### Demo
+
+Click on objects to turn them green.
+
+<PlaygroundComponent {...tutorials.objectSelection.pick}></PlaygroundComponent>
+
+:::note
+Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
+:::
