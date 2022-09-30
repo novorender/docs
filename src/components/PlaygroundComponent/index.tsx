@@ -63,7 +63,9 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                                         <button onClick={runPlayground} className="cu-button">Click to run the demo</button>
                                         {previewImageUrl && <>
                                             <img src={useBaseUrl(`assets/playground-placeholder-${colorMode}.png`)} style={{ filter: 'blur(2px)' }} />
-                                            <img src={useBaseUrl(previewImageUrl)} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
+                                            <img src={useBaseUrl(previewImageUrl)} onError={(e) => {
+                                                e.currentTarget.src=require(`@site/static/assets/playground-demo-placeholder-dark.png`).default
+                                            }} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
                                         </>}
                                     </div>
                                     : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
