@@ -42,7 +42,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.1",
     "@novorender/data-js-api": "0.2.22",
-    "@novorender/webgl-api": "0.3.89",
+    "@novorender/webgl-api": "0.4.0",
     "@tsconfig/docusaurus": "1.0.6",
     "@tsconfig/node16": "1.0.3",
     "@types/puppeteer": "5.4.6",
