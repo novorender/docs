@@ -177,7 +177,7 @@ const config = {
             },
             colorMode: {
                 disableSwitch: false,
-                respectPrefersColorScheme: true,
+                defaultMode: 'dark'
             },
             announcementBar: {
                 id: 'wip_info',
