@@ -1,10 +1,10 @@
 ---
 id: "index"
-title: "novorender-api-docs"
+title: "Measure API Docs"
 sidebar_label: "Readme"
 sidebar_position: 0
 custom_edit_url: null
-description: "A Data JS API for managing scalable Novorender 3D rendering in the cloud."
+description: "for detailed measuring show distances, differences, elevations and more."
 ---
 
 <img src="https://novorender.com/wp-content/uploads/2021/06/novorender_logo_RGB_2021.png"/>

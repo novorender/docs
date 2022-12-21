@@ -69,9 +69,9 @@ const config = {
                         label: 'WebGL API',
                     },
                     {
-                        to: 'docs/measure-api',
+                        to: 'docs/data-js-api',
                         position: 'left',
-                        label: 'Measure API',
+                        label: 'Data JS API',
                     },
                     {
                         to: '/data-rest-api/',
