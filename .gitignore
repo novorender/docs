@@ -6,6 +6,7 @@
 /docs/api
 /docs/webgl-api
 /docs/data-js-api
+/docs/measure-api
 
 # Generated files
 .docusaurus

@@ -69,9 +69,9 @@ const config = {
                         label: 'WebGL API',
                     },
                     {
-                        to: 'docs/data-js-api',
+                        to: 'docs/measure-api',
                         position: 'left',
-                        label: 'Data JS API',
+                        label: 'Measure API',
                     },
                     {
                         to: '/data-rest-api/',
@@ -79,7 +79,7 @@ const config = {
                         label: 'Data Rest API',
                     },
                     {
-                        to: 'docs/measure-api/',
+                        to: 'docs/measure-api',
                         position: 'left',
                         label: 'Measure API'
                     },
@@ -116,8 +116,8 @@ const config = {
                                 to: '/data-rest-api/',
                             },
                             {
-                                to: '/measure-api/',
-                                label: 'Measure API'
+                                label: 'Measure API',
+                                to: '/measure-api/'
                             },
                         ],
                     },
@@ -212,6 +212,20 @@ const config = {
                 out: 'data-js-api',
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("@novorender/data-js-api/README.md"),
+                disableSources: true,
+                frontmatter: {
+                    description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.'
+                }
+            },
+        ],
+        [
+            'docusaurus-plugin-typedoc',
+            {
+                id: 'measure-api',
+                entryPoints: ['type-definitions/measure-api.ts'],
+                out: 'measure-api',
+                tsconfig: 'type-definitions/tsconfig.json',
+                readme: require.resolve("@novorender/measure-api/README.md"),
                 disableSources: true,
                 frontmatter: {
                     description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.'
