@@ -32,14 +32,15 @@ import EnvironmentIconSvg from '@site/static/img/image-solid.svg';
 /** Icons END */
 
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
+import MeasureApiDTS from '!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts';
 import GlMatrixDTS from '!!raw-loader!@site/node_modules/gl-matrix/index.d.ts';
-
 import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
 import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
 const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
+// const dts_fixed_measure_api = MeasureApiDTS.replace(`"@novorender/measure-api"`, "NovoRender1")
 
 interface props {
     code?: string; // code to run in the editor, only required if `renderSettings` is not provided.
@@ -99,6 +100,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
     const [apiVersion, setApiVersion] = useState<string>(null);
     const [api, setApiInstance] = useState<any>(); // Create API
+    const [measureApiInstance, setMeasureApiInstance] = useState<any>() // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
     const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
     const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
@@ -196,8 +198,11 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         (async () => {
             // import dynamically for SSR
             const api = await import('@novorender/webgl-api');
+            const measureApi = await import('@novorender/measure-api');
 
             setApiInstance(api);
+            setMeasureApiInstance(measureApi);
+
 
             const apiInstance = api.createAPI();
 
@@ -238,7 +243,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
             const libUri = "index.d.ts";
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
-                WebglDTS + dts_fixed + GlMatrixDTS,
+                WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS,
                 libUri
             );
 
@@ -246,7 +251,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             // Creating a model for the library allows "peek definition/references" commands to work with the library.
             if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
                 monaco.editor.createModel(
-                    WebglDTS + dts_fixed + GlMatrixDTS,
+                    WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS,
                     "typescript",
                     monaco.Uri.parse(libUri)
                 );
@@ -471,7 +476,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                             {render_config || main
                                 ? <>{renderSettings
                                     ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
-                                    : <Renderer api={api} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
+                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}

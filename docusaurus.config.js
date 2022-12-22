@@ -228,7 +228,7 @@ const config = {
                 readme: require.resolve("@novorender/measure-api/README.md"),
                 disableSources: true,
                 frontmatter: {
-                    description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.'
+                    description: 'for detailed measuring show distances, differences, elevations and more.'
                 }
             },
         ],

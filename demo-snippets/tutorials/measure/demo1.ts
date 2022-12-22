@@ -1,11 +1,10 @@
 import * as NovoRender from "@novorender/webgl-api";
-//Please fix measure api import
 import * as Measure from "@novorender/measure-api";
 import { vec3 } from "gl-matrix";
 
-export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
-    const measureApi = await Measure.createMeasureAPI();
-    measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
+export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measureApi: typeof Measure) {
+    const _measureApi = await measureApi.createMeasureAPI();
+    _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // create a view
     const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
