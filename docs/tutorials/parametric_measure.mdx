@@ -1,0 +1,81 @@
+---
+title: "Parametric measure"
+---
+
+import PlaygroundComponent from "@site/src/components/PlaygroundComponent";
+import { tutorials } from "@site/demo-snippets/index";
+
+NovoRender measure API can be used to fetch parametric data based on real world position
+
+### Measure entity
+
+A measure entity reffers to a part of a parametric object, for example the inner or outer cylinder of a pipe. A measure entity can also be a single point, this is usually used if no paramteric object exists.
+
+The normal way of getting measure entites is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and object Id to find the closests edge surface or point. It will return the picked point if no parametric data is found near the imput point.
+Object Id and position can be used from the novorender webgl-api pick function on render renderOutput
+
+```typescript
+const output = await view.render();
+const result = output.pick(x, y);
+if (result) {
+  const entity = await measureScene.pickMeasureEntity(
+    result.objectId,
+    result.position
+  );
+}
+```
+
+### Parametric values on entity
+
+To get the parametric values such as the the radius, and centerline of a cylinder the `measure()`
+function can be used. This function be be used to get values from a single object by leaving the second argument as undefined.
+
+```typescript
+const measureValues = measurescene.measure(entity);
+if (measureValues.kind === "cylinder") {
+  console.log(`Radius of cylinder is: ${measureValues.radius}`);
+}
+```
+
+### Measure against another entity
+
+A measure between two entites is done by using the `measure()` function on scene with 2 arguments.
+What property the resulting object has will depend on the input arguments. There is also an option parameter
+to support additional options such as where a cylinder should measure from
+
+```typescript
+const output = await view.render();
+const result1 = output.pick(x1, y1);
+
+const result2 = output.pick(x2, y2);
+if (result1 && result2) {
+  const entity1 = await measureScene.pickMeasureEntity(
+    result1.objectId,
+    result1.position
+  );
+
+  const entity2 = await measureScene.pickMeasureEntity(
+    result2.objectId,
+    result2.position
+  );
+
+  const measureValues = (await measurescene.measure(entity)) as
+    | DuoMeasurementValues
+    | undefined;
+  if (measureValues && measureValues.distance) {
+    console.log(`Distance between objects is: ${measureValues.distance}`);
+  }
+}
+```
+
+### Demo
+
+Click to select parametric object, an alert with properties will be shown
+
+<PlaygroundComponent {...tutorials.measure.demo1}></PlaygroundComponent>
+
+:::note
+Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
+:::
+
+### Disposing

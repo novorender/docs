@@ -5,11 +5,10 @@ import { vec3 } from "gl-matrix";
 
 export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
     const measureApi = await Measure.createMeasureAPI();
-    measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const measurescene = await measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // create a view
     const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
-
     // provide a camera controller
     view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
 
@@ -30,6 +29,10 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
         // render frame
         const output = await view.render();
         {
+            const result = await output.pick(1, 2);
+            if (result) {
+
+            }
             // finalize output image
             const image = await output.getImage();
             if (image) {
