@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
-
+import type { MeasureAPI } from "@novorender/measure-api";
 interface props {
-    main: any,
-    isDoingActivity: (a: boolean) => void,
-    canvasRef: (a: HTMLCanvasElement) => void,
-    api: any,
-    panesHeight: number,
-    panesWidth: number,
-    onMessagesAndAlert: (m: string) => void
+    main: any;
+    isDoingActivity: (a: boolean) => void;
+    canvasRef: (a: HTMLCanvasElement) => void;
+    api: any;
+    measureApiInstance: any;
+    panesHeight: number;
+    panesWidth: number;
+    onMessagesAndAlert: (m: string) => void;
 };
 
 // let isComponentUnmounted = false;
@@ -71,11 +72,12 @@ interface props {
 //     }
 // }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     // const [view, setView] = useState<View>(null);
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
+    const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
     // dispose view and local state
     // const _dispose = (view: View) => {
@@ -141,31 +143,36 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, panesH
         canvasRef(canvas.current);
         (async () => {
             try {
-
-                // console.log('TRY vkigggg')
-
                 // if (!view) {
                 //     const _view = await apiInstance.createView({}, canvas.current);
                 //     setView(_view);
                 // }
 
                 // if (main) {
-                    // isDoingActivity(true); // toggle loader
-                    // const _view = await createView(apiInstance, scene, canvas.current);
-                    // const view = await apiInstance.createView({}, canvas.current);
-                    // if(view){
-                        await main(apiInstance,canvas.current);
-                    // }
+                // isDoingActivity(true); // toggle loader
+                // const _view = await createView(apiInstance, scene, canvas.current);
+                // const view = await apiInstance.createView({}, canvas.current);
+                // if(view){
+                switch (main.length) {
+                    case 3:
+                        await main(apiInstance, canvas.current, measureApiInstance);
+                        break;
+
+                    default:
+                        await main(apiInstance, canvas.current);
+                        break;
+                }
                 // }
-            } catch(err) {
-                console.log('something got caught ', err)
+                // }
+            } catch (err) {
+                console.log('something got caught ', err);
             }
-        })()
-    }, [main])
+        })();
+    }, [main]);
 
     useEffect(() => {
         document.addEventListener('fullscreenchange', resizeScene, false);
-        return () => { document.removeEventListener('fullscreenchange', resizeScene, false); }
+        return () => { document.removeEventListener('fullscreenchange', resizeScene, false); };
     });
 
     // resizes the scene/view to fit the viewport
