@@ -2,10 +2,11 @@ import * as NovoRender from "@novorender/webgl-api";
 import * as Measure from "@novorender/measure-api";
 import { vec3 } from "gl-matrix";
 
-
 export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measureApi: typeof Measure) {
     const _measureApi = await measureApi.createMeasureAPI();
     _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
+
 
     // create a view
     const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
@@ -18,6 +19,38 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
+    let currentOutput: NovoRender.RenderOutput | undefined = undefined;
+
+    let measureEntity1: Measure.MeasureEntity | undefined = undefined;
+    let measureEntity2: Measure.MeasureEntity | undefined = undefined;
+    let selectEntity: 1 | 2 = 1;
+
+    canvas.addEventListener("click", async (e) => {
+        if (currentOutput) {
+            const result = await currentOutput.pick(e.offsetX, e.offsetY);
+            if (result) {
+                if (selectEntity === 1) {
+                    measureEntity1 = await measureScene.pickMeasureEntity(
+                        result.objectId,
+                        result.position
+                    );
+                    selectEntity = 2;
+                }
+                else {
+                    measureEntity2 = await measureScene.pickMeasureEntity(
+                        result.objectId,
+                        result.position
+                    );
+                    selectEntity = 1;
+                }
+                if (measureEntity1) {
+                    console.log(measureScene.measure(measureEntity1, measureEntity2));
+                }
+            }
+        }
+    });
+
+
     // main render loop
     for (; ;) {
         // handle canvas resizes
@@ -27,14 +60,10 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
         view.applySettings({ display: { width, height } });
 
         // render frame
-        const output = await view.render();
+        currentOutput = await view.render();
         {
-            const result = await output.pick(1, 2);
-            if (result) {
-
-            }
             // finalize output image
-            const image = await output.getImage();
+            const image = await currentOutput.getImage();
             if (image) {
                 // display in canvas
                 ctx?.transferFromImageBitmap(image);

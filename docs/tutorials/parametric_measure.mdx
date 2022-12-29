@@ -70,12 +70,13 @@ if (result1 && result2) {
 
 ### Demo
 
-Click to select parametric object, an alert with properties will be shown
+Click to select parametric object, the console will log out values. Click another object to measure against, console log will show the values.
+Continued clicks will alternate between objects and log out the measurement values.
 
 <PlaygroundComponent {...tutorials.measure.demo1}></PlaygroundComponent>
 
 :::note
-Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
+If the object clicked does not have parametric values point at clicked location will be used instead, this is typically due to the original data being tesselated.
 :::
 
 ### Disposing
