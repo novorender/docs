@@ -59,7 +59,7 @@ if (result1 && result2) {
     result2.position
   );
 
-  const measureValues = (await measurescene.measure(entity)) as
+  const measureValues = (await measurescene.measure(entity1, entity2)) as
     | DuoMeasurementValues
     | undefined;
   if (measureValues && measureValues.distance) {
@@ -70,13 +70,13 @@ if (result1 && result2) {
 
 ### Demo
 
-Click to select parametric object, the console will log out values. Click another object to measure against, console log will show the values.
-Continued clicks will alternate between objects and log out the measurement values.
+Click to select parametric object, parametric data will be written to log. Select another object and the measurement data between the objects will be logged.
+Clicking further objects will alternate between first and second selected and log measure values
 
 <PlaygroundComponent {...tutorials.measure.demo1}></PlaygroundComponent>
 
 :::note
-If the object clicked does not have parametric values point at clicked location will be used instead, this is typically due to the original data being tesselated.
+Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
 :::
 
 ### Disposing
