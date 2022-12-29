@@ -21,8 +21,10 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
 
     let currentOutput: NovoRender.RenderOutput | undefined = undefined;
 
+    //Parameteric entites used to measure between
     let measureEntity1: Measure.MeasureEntity | undefined = undefined;
     let measureEntity2: Measure.MeasureEntity | undefined = undefined;
+    //number to alternate between selected entites.
     let selectEntity: 1 | 2 = 1;
 
     canvas.addEventListener("click", async (e) => {
@@ -30,6 +32,7 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
             const result = await currentOutput.pick(e.offsetX, e.offsetY);
             if (result) {
                 if (selectEntity === 1) {
+                    //Find measure entity at pick location
                     measureEntity1 = await measureScene.pickMeasureEntity(
                         result.objectId,
                         result.position
@@ -37,12 +40,15 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
                     selectEntity = 2;
                 }
                 else {
+                    //Find measure entity at pick location
                     measureEntity2 = await measureScene.pickMeasureEntity(
                         result.objectId,
                         result.position
                     );
                     selectEntity = 1;
                 }
+                //As long as one object is selected log out the values
+                //Note that if measureEntity2 is undefied then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
                     console.log(measureScene.measure(measureEntity1, measureEntity2));
                 }
