@@ -15,9 +15,25 @@ We will be using the npm package in all our examples.
 
 ## Private scenes
 
+Only scene related endpoints are covered by the NPM package, so for user / authentication endpoints you will have to use the REST API as well.
+
 ### Username / Password
 
 <PlaygroundComponent {...tutorials.loadingScenes.privateScene} />
 
-### AD
+### Active Directory
+
+To authenticate through Active Directory we recommend you use [MSAL](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview) with the following config:
+```json
+{
+    "clientId": "074eb42a-f94a-4a97-b7ad-0a187eb57f96",
+    "authority": "https://login.microsoftonline.com/{YOUR_TENANT_ID}",
+    "scopes": [
+        "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/resource.read",
+        "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/scene.edit"
+    ]
+}
+````
+
+Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of `POST /api/user/login`.
 
