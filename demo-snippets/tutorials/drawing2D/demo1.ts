@@ -27,8 +27,10 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
     let measureEntity2: Measure.MeasureEntity | undefined = undefined;
     //number to alternate between selected entites.
     let selectEntity: 1 | 2 = 1;
+
     //Save the measure result so it can be drawn in the draw loop
     let result = Measure.MeasurementValues | undefined = undefined;
+
 
     canvas.addEventListener("click", async (e) => {
         if (currentOutput) {
@@ -58,7 +60,6 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
             }
         }
     });
-
 
 
     // main render loop

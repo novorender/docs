@@ -1,0 +1,23 @@
+---
+title: 'Loading scenes'
+sidebar_position: 2
+---
+
+import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import { tutorials } from '@site/demo-snippets/index';
+
+To load your own scenes we recommend that you use the [`@novorender/data-js-api`](../data-js-api) package, but you can also use the [Novorender data REST API](/data-rest-api) directly if you prefer. 
+We will be using the npm package in all our examples.
+
+## Public scenes
+
+<PlaygroundComponent {...tutorials.loadingScenes.publicScene} />
+
+## Private scenes
+
+### Username / Password
+
+<PlaygroundComponent {...tutorials.loadingScenes.privateScene} />
+
+### AD
+
