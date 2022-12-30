@@ -28,6 +28,10 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
     //number to alternate between selected entites.
     let selectEntity: 1 | 2 = 1;
 
+    //Save the measure result so it can be drawn in the draw loop
+    let result = Measure.MeasurementValues | undefined = undefined;
+
+
     canvas.addEventListener("click", async (e) => {
         if (currentOutput) {
             const result = await currentOutput.pick(e.offsetX, e.offsetY);
@@ -51,7 +55,7 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
                 //As long as one object is selected log out the values
                 //Note that if measureEntity2 is undefied then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
-                    console.log(measureScene.measure(measureEntity1, measureEntity2));
+                    result = await measureScene.measure(measureEntity1, measureEntity2);
                 }
             }
         }
@@ -77,9 +81,54 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
             }
             image?.close();
         }
+
+        //Await all draw objects first to avoid flickering
+        const [
+            drawResult,
+            drawProuct1,
+            drawProduct2,
+        ] = await Promise.all([
+            result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
+            measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
+            measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
+        ]);
+
+        //Extract needed camera settings
+        const { camera } = view;
+        const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), camera.rotation);
+        const camSettings = { pos: camera.position, dir: cameraDirection };
+
+        //Draw result in green, all lines use 3 pixel width
+        if (drawResult) {
+            drawProduct(context2D,
+                camSettings,
+                drawResult,
+                { lineColor: "green" },
+                3);
+        }
+
+        //Draw first object with yellow line and blue fill
+        if (drawProuct1) {
+            drawProduct(context2D,
+                camSettings,
+                drawProuct1,
+                { lineColor: "yellow", fillColor: "blue" },
+                3);
+        }
+
+        //Draw second object with blue lines and yellow fill 
+        if (drawProduct2) {
+            drawProduct(context2D,
+                camSettings,
+                drawProduct2,
+                { lineColor: "blue", fillColor: "yellow" },
+                3);
+        }
     }
 }
 
+
+// Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
 export interface ColorSettings {
     lineColor?: string | CanvasGradient;
     fillColor?: string;
