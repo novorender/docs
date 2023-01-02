@@ -5,3 +5,5 @@ export * from "./measure";
 export * from "./getting_started";
 export * from "./loading_scenes";
 export * from "./searching";
+export * from "./drawing2D";
+
