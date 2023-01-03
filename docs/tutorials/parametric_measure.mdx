@@ -5,13 +5,15 @@ title: "Parametric measure"
 import PlaygroundComponent from "@site/src/components/PlaygroundComponent";
 import { tutorials } from "@site/demo-snippets/index";
 
-NovoRender measure API can be used to fetch parametric data based on real world position
+NovoRender measure API can be used to fetch parametric data based on real world position, and calculate measurements between 2 objects
 
 ### Measure entity
 
-A measure entity reffers to a part of a parametric object, for example the inner or outer cylinder of a pipe. A measure entity can also be a single point, this is usually used if no paramteric object exists.
+A measure entity reffers to a part of a parametric object, for example the inner or outer cylinder of a pipe.
+A measure entity can also be a single point, this is usually used if no paramteric object exists at a clicked location.
 
-The normal way of getting measure entites is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and object Id to find the closests edge surface or point. It will return the picked point if no parametric data is found near the imput point.
+The normal way of getting measure entites is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and
+object Id to find the closests edge surface or point. It will return the picked point if no parametric data is found near the input point.
 Object Id and position can be used from the novorender webgl-api pick function on render renderOutput
 
 ```typescript
@@ -78,5 +80,3 @@ Clicking further objects will alternate between first and second selected and lo
 :::note
 Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
 :::
-
-### Disposing

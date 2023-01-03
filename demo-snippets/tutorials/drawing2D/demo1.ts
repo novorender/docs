@@ -1,9 +1,18 @@
 import * as NovoRender from "@novorender/webgl-api";
 import * as Measure from "@novorender/measure-api";
-import { DrawPart, DrawProduct } from "@novorender/measure-api";
-import { ReadonlyVec2, ReadonlyVec3, vec2, vec3 } from "gl-matrix";
+import type { DrawPart, DrawProduct } from "@novorender/measure-api";
+import * as GlMatrix from "gl-matrix";
 
-export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measureApi: typeof Measure) {
+export async function main(
+    api: NovoRender.API,
+    canvas: HTMLCanvasElement,
+    measureApi: typeof Measure,
+    glMatrix: typeof GlMatrix,
+    canvas2D: HTMLCanvasElement
+) {
+
+    const { vec2, vec3 } = glMatrix;
+
     const _measureApi = await measureApi.createMeasureAPI();
     _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
     const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
@@ -19,22 +28,23 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
+    const context2D = canvas2D.getContext("2d");
 
-    let currentOutput: NovoRender.RenderOutput | undefined = undefined;
+    let currentOutput: NovoRender.RenderOutput;
 
-    //Parameteric entites used to measure between
+    //Parametric entities used to measure between
     let measureEntity1: Measure.MeasureEntity | undefined = undefined;
     let measureEntity2: Measure.MeasureEntity | undefined = undefined;
-    //number to alternate between selected entites.
+    //number to alternate between selected entities.
     let selectEntity: 1 | 2 = 1;
 
     //Save the measure result so it can be drawn in the draw loop
-    let result = Measure.MeasurementValues | undefined = undefined;
+    let result: Measure.MeasurementValues | undefined = undefined;
 
 
     canvas.addEventListener("click", async (e) => {
         if (currentOutput) {
-            const result = await currentOutput.pick(e.offsetX, e.offsetY);
+            let result = await currentOutput.pick(e.offsetX, e.offsetY);
             if (result) {
                 if (selectEntity === 1) {
                     //Find measure entity at pick location
@@ -53,7 +63,7 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
                     selectEntity = 1;
                 }
                 //As long as one object is selected log out the values
-                //Note that if measureEntity2 is undefied then the result will be the parametric values of measureEntity1
+                //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
                     result = await measureScene.measure(measureEntity1, measureEntity2);
                 }
@@ -85,7 +95,7 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
         //Await all draw objects first to avoid flickering
         const [
             drawResult,
-            drawProuct1,
+            drawProduct1,
             drawProduct2,
         ] = await Promise.all([
             result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
@@ -100,29 +110,32 @@ export async function main(api: NovoRender.API, canvas: HTMLCanvasElement, measu
 
         //Draw result in green, all lines use 3 pixel width
         if (drawResult) {
-            drawProduct(context2D,
+            drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
                 drawResult,
                 { lineColor: "green" },
-                3);
+                3,
+                glMatrix);
         }
 
         //Draw first object with yellow line and blue fill
-        if (drawProuct1) {
-            drawProduct(context2D,
+        if (drawProduct1) {
+            drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
-                drawProuct1,
+                drawProduct1,
                 { lineColor: "yellow", fillColor: "blue" },
-                3);
+                3,
+                glMatrix);
         }
 
         //Draw second object with blue lines and yellow fill 
         if (drawProduct2) {
-            drawProduct(context2D,
+            drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
                 drawProduct2,
                 { lineColor: "blue", fillColor: "yellow" },
-                3);
+                3,
+                glMatrix);
         }
     }
 }
@@ -144,8 +157,8 @@ export interface TextSettings {
 }
 
 export interface CameraSettings {
-    pos: ReadonlyVec3;
-    dir: ReadonlyVec3;
+    pos: GlMatrix.ReadonlyVec3;
+    dir: GlMatrix.ReadonlyVec3;
 }
 
 export function drawProduct(
@@ -153,7 +166,8 @@ export function drawProduct(
     camera: CameraSettings,
     product: DrawProduct,
     colorSettings: ColorSettings,
-    pixelWidth: number
+    pixelWidth: number,
+    glMatrix: typeof GlMatrix
 ) {
     for (const obj of product.objects) {
         if (colorSettings.complexCylinder && obj.kind === "cylinder" && obj.parts.length === 3) {
@@ -166,8 +180,8 @@ export function drawProduct(
                     startCol = endCol;
                     endCol = tmp;
                 }
-                const gradX = vec2.fromValues(cylinderLine.vertices2D[0][0], cylinderLine.vertices2D[1][0]);
-                const gradY = vec2.fromValues(cylinderLine.vertices2D[0][1], cylinderLine.vertices2D[1][1]);
+                const gradX = glMatrix.vec2.fromValues(cylinderLine.vertices2D[0][0], cylinderLine.vertices2D[1][0]);
+                const gradY = glMatrix.vec2.fromValues(cylinderLine.vertices2D[0][1], cylinderLine.vertices2D[1][1]);
                 const gradient = ctx.createLinearGradient(gradX[0], gradY[0], gradX[1], gradY[1]);
                 gradient.addColorStop(0, startCol);
                 gradient.addColorStop(1, endCol);
@@ -176,7 +190,8 @@ export function drawProduct(
                     camera,
                     cylinderLine,
                     { lineColor: gradient, outlineColor: "rgba(80, 80, 80, .8)" },
-                    pixelWidth
+                    pixelWidth,
+                    glMatrix
                 );
             }
 
@@ -187,12 +202,13 @@ export function drawProduct(
                     camera,
                     obj.parts[i],
                     { lineColor: col, outlineColor: "rgba(80, 80, 80, .8)" },
-                    pixelWidth
+                    pixelWidth,
+                    glMatrix
                 );
             }
         } else {
             obj.parts.forEach((part) => {
-                drawPart(ctx, camera, part, colorSettings, pixelWidth);
+                drawPart(ctx, camera, part, colorSettings, pixelWidth, glMatrix);
             });
         }
     }
@@ -204,16 +220,17 @@ export function drawPart(
     part: DrawPart,
     colorSettings: ColorSettings,
     pixelWidth: number,
-    textSettings?: TextSettings
+    glMatrix: typeof GlMatrix,
+    textSettings?: TextSettings,
 ): boolean {
     if (part.vertices2D) {
         ctx.lineWidth = pixelWidth;
         ctx.strokeStyle = colorSettings.lineColor ?? "black";
         ctx.fillStyle = colorSettings.fillColor ?? "transparent";
         if (part.drawType === "angle" && part.vertices2D.length === 3 && part.text) {
-            return drawAngle(ctx, camera, part);
+            return drawAngle(ctx, camera, part, glMatrix);
         } else if (part.drawType === "lines" || part.drawType === "filled") {
-            return drawLinesOrPolygon(ctx, part, colorSettings, textSettings);
+            return drawLinesOrPolygon(ctx, part, colorSettings, glMatrix, textSettings);
         } else if (part.drawType === "vertex") {
             return drawPoints(ctx, part, colorSettings);
         }
@@ -221,7 +238,10 @@ export function drawPart(
     return false;
 }
 
-function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: DrawPart) {
+function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: DrawPart, glMatrix: typeof GlMatrix) {
+
+    const { vec2, vec3 } = glMatrix;
+
     if (part.vertices2D) {
         ctx.fillStyle = "transparent";
         const anglePoint = part.vertices2D[0];
@@ -303,8 +323,12 @@ function drawLinesOrPolygon(
     ctx: CanvasRenderingContext2D,
     part: DrawPart,
     colorSettings: ColorSettings,
+    glMatrix: typeof GlMatrix,
     text?: TextSettings
 ) {
+
+    const { vec2 } = glMatrix;
+
     if (part.vertices2D) {
         ctx.beginPath();
         ctx.moveTo(part.vertices2D[0][0], part.vertices2D[0][1]);
@@ -437,16 +461,16 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
     return false;
 }
 
-export function drawTexts(ctx: CanvasRenderingContext2D, positions: ReadonlyVec2[], texts: string[]) {
-    ctx.strokeStyle = "black";
-    ctx.fillStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.font = `bold ${16}px "Open Sans", sans-serif`;
-    ctx.textBaseline = "top";
-    ctx.textAlign = "center";
+// export function drawTexts(ctx: CanvasRenderingContext2D, positions: ReadonlyVec2[], texts: string[]) {
+//     ctx.strokeStyle = "black";
+//     ctx.fillStyle = "white";
+//     ctx.lineWidth = 2;
+//     ctx.font = `bold ${16}px "Open Sans", sans-serif`;
+//     ctx.textBaseline = "top";
+//     ctx.textAlign = "center";
 
-    for (let i = 0; i < positions.length; ++i) {
-        ctx.strokeText(texts[i], positions[i][0], positions[i][1]);
-        ctx.fillText(texts[i], positions[i][0], positions[i][1]);
-    }
-}
+//     for (let i = 0; i < positions.length; ++i) {
+//         ctx.strokeText(texts[i], positions[i][0], positions[i][1]);
+//         ctx.fillText(texts[i], positions[i][0], positions[i][1]);
+//     }
+// }

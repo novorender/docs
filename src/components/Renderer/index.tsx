@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
 import type { MeasureAPI } from "@novorender/measure-api";
+import * as glMatrix from 'gl-matrix';
+import { PlaygroundConfig } from "../PlaygroundComponent";
 interface props {
     main: any;
     isDoingActivity: (a: boolean) => void;
@@ -11,6 +13,7 @@ interface props {
     panesHeight: number;
     panesWidth: number;
     onMessagesAndAlert: (m: string) => void;
+    playgroundConfig: PlaygroundConfig
 };
 
 // let isComponentUnmounted = false;
@@ -72,10 +75,12 @@ interface props {
 //     }
 // }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, playgroundConfig }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
+    const canvas2D = useRef<HTMLCanvasElement>(null);
     // const [view, setView] = useState<View>(null);
+    const [_playgroundConfig, setPlaygroundConfig] = useState<PlaygroundConfig>(playgroundConfig);
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
@@ -138,7 +143,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
 
     useEffect(() => {
         console.log('main from renderer', main);
-        // console.log("view 123456 ", view)
+        console.log('main args length ', main.length);
         console.log('api from renderer', apiInstance);
         canvasRef(canvas.current);
         (async () => {
@@ -156,6 +161,10 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
                 switch (main.length) {
                     case 3:
                         await main(apiInstance, canvas.current, measureApiInstance);
+                        break;
+
+                    case 5:
+                        await main(apiInstance, canvas.current, measureApiInstance, glMatrix, canvas2D.current);
                         break;
 
                     default:
@@ -293,8 +302,9 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     return (
         <BrowserOnly>
             {
-                () => <div style={{ height: panesHeight }} className="canvas-overscroll-fix">
+                () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
+                    {_playgroundConfig && _playgroundConfig.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>}
                 </div>
             }
         </BrowserOnly>
