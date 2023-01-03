@@ -80,7 +80,6 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
     // const [view, setView] = useState<View>(null);
-    const [_playgroundConfig, setPlaygroundConfig] = useState<PlaygroundConfig>(playgroundConfig);
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
@@ -304,7 +303,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
             {
                 () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
-                    {_playgroundConfig && _playgroundConfig.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>}
+                    <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, visibility: playgroundConfig?.canvas2D ? 'visible' : 'hidden', display: playgroundConfig?.canvas2D ? 'block' : 'none' }}></canvas>
                 </div>
             }
         </BrowserOnly>
