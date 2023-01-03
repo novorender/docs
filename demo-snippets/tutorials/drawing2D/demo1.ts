@@ -28,7 +28,7 @@ export async function main(
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
-    const context2D = canvas.getContext("2d");
+    const context2D = canvas2D.getContext("2d");
 
     let currentOutput: NovoRender.RenderOutput;
 
