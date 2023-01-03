@@ -142,8 +142,8 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     // }, []);
 
     useEffect(() => {
-        console.log('main from renderer', main, canvas2D.current);
-        // console.log("view 123456 ", view)
+        console.log('main from renderer', main);
+        console.log('main args length ', main.length);
         console.log('api from renderer', apiInstance);
         canvasRef(canvas.current);
         (async () => {
@@ -304,7 +304,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
             {
                 () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
-                    {_playgroundConfig.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>}
+                    {_playgroundConfig && _playgroundConfig.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>}
                 </div>
             }
         </BrowserOnly>
