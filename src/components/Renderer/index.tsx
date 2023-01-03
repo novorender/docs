@@ -144,6 +144,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
         console.log('main from renderer', main);
         console.log('main args length ', main.length);
         console.log('api from renderer', apiInstance);
+        console.log('playgroundConfig from renderer', playgroundConfig);
         canvasRef(canvas.current);
         (async () => {
             try {
