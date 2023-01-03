@@ -3,6 +3,7 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
 import type { MeasureAPI } from "@novorender/measure-api";
 import * as glMatrix from 'gl-matrix';
+import { PlaygroundConfig } from "../PlaygroundComponent";
 interface props {
     main: any;
     isDoingActivity: (a: boolean) => void;
@@ -12,6 +13,7 @@ interface props {
     panesHeight: number;
     panesWidth: number;
     onMessagesAndAlert: (m: string) => void;
+    playgroundConfig: PlaygroundConfig
 };
 
 // let isComponentUnmounted = false;
@@ -73,7 +75,7 @@ interface props {
 //     }
 // }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, playgroundConfig }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
@@ -301,7 +303,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
             {
                 () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
-                    <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>
+                    {playgroundConfig?.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></canvas>}
                 </div>
             }
         </BrowserOnly>

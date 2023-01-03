@@ -7,10 +7,11 @@ function demo<T extends string>(name: T, code: string) {
                 demoName: name,
                 config: {
                     clickToRun: true,
+                    canvas2D: true // 2DCanvas overlay
                 },
                 editUrl: `demo-snippets/tutorials/drawing2D/${name}.ts`,
                 code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`
+                previewImageUrl: `assets/demo-screenshots/${name}.png`,
             } as const
     } as const;
 }

@@ -13,6 +13,7 @@ export const predefined_scenes = ['cube', 'condos', 'oilrig', 'empty'] as const;
 export interface PlaygroundConfig {
     mode: 'inline' | 'fill'; // using `fill` will make the playground to take entire viewport's width and height, `inline` is default
     clickToRun?: boolean;
+    canvas2D?: boolean // to enable 2DCanvas overlay
 };
 
 interface props {
@@ -40,7 +41,8 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
 
         setPlaygroundConfig({
             mode: config && config.mode || 'inline',
-            clickToRun: config && config.clickToRun !== undefined ? config.clickToRun : true
+            clickToRun: config && config.clickToRun !== undefined ? config.clickToRun : true,
+            canvas2D: config && config.canvas2D !== undefined ? config.canvas2D : false
         });
 
     }, []);
