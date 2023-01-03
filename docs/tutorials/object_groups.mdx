@@ -1,0 +1,69 @@
+---
+title: 'Object groups'
+---
+
+import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import { tutorials } from '@site/demo-snippets/index';
+
+Although the [ObjectGroup interface](../data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particulary noteworthy,
+the [SceneData.objectGroups property](../interfaces/DataJsAPI.SceneData#objectgroups) can be extremely useful. 
+Object IDs in Novorender are not fixed and may change whenever the scene's resources are modified. 
+Therefore if you store the IDs from a search (e.g. all objects on the first floor) and then later modify the scene's resources, 
+the scene's objects' IDs may have changed and your stored list of IDs will be stale.  
+
+The search patterns assigned to each object group is run every time a scene's resources are modified so that the list of IDs always will be correct.
+That way you can easily create cached searches by using object groups.
+
+In the case where the `objectGroups.ids` list is quite large, the .ids property is undefined and should be explicity loaded as shown in the [Floors example](#floors-example).  
+
+
+## Create group
+
+<PlaygroundComponent {...tutorials.objectGroups.create} />
+
+## Modify groups
+
+Edit a group
+```typescript
+  // Load scene data
+  const sceneData = await dataApi.loadScene(SCENE_ID);
+  // ID of group to edit
+  const toEdit = "56196cbf-f5aa-4f65-9934-911546f89225";
+  // Create new array with the changes applied.
+  // In this case name is set to "Updated name"
+  const updatedGroups = sceneData.objectGroups.map((group) =>
+    group.id === toEdit ? { ...group, name: "Updated name" } : group
+  );
+
+  // Save scene
+  dataApi.putScene({
+    ...sceneData,
+    url: `${SCENE_ID}:${scene.id}`,
+    objectGroups: updatedGroups,
+  });
+```
+
+Delete a group
+```typescript
+  // Load scene data
+  const sceneData = await dataApi.loadScene(SCENE_ID);
+  // ID of group to delete
+  const toDelete = "56196cbf-f5aa-4f65-9934-911546f89225";
+  // Create new array without the group to delete
+  const updatedGroups = sceneData.objectGroups.filter(
+    (group) => group.id !== toDelete
+  );
+
+  // Save scene
+  dataApi.putScene({
+    ...sceneData,
+    url: `${SCENE_ID}:${scene.id}`,
+    objectGroups: updatedGroups,
+  });
+```
+
+## Floors example
+
+In this example we have predefined groups which are set up for each floor and created buttons to isolate object for the clicked floor button.
+
+<PlaygroundComponent {...tutorials.objectGroups.floors} />
