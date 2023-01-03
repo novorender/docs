@@ -152,6 +152,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
      */
     const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any }> => {
         const encodedJs = encodeURIComponent(transpiledOutput);
+        console.log('encodedJsv ', encodedJs)
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
         const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
 
@@ -235,10 +236,10 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             //   noSyntaxValidation: false
             // });
 
-            //   // compiler options
-            //   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-            //     target: monaco.languages.typescript.ScriptTarget.ES6,
-            //     allowNonTsExtensions: true
+            // compiler options
+            //   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+            // //     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+            //     allowSyntheticDefaultImports: true
             //   });
 
             const libUri = "index.d.ts";
@@ -246,6 +247,11 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                 WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS,
                 libUri
             );
+
+            // monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            //    GlMatrixDTS,
+            //     'file:///node_modules/gl-matrix/index.d.ts'
+            // );
 
             // When resolving definitions and references, the editor will try to use created models.
             // Creating a model for the library allows "peek definition/references" commands to work with the library.
@@ -476,7 +482,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                             {render_config || main
                                 ? <>{renderSettings
                                     ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
-                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
+                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} playgroundConfig={playgroundConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}
