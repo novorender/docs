@@ -8,7 +8,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "npm run validate-snippets && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -19,7 +19,8 @@
     "validate:json-config": "ajv validate -s scene-screenshot-gen/schema.json -d scene-screenshot-gen/config.json",
     "gen:demo-screenshots": "tsc -p scene-screenshot-gen/tsconfig.json && node scene-screenshot-gen/index.js",
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
-    "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json"
+    "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "0.11.0",
@@ -62,7 +63,8 @@
     "typescript": "4.9.4",
     "url": "0.11.0",
     "util": "0.12.4",
-    "yargs": "17.4.1"
+    "yargs": "17.4.1",
+    "husky": "^8.0.0"
   },
   "browserslist": {
     "production": [

@@ -6,8 +6,9 @@ import dual from '!!./dual.ts?raw';
 import slab from '!!./slab.ts?raw';
 import slab_inv from '!!./slab_inv.ts?raw';
 import box from '!!./box.ts?raw';
+import { IDemo } from "../../misc";
 
-function demo<T extends string>(name: T, code: string) {
+function demo<T extends string>(name: T, code: string): IDemo {
     return {
         [name]:
             {
