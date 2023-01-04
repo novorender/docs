@@ -48,21 +48,21 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
 
     canvas.addEventListener("click", async (e) => {
         if (currentOutput) {
-            let result = await currentOutput.pick(e.offsetX, e.offsetY);
-            if (result) {
+            let result1 = await currentOutput.pick(e.offsetX, e.offsetY);
+            if (result1) {
                 if (selectEntity === 1) {
                     //Find measure entity at pick location
                     measureEntity1 = await measureScene.pickMeasureEntity(
-                        result.objectId,
-                        result.position
+                        result1.objectId,
+                        result1.position
                     );
                     selectEntity = 2;
                 }
                 else {
                     //Find measure entity at pick location
                     measureEntity2 = await measureScene.pickMeasureEntity(
-                        result.objectId,
-                        result.position
+                        result1.objectId,
+                        result1.position
                     );
                     selectEntity = 1;
                 }
