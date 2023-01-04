@@ -1,5 +1,4 @@
 import floors from '!!./floors.ts?raw';
-import create from '!!./create.ts?raw';
 
 function demo<T extends string>(name: T, code: string) {
     return {
@@ -18,5 +17,4 @@ function demo<T extends string>(name: T, code: string) {
 
 export const objectGroups = {
     ...demo("floors", floors),
-    ...demo("create", create),
 };

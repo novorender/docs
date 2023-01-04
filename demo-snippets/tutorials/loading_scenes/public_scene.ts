@@ -1,7 +1,7 @@
 import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from '@novorender/measure-api';
-import * as DataJsAPI from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureAPI from "@novorender/measure-api";
+import * as DataJsAPI from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglAPI: NovoRender.API;
@@ -10,7 +10,7 @@ export interface IParams {
   dataJsAPI: typeof DataJsAPI;
   glMatrix: typeof GlMatrix;
   canvas2D: HTMLCanvasElement;
-};
+}
 
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   // Initialize the data API with the Novorender data server service
@@ -43,6 +43,9 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     // Create a view with the scene's saved settings
     const view = await webglAPI.createView(settings, canvas);
 
+    // Set resolution scale to 1
+    view.applySettings({ quality: { resolution: { value: 1 } } });
+
     // Create a camera controller with the saved parameters with turntable as fallback
     const camera = cameraParams ?? ({ kind: "turntable" } as any);
     view.camera.controller = webglAPI.createCameraController(camera, canvas);
@@ -58,7 +61,10 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   }
 }
 
-async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(
+  view: NovoRender.View,
+  canvas: HTMLCanvasElement
+): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {

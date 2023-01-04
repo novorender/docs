@@ -1,7 +1,7 @@
 import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from '@novorender/measure-api';
-import * as DataJsAPI from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureAPI from "@novorender/measure-api";
+import * as DataJsAPI from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 export interface IParams {
   webglAPI: NovoRender.API;
   canvas: HTMLCanvasElement;
@@ -9,14 +9,18 @@ export interface IParams {
   dataJsAPI: typeof DataJsAPI;
   glMatrix: typeof GlMatrix;
   canvas2D: HTMLCanvasElement;
-};
+}
 
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
-    const [view, dataApi, objectGroups] = await initView(webglAPI, canvas, dataJsAPI);
+    const [view, dataApi, objectGroups] = await initView(
+      webglAPI,
+      canvas,
+      dataJsAPI
+    );
     const scene = view.scene!;
     run(view, canvas);
 
@@ -26,7 +30,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     );
 
     // Create buttons
-    createFloorButtons(floors, (floor: DataJsAPI.ObjectGroup | undefined) => {
+    createFloorButtons(canvas.parentElement!, floors, (floor: DataJsAPI.ObjectGroup | undefined) => {
       if (floor) {
         // Hide all floors
         floors.forEach((floor) => (floor.hidden = true));
@@ -94,6 +98,7 @@ async function handleVisibilityChanges(
 
 // UI setup
 function createFloorButtons(
+  container: HTMLElement,
   floors: DataJsAPI.ObjectGroup[],
   onClick: (floor?: DataJsAPI.ObjectGroup) => void
 ): void {
@@ -118,8 +123,7 @@ function createFloorButtons(
   };
 
   wrapper.append(btn);
-
-  document.body.append(wrapper);
+  container.append(wrapper);
 }
 
 async function initView(
@@ -153,6 +157,9 @@ async function initView(
   // Create a view with the scene's saved settings
   const view = await api.createView(settings, canvas);
 
+  // Set resolution scale to 1
+  view.applySettings({ quality: { resolution: { value: 1 } } });
+
   // Create a camera controller with the saved parameters with turntable as fallback
   const camera = cameraParams ?? ({ kind: "turntable" } as any);
   view.camera.controller = api.createCameraController(camera, canvas);
@@ -163,7 +170,10 @@ async function initView(
   return [view, dataApi, objectGroups];
 }
 
-async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(
+  view: NovoRender.View,
+  canvas: HTMLCanvasElement
+): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
