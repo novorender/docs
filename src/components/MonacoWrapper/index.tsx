@@ -11,7 +11,7 @@ import ManagedRenderer from '@site/src/components/RendererManaged';
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import { WellKnownSceneUrls } from '@site/src/shared';
-import type { CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
+import type { API, CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 
 /** CSS */
 import styles from './styles.module.css';
@@ -32,10 +32,23 @@ import EnvironmentIconSvg from '@site/static/img/image-solid.svg';
 /** Icons END */
 
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
+import DataJsApiDTS from '!!raw-loader!@site/node_modules/@novorender/data-js-api/index.d.ts';
 import MeasureApiDTS from '!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts';
 import GlMatrixDTS from '!!raw-loader!@site/node_modules/gl-matrix/index.d.ts';
 import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
 import { cameraTypes, ICameraTypes } from './camera_controllers_config';
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+
+export interface IParams {
+    webglAPI: API;
+    measureAPI: typeof MeasureAPI;
+    dataJsAPI: typeof DataJsAPI;
+    primaryCanvas: HTMLCanvasElement;
+    glMatrix: typeof GlMatrix;
+    canvas2D: HTMLCanvasElement;
+};
 
 // the namespace from the original index.d.ts needs replacing
 // or Monaco doesn't like it
@@ -64,17 +77,17 @@ function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSce
  * @todo move to separate file
  */
 function useDebounce<T>(value: T, delay?: number): T {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value)
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
     useEffect(() => {
-        const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
+        const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
 
         return () => {
-            clearTimeout(timer)
-        }
-    }, [value, delay])
+            clearTimeout(timer);
+        };
+    }, [value, delay]);
 
-    return debouncedValue
+    return debouncedValue;
 }
 
 export default function MonacoWrapper({ code, renderSettings, scene, demoName, cameraController, playgroundConfig, editUrl }: props): JSX.Element {
@@ -100,7 +113,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
     const [apiVersion, setApiVersion] = useState<string>(null);
     const [api, setApiInstance] = useState<any>(); // Create API
-    const [measureApiInstance, setMeasureApiInstance] = useState<any>() // Measure API
+    const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
     const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
     const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
@@ -118,9 +131,9 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             if (renderSettings) {
                 setInitialCode(
                     `export const config: NovoRender.RenderSettingsParams = ${stringify(renderSettings, { indent: 8 })};`
-                )
+                );
             } else {
-                setInitialCode(code)
+                setInitialCode(code);
             }
         }
     }, [code, renderSettings]);
@@ -150,9 +163,9 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
      * @param transpiledOutput string that contains config
      * @returns RenderConfig
      */
-    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any }> => {
+    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any; }> => {
         const encodedJs = encodeURIComponent(transpiledOutput);
-        console.log('encodedJsv ', encodedJs)
+        console.log('encodedJsv ', encodedJs);
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
         const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
 
@@ -163,7 +176,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
     const codeChangeHandler = async (tsCode: string) => {
 
-        setIsActivity(true) // toggle spinner.
+        setIsActivity(true); // toggle spinner.
         setTsCodeForClipboard(tsCode); // for clipboard copy
         const output = await returnTranspiledOutput(editorInstance.current, monaco);
 
@@ -173,7 +186,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         // been changed.
         if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
             console.log('[INFO]: Code hasn\'t been changed, returning.');
-            setIsActivity(false) // toggle spinner.
+            setIsActivity(false); // toggle spinner.
             return false;
         }
 
@@ -186,16 +199,16 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             // the component to remount which then creates
             // everything again (the view, scene etc...)
             setMain(() => null);
-            
+
             // set the main again
             setMain(() => main);
         }
         // set render config for output
         setRenderConfig(config);
-        if (cameraConfig) { setCurrentCameraController(cameraConfig) };
-        setIsActivity(false) // toggle spinner.
+        if (cameraConfig) { setCurrentCameraController(cameraConfig); };
+        setIsActivity(false); // toggle spinner.
 
-    }
+    };
 
 
     useEffect(() => {
@@ -250,7 +263,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
             const libUri = "index.d.ts";
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
-                WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS,
+                WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS,
                 libUri
             );
 
@@ -263,7 +276,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             // Creating a model for the library allows "peek definition/references" commands to work with the library.
             if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
                 monaco.editor.createModel(
-                    WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS,
+                    WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS,
                     "typescript",
                     monaco.Uri.parse(libUri)
                 );
@@ -276,6 +289,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
         await editor.getAction('editor.action.formatDocument').run();
+        editor.setPosition({column: 1, lineNumber: 15});
+        editor.revealLineInCenter(20);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
         const { config, main } = await returnRenderConfigFromOutput(output);
@@ -297,7 +312,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             const diagnostic = markers[0];
             setCodeError(diagnostic);
         } else {
-            setCodeError(null)
+            setCodeError(null);
         }
     }
 
@@ -343,9 +358,9 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
         let editorValue: string = editorInstance.current.getModel().getValue();
 
-        const regex = /(export\s*const\s*cameraConfig(.*?){(.*?)};)/gs // regex to match camera controller config object.
+        const regex = /(export\s*const\s*cameraConfig(.*?){(.*?)};)/gs; // regex to match camera controller config object.
         const isMatch = regex.test(editorValue);
-        const newCameraConfig = `\nexport const cameraConfig ${cameraType.configObject};`
+        const newCameraConfig = `\nexport const cameraConfig ${cameraType.configObject};`;
 
         if (isMatch) { // there's already a config object in the editor
 
@@ -364,7 +379,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                 const lineCount = editorInstance.current.getModel().getLineCount();
                 var range = new monaco.Range(lineCount + 1, 1, lineCount + 1, 1);
                 var id = { major: 1, minor: 1 };
-                const text = `\n${newCameraConfig}`
+                const text = `\n${newCameraConfig}`;
                 var op = { identifier: id, range, text, forceMoveMarkers: true };
                 editorInstance.current.executeEdits("edit1", [op]);
             } else {
@@ -397,8 +412,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                                         {
                                             cameraTypes.map((c, i) => (
                                                 <li key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <a className={`dropdown__link ${currentCameraController.kind === c.kind && styles.controllerDropDownActive}`} style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false) }} href="#">{c.kind}</a>
-                                                    <button onClick={() => { configureCameraController(c, true) }} className='clean-btn' style={{ padding: '0 6px' }} title='Configure camera controller via editor'>
+                                                    <a className={`dropdown__link ${currentCameraController.kind === c.kind && styles.controllerDropDownActive}`} style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false); }} href="#">{c.kind}</a>
+                                                    <button onClick={() => { configureCameraController(c, true); }} className='clean-btn' style={{ padding: '0 6px' }} title='Configure camera controller via editor'>
                                                         <SettingsIconSvg className={styles.editorSvgIcon} />
                                                     </button>
                                                 </li>
@@ -511,7 +526,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                                     parentElement={playgroundConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={<div className={styles.popoverContent}><ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol></div>}
                                 >
-                                    <button onMouseEnter={() => { setIsPopoverOpen(true) }} onMouseLeave={() => { setIsPopoverOpen(false) }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
+                                    <button onMouseEnter={() => { setIsPopoverOpen(true); }} onMouseLeave={() => { setIsPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
                                         <AlertsIconSvg className={styles.editorSvgIcon} style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
                                     </button>
                                 </Popover>

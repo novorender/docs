@@ -1,17 +1,29 @@
-import { WellKnownSceneUrls, API } from "@novorender/webgl-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
-export async function main(api: API, canvas: HTMLCanvasElement) {
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
+
+export async function main({ webglAPI, canvas }: IParams) {
   // Create a view
-  const view = await api.createView(
+  const view = await webglAPI.createView(
     { background: { color: [0, 0, 0, 0] } }, // Transparent
     canvas
   );
 
   // Provide a camera controller
-  view.camera.controller = api.createCameraController({ kind: "turntable" });
+  view.camera.controller = webglAPI.createCameraController({ kind: "turntable" });
 
   // Load the Condos demo scene
-  view.scene = await api.loadScene(WellKnownSceneUrls.condos);
+  view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");

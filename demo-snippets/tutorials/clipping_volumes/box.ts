@@ -1,15 +1,26 @@
 import * as NovoRender from "@novorender/webgl-api";
-import { vec3 } from "gl-matrix";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
-export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
+
+export async function main({ webglAPI, canvas }: IParams) {
     // create a view
-    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
     // provide a camera controller
-    view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
+    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
 
     // load scene
-    const scene = view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // get center of scene
     const [cx, cy, cz] = scene.boundingSphere.center;

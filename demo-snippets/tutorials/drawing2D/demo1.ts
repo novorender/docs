@@ -1,30 +1,34 @@
 import * as NovoRender from "@novorender/webgl-api";
-import * as Measure from "@novorender/measure-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
-import * as GlMatrix from "gl-matrix";
 
-export async function main(
-    api: NovoRender.API,
-    canvas: HTMLCanvasElement,
-    measureApi: typeof Measure,
-    glMatrix: typeof GlMatrix,
-    canvas2D: HTMLCanvasElement
-) {
+export interface IParams {
+    webglAPI: NovoRender.API;
+    canvas: HTMLCanvasElement;
+    measureAPI: typeof MeasureAPI;
+    dataJsAPI: typeof DataJsAPI;
+    glMatrix: typeof GlMatrix;
+    canvas2D: HTMLCanvasElement;
+};
+
+export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
 
     const { vec2, vec3 } = glMatrix;
 
-    const _measureApi = await measureApi.createMeasureAPI();
+    const _measureApi = await measureAPI.createMeasureAPI();
     _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
     const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
 
     // create a view
-    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
     // provide a camera controller
-    view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
+    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
 
     // create an empty scene
-    const scene = view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
@@ -33,13 +37,13 @@ export async function main(
     let currentOutput: NovoRender.RenderOutput;
 
     //Parametric entities used to measure between
-    let measureEntity1: Measure.MeasureEntity | undefined = undefined;
-    let measureEntity2: Measure.MeasureEntity | undefined = undefined;
+    let measureEntity1: MeasureAPI.MeasureEntity | undefined = undefined;
+    let measureEntity2: MeasureAPI.MeasureEntity | undefined = undefined;
     //number to alternate between selected entities.
     let selectEntity: 1 | 2 = 1;
 
     //Save the measure result so it can be drawn in the draw loop
-    let result: Measure.MeasurementValues | undefined = undefined;
+    let result: MeasureAPI.MeasurementValues | undefined = undefined;
 
 
     canvas.addEventListener("click", async (e) => {

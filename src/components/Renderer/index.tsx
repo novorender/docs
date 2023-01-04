@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
 import type { MeasureAPI } from "@novorender/measure-api";
+import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
 import { PlaygroundConfig } from "../PlaygroundComponent";
 interface props {
@@ -13,7 +14,7 @@ interface props {
     panesHeight: number;
     panesWidth: number;
     onMessagesAndAlert: (m: string) => void;
-    playgroundConfig: PlaygroundConfig
+    playgroundConfig: PlaygroundConfig;
 };
 
 // let isComponentUnmounted = false;
@@ -158,19 +159,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
                 // const _view = await createView(apiInstance, scene, canvas.current);
                 // const view = await apiInstance.createView({}, canvas.current);
                 // if(view){
-                switch (main.length) {
-                    case 3:
-                        await main(apiInstance, canvas.current, measureApiInstance);
-                        break;
-
-                    case 5:
-                        await main(apiInstance, canvas.current, measureApiInstance, glMatrix, canvas2D.current);
-                        break;
-
-                    default:
-                        await main(apiInstance, canvas.current);
-                        break;
-                }
+                await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current });
                 // }
                 // }
             } catch (err) {

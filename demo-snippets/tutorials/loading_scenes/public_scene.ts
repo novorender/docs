@@ -1,9 +1,20 @@
-import { API, View } from "@novorender/webgl-api";
-import { createAPI as createDataApi } from "@novorender/data-js-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
-export async function main(api: API, canvas: HTMLCanvasElement) {
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
+
+export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   // Initialize the data API with the Novorender data server service
-  const dataApi = createDataApi({
+  const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
@@ -24,17 +35,17 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
     const { url, db, settings, camera: cameraParams } = sceneData;
 
     // Load scene
-    const scene = await api.loadScene(url, db);
+    const scene = await webglAPI.loadScene(url, db);
 
     // The code above is all you need to load the scene,
     // however there is more scene data loaded that you can apply
 
     // Create a view with the scene's saved settings
-    const view = await api.createView(settings, canvas);
+    const view = await webglAPI.createView(settings, canvas);
 
     // Create a camera controller with the saved parameters with turntable as fallback
     const camera = cameraParams ?? ({ kind: "turntable" } as any);
-    view.camera.controller = api.createCameraController(camera, canvas);
+    view.camera.controller = webglAPI.createCameraController(camera, canvas);
 
     // Assign the scene to the view
     view.scene = scene;
@@ -47,7 +58,7 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
   }
 }
 
-async function run(view: View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {

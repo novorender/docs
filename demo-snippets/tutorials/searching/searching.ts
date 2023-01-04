@@ -1,10 +1,20 @@
-import { API, View, Scene } from "@novorender/webgl-api";
-import { createAPI as createDataApi } from "@novorender/data-js-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
 
-export async function main(api: API, canvas: HTMLCanvasElement) {
+export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     // Init
-    const view = await initView(api, canvas);
+    const view = await initView(webglAPI, canvas, dataJsAPI);
     run(view, canvas);
 
     const scene = view.scene!;
@@ -49,7 +59,7 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
   }
 }
 
-function isolateObjects(scene: Scene, ids: number[]): void {
+function isolateObjects(scene: NovoRender.Scene, ids: number[]): void {
   // Set highlight 255 on all objects
   // Highlight index 255 is reserved fully transparent
   scene.objectHighlighter.objectHighlightIndices.fill(255);
@@ -61,9 +71,9 @@ function isolateObjects(scene: Scene, ids: number[]): void {
   scene.objectHighlighter.commit();
 }
 
-async function initView(api: API, canvas: HTMLCanvasElement): Promise<View> {
+async function initView(api: NovoRender.API, canvas: HTMLCanvasElement, dataJsAPI: typeof DataJsAPI): Promise<NovoRender.View> {
   // Initialize the data API with the Novorender data server service
-  const dataApi = createDataApi({
+  const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
@@ -101,7 +111,7 @@ async function initView(api: API, canvas: HTMLCanvasElement): Promise<View> {
   return view;
 }
 
-async function run(view: View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {

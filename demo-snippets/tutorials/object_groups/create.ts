@@ -1,24 +1,27 @@
-import {
-  API,
-  createAPI,
-  Scene,
-  SearchPattern,
-  View,
-  WellKnownSceneUrls,
-} from "@novorender/webgl-api";
-import { SceneData, ObjectGroup } from "@novorender/data-js-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
 
 // Condos demo scene
 const SCENE_ID = "1169297611ae33f63132f264ed34e265";
-
-export async function main(api: API, canvas: HTMLCanvasElement) {
+export async function main({ webglAPI, canvas }: IParams) {
   // Mock dataApi as to not actually modify the scene in the demo
   const dataApi = createMockDataApi();
-  const view = await initView(api, canvas);
+  const view = await initView(webglAPI, canvas);
   const scene = view.scene!;
   run(view, canvas);
 
-  const searchPattern: SearchPattern[] = [
+  const searchPattern: NovoRender.SearchPattern[] = [
     {
       property: "path",
       value: "Farger.IFC/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
@@ -26,7 +29,7 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
     },
   ];
 
-  const secondFloor: ObjectGroup = {
+  const secondFloor: DataJsAPI.ObjectGroup = {
     // This search is run on the server every time the scene is rebuilt
     // and the resulting object IDs are saved to the group.ids property
     search: searchPattern,
@@ -63,8 +66,8 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
 
 // Search utility fn to return array of object IDs
 async function search(
-  scene: Scene,
-  searchPattern: SearchPattern[]
+  scene: NovoRender.Scene,
+  searchPattern: NovoRender.SearchPattern[]
 ): Promise<number[]> {
   const iterator = scene.search({ searchPattern });
 
@@ -78,12 +81,12 @@ async function search(
 
 function createMockDataApi() {
   return {
-    putScene: async (_sceneData: SceneData): Promise<boolean> => true,
-    loadScene: async (_id: string): Promise<SceneData> => ({} as SceneData),
+    putScene: async (_sceneData: DataJsAPI.SceneData): Promise<boolean> => true,
+    loadScene: async (_id: string): Promise<DataJsAPI.SceneData> => ({} as DataJsAPI.SceneData),
   };
 }
 
-async function initView(api: API, canvas: HTMLCanvasElement): Promise<View> {
+async function initView(api: NovoRender.API, canvas: HTMLCanvasElement): Promise<NovoRender.View> {
   // Create a view
   const view = await api.createView(
     { background: { color: [0, 0, 0, 0] } }, // Transparent
@@ -94,12 +97,12 @@ async function initView(api: API, canvas: HTMLCanvasElement): Promise<View> {
   view.camera.controller = api.createCameraController({ kind: "turntable" });
 
   // Load the Condos demo scene
-  view.scene = await api.loadScene(WellKnownSceneUrls.condos);
+  view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
   return view;
 }
 
-async function run(view: View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {

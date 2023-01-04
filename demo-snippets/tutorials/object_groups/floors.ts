@@ -1,16 +1,22 @@
-import { API, View, Scene } from "@novorender/webgl-api";
-import {
-  createAPI as createDataApi,
-  API as DataAPI,
-  ObjectGroup,
-} from "@novorender/data-js-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
 
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
-export async function main(api: API, canvas: HTMLCanvasElement) {
+export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
-    const [view, dataApi, objectGroups] = await initView(api, canvas);
+    const [view, dataApi, objectGroups] = await initView(webglAPI, canvas, dataJsAPI);
     const scene = view.scene!;
     run(view, canvas);
 
@@ -20,7 +26,7 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
     );
 
     // Create buttons
-    createFloorButtons(floors, (floor: ObjectGroup | undefined) => {
+    createFloorButtons(floors, (floor: DataJsAPI.ObjectGroup | undefined) => {
       if (floor) {
         // Hide all floors
         floors.forEach((floor) => (floor.hidden = true));
@@ -45,9 +51,9 @@ export async function main(api: API, canvas: HTMLCanvasElement) {
 let refillId = 0;
 // Hide check groups' .hidden property and toggle their objects' visibility
 async function handleVisibilityChanges(
-  dataApi: DataAPI,
-  scene: Scene,
-  groups: ObjectGroup[]
+  dataApi: DataJsAPI.API,
+  scene: NovoRender.Scene,
+  groups: DataJsAPI.ObjectGroup[]
 ) {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
@@ -88,8 +94,8 @@ async function handleVisibilityChanges(
 
 // UI setup
 function createFloorButtons(
-  floors: ObjectGroup[],
-  onClick: (floor?: ObjectGroup) => void
+  floors: DataJsAPI.ObjectGroup[],
+  onClick: (floor?: DataJsAPI.ObjectGroup) => void
 ): void {
   const wrapper = document.createElement("div");
   wrapper.style.position = "absolute";
@@ -117,11 +123,12 @@ function createFloorButtons(
 }
 
 async function initView(
-  api: API,
-  canvas: HTMLCanvasElement
-): Promise<[View, DataAPI, ObjectGroup[]]> {
+  api: NovoRender.API,
+  canvas: HTMLCanvasElement,
+  dataJsAPI: typeof DataJsAPI
+): Promise<[NovoRender.View, DataJsAPI.API, DataJsAPI.ObjectGroup[]]> {
   // Initialize the data API with the Novorender data server service
-  const dataApi = createDataApi({
+  const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
@@ -156,7 +163,7 @@ async function initView(
   return [view, dataApi, objectGroups];
 }
 
-async function run(view: View, canvas: HTMLCanvasElement): Promise<void> {
+async function run(view: NovoRender.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {

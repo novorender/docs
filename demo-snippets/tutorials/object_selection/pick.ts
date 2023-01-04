@@ -1,21 +1,32 @@
 import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
+import * as DataJsAPI from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+export interface IParams {
+  webglAPI: NovoRender.API;
+  canvas: HTMLCanvasElement;
+  measureAPI: typeof MeasureAPI;
+  dataJsAPI: typeof DataJsAPI;
+  glMatrix: typeof GlMatrix;
+  canvas2D: HTMLCanvasElement;
+};
 
-export async function main(api: NovoRender.API, canvas: HTMLCanvasElement) {
+export async function main({ webglAPI, canvas }: IParams) {
     // create a view
-    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
     // provide a camera controller
-    view.camera.controller = api.createCameraController({ kind: "flight" }, canvas);
+    view.camera.controller = webglAPI.createCameraController({ kind: "flight" }, canvas);
 
     // create an empty scene
-    const scene = view.scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
     // make object highlights
-    const highlightGroup0 = api.createHighlight({ kind: "hsla", saturation: 0.5 });
-    const highlightGroup1 = api.createHighlight({ kind: "color", color: [0, 1, 0] });
+    const highlightGroup0 = webglAPI.createHighlight({ kind: "hsla", saturation: 0.5 });
+    const highlightGroup1 = webglAPI.createHighlight({ kind: "color", color: [0, 1, 0] });
     view.settings.objectHighlights = [highlightGroup0, highlightGroup1];
 
     // Make a simple state object that we can share between mouse events and render loop
