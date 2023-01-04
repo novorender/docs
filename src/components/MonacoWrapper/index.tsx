@@ -182,6 +182,12 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
         const { config, cameraConfig, main } = await returnRenderConfigFromOutput(output);
         if (main) {
+            // first reset `main` so the react forces
+            // the component to remount which then creates
+            // everything again (the view, scene etc...)
+            setMain(() => null);
+            
+            // set the main again
             setMain(() => main);
         }
         // set render config for output
