@@ -1,7 +1,8 @@
 import publicScene from '!!./public_scene.ts?raw';
 import privateScene from '!!./private_scene.ts?raw';
+import { IDemo } from "../../misc";
 
-function demo<T extends string>(name: T, code: string) {
+function demo<T extends string>(name: T, code: string): IDemo {
     return {
         [name]:
             {
