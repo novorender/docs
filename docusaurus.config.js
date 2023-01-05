@@ -195,6 +195,7 @@ const config = {
             {
                 id: 'webgl-api',
                 entryPoints: ['type-definitions/webgl-api.ts'],
+                logLevel: 'Error',
                 out: 'webgl-api',
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("./temp-readme.md"),
@@ -209,6 +210,7 @@ const config = {
             {
                 id: 'data-js-api',
                 entryPoints: ['type-definitions/data-js-api.ts'],
+                logLevel: 'Error',
                 out: 'data-js-api',
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("@novorender/data-js-api/README.md"),
@@ -223,6 +225,7 @@ const config = {
             {
                 id: 'measure-api',
                 entryPoints: ['type-definitions/measure-api.ts'],
+                logLevel: 'Error',
                 out: 'measure-api',
                 tsconfig: 'type-definitions/tsconfig.json',
                 readme: require.resolve("@novorender/measure-api/README.md"),
