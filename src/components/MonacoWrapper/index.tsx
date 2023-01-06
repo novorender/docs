@@ -122,6 +122,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
     const [main, setMain] = useState<any>();
+    const main_debounced = useDebounce(codeOutput, 1000);
 
     useEffect(() => {
 
@@ -165,7 +166,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
      */
     const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any; }> => {
         const encodedJs = encodeURIComponent(transpiledOutput);
-        console.log('encodedJsv ', encodedJs);
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
         const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
 
@@ -193,22 +193,28 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         // set current output in state so we can compare later
         setCodeOutput(output);
 
-        const { config, cameraConfig, main } = await returnRenderConfigFromOutput(output);
-        if (main) {
-            // first reset `main` so the react forces
-            // the component to remount which then creates
-            // everything again (the view, scene etc...)
-            setMain(() => null);
-
-            // set the main again
-            setMain(() => main);
-        }
-        // set render config for output
-        setRenderConfig(config);
-        if (cameraConfig) { setCurrentCameraController(cameraConfig); };
-        setIsActivity(false); // toggle spinner.
-
     };
+
+    useEffect(() => {
+        if (main_debounced) {
+            (async () => {
+                const { config, cameraConfig, main } = await returnRenderConfigFromOutput(codeOutput);
+                if (main) {
+                    // first reset `main` so the react forces
+                    // the component to remount which then creates
+                    // everything again (the view, scene etc...)
+                    setMain(() => null);
+
+                    // set the main again
+                    setMain(() => main);
+                }
+                // set render config for output
+                setRenderConfig(config);
+                if (cameraConfig) { setCurrentCameraController(cameraConfig); };
+                setIsActivity(false); // toggle spinner.
+            })();
+        }
+    }, [main_debounced]);
 
 
     useEffect(() => {
@@ -289,7 +295,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
         await editor.getAction('editor.action.formatDocument').run();
-        editor.setPosition({column: 1, lineNumber: 15});
+        editor.setPosition({ column: 1, lineNumber: 15 });
         editor.revealLineInCenter(20);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
