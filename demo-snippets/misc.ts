@@ -10,6 +10,7 @@ export type IDemo = Record<string, {
     /** Github edit URL, should be relative path e.g. `demo-snippets/tutorials/clipping_volumes/box.ts` */
     editUrl: string,
     code: string,
+    snippet: string,
     /** preview image URL for the playground, sample: `assets/demo-screenshots/imageName.png` */
     previewImageUrl?: string;
 }>;

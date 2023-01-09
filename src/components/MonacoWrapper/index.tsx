@@ -12,6 +12,7 @@ import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import { WellKnownSceneUrls } from '@site/src/shared';
 import type { API, CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
+import * as ts from "typescript";
 
 /** CSS */
 import styles from './styles.module.css';
@@ -57,6 +58,7 @@ const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
 
 interface props {
     code?: string; // code to run in the editor, only required if `renderSettings` is not provided.
+    snippet?: string;
     renderSettings?: RenderSettingsParams; // renderSettings for the view, only required if `code` is not provided
     scene?: WellKnownSceneUrls; // default scene to select, only required if `renderSettings` is provided
     demoName: string; // a name for this demo
@@ -90,7 +92,7 @@ function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue;
 }
 
-export default function MonacoWrapper({ code, renderSettings, scene, demoName, cameraController, playgroundConfig, editUrl }: props): JSX.Element {
+export default function MonacoWrapper({ code, snippet, renderSettings, scene, demoName, cameraController, playgroundConfig, editUrl }: props): JSX.Element {
 
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
@@ -122,6 +124,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
     const [main, setMain] = useState<any>();
+    const [transpiledSnippet, setTranspiledSnippet] = useState<any>();
     const main_debounced = useDebounce(codeOutput, 1000);
 
     useEffect(() => {
@@ -164,14 +167,17 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
      * @param transpiledOutput string that contains config
      * @returns RenderConfig
      */
-    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any; }> => {
+    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any; init: any; }> => {
+        
         const encodedJs = encodeURIComponent(transpiledOutput);
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-        const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
+        const { config, cameraConfig, main, init } = await import(/* webpackIgnore: true */dataUri);
 
         console.log('main ==> ', main);
+        console.log('init ==> ', init);
 
-        return { config, cameraConfig, main };
+
+        return { config, cameraConfig, main, init };
     };
 
     const codeChangeHandler = async (tsCode: string) => {
@@ -198,7 +204,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     useEffect(() => {
         if (main_debounced) {
             (async () => {
-                const { config, cameraConfig, main } = await returnRenderConfigFromOutput(codeOutput);
+                const { config, cameraConfig, main, init } = await returnRenderConfigFromOutput(codeOutput);
                 if (main) {
                     // first reset `main` so the react forces
                     // the component to remount which then creates
@@ -206,7 +212,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                     setMain(() => null);
 
                     // set the main again
-                    setMain(() => main);
+                    setMain(() => init);
                 }
                 // set render config for output
                 setRenderConfig(config);
@@ -225,6 +231,15 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             // import dynamically for SSR
             const api = await import('@novorender/webgl-api');
             const measureApi = await import('@novorender/measure-api');
+
+            let result = ts.transpileModule(snippet, { compilerOptions: { module: ts.ModuleKind.ES2015 } });
+
+            const dataUri = `data:text/javascript;charset=utf-8,${result.outputText}`;
+            const { main } = await import(/* webpackIgnore: true */dataUri);
+    
+            console.log('main ==> ', main);
+
+            setTranspiledSnippet(()=> main);
 
             setApiInstance(api);
             setMeasureApiInstance(measureApi);
@@ -299,12 +314,12 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         editor.revealLineInCenter(20);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
-        const { config, main } = await returnRenderConfigFromOutput(output);
+        const { config, main, init } = await returnRenderConfigFromOutput(output);
 
         setRenderConfig(config);
 
-        if (main) {
-            setMain(() => main);
+        if (init) {
+            setMain(() => init);
         }
 
         setIsActivity(false); // toggle spinner
@@ -509,7 +524,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                             {render_config || main
                                 ? <>{renderSettings
                                     ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
-                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} playgroundConfig={playgroundConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
+                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} snippet={transpiledSnippet} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} playgroundConfig={playgroundConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}

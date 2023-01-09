@@ -7,6 +7,7 @@ import * as glMatrix from 'gl-matrix';
 import { PlaygroundConfig } from "../PlaygroundComponent";
 interface props {
     main: any;
+    snippet?: any;
     isDoingActivity: (a: boolean) => void;
     canvasRef: (a: HTMLCanvasElement) => void;
     api: any;
@@ -76,12 +77,12 @@ interface props {
 //     }
 // }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, playgroundConfig }: props): JSX.Element {
+export default function Renderer({ main, snippet, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, playgroundConfig }: props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
     // const [view, setView] = useState<View>(null);
-    const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
+    const [apiInstance, setApiInstance] = useState<API>(api); // Create API
     const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
     // dispose view and local state
@@ -143,7 +144,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
 
     useEffect(() => {
         console.log('main from renderer', main);
-        console.log('main args length ', main.length);
+        console.log('snippet ', snippet);
         console.log('api from renderer', apiInstance);
         console.log('playgroundConfig from renderer', playgroundConfig);
         canvasRef(canvas.current);
@@ -159,7 +160,8 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
                 // const _view = await createView(apiInstance, scene, canvas.current);
                 // const view = await apiInstance.createView({}, canvas.current);
                 // if(view){
-                await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current });
+                await snippet({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current, snippet: {init: main} })
+                // await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current });
                 // }
                 // }
             } catch (err) {

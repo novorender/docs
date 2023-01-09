@@ -18,6 +18,7 @@ export interface PlaygroundConfig {
 
 interface props {
     code?: string; // code to run in the editor, only required if `renderSettings` is not provided.
+    snippet?: string;
     renderSettings?: RenderSettingsParams; // renderSettings for the view, only required if `code` is not provided
     scene?: WellKnownSceneUrls; // default scene to select, only required if `renderSettings` is provided
     demoName: string; // a name for this demo
@@ -27,7 +28,7 @@ interface props {
     cameraController?: CameraControllerParams; // default camera controller to select, optionally required if `renderSettings` is provided.
 };
 
-export default function PlaygroundComponent({ code, renderSettings, scene, demoName, cameraController = { kind: 'static' }, config, editUrl, previewImageUrl }: props): JSX.Element {
+export default function PlaygroundComponent({ code, snippet, renderSettings, scene, demoName, cameraController = { kind: 'static' }, config, editUrl, previewImageUrl }: props): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const [playgroundConfig, setPlaygroundConfig] = useState<PlaygroundConfig>();
@@ -70,7 +71,7 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                                             }} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
                                         </>}
                                     </div>
-                                    : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
+                                    : <MonacoWrapper code={code} snippet={snippet} renderSettings={renderSettings} scene={scene} demoName={demoName} playgroundConfig={playgroundConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
                             </div>
                         }
                     </div>

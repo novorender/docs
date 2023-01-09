@@ -8,4 +8,5 @@ export * from "./searching";
 export * from "./object_groups";
 export * from "./drawing2D";
 export * from "./object_metadata";
+export * from "./cameras";
 
