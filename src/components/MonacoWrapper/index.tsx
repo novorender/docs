@@ -11,6 +11,7 @@ import ManagedRenderer from '@site/src/components/RendererManaged';
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
 import { WellKnownSceneUrls } from '@site/src/shared';
+const { devDependencies } = require('../../../package.json');
 import type { API, CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 
 /** CSS */
@@ -111,7 +112,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [currentEnv, setCurrentEnv] = useState<EnvironmentDescription>();
     const [isActivity, setIsActivity] = useState<boolean>(false);
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
-    const [apiVersion, setApiVersion] = useState<string>(null);
     const [api, setApiInstance] = useState<any>(); // Create API
     const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
@@ -235,7 +235,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             if (!apiInstance['supportsOffscreenCanvas']) {
                 setMessagesAndAlerts([...messagesAndAlerts, '⚠ OffscreenCanvas is not supported in this browser.']);
             }
-            setApiVersion(apiInstance.version);
 
             const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
             setEnvironmentsList(envs as EnvironmentDescription[]);
@@ -523,16 +522,21 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                     <nav className="navbar playground_navbar" ref={editorNavbarInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
-                                <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>API Version: {apiVersion}</p>
-
                                 {/* Messages/alert popover */}
                                 <Popover
                                     isOpen={isPopoverOpen}
                                     positions={['top', 'right', 'bottom', 'left']}
                                     parentElement={playgroundConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
-                                    content={<div className={styles.popoverContent}><ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol></div>}
+                                    content={
+                                        <div className={styles.popoverContent}>
+                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>WebGL API: {devDependencies['@novorender/webgl-api']}</p>
+                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Data JS API: {devDependencies['@novorender/data-js-api']}</p>
+                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Measure API: {devDependencies['@novorender/measure-api']}</p>
+                                            <hr style={{ margin: '5px 0' }} />
+                                            <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
+                                        </div>}
                                 >
-                                    <button onMouseEnter={() => { setIsPopoverOpen(true); }} onMouseLeave={() => { setIsPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px' }}>
+                                    <button onMouseEnter={() => { setIsPopoverOpen(true); }} onMouseLeave={() => { setIsPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px', marginLeft: '-12px' }}>
                                         <AlertsIconSvg className={styles.editorSvgIcon} style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
                                     </button>
                                 </Popover>
