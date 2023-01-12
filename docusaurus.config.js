@@ -201,7 +201,8 @@ const config = {
                 readme: require.resolve("./temp-readme.md"),
                 disableSources: true,
                 frontmatter: {
-                    description: 'A Web API for scalable 3D rendering in the cloud.'
+                    description: 'A Web API for scalable 3D rendering in the cloud.',
+                    title: 'WebGL API'
                 }
             },
         ],
@@ -216,7 +217,9 @@ const config = {
                 readme: require.resolve("@novorender/data-js-api/README.md"),
                 disableSources: true,
                 frontmatter: {
-                    description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.'
+                    description: 'A Data JS API for managing scalable Novorender 3D rendering in the cloud.',
+                    title: 'Data JS API'
+
                 }
             },
         ],
@@ -231,7 +234,8 @@ const config = {
                 readme: require.resolve("@novorender/measure-api/README.md"),
                 disableSources: true,
                 frontmatter: {
-                    description: 'for detailed measuring show distances, differences, elevations and more.'
+                    description: 'for detailed measuring show distances, differences, elevations and more.',
+                    title: 'Measure API'
                 }
             },
         ],
