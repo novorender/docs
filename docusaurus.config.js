@@ -74,14 +74,14 @@ const config = {
                         label: 'Data JS API',
                     },
                     {
-                        to: '/data-rest-api/',
-                        position: 'left',
-                        label: 'Data Rest API',
-                    },
-                    {
                         to: 'docs/measure-api',
                         position: 'left',
                         label: 'Measure API'
+                    },
+                    {
+                        to: '/data-rest-api/',
+                        position: 'left',
+                        label: 'Data Rest API',
                     },
                     {
                         to: '/playground/',
@@ -112,12 +112,12 @@ const config = {
                                 to: '/docs/data-js-api',
                             },
                             {
-                                label: 'Data Rest API',
-                                to: '/data-rest-api/',
-                            },
-                            {
                                 label: 'Measure API',
                                 to: '/measure-api/'
+                            },
+                            {
+                                label: 'Data Rest API',
+                                to: '/data-rest-api/',
                             },
                         ],
                     },
