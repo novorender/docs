@@ -60,7 +60,8 @@ export async function main({ webglAPI, canvas, measureAPI }: IParams) {
                 // As long as one object is selected log out the values
                 // Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
-                    console.log(measureScene.measure(measureEntity1, measureEntity2));
+                    const _log = await measureScene.measure(measureEntity1, measureEntity2)
+                    openAlert(JSON.stringify(_log));
                 }
             }
         }

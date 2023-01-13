@@ -272,6 +272,13 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                 libUri
             );
 
+            monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            `/**
+             * @description opens an alert that displays provided content
+             * @param content string to show in the alert
+             */
+            declare function openAlert(content:string):void`)
+
             // monaco.languages.typescript.typescriptDefaults.addExtraLib(
             //    GlMatrixDTS,
             //     'file:///node_modules/gl-matrix/index.d.ts'
