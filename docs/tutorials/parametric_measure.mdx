@@ -10,11 +10,11 @@ NovoRender measure API can be used to fetch parametric data based on real world 
 
 ### Measure entity
 
-A measure entity reffers to a part of a parametric object, for example the inner or outer cylinder of a pipe.
-A measure entity can also be a single point, this is usually used if no paramteric object exists at a clicked location.
+A measure entity refers to a part of a parametric object, for example the inner or outer cylinder of a pipe.
+A measure entity can also be a single point, this is usually used if no parametric object exists at a clicked location.
 
-The normal way of getting measure entites is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and
-object Id to find the closests edge surface or point. It will return the picked point if no parametric data is found near the input point.
+The normal way of getting measure entities is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and
+object Id to find the closest edge surface or point. It will return the picked point if no parametric data is found near the input point.
 Object Id and position can be used from the novorender webgl-api pick function on render renderOutput
 
 ```typescript
@@ -42,7 +42,7 @@ if (measureValues.kind === "cylinder") {
 
 ### Measure against another entity
 
-A measure between two entites is done by using the `measure()` function on scene with 2 arguments.
+A measure between two entities is done by using the `measure()` function on scene with 2 arguments.
 What property the resulting object has will depend on the input arguments. There is also an option parameter
 to support additional options such as where a cylinder should measure from
 

@@ -21,7 +21,7 @@ The function will require `view` from the NovoRender webgl-API to transform the 
 The camera from webgl-API view is also used in the draw utility function to remove certain drawing parts and text based on camera angle and distance
 
 :::note
-Check the parametric measure tutorial on how to select measure entites.
+Check the parametric measure tutorial on how to select measure entities.
 :::
 
 ```typescript
@@ -54,9 +54,9 @@ if (drawProd) {
 
 The measure result also contains `drawKind` and can be drawn using `getDrawMeasureEntity()`.
 The result will contain information on how to draw the measure line, x, y and z dimensions of the measurement as well as certain angles.
-The result object can be drawn using the utility function `drawProduct()` as above but we have chosen to handle each part of the result seperatly to give more flexibility on style and colour.
+The result object can be drawn using the utility function `drawProduct()` as above but we have chosen to handle each part of the result separately to give more flexibility on style and colour.
 
-Exaple shows distance line drawn in blue, the z-axis line and angle drawn in green
+Example shows distance line drawn in blue, the z-axis line and angle drawn in green
 
 ```typescript
 const measureResult = await measurescene.measure(entity1, entity2);
@@ -96,7 +96,7 @@ for (const obj of drawProd.objects) {
 The measure API allows for multiple 3d points to be transformed to an on screen-linestrip or polygon.
 This is used in the Novoweb frontend to display area and measurement between multiple points.
 To get draw objects from a list of points use `getDrawObjectFromPoints()` on the measure API.
-Like other draw function it takes the webgl API view as an input, there are also options to display angle betwen the lines and whether or not to close it to create a polygon.
+Like other draw function it takes the webgl API view as an input, there are also options to display angle between the lines and whether or not to close it to create a polygon.
 The position from webgl API `pick()` function can be stored to create lines between multiple clicked points.
 
 ```typescript
@@ -108,7 +108,7 @@ const drawProd = measureApi.getDrawObjectFromPoints(
   true
 );
 if (drawProd) {
-  const textList = pointLineResult.segmentLengts.map((v) => v.toFixed(2));
+  const textList = pointLineResult.segmentLengths.map((v) => v.toFixed(2));
   drawProd.objects.forEach((obj) => {
     obj.parts.forEach((part) => {
       drawPart(
@@ -126,8 +126,8 @@ if (drawProd) {
 
 ### Demo
 
-Click to select parametric object, the selected parametric object will be draw, do note that a point will be drawn if the selected object does not contain parmetric info.
-Click another object to measure against, the paremetric object will be drawm as well as the measure result.
+Click to select parametric object, the selected parametric object will be draw, do note that a point will be drawn if the selected object does not contain parametric info.
+Click another object to measure against, the parametric object will be drawn as well as the measure result.
 Continued clicks will alternate between objects and log out the measurement values.
 
 <PlaygroundComponent {...tutorials.drawing2D.demo1}></PlaygroundComponent>

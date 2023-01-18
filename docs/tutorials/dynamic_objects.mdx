@@ -37,7 +37,7 @@ By default, new objects will have position `[0,0,0]` and no rotation `[0,0,0,1]`
 
 :::info
 The size of the gltf files should match the size of your scene.
-The camera will not autofit to dynamic objects, so make sure the units are in meters and that the coordinates are in the same space as your scene, which could be geo-referenced.
+The camera will not auto-fit to dynamic objects, so make sure the units are in meters and that the coordinates are in the same space as your scene, which could be geo-referenced.
 :::
 
 To change object orientation, assign new position and/or rotation.
@@ -54,7 +54,7 @@ instance.position = vec3.fromValues(px,py,pz); // 3D vector
 instance.rotation = quat.fromEuler(quat.create(), rx, ry, rz); // Quaternion from euler angles
 ```
 
-New objects are invisble by default. To actually render your object, change the visible flag.
+New objects are invisible by default. To actually render your object, change the visible flag.
 
 ```typescript
 instance.visible = true;

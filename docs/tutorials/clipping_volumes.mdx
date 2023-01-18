@@ -39,7 +39,7 @@ To illustrate this, let's create a simple clipping volume with a single plane al
 ### Single plane with offset
 
 We used the center of the scene (which is far from origo) to position the plane.
-Let's add a few meters extra to observe the effets
+Let's add a few meters extra to observe the effects
 
 <PlaygroundComponent {...tutorials.clippingVolumes.offset}></PlaygroundComponent>
 
@@ -61,7 +61,7 @@ Of course, you may use any normal you like for the plane, as long as it's length
 
 Adding additional planes allows us to further shape the clipping volume.
 Each plane forms a half space, which you may think of as the volume of everything that lies on the positive side of the plane to infinity.
-When combining multiple such half spaces, we must determine whether to use the intersection or union of thes halfspace volumes.
+When combining multiple such half spaces, we must determine whether to use the intersection or union of these halfspace volumes.
 Put simply, intersection is the volume that lies on the positive side of all the planes, while union is the volume that lines on the positive side of any of the planes.
 
 ```typescript
@@ -79,7 +79,7 @@ Let's create a more complex clipping volume with an additional plane along the x
 
 ### Dual plane, slab
 
-A perhaps more useful volume is a slab, consisting of a top and bottom plane, but otherwise extending into infinty.
+A perhaps more useful volume is a slab, consisting of a top and bottom plane, but otherwise extending into infinity.
 
 <PlaygroundComponent {...tutorials.clippingVolumes.slab}></PlaygroundComponent>
 
@@ -91,7 +91,7 @@ If you wish to clip everything inside of the volume, rather than outside, simply
 
 ### Box
 
-We currently sypport up to 6 planes, allowing you to define simple polyhedra of any size, rotation and position.
+We currently support up to 6 planes, allowing you to define simple polyhedra of any size, rotation and position.
 Let's define an axis aligned clipping box.
 
 <PlaygroundComponent {...tutorials.clippingVolumes.box}></PlaygroundComponent>

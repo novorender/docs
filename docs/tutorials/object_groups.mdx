@@ -7,7 +7,7 @@ description: 'Object grouping.'
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
 import { tutorials } from '@site/demo-snippets/index';
 
-Although the [ObjectGroup interface](../data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particulary noteworthy,
+Although the [ObjectGroup interface](../data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particularly noteworthy,
 the [SceneData.objectGroups property](../interfaces/DataJsAPI.SceneData#objectgroups) can be extremely useful. 
 Object IDs in Novorender are not fixed and may change whenever the scene's resources are modified. 
 Therefore if you store the IDs from a search (e.g. all objects on the first floor) and then later modify the scene's resources, 
@@ -66,7 +66,7 @@ In the case where the `objectGroups.ids` list is quite large, the .ids property 
   };
 
   // Before saving it is a good idea to load the latest scene data
-  // in case it has been modifed by someone else as there is currently no way of just adding groups
+  // in case it has been modified by someone else as there is currently no way of just adding groups
   const sceneData = await dataApi.loadScene(SCENE_ID);
 
   dataApi.putScene({
