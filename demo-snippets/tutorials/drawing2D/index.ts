@@ -18,5 +18,5 @@ function demo<T extends string>(name: T, code: string): IDemo {
 }
 
 export const drawing2D = {
-    ...demo("demo1", demo1),
+    ...demo("drawing2d", demo1),
 };

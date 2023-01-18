@@ -17,5 +17,5 @@ function demo<T extends string>(name: T, code: string): IDemo {
 }
 
 export const measure = {
-    ...demo("demo1", demo1),
+    ...demo("parametricMeasure", demo1),
 };

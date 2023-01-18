@@ -17,5 +17,5 @@ function demo<T extends string>(name: T, code: string): IDemo {
 }
 
 export const dynamicObjects = {
-    ...demo("demo1", demo1),
+    ...demo("dynamicObject", demo1),
 };
