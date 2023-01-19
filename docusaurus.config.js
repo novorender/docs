@@ -113,7 +113,7 @@ const config = {
                             },
                             {
                                 label: 'Measure API',
-                                to: '/measure-api/'
+                                to: '/docs/measure-api/'
                             },
                             {
                                 label: 'Data Rest API',
