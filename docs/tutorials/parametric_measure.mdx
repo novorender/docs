@@ -13,9 +13,7 @@ NovoRender measure API can be used to fetch parametric data based on real world 
 A measure entity refers to a part of a parametric object, for example the inner or outer cylinder of a pipe.
 A measure entity can also be a single point, this is usually used if no parametric object exists at a clicked location.
 
-The normal way of getting measure entities is to used the `pickMeasureEntity()` function on the measure scene object. This will use world coordinates and
-object Id to find the closest edge surface or point. It will return the picked point if no parametric data is found near the input point.
-Object Id and position can be used from the novorender webgl-api pick function on render renderOutput
+The normal way of getting measure entities is to used the <code>[pickMeasureEntity()](/docs/measure-api/interfaces/Measure.MeasureScene#pickmeasureentity)</code> function on the measure <code>[scene](/docs/measure-api/interfaces/Measure.MeasureScene#pickmeasureentity)</code> object. This will use world coordinates and <code>[objectId](/docs/webgl-api/interfaces/NovoRender.PickInfo#objectid)</code> to find the closest edge surface or point. It will return the picked point if no parametric data is found near the input point. <code>[objectId](/docs/webgl-api/interfaces/NovoRender.PickInfo#objectid)</code> and <code>[position](/docs/webgl-api/interfaces/NovoRender.PickInfo#position)</code> can be used from the novorender webgl-api <code>[pick](/docs/webgl-api/interfaces/NovoRender.View#pick)</code> function on render <code>[renderOutput](/docs/webgl-api/interfaces/NovoRender.RenderOutput)</code>
 
 ```typescript
 const output = await view.render();
@@ -30,7 +28,7 @@ if (result) {
 
 ### Parametric values on entity
 
-To get the parametric values such as the the radius, and centerline of a cylinder the `measure()`
+To get the parametric values such as the the radius, and centerline of a cylinder the <code>[measure()](/docs/measure-api/interfaces/Measure.MeasureScene#measure)</code>
 function can be used. This function be be used to get values from a single object by leaving the second argument as undefined.
 
 ```typescript
@@ -42,7 +40,7 @@ if (measureValues.kind === "cylinder") {
 
 ### Measure against another entity
 
-A measure between two entities is done by using the `measure()` function on scene with 2 arguments.
+A measure between two entities is done by using the <code>[measure()](/docs/measure-api/interfaces/Measure.MeasureScene#measure)</code> function on scene with 2 arguments.
 What property the resulting object has will depend on the input arguments. There is also an option parameter
 to support additional options such as where a cylinder should measure from
 
@@ -73,8 +71,8 @@ if (result1 && result2) {
 
 ### Demo
 
-Click to select parametric object, parametric data will be written to log. Select another object and the measurement data between the objects will be logged.
-Clicking further objects will alternate between first and second selected and log measure values
+Click to select parametric object, parametric data will be shown in an alert dialog. Select another object and the measurement data between the objects will be shown in the alert dialog.
+Clicking further objects will alternate between first and second selected and show measure values within an alert dialog.
 
 <PlaygroundComponent {...tutorials.measure.parametricMeasure}></PlaygroundComponent>
 

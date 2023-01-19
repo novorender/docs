@@ -12,9 +12,9 @@ This could be used to visualize current object selection, or groups of objects, 
 
 ### Object Identity
 
-All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as `ObjectId`.
+All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as <code>[ObjectId](/docs/webgl-api/interfaces/NovoRender.PickInfo#objectid)</code>.
 
-One way of obtaining such an id is using the `pick()` function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
+One way of obtaining such an id is using the <code>[pick()](/docs/webgl-api/interfaces/NovoRender.View#pick)</code> function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
 
 ```typescript
 const result = await renderOutput.pick(x, y);

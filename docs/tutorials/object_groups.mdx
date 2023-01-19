@@ -7,8 +7,8 @@ description: 'Object grouping.'
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
 import { tutorials } from '@site/demo-snippets/index';
 
-Although the [ObjectGroup interface](../data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particularly noteworthy,
-the [SceneData.objectGroups property](../interfaces/DataJsAPI.SceneData#objectgroups) can be extremely useful. 
+Although the [ObjectGroup interface](/docs/data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particularly noteworthy,
+the <code>[SceneData.objectGroups](/docs/data-js-api/interfaces/DataJsAPI.SceneData#objectgroups)</code> property can be extremely useful. 
 Object IDs in Novorender are not fixed and may change whenever the scene's resources are modified. 
 Therefore if you store the IDs from a search (e.g. all objects on the first floor) and then later modify the scene's resources, 
 the scene's objects' IDs may have changed and your stored list of IDs will be stale.  
@@ -16,7 +16,7 @@ the scene's objects' IDs may have changed and your stored list of IDs will be st
 The search patterns assigned to each object group is run every time a scene's resources are modified so that the list of IDs always will be correct.
 That way you can easily create cached searches by using object groups.
 
-In the case where the `objectGroups.ids` list is quite large, the .ids property is undefined and should be explicity loaded as shown in the [Floors example](#floors-example).  
+In the case where the <code>[objectGroups.ids](/docs/data-js-api/interfaces/DataJsAPI.Bookmark.ObjectGroup#ids)</code> list is quite large, the .ids property is `undefined` and should be explicity loaded as shown in the [Floors example](#floors-example).  
 
 
 ## Create group
@@ -83,8 +83,7 @@ In the case where the `objectGroups.ids` list is quite large, the .ids property 
 
 ## Modify groups
 
-Edit a group
-```typescript
+```typescript title="Edit a group"
   // Load scene data
   const sceneData = await dataApi.loadScene(SCENE_ID);
   // ID of group to edit
@@ -103,8 +102,7 @@ Edit a group
   });
 ```
 
-Delete a group
-```typescript
+```typescript title="Delete a group"
   // Load scene data
   const sceneData = await dataApi.loadScene(SCENE_ID);
   // ID of group to delete
@@ -124,7 +122,7 @@ Delete a group
 
 ## Floors example
 
-In this example we have predefined groups which are set up for each floor and created buttons to isolate objectGroups
+In this example we have predefined groups which are set up for each floor and created buttons to isolate <code>[objectGroups](/docs/data-js-api/interfaces/DataJsAPI.Bookmark-1#objectgroups)</code>
 in clicked floor's group.
 
 <PlaygroundComponent {...tutorials.objectGroups.floors} />

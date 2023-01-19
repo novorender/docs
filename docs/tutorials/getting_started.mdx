@@ -6,29 +6,37 @@ description: 'Setting up instructions for the various Novorender packages.'
 
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
 import { tutorials } from '@site/demo-snippets/index';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Installation
 
 All our APIs are available on NPM and can be installed with your preferred JS package manager.  
-To get started with Novorender and load a demo scene you will only need our webgl-api package.
+To get started with Novorender and load a demo scene you will only need our [webgl-api](https://www.npmjs.com/package/@novorender/webgl-api) package.
 
-NPM
+<Tabs groupId="package-managers-choice">
+  <TabItem value="npm" label="NPM" default>
+
 ```bash
 npm install @novorender/webgl-api@next @novorender/data-js-api @novorender/measure-api
 ```
 
-Yarn
+  </TabItem>
+  <TabItem value="yarn" label="Yarn">
+
 ```bash
 yarn add @novorender/webgl-api@next @novorender/data-js-api @novorender/measure-api
 ```
+
+  </TabItem>
+</Tabs>
 
 ## Bundlers
 
 The webgl and measure APIs depend on workers which are not bundled and should be hosted as static files on your server.  
 The recommended approach is to copy them over to a static folder (often called public) after installation, which can be done with the `dependencies` or `postinstall` lifecycle scripts depending on your package manager. 
 
-```js
-// scripts/copy-novorender-workers.js
+```js  title="scripts/copy-novorender-workers.js"
 const fs = require('fs');
 
 const options = {
@@ -40,10 +48,10 @@ fs.cpSync("node_modules/@novorender/webgl-api", "public/novorender/webgl-api", o
 fs.cpSync("node_modules/@novorender/measure-api", "public/novorender/measure-api", options);
 ```
 
-NPM
-```json
-// package.json 
+<Tabs groupId="package-managers-choice">
+  <TabItem value="npm" label="NPM" default>
 
+```json title="package.json"
 {
     // ...,
     "scripts": {
@@ -53,10 +61,10 @@ NPM
 }
 ```
 
-Yarn
-```json
-// package.json 
+  </TabItem>
+  <TabItem value="yarn" label="Yarn">
 
+```json title="package.json"
 {
     // ...,
     "scripts": {
@@ -65,12 +73,12 @@ Yarn
     }
 }
 ```
+  </TabItem>
+</Tabs>
 
 ## Basic usage
 
-```html
-<!-- index.html --> 
-
+```html title="index.html"
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -98,9 +106,7 @@ Yarn
 </html>
 ```
 
-```typescript
-// src/main.ts -> compiled /main.js
-
+```typescript title="src/main.ts"
 import { API, createAPI, WellKnownSceneUrls } from "@novorender/webgl-api";
 
 const api = createAPI({

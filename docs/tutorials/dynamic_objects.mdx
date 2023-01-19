@@ -18,7 +18,7 @@ We recommend verifying your files using https://github.khronos.org/glTF-Validato
 
 ### Creation
 
-To download and parse a gltf file, call the `api.loadAsset()' function with a valid url, where api is an instance of our webgl-api.
+To download and parse a gltf file, call the <code>[api.loadAsset()](/docs/webgl-api/interfaces/NovoRender.API#loadasset)</code> function with a valid url, where api is an instance of our [webgl-api](/docs/webgl-api/interfaces/NovoRender.API).
 
 ```typescript
 const asset = await api.loadAsset(new URL("https://api.novorender.com/assets/gltf/logo.glb"));
@@ -66,7 +66,7 @@ instance.visible = true;
 
 ### Disposing
 
-To delete/remove an instance, call `dispose()`.
+To delete/remove an instance, call <code>[dispose()](/docs/webgl-api/interfaces/NovoRender.API#dispose)</code>.
 ```typescript
 instance.dispose();
 ```
