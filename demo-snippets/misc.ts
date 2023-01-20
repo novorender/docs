@@ -1,4 +1,6 @@
-export type IDemo = Record<string, {
+export type IDemo = Record<string, IDempProps>;
+
+export interface IDempProps {
     /** A friendly name for the demo (must be unique) */
     demoName: string,
     config: {
@@ -14,4 +16,4 @@ export type IDemo = Record<string, {
     code: string,
     /** preview image URL for the playground, sample: `assets/demo-screenshots/imageName.png` */
     previewImageUrl?: string;
-}>;
+}
