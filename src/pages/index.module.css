@@ -69,6 +69,19 @@
   height: 75px
 }
 
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  height: 200px;
+  width: 200px;
+}
+
+
 @media screen and (max-width: 599px) {
   .headerContainer {
     margin: 0 auto;
