@@ -11,7 +11,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 export const predefined_scenes = ['cube', 'condos', 'oilrig', 'empty'] as const;
 
 export interface PlaygroundConfig {
-    mode: 'inline' | 'fill'; // using `fill` will make the playground to take entire viewport's width and height, `inline` is default
+    mode?: 'inline' | 'fill'; // using `fill` will make the playground to take entire viewport's width and height, `inline` is default
     clickToRun?: boolean;
     canvas2D?: boolean // to enable 2DCanvas overlay
 };

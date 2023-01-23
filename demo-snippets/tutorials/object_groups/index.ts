@@ -1,21 +1,6 @@
 import floors from '!!./floors.ts?raw';
-import { IDemo } from "../../misc";
-
-function demo<T extends string>(name: T, code: string): IDemo {
-    return {
-        [name]:
-            {
-                demoName: name,
-                config: {
-                    clickToRun: true,
-                },
-                editUrl: `demo-snippets/tutorials/object_groups/${name}.ts`,
-                code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`
-            } as const
-    } as const;
-}
+import { demo } from "../../misc";
 
 export const objectGroups = {
-    ...demo("floors", floors),
+    ...demo("floors", floors, 'Predefined groups that are set up for each floor and buttons that isolate objectGroups in the group of the clicked level.'),
 };

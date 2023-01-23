@@ -1,25 +1,10 @@
 import fromPick from '!!./metadata_from_pick.ts?raw';
 import fromSearch from '!!./metadata_from_search.ts?raw';
 import flyTo from '!!./fly_to.ts?raw';
-import { IDemo } from "../../misc";
-
-function demo<T extends string>(name: T, code: string): IDemo {
-    return {
-        [name]:
-            {
-                demoName: name,
-                config: {
-                    clickToRun: true,
-                },
-                editUrl: `demo-snippets/tutorials/object_metadata/${name}.ts`,
-                code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`
-            } as const
-    } as const;
-}
+import { demo } from "../../misc";
 
 export const objectMetadata = {
-    ...demo("fromPick", fromPick),
-    ...demo("fromSearch", fromSearch),
-    ...demo("flyTo", flyTo),
+    ...demo("fromPick", fromPick, 'Metadata from picking objects.'),
+    ...demo("fromSearch", fromSearch, 'Metadata from search.'),
+    ...demo("flyTo", flyTo, 'How to fly to objects using CameraController.zoomTo(), When the example is run it will first do a quick search for 4 objects and fly to them. After that it will fly to any object you click.'),
 };

@@ -1,27 +1,9 @@
 import moduleInterface from '!!./snippet.ts?raw';
 import pinhole from '!!./pick.ts?raw';
 import ortho from '!!./pick.ts?raw';
-import { IDemo } from "../../misc";
+import { demo } from "../../misc";
 import * as NovoRender from "@novorender/webgl-api";
 import type { SnippetModule } from "./module";
-
-function demo<T extends string>(name: T, code: string): IDemo {
-    return {
-        [name]:
-            {
-                demoName: name,
-                config: {
-                    clickToRun: true,
-                },
-                editUrl: `demo-snippets/tutorials/cameras/${name}.ts`,
-                code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`
-            } as const
-        // TODO: Add thse to IDemo interface
-        // run, 
-        // moduleInterface
-    } as const;
-}
 
 export const objectSelection = {
     ...demo("pinhole", pinhole),

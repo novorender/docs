@@ -1,22 +1,6 @@
 import demo1 from '!!./demo1.ts?raw';
-import { IDemo } from "../../misc";
-
-function demo<T extends string>(name: T, code: string): IDemo {
-    return {
-        [name]:
-            {
-                demoName: name,
-                config: {
-                    clickToRun: true,
-                    canvas2D: true // 2DCanvas overlay
-                },
-                editUrl: `demo-snippets/tutorials/drawing2D/${name}.ts`,
-                code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`,
-            } as const
-    } as const;
-}
+import { demo } from "../../misc";
 
 export const drawing2D = {
-    ...demo("drawing2d", demo1),
+    ...demo("drawing2d", demo1, 'Measure API can be used to draw measure entity or results into a 2D canvas.'),
 };
