@@ -27,9 +27,7 @@ export default function Playground(): JSX.Element {
                 <div className="card__body">
                     <h4>{t.demoName}</h4>
                     <small style={{ overflow: 'auto', maxHeight: 100, display: 'inline-block' }}>
-                        {`The Quaco Head Lighthouse is a well maintained lighthouse close to St.
-                        Martins. It is a short, beautiful walk to the lighthouse along the
-                        seashore.`}
+                        {`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`}
                     </small>
                 </div>
                 <div className="card__footer">
@@ -44,12 +42,14 @@ export default function Playground(): JSX.Element {
             title={`Playground`}
             description="novorender api playground">
             <div style={{ height: 'calc(100vh - 60px)', padding: 10, margin: 10, overflow: 'auto' }}>
-                <Admonition type="info" icon="💡" title="Tip">
-                    <p>Select a demo, then press "Run" to launch the playground.</p>
-                </Admonition>
+                <div className="fade-in">
+                    <Admonition type="info" icon="💡" title="Tip">
+                        <p>Select a demo, then press "Run" to launch the playground.</p>
+                    </Admonition>
+                </div>
                 {tutorialsList && Object.keys(tutorialsList).map((key: string) => <div key={key}>
 
-                    <nav className="navbar" style={{ borderRadius: 10 }}>
+                    <nav className="navbar fade-in" style={{ borderRadius: 10 }}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
                                 <div className="navbar__brand" style={{ fontWeight: 'bold' }}>{key}</div>
@@ -58,7 +58,7 @@ export default function Playground(): JSX.Element {
                         </div>
                     </nav>
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', padding: '1rem 0' }}>{Object.values(tutorialsList[key]).map((t: IDempProps) => <div key={t.demoName} style={{ margin: 5 }}>{renderCard(key, t)}</div>)}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', padding: '1rem 0' }}>{Object.values(tutorialsList[key]).map((t: IDempProps, i: number) => <div key={t.demoName} style={{ margin: 5, animationDuration: i * 250 + 'ms' }} className="fade-in-top">{renderCard(key, t)}</div>)}</div>
                 </div>)}
             </div>
         </Layout>
