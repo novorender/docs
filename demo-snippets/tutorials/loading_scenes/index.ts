@@ -1,23 +1,8 @@
 import publicScene from '!!./public_scene.ts?raw';
 import privateScene from '!!./private_scene.ts?raw';
-import { IDemo } from "../../misc";
-
-function demo<T extends string>(name: T, code: string): IDemo {
-    return {
-        [name]:
-            {
-                demoName: name,
-                config: {
-                    clickToRun: true,
-                },
-                editUrl: `demo-snippets/tutorials/loading_scenes/${name}.ts`,
-                code: code,
-                previewImageUrl: `assets/demo-screenshots/${name}.png`
-            } as const
-    } as const;
-}
+import { demo } from "../../misc";
 
 export const loadingScenes = {
-    ...demo("publicScene", publicScene),
-    ...demo("privateScene", privateScene),
+    ...demo("publicScene", publicScene, 'Loading public scenes.'),
+    ...demo("privateScene", privateScene, 'Loading private scenes.'),
 };

@@ -26,9 +26,7 @@ export default function Playground(): JSX.Element {
                 </div>
                 <div className="card__body">
                     <h4>{t.demoName}</h4>
-                    <small style={{ overflow: 'auto', maxHeight: 100, display: 'inline-block' }}>
-                        {`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`}
-                    </small>
+                    <small style={{ overflow: 'auto', maxHeight: 100, display: 'inline-block' }}>{t.description}</small>
                 </div>
                 <div className="card__footer">
                     <Link to={`/playground/run?id=${key}___${t.demoName}`} className="button button--primary button--block">Run</Link>
