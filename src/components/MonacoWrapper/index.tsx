@@ -261,10 +261,19 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
             // });
 
             // compiler options
-            //   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-            // //     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-            //     allowSyntheticDefaultImports: true
-            //   });
+            console.log('comppp ', monaco.languages.typescript.typescriptDefaults.getCompilerOptions());
+            console.log('ext12 ', monaco.languages.typescript.typescriptDefaults.getExtraLibs());
+
+              monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+                // allowSyntheticDefaultImports: true,
+                moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+                module: monaco.languages.typescript.ModuleKind.ESNext,
+                allowNonTsExtensions: true,
+                // baseUrl: '.',
+                // paths: { "@/*": ['node_modules/*'] },
+                target: monaco.languages.typescript.ScriptTarget.Latest
+              });
 
             const libUri = "index.d.ts";
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
