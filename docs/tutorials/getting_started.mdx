@@ -8,6 +8,7 @@ import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
 import { tutorials } from '@site/demo-snippets/index';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
 
 ## Installation
 
@@ -30,6 +31,8 @@ yarn add @novorender/webgl-api@next @novorender/data-js-api @novorender/measure-
 
   </TabItem>
 </Tabs>
+
+---
 
 ## Bundlers
 
@@ -75,6 +78,24 @@ fs.cpSync("node_modules/@novorender/measure-api", "public/novorender/measure-api
 ```
   </TabItem>
 </Tabs>
+
+export const CodeExamplesTip = () => (
+  <div
+    style={{border: '1px solid var(--ifm-color-primary)',
+    margin: '20px 0',
+    padding: 10,
+    borderRadius: 'var(--ifm-code-border-radius)'}}>
+    <p style={{fontSize: 24, margin: 0}}>💡 Looking for more examples?</p>
+    <p style={{fontSize: 12}}>Check out these sample projects that utilise some of the common module bundlers.</p>
+    <div style={{display: 'flex', justifyContent: 'center'}}>{['vite', 'webpack', 'local_esm'].map(i => 
+      <Link to={`https://github.com/novorender/novorender-examples/tree/master/${i}`} style={{margin: 5}}><img src={require(`../../static/img/${i}.png`).default} style={{width: 100, borderRadius: 5}} /></Link>
+    )}</div>
+  </div>
+);
+
+<CodeExamplesTip />
+
+---
 
 ## Basic usage
 
@@ -154,6 +175,7 @@ async function main(api: API, canvas: HTMLCanvasElement) {
   }
 }
 ```
+---
 
 ## Live editor
 
