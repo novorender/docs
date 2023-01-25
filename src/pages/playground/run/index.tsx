@@ -14,17 +14,12 @@ export default function Playground(): JSX.Element {
     useEffect(() => {
         console.log('tutorials ', tutorials);
 
-        console.log('location ', location);
-
         const demo404 = 'We\'re sorry, but it seems like the requested demo isn\'t available at the moment 🙁';
         const demoId = search.replace('?id=', '').split('___');
 
-        console.log('Demo ID ', demoId);
-
-        let findCurrentDemo;
+        let findCurrentDemo: IDempProps;
         try {
             findCurrentDemo = tutorials[demoId[0]][demoId[1]];
-            console.log('findCurrentDemo ', findCurrentDemo);
             if (!findCurrentDemo) {
                 throw "demoNotFound 404";
             }
@@ -33,6 +28,7 @@ export default function Playground(): JSX.Element {
             setInfoMessage(demo404);
             return;
         }
+        findCurrentDemo.config = { ...findCurrentDemo.config, ...{ mode: 'fill', clickToRun: false } };
         setCurrentDemo(findCurrentDemo);
 
     }, []);
@@ -45,7 +41,7 @@ export default function Playground(): JSX.Element {
                 {/* <div className="navbar__items navbar__items--right" style={{ padding: '5px 18px' }}>
                         <button className='clean-btn navbar__item' title='go back to tutorials'>✖️</button>
                     </div> */}
-                {currentDemo && <PlaygroundComponent {...currentDemo} config={{ mode: 'fill', clickToRun: false }}></PlaygroundComponent>}
+                {currentDemo && <PlaygroundComponent {...currentDemo}></PlaygroundComponent>}
                 {!currentDemo && <p style={{ marginTop: 'calc(100vh - 50%)', textAlign: 'center' }}>{infoMessage}</p>}
             </div>
         </Layout>

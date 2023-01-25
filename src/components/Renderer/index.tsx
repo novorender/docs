@@ -4,7 +4,7 @@ import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraCon
 import type { MeasureAPI } from "@novorender/measure-api";
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
-import { PlaygroundConfig } from "../PlaygroundComponent";
+import type { IPlaygroundConfig } from "@site/demo-snippets/misc";
 interface props {
     main: any;
     isDoingActivity: (a: boolean) => void;
@@ -14,7 +14,7 @@ interface props {
     panesHeight: number;
     panesWidth: number;
     onMessagesAndAlert: (m: string) => void;
-    playgroundConfig: PlaygroundConfig;
+    playgroundConfig: IPlaygroundConfig;
 };
 
 // let isComponentUnmounted = false;
@@ -143,7 +143,6 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
 
     useEffect(() => {
         console.log('main from renderer', main);
-        console.log('main args length ', main.length);
         console.log('api from renderer', apiInstance);
         console.log('playgroundConfig from renderer', playgroundConfig);
         canvasRef(canvas.current);

@@ -32,15 +32,20 @@ import SceneIconSvg from '@site/static/img/mountain-solid.svg';
 import EnvironmentIconSvg from '@site/static/img/image-solid.svg';
 /** Icons END */
 
+// @ts-expect-error
 import WebglDTS from '!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts';
+// @ts-expect-error
 import DataJsApiDTS from '!!raw-loader!@site/node_modules/@novorender/data-js-api/index.d.ts';
+// @ts-expect-error
 import MeasureApiDTS from '!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts';
+// @ts-expect-error
 import GlMatrixDTS from '!!raw-loader!@site/node_modules/gl-matrix/index.d.ts';
-import { PlaygroundConfig, predefined_scenes } from '../PlaygroundComponent';
+import { predefined_scenes } from '../PlaygroundComponent';
 import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
+import type { IPlaygroundConfig } from "@site/demo-snippets/misc";
 
 export interface IParams {
     webglAPI: API;
@@ -62,7 +67,7 @@ interface props {
     scene?: WellKnownSceneUrls; // default scene to select, only required if `renderSettings` is provided
     demoName: string; // a name for this demo
     editUrl?: string; // relative path to the file that contains the demo code snippet, e.g. `demo-snippets/tutorials/some-snippet.ts`
-    playgroundConfig: PlaygroundConfig; // editor/playground internal config
+    playgroundConfig: IPlaygroundConfig; // editor/playground internal config
     cameraController?: CameraControllerParams; // default camera controller to select, optionally required if `renderSettings` is provided.
 };
 
@@ -310,8 +315,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
         await editor.getAction('editor.action.formatDocument').run();
-        editor.setPosition({ column: 1, lineNumber: 15 });
-        editor.revealLineInCenter(20);
+        editor.setPosition(playgroundConfig.cursorPosition);
+        editor.revealLineNearTop(playgroundConfig.revealLine);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
         const { config, main } = await returnRenderConfigFromOutput(output);

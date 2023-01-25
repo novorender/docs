@@ -2,6 +2,7 @@ import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
+
 export interface IParams {
   webglAPI: NovoRender.API;
   canvas: HTMLCanvasElement;
