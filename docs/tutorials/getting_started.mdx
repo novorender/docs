@@ -88,7 +88,7 @@ export const CodeExamplesTip = () => (
     <p style={{fontSize: 24, margin: 0}}>💡 Looking for more examples?</p>
     <p style={{fontSize: 12}}>Check out these sample projects that utilise some of the common module bundlers.</p>
     <div style={{display: 'flex', justifyContent: 'center'}}>{['vite', 'webpack', 'local_esm'].map(i => 
-      <Link to={`https://github.com/novorender/novorender-examples/tree/master/${i}`} style={{margin: 5}}><img src={require(`../../static/img/${i}.png`).default} style={{width: 100, borderRadius: 5}} /></Link>
+      <Link to={`https://github.com/novorender/novorender-examples/tree/master/${i}`} key={i} style={{margin: 5}}><img src={require(`../../static/img/${i}.png`).default} style={{width: 100, borderRadius: 5}} /></Link>
     )}</div>
   </div>
 );

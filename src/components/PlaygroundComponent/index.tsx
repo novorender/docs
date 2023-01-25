@@ -46,13 +46,13 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                     <div>
                         {config &&
                             <div style={config.mode === 'inline' ? { width: 769, border: '2px solid #d5275d33', padding: 5 } : { height: 'calc(100vh - 60px)', overflow: 'hidden', paddingTop: 2 }}>
-                                {config.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ?
-                                    <div style={{ position: 'relative' }}>
+                                {config.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId))
+                                    ? <div style={{ position: 'relative' }}>
                                         <button onClick={runPlayground} className="cu-button">Click to run the demo</button>
                                         {previewImageUrl && <>
                                             <img src={useBaseUrl(`assets/playground-placeholder-${colorMode}.png`)} style={{ filter: 'blur(2px)' }} />
                                             <img src={useBaseUrl(previewImageUrl)} onError={(e) => {
-                                                e.currentTarget.src=require(`@site/static/assets/playground-demo-placeholder-dark.png`).default
+                                                e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
                                             }} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
                                         </>}
                                     </div>
