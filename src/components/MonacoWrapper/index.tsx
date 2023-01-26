@@ -84,7 +84,7 @@ function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue;
 }
 
-export default function MonacoWrapper({ code, renderSettings, scene, demoName, cameraController, editorConfig, editUrl }: IProps): JSX.Element {
+export default function MonacoWrapper({ code, renderSettings, scene, demoName, description, cameraController, editorConfig, editUrl }: IProps): JSX.Element {
 
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
@@ -112,7 +112,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
     const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
     const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
-    const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+    const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
+    const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
     const [main, setMain] = useState<any>();
     const main_debounced = useDebounce(codeOutput, 1000);
@@ -279,7 +280,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
              * @description opens an alert that displays provided content
              * @param content string to show in the alert
              */
-            declare function openAlert(content:string):void`)
+            declare function openAlert(content:string):void`);
 
             // monaco.languages.typescript.typescriptDefaults.addExtraLib(
             //    GlMatrixDTS,
@@ -411,6 +412,19 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                     <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
+                                {/* Demo description popover */}
+                                <Popover
+                                    isOpen={isDemoDescPopoverOpen}
+                                    positions={['bottom', 'right', 'top', 'left']}
+                                    content={
+                                        <div className={styles.popoverContent}>
+                                            <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description}</p>
+                                        </div>}
+                                >
+                                    <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item' title='Description for this demo'>
+                                        <AlertsIconSvg className={styles.editorSvgIcon} style={{ color: 'var(--ifm-color-secondary-darkest)', fill: 'var(--ifm-color-secondary-darkest)' }} />
+                                    </button>
+                                </Popover>
                                 {demoName}
                                 {isActivity && <Spinner />}
                             </div>
@@ -533,7 +547,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                             <div className="navbar__items">
                                 {/* Messages/alert popover */}
                                 <Popover
-                                    isOpen={isPopoverOpen}
+                                    isOpen={isMessagesAndAlertPopoverOpen}
                                     positions={['top', 'right', 'bottom', 'left']}
                                     parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
@@ -545,7 +559,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                                             <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
                                         </div>}
                                 >
-                                    <button onMouseEnter={() => { setIsPopoverOpen(true); }} onMouseLeave={() => { setIsPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px', marginLeft: '-12px' }}>
+                                    <button onMouseEnter={() => { setIsMessagesAndAlertPopoverOpen(true); }} onMouseLeave={() => { setIsMessagesAndAlertPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px', marginLeft: '-12px' }}>
                                         <AlertsIconSvg className={styles.editorSvgIcon} style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
                                     </button>
                                 </Popover>

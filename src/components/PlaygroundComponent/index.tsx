@@ -18,7 +18,7 @@ export interface IProps extends IDempProps {
     cameraController?: CameraControllerParams; // default camera controller to select, optionally required if `renderSettings` is provided.
 };
 
-export default function PlaygroundComponent({ code, renderSettings, scene, demoName, cameraController = { kind: 'static' }, editorConfig, editUrl, previewImageUrl }: IProps): JSX.Element {
+export default function PlaygroundComponent({ code, renderSettings, scene, demoName, description, cameraController = { kind: 'static' }, editorConfig, editUrl, previewImageUrl }: IProps): JSX.Element {
 
     const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
     const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
@@ -52,7 +52,7 @@ export default function PlaygroundComponent({ code, renderSettings, scene, demoN
                                             }} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
                                         </>}
                                     </div>
-                                    : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} editorConfig={editorConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
+                                    : <MonacoWrapper code={code} renderSettings={renderSettings} scene={scene} demoName={demoName} description={description} editorConfig={editorConfig} cameraController={cameraController} editUrl={editUrl}></MonacoWrapper>}
                             </div>
                         }
                     </div>

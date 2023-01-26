@@ -25,7 +25,7 @@ export interface IDempProps {
     /** preview image URL for the playground, sample: `assets/demo-screenshots/imageName.png` */
     previewImageUrl?: string;
     /** short description for this demo */
-    description?: string;
+    description: string;
 }
 
 export function demo<T extends string>(

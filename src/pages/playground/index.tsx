@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import { tutorials } from '@site/demo-snippets/index';
-import type { IDemo, IDempProps } from '../../../demo-snippets/misc';
+import type { IDempProps } from '../../../demo-snippets/misc';
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import Admonition from '@theme/Admonition';
 import Link from '@docusaurus/Link';
