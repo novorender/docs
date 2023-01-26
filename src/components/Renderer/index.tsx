@@ -4,8 +4,8 @@ import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraCon
 import type { MeasureAPI } from "@novorender/measure-api";
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
-import type { IPlaygroundConfig } from "@site/demo-snippets/misc";
-interface props {
+import type { IEditorConfig } from "@site/demo-snippets/misc";
+interface Props {
     main: any;
     isDoingActivity: (a: boolean) => void;
     canvasRef: (a: HTMLCanvasElement) => void;
@@ -14,7 +14,7 @@ interface props {
     panesHeight: number;
     panesWidth: number;
     onMessagesAndAlert: (m: string) => void;
-    playgroundConfig: IPlaygroundConfig;
+    editorConfig: IEditorConfig;
 };
 
 // let isComponentUnmounted = false;
@@ -76,7 +76,7 @@ interface props {
 //     }
 // }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, playgroundConfig }: props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, editorConfig }: Props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
@@ -144,7 +144,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     useEffect(() => {
         console.log('main from renderer', main);
         console.log('api from renderer', apiInstance);
-        console.log('playgroundConfig from renderer', playgroundConfig);
+        console.log('playgroundConfig from renderer', editorConfig);
         canvasRef(canvas.current);
         (async () => {
             try {
@@ -292,7 +292,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
             {
                 () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
-                    <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, visibility: playgroundConfig?.canvas2D ? 'visible' : 'hidden', display: playgroundConfig?.canvas2D ? 'block' : 'none' }}></canvas>
+                    <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, visibility: editorConfig?.canvas2D ? 'visible' : 'hidden', display: editorConfig?.canvas2D ? 'block' : 'none' }}></canvas>
                 </div>
             }
         </BrowserOnly>

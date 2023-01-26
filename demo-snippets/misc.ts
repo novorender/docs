@@ -2,7 +2,7 @@ import type { IPosition } from "monaco-editor";
 
 export type IDemo = Record<string, IDempProps>;
 
-export interface IPlaygroundConfig {
+export interface IEditorConfig {
     /** should playground start automatically? defaults to `true` */
     clickToRun?: boolean;
     /** whether to enable a secondary canvas for 2D or not, defaults to `false` */
@@ -17,8 +17,8 @@ export interface IPlaygroundConfig {
 export interface IDempProps {
     /** A friendly name for the demo (must be unique) */
     demoName: string;
-    /** Playground config */
-    config: IPlaygroundConfig;
+    /** editor config */
+    editorConfig: IEditorConfig;
     /** Github edit URL, should be relative path e.g. `demo-snippets/tutorials/clipping_volumes/box.ts` */
     editUrl: string;
     code: string;
@@ -31,14 +31,14 @@ export interface IDempProps {
 export function demo<T extends string>(
     demoName: T,
     code: string,
-    config: IPlaygroundConfig = {},
+    config: IEditorConfig = {},
     desc?: string
 ): IDemo {
     return {
         [demoName]:
             {
                 demoName,
-                config: { clickToRun: true, mode: 'inline', canvas2D: false, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
+                editorConfig: { clickToRun: true, mode: 'inline', canvas2D: false, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
                 code,
                 editUrl: `demo-snippets/tutorials/getting_started/${demoName}.ts`,
                 previewImageUrl: `assets/demo-screenshots/${demoName}.png`,

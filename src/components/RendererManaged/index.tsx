@@ -4,7 +4,7 @@ import { WellKnownSceneUrls } from '@site/src/shared';
 import type { API, RenderSettingsParams, View, EnvironmentDescription, CameraControllerParams } from "@novorender/webgl-api";
 import { ICameraTypes } from "../MonacoWrapper/camera_controllers_config";
 
-interface props {
+interface Props {
     config: RenderSettingsParams,
     scene: WellKnownSceneUrls,
     environment: EnvironmentDescription,
@@ -76,7 +76,7 @@ const renderLoop = async (canvas: HTMLCanvasElement, view: View) => {
     }
 }
 
-export default function ManagedRenderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: props): JSX.Element {
+export default function ManagedRenderer({ config, scene, environment, cameraController, isDoingActivity, canvasRef, api, panesHeight, panesWidth, onMessagesAndAlert }: Props): JSX.Element {
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [view, setView] = useState<View>(null);

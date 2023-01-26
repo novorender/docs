@@ -40,13 +40,11 @@ import DataJsApiDTS from '!!raw-loader!@site/node_modules/@novorender/data-js-ap
 import MeasureApiDTS from '!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts';
 // @ts-expect-error
 import GlMatrixDTS from '!!raw-loader!@site/node_modules/gl-matrix/index.d.ts';
-import { predefined_scenes } from '../PlaygroundComponent';
+import { IProps, predefined_scenes } from '../PlaygroundComponent';
 import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
-import type { IPlaygroundConfig } from "@site/demo-snippets/misc";
-
 export interface IParams {
     webglAPI: API;
     measureAPI: typeof MeasureAPI;
@@ -60,16 +58,6 @@ export interface IParams {
 // or Monaco doesn't like it
 const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
 // const dts_fixed_measure_api = MeasureApiDTS.replace(`"@novorender/measure-api"`, "NovoRender1")
-
-interface props {
-    code?: string; // code to run in the editor, only required if `renderSettings` is not provided.
-    renderSettings?: RenderSettingsParams; // renderSettings for the view, only required if `code` is not provided
-    scene?: WellKnownSceneUrls; // default scene to select, only required if `renderSettings` is provided
-    demoName: string; // a name for this demo
-    editUrl?: string; // relative path to the file that contains the demo code snippet, e.g. `demo-snippets/tutorials/some-snippet.ts`
-    playgroundConfig: IPlaygroundConfig; // editor/playground internal config
-    cameraController?: CameraControllerParams; // default camera controller to select, optionally required if `renderSettings` is provided.
-};
 
 function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSceneUrls {
     const indexOfKey = Object.values(WellKnownSceneUrls).indexOf(value as unknown as WellKnownSceneUrls);
@@ -96,7 +84,7 @@ function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue;
 }
 
-export default function MonacoWrapper({ code, renderSettings, scene, demoName, cameraController, playgroundConfig, editUrl }: props): JSX.Element {
+export default function MonacoWrapper({ code, renderSettings, scene, demoName, cameraController, editorConfig, editUrl }: IProps): JSX.Element {
 
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
@@ -121,8 +109,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
     const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
     const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-    const [editorHeight, setEditorHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
-    const [rendererHeight, setRendererHeight] = useState<number>(playgroundConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
+    const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
+    const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
     const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
@@ -131,7 +119,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
 
     useEffect(() => {
 
-        console.log('playgroundConfig ', playgroundConfig);
+        console.log('playgroundConfig ', editorConfig);
 
         if (code || renderSettings) {
             if (renderSettings) {
@@ -315,8 +303,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
         await editor.getAction('editor.action.formatDocument').run();
-        editor.setPosition(playgroundConfig.cursorPosition);
-        editor.revealLineNearTop(playgroundConfig.revealLine);
+        editor.setPosition(editorConfig.cursorPosition);
+        editor.revealLineNearTop(editorConfig.revealLine);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
         const { config, main } = await returnRenderConfigFromOutput(output);
@@ -529,7 +517,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                             {render_config || main
                                 ? <>{renderSettings
                                     ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
-                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} playgroundConfig={playgroundConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
+                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} editorConfig={editorConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}
@@ -547,7 +535,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, c
                                 <Popover
                                     isOpen={isPopoverOpen}
                                     positions={['top', 'right', 'bottom', 'left']}
-                                    parentElement={playgroundConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
+                                    parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
                                         <div className={styles.popoverContent}>
                                             <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>WebGL API: {devDependencies['@novorender/webgl-api']}</p>

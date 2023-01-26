@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
+import { useLocation } from '@docusaurus/router';
 import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
 import { tutorials } from '@site/demo-snippets/index';
 import type { IDempProps } from '../../../../demo-snippets/misc';
-import { useLocation } from '@docusaurus/router';
 
 export default function Playground(): JSX.Element {
 
@@ -28,7 +28,7 @@ export default function Playground(): JSX.Element {
             setInfoMessage(demo404);
             return;
         }
-        findCurrentDemo.config = { ...findCurrentDemo.config, ...{ mode: 'fill', clickToRun: false } };
+        findCurrentDemo.editorConfig = { ...findCurrentDemo.editorConfig, ...{ mode: 'fill', clickToRun: false } };
         setCurrentDemo(findCurrentDemo);
 
     }, []);
