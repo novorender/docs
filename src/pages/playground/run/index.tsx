@@ -19,7 +19,7 @@ export default function Playground(): JSX.Element {
 
         let findCurrentDemo: IDempProps;
         try {
-            findCurrentDemo = tutorials[demoId[0]][demoId[1]];
+            findCurrentDemo = Object.assign({}, tutorials[demoId[0]][demoId[1]]);
             if (!findCurrentDemo) {
                 throw "demoNotFound 404";
             }
