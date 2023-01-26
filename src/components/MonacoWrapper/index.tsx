@@ -91,7 +91,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
     const { colorMode } = useColorMode();
     const editorInstance = useRef(null);
     const textAreaInstance = useRef<HTMLTextAreaElement>(null);
-    const editorNavbarInstance = useRef<HTMLTextAreaElement>(null);
+    const editorFooterInstance = useRef<HTMLElement>(null);
+    const editorNavbarInstance = useRef<HTMLElement>(null);
     const [renderConfig, setRenderConfig] = useState<RenderSettingsParams>(null);
     const render_config = useDebounce<RenderSettingsParams>(renderConfig, 800);
     const [codeOutput, setCodeOutput] = useState<string>(null);
@@ -409,19 +410,20 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
         <BrowserOnly>
             {
                 () => <Fragment>
-                    <nav className="navbar playground_navbar" style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
+                    <nav className="navbar playground_navbar" ref={editorNavbarInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
                                 {/* Demo description popover */}
                                 <Popover
                                     isOpen={isDemoDescPopoverOpen}
                                     positions={['bottom', 'right', 'top', 'left']}
+                                    parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
                                         <div className={styles.popoverContent}>
                                             <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description}</p>
                                         </div>}
                                 >
-                                    <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item' title='Description for this demo'>
+                                    <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item' title='Description for this demo' style={{ marginTop: 4 }}>
                                         <AlertsIconSvg className={styles.editorSvgIcon} style={{ color: 'var(--ifm-color-secondary-darkest)', fill: 'var(--ifm-color-secondary-darkest)' }} />
                                     </button>
                                 </Popover>
@@ -542,14 +544,14 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
                         style={{ position: 'absolute', width: 0, height: 0, top: 5 }}
                     />
 
-                    <nav className="navbar playground_navbar" ref={editorNavbarInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
+                    <nav className="navbar playground_navbar" ref={editorFooterInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
                                 {/* Messages/alert popover */}
                                 <Popover
                                     isOpen={isMessagesAndAlertPopoverOpen}
                                     positions={['top', 'right', 'bottom', 'left']}
-                                    parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
+                                    parentElement={editorConfig.mode === 'inline' ? editorFooterInstance.current : undefined}
                                     content={
                                         <div className={styles.popoverContent}>
                                             <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>WebGL API: {devDependencies['@novorender/webgl-api']}</p>

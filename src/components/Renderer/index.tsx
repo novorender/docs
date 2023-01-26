@@ -144,7 +144,6 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     useEffect(() => {
         console.log('main from renderer', main);
         console.log('api from renderer', apiInstance);
-        console.log('playgroundConfig from renderer', editorConfig);
         canvasRef(canvas.current);
         (async () => {
             try {
