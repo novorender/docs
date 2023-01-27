@@ -27,7 +27,7 @@ export default function Playground(): JSX.Element {
     const renderCard = (key: string, t: IDempProps) => {
         return <div style={{ maxWidth: 320, height: 340 }}>
             <div className="card" style={{ height: 'inherit' }}>
-                <div className="card__image">
+                <div style={{ height: 110, overflow: 'hidden' }} className="card__image">
                     {t.previewImageUrl && <>
                         <img src={useBaseUrl(t.previewImageUrl)} alt={t.demoName} title={t.demoName} onError={(e) => {
                             e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
