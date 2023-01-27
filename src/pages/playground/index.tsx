@@ -28,10 +28,13 @@ export default function Playground(): JSX.Element {
         return <div style={{ maxWidth: 320, height: 340 }}>
             <div className="card" style={{ height: 'inherit' }}>
                 <div className="card__image">
-                    <img
-                        src={useBaseUrl(t.previewImageUrl)}
-                        alt={t.demoName}
-                        title={t.demoName} />
+                    {t.previewImageUrl && <>
+                        <img src={useBaseUrl(t.previewImageUrl)} alt={t.demoName} title={t.demoName} onError={(e) => {
+                            e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
+                            e.currentTarget.alt = 'demo preview image not found';
+                            e.currentTarget.title = 'demo preview image not found';
+                        }} />
+                    </>}
                 </div>
                 <div className="card__body">
                     <h4>{t.demoName}</h4>
