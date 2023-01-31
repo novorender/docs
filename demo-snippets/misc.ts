@@ -15,6 +15,8 @@ export interface IEditorConfig {
     revealLine?: number;
 };
 export interface IDempProps {
+    /** Directory that contains this demo, e.g. `getting_started/condos.ts`, `getting_started` is the dirName here */
+    dirName: string;
     /** A friendly name for the demo (must be unique) */
     demoName: string;
     /** editor config */
@@ -29,6 +31,7 @@ export interface IDempProps {
 }
 
 export function demo<T extends string>(
+    dirName: string,
     demoName: T,
     code: string,
     config: IEditorConfig = {},
@@ -37,10 +40,11 @@ export function demo<T extends string>(
     return {
         [demoName]:
             {
+                dirName,
                 demoName,
                 editorConfig: { clickToRun: true, mode: 'inline', canvas2D: false, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
                 code,
-                editUrl: `demo-snippets/tutorials/getting_started/${demoName}.ts`,
+                editUrl: `demo-snippets/tutorials/${dirName}/${demoName}.ts`,
                 previewImageUrl: `assets/demo-screenshots/${demoName}.png`,
                 description: desc || 'No Description Available'
             } as const

@@ -6,8 +6,8 @@ import * as NovoRender from "@novorender/webgl-api";
 import type { SnippetModule } from "./module";
 
 export const objectSelection = {
-    ...demo("pinhole", pinhole),
-    ...demo("ortho", ortho),
+    ...demo("cameras", "pinhole", pinhole),
+    ...demo("cameras", "ortho", ortho),
 };
 
 // this function will run entire demo and call into playground snippet for editable code.

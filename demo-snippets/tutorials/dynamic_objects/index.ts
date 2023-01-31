@@ -1,6 +1,6 @@
-import demo1 from '!!./demo1.ts?raw';
+import dynamicObject from '!!./dynamic_object.ts?raw';
 import { demo } from "../../misc";
 
 export const dynamicObjects = {
-    ...demo("dynamicObject", demo1, {}, 'Adding dynamic 3D objects into the view.'),
+    ...demo("dynamic_objects", "dynamic_object", dynamicObject, {}, 'Adding dynamic 3D objects into the view.'),
 };
