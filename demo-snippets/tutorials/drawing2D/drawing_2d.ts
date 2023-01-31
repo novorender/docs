@@ -31,7 +31,7 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
 
     //Extract needed camera settings
     const { camera } = view;
-    const cameraDirection = GlMatrix.vec3.transformQuat(GlMatrix.vec3.create(), GlMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
+    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
     const camSettings = { pos: camera.position, dir: cameraDirection };
 
     if (context2D) {
