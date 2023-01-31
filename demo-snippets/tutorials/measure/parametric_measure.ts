@@ -43,24 +43,24 @@ export async function main({ webglAPI, canvas, measureAPI }: IParams) {
             if (result) {
                 if (selectEntity === 1) {
                     // Find measure entity at pick location
-                    measureEntity1 = await measureScene.pickMeasureEntity(
+                    measureEntity1 = (await measureScene.pickMeasureEntity(
                         result.objectId,
                         result.position
-                    );
+                    )).entity;
                     selectEntity = 2;
                 }
                 else {
                     // Find measure entity at pick location
-                    measureEntity2 = await measureScene.pickMeasureEntity(
+                    measureEntity2 = (await measureScene.pickMeasureEntity(
                         result.objectId,
                         result.position
-                    );
+                    )).entity;
                     selectEntity = 1;
                 }
                 // As long as one object is selected log out the values
                 // Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
-                    const _log = await measureScene.measure(measureEntity1, measureEntity2)
+                    const _log = await measureScene.measure(measureEntity1, measureEntity2);
                     openAlert(JSON.stringify(_log));
                 }
             }

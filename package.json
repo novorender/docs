@@ -44,7 +44,7 @@
     "@docusaurus/module-type-aliases": "2.2.0",
     "@novorender/data-js-api": "0.2.24",
     "@novorender/webgl-api": "0.4.10",
-    "@novorender/measure-api": "0.0.101",
+    "@novorender/measure-api": "0.0.119",
     "@tsconfig/docusaurus": "1.0.6",
     "@tsconfig/node16": "1.0.3",
     "@types/puppeteer": "5.4.6",

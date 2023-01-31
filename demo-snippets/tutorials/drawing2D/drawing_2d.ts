@@ -16,8 +16,8 @@ export interface IParams {
 
 //Begin example snippet
 async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
-    measureEntity1: MeasureAPI.MeasureEntity, measureEntity2: MeasureAPI.MeasureEntity, context2D: CanvasRenderingContext2D | null,
-    canvas2D: HTMLCanvasElement, result: MeasureAPI.MeasurementValues | undefined, glMatrix: typeof GlMatrix) {
+    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
+    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
     //Await all draw objects first to avoid flickering
     const [
         drawResult,
@@ -110,18 +110,18 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
             if (result1) {
                 if (selectEntity === 1) {
                     //Find measure entity at pick location
-                    measureEntity1 = await measureScene.pickMeasureEntity(
+                    measureEntity1 = (await measureScene.pickMeasureEntity(
                         result1.objectId,
                         result1.position
-                    );
+                    )).entity;
                     selectEntity = 2;
                 }
                 else {
                     //Find measure entity at pick location
-                    measureEntity2 = await measureScene.pickMeasureEntity(
+                    measureEntity2 = (await measureScene.pickMeasureEntity(
                         result1.objectId,
                         result1.position
-                    );
+                    )).entity;
                     selectEntity = 1;
                 }
                 //As long as one object is selected log out the values
