@@ -13,64 +13,6 @@ export interface IParams {
     canvas2D: HTMLCanvasElement;
 };
 
-
-//Begin example snippet
-async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
-    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
-    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
-    //Await all draw objects first to avoid flickering
-    const [
-        drawResult,
-        drawProduct1,
-        drawProduct2,
-    ] = await Promise.all([
-        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
-        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
-        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
-    ]);
-
-    //Extract needed camera settings
-    const { camera } = view;
-    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
-    const camSettings = { pos: camera.position, dir: cameraDirection };
-
-    if (context2D) {
-        context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-
-        //Draw result in green, all lines use 3 pixel width
-        if (drawResult) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawResult,
-                { lineColor: "green" },
-                3,
-                glMatrix);
-        }
-
-        //Draw first object with yellow line and blue fill
-        if (drawProduct1) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct1,
-                { lineColor: "yellow", fillColor: "blue" },
-                3,
-                glMatrix);
-        }
-
-        //Draw second object with blue lines and yellow fill 
-        if (drawProduct2) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct2,
-                { lineColor: "blue", fillColor: "yellow" },
-                3,
-                glMatrix);
-        }
-    }
-}
-//End example snippet
-
-
 export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
 
     const { vec2, vec3 } = glMatrix;
@@ -156,7 +98,6 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
         draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
     }
 }
-
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
 export interface ColorSettings {
@@ -476,4 +417,71 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
         return true;
     }
     return false;
+}
+
+
+/**
+ * @description draw2d
+ * @param _measureApi 
+ * @param view 
+ * @param measureScene 
+ * @param measureEntity1 
+ * @param measureEntity2 
+ * @param context2D 
+ * @param canvas2D 
+ * @param result 
+ * @param glMatrix 
+ */
+async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
+    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
+    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
+    //Await all draw objects first to avoid flickering
+    const [
+        drawResult,
+        drawProduct1,
+        drawProduct2,
+    ] = await Promise.all([
+        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
+        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
+        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
+    ]);
+
+    //Extract needed camera settings
+    const { camera } = view;
+    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
+    const camSettings = { pos: camera.position, dir: cameraDirection };
+
+    if (context2D) {
+        context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+
+        //Draw result in green, all lines use 3 pixel width
+        if (drawResult) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawResult,
+                { lineColor: "green" },
+                3,
+                glMatrix);
+        }
+
+        //Draw first object with yellow line and blue fill
+        if (drawProduct1) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawProduct1,
+                { lineColor: "yellow", fillColor: "blue" },
+                3,
+                glMatrix);
+        }
+
+        //Draw second object with blue lines and yellow fill 
+        if (drawProduct2) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawProduct2,
+                { lineColor: "blue", fillColor: "yellow" },
+                3,
+                glMatrix);
+        }
+    }
 }

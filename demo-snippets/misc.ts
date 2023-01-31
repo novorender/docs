@@ -13,6 +13,8 @@ export interface IEditorConfig {
     cursorPosition?: IPosition;
     /** Scroll vertically as necessary and reveal a line close to the top of the viewport, defaults to `20` (https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IEditor.html#revealLineNearTop) */
     revealLine?: number;
+    /** Lines to hide in the editor */
+    hiddenAreas?: Array<{ startLineNumber: number, endLineNumber: number; }>;
 };
 export interface IDempProps {
     /** Directory that contains this demo, e.g. `getting_started/condos.ts`, `getting_started` is the dirName here */

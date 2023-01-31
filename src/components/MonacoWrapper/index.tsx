@@ -304,6 +304,9 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
     async function handleEditorDidMount(editor, monaco: Monaco) {
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
+        if (editorConfig.hiddenAreas && editorConfig.hiddenAreas.length) {
+            editor.setHiddenAreas(editorConfig.hiddenAreas.map(r => new monaco.Range(r.startLineNumber, 0, r.endLineNumber, 0)));
+        }
         await editor.getAction('editor.action.formatDocument').run();
         editor.setPosition(editorConfig.cursorPosition);
         editor.revealLineNearTop(editorConfig.revealLine);
@@ -517,8 +520,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
                                         scrollBeyondLastLine: false,
                                         automaticLayout: true,
                                         contextmenu: false,
-                                        folding: true,
-                                        showFoldingControls: "always",
+                                        folding: false,
+                                        showFoldingControls: "never",
                                         guides: { indentation: true },
                                     }}
                                     onMount={handleEditorDidMount}
