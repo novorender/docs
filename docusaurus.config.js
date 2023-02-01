@@ -198,7 +198,7 @@ const config = {
                 logLevel: 'Error',
                 out: 'webgl-api',
                 tsconfig: 'type-definitions/tsconfig.json',
-                readme: require.resolve("./temp-readme.md"),
+                readme: require.resolve("@novorender/webgl-api/README.md"),
                 disableSources: true,
                 frontmatter: {
                     description: 'A Web API for scalable 3D rendering in the cloud.',
