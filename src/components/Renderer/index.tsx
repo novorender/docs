@@ -42,34 +42,34 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
         })();
     }, [main]);
 
-    useEffect(() => {
-        document.addEventListener('fullscreenchange', resizeScene, false);
-        return () => { document.removeEventListener('fullscreenchange', resizeScene, false); };
-    });
+    // useEffect(() => {
+    //     document.addEventListener('fullscreenchange', resizeScene, false);
+    //     return () => { document.removeEventListener('fullscreenchange', resizeScene, false); };
+    // });
 
-    // resizes the scene/view to fit the viewport
-    function resizeScene() {
-        const { clientWidth, clientHeight } = canvas.current;
-        const width = clientWidth * devicePixelRatio;
-        const height = clientHeight * devicePixelRatio;
-        try {
-            // handle resizes
-            // view.applySettings({ display: { width, height } });
-        } catch (e) {
-            console.log('[canvas size update]: couldn\'t resize, ', e);
-        }
-    }
+    // // resizes the scene/view to fit the viewport
+    // function resizeScene() {
+    //     const { clientWidth, clientHeight } = canvas.current;
+    //     const width = clientWidth * devicePixelRatio;
+    //     const height = clientHeight * devicePixelRatio;
+    //     try {
+    //         // handle resizes
+    //         // view.applySettings({ display: { width, height } });
+    //     } catch (e) {
+    //         console.log('[canvas size update]: couldn\'t resize, ', e);
+    //     }
+    // }
 
-    // handle canvas resize when split pane size changes.
-    useEffect(() => {
-        if (!canvas) {
-            console.log('View or Canvas not found, couldn\'t apply the settings ', canvas);
-            return;
-        }
-        if (panesHeight || panesWidth) {
-            resizeScene();
-        }
-    }, [panesHeight, panesWidth]);
+    // // handle canvas resize when split pane size changes.
+    // useEffect(() => {
+    //     if (!canvas) {
+    //         console.log('View or Canvas not found, couldn\'t apply the settings ', canvas);
+    //         return;
+    //     }
+    //     if (panesHeight || panesWidth) {
+    //         resizeScene();
+    //     }
+    // }, [panesHeight, panesWidth]);
 
 
     return (
