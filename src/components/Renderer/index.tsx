@@ -77,7 +77,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
             {
                 () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
-                    <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, visibility: editorConfig?.canvas2D ? 'visible' : 'hidden', display: editorConfig?.canvas2D ? 'block' : 'none' }}></canvas>
+                    {editorConfig?.canvas2D && <canvas ref={canvas2D} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />}
                 </div>
             }
         </BrowserOnly>
