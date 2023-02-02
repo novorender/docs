@@ -1,18 +1,14 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
-import Admonition from '@theme/Admonition';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Admonition from '@theme/Admonition';
+import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover';
-import stringify from "json-stringify-pretty-compact";
-import ManagedRenderer from '@site/src/components/RendererManaged';
 import Renderer from '@site/src/components/Renderer';
 import Spinner from '@site/src/components/misc/spinner';
-import { WellKnownSceneUrls } from '@site/src/shared';
 const { devDependencies } = require('../../../package.json');
-import type { API, CameraControllerParams, EnvironmentDescription, RenderSettingsParams } from '@novorender/webgl-api';
 
 /** CSS */
 import styles from './styles.module.css';
@@ -25,11 +21,7 @@ import CopyIconSvg from '@site/static/img/copy-solid.svg';
 import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import ExpandIconSvg from '@site/static/img/expand.svg';
-import SettingsIconSvg from '@site/static/img/settings.svg';
 import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
-import CameraControllerIconSvg from '@site/static/img/camera-solid.svg';
-import SceneIconSvg from '@site/static/img/mountain-solid.svg';
-import EnvironmentIconSvg from '@site/static/img/image-solid.svg';
 /** Icons END */
 
 // @ts-expect-error
@@ -40,17 +32,21 @@ import DataJsApiDTS from '!!raw-loader!@site/node_modules/@novorender/data-js-ap
 import MeasureApiDTS from '!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts';
 // @ts-expect-error
 import GlMatrixDTS from '!!raw-loader!@site/node_modules/gl-matrix/index.d.ts';
-import { IProps, predefined_scenes } from '../PlaygroundComponent';
-import { cameraTypes, ICameraTypes } from './camera_controllers_config';
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
+
+/** Types */
+import type { API } from '@novorender/webgl-api';
+import type { IDempProps } from "@site/demo-snippets/misc";
+/** Types END */
+
 export interface IParams {
     webglAPI: API;
     measureAPI: typeof MeasureAPI;
     dataJsAPI: typeof DataJsAPI;
-    primaryCanvas: HTMLCanvasElement;
     glMatrix: typeof GlMatrix;
+    primaryCanvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
 };
 
@@ -59,13 +55,6 @@ export interface IParams {
 const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
 // const dts_fixed_measure_api = MeasureApiDTS.replace(`"@novorender/measure-api"`, "NovoRender1")
 
-function getEnumKeyByValue(value: WellKnownSceneUrls): keyof typeof WellKnownSceneUrls {
-    const indexOfKey = Object.values(WellKnownSceneUrls).indexOf(value as unknown as WellKnownSceneUrls);
-
-    const key = Object.keys(WellKnownSceneUrls)[indexOfKey];
-
-    return key as keyof typeof WellKnownSceneUrls;
-};
 
 /**
  * @todo move to separate file
@@ -84,7 +73,7 @@ function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue;
 }
 
-export default function MonacoWrapper({ code, renderSettings, scene, demoName, description, cameraController, editorConfig, editUrl }: IProps): JSX.Element {
+export default function MonacoWrapper({ code, demoName, description, editorConfig, editUrl }: IDempProps): JSX.Element {
 
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
@@ -93,17 +82,11 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
     const textAreaInstance = useRef<HTMLTextAreaElement>(null);
     const editorFooterInstance = useRef<HTMLElement>(null);
     const editorNavbarInstance = useRef<HTMLElement>(null);
-    const [renderConfig, setRenderConfig] = useState<RenderSettingsParams>(null);
-    const render_config = useDebounce<RenderSettingsParams>(renderConfig, 800);
     const [codeOutput, setCodeOutput] = useState<string>(null);
     const [codeError, setCodeError] = useState(null);
     const [initialCode, setInitialCode] = useState<string>(null);
     const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
     const [theme, setTheme] = useState<'light' | 'vs-dark' | ''>('');
-    const [currentScene, setCurrentScene] = useState<keyof typeof WellKnownSceneUrls>();
-    const [currentCameraController, setCurrentCameraController] = useState<CameraControllerParams | ICameraTypes>(cameraController);
-    const [environmentsList, setEnvironmentsList] = useState<EnvironmentDescription[]>([]);
-    const [currentEnv, setCurrentEnv] = useState<EnvironmentDescription>();
     const [isActivity, setIsActivity] = useState<boolean>(false);
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
     const [api, setApiInstance] = useState<any>(); // Create API
@@ -123,16 +106,10 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
 
         console.log('playgroundConfig ', editorConfig);
 
-        if (code || renderSettings) {
-            if (renderSettings) {
-                setInitialCode(
-                    `export const config: NovoRender.RenderSettingsParams = ${stringify(renderSettings, { indent: 8 })};`
-                );
-            } else {
-                setInitialCode(code);
-            }
+        if (code) {
+            setInitialCode(code);
         }
-    }, [code, renderSettings]);
+    }, [code]);
 
     /**
      * @description transpile and return js string
@@ -159,14 +136,14 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
      * @param transpiledOutput string that contains config
      * @returns RenderConfig
      */
-    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ config: RenderSettingsParams, cameraConfig: CameraControllerParams, main: any; }> => {
+    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: any; }> => {
         const encodedJs = encodeURIComponent(transpiledOutput);
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-        const { config, cameraConfig, main } = await import(/* webpackIgnore: true */dataUri);
+        const { main } = await import(/* webpackIgnore: true */dataUri);
 
         console.log('main ==> ', main);
 
-        return { config, cameraConfig, main };
+        return { main };
     };
 
     const codeChangeHandler = async (tsCode: string) => {
@@ -193,7 +170,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
     useEffect(() => {
         if (main_debounced) {
             (async () => {
-                const { config, cameraConfig, main } = await returnRenderConfigFromOutput(codeOutput);
+                const { main } = await returnRenderConfigFromOutput(codeOutput);
                 if (main) {
                     // first reset `main` so the react forces
                     // the component to remount which then creates
@@ -203,9 +180,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
                     // set the main again
                     setMain(() => main);
                 }
-                // set render config for output
-                setRenderConfig(config);
-                if (cameraConfig) { setCurrentCameraController(cameraConfig); };
                 setIsActivity(false); // toggle spinner.
             })();
         }
@@ -213,8 +187,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
 
 
     useEffect(() => {
-        // set initial value of current scene.
-        setCurrentScene(getEnumKeyByValue(scene));
 
         (async () => {
             // import dynamically for SSR
@@ -224,15 +196,12 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
             setApiInstance(api);
             setMeasureApiInstance(measureApi);
 
-
             const apiInstance = api.createAPI();
 
             if (!apiInstance['supportsOffscreenCanvas']) {
                 setMessagesAndAlerts([...messagesAndAlerts, '⚠ OffscreenCanvas is not supported in this browser.']);
             }
 
-            const envs = await apiInstance.availableEnvironments("https://api.novorender.com/assets/env/index.json");
-            setEnvironmentsList(envs as EnvironmentDescription[]);
         })();
 
     }, []);
@@ -256,9 +225,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
             // });
 
             // compiler options
-            // console.log('comppp ', monaco.languages.typescript.typescriptDefaults.getCompilerOptions());
-            // console.log('ext12 ', monaco.languages.typescript.typescriptDefaults.getExtraLibs());
-
             //   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
             //     // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
             //     // allowSyntheticDefaultImports: true,
@@ -312,9 +278,7 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
         editor.revealLineNearTop(editorConfig.revealLine);
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
-        const { config, main } = await returnRenderConfigFromOutput(output);
-
-        setRenderConfig(config);
+        const { main } = await returnRenderConfigFromOutput(output);
 
         if (main) {
             setMain(() => main);
@@ -368,46 +332,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
             });
     }
 
-    /**
-     * @description handle the camera controller change
-     * @param cameraType 
-     * @param isConfiguringInEditor 
-     */
-    function configureCameraController(cameraType: ICameraTypes, isConfiguringInEditor: boolean): void {
-
-        let editorValue: string = editorInstance.current.getModel().getValue();
-
-        const regex = /(export\s*const\s*cameraConfig(.*?){(.*?)};)/gs; // regex to match camera controller config object.
-        const isMatch = regex.test(editorValue);
-        const newCameraConfig = `\nexport const cameraConfig ${cameraType.configObject};`;
-
-        if (isMatch) { // there's already a config object in the editor
-
-            if (isConfiguringInEditor) { // is camera configuration being done manually in the editor
-                editorValue = editorValue.replace(regex, newCameraConfig);
-            } else {
-                editorValue = editorValue.replace(regex, '');
-                setCurrentCameraController(cameraType);
-            }
-
-            setInitialCode(editorValue);
-
-        } else {
-
-            if (isConfiguringInEditor) { // is camera configuration being done manually in the editor
-                const lineCount = editorInstance.current.getModel().getLineCount();
-                var range = new monaco.Range(lineCount + 1, 1, lineCount + 1, 1);
-                var id = { major: 1, minor: 1 };
-                const text = `\n${newCameraConfig}`;
-                var op = { identifier: id, range, text, forceMoveMarkers: true };
-                editorInstance.current.executeEdits("edit1", [op]);
-            } else {
-                setCurrentCameraController(cameraType);
-            }
-
-        }
-
-    };
 
     return (
         <BrowserOnly>
@@ -433,62 +357,6 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
                                 {demoName}
                                 {isActivity && <Spinner />}
                             </div>
-
-                            {renderSettings && <div className="navbar__items navbar__items--right">
-
-                                {/* Camera controller type drop-down */}
-                                <div className="navbar__item dropdown dropdown--hoverable">
-                                    <button className={`button button--sm button--primary ${styles.controllerButton}`}>
-                                        <CameraControllerIconSvg className={styles.controllersIcon} /> {currentCameraController?.kind}
-                                    </button>
-                                    <ul className="dropdown__menu">
-                                        {
-                                            cameraTypes.map((c, i) => (
-                                                <li key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <a className={`dropdown__link ${currentCameraController.kind === c.kind && styles.controllerDropDownActive}`} style={{ flex: 1 }} onClick={(e) => { e.preventDefault(); configureCameraController(c, false); }} href="#">{c.kind}</a>
-                                                    <button onClick={() => { configureCameraController(c, true); }} className='clean-btn' style={{ padding: '0 6px' }} title='Configure camera controller via editor'>
-                                                        <SettingsIconSvg className={styles.editorSvgIcon} />
-                                                    </button>
-                                                </li>
-                                            ))
-                                        }
-                                    </ul>
-                                </div>
-
-                                {/* Scene drop-down */}
-                                <div className="navbar__item dropdown dropdown--hoverable">
-                                    <button className={`button button--sm button--primary ${styles.controllerButton}`}>
-                                        <SceneIconSvg /> {currentScene}
-                                    </button>
-                                    <ul className="dropdown__menu">
-                                        {
-                                            predefined_scenes.map((s, i) => (
-                                                <li key={i}>
-                                                    <a className={`dropdown__link ${currentScene === s && styles.controllerDropDownActive}`} onClick={(e) => { e.preventDefault(); setCurrentScene(s); }} href="#">{s}</a>
-                                                </li>
-                                            ))
-                                        }
-                                    </ul>
-                                </div>
-
-                                {/* Env drop-down */}
-                                <div className="navbar__item dropdown dropdown--hoverable">
-                                    <button className={`button button--sm button--primary ${styles.controllerButton}`}>
-                                        <EnvironmentIconSvg /> {currentEnv?.name || 'None'}
-                                    </button>
-                                    <ul className={`dropdown__menu ${styles.envDropdown}`}>
-                                        <li><a className="dropdown__link" onClick={(e) => { e.preventDefault(); setCurrentEnv(undefined); }} href="#">None</a></li>
-                                        {
-                                            environmentsList.map((env, i) => (
-                                                <li key={i}>
-                                                    <img src={env.thumnbnailURL} />
-                                                    <a className={`dropdown__link ${currentEnv?.name === env.name && styles.controllerDropDownActive}`} onClick={(e) => { e.preventDefault(); setCurrentEnv(env); }} href="#">{env.name}</a>
-                                                </li>
-                                            ))
-                                        }
-                                    </ul>
-                                </div>
-                            </div>}
                         </div>
                     </nav>
 
@@ -533,10 +401,8 @@ export default function MonacoWrapper({ code, renderSettings, scene, demoName, d
                                     </Admonition>
                                 </div>}
                             </div>
-                            {render_config || main
-                                ? <>{renderSettings
-                                    ? <ManagedRenderer api={api} config={render_config} scene={WellKnownSceneUrls[currentScene]} environment={currentEnv} cameraController={currentCameraController} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
-                                    : <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} editorConfig={editorConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />}</>
+                            {main
+                                ? <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} editorConfig={editorConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
+import Admonition from '@theme/Admonition';
 import { tutorials } from '@site/demo-snippets/index';
 import type { IDempProps } from '../../../demo-snippets/misc';
-import useBaseUrl from "@docusaurus/useBaseUrl";
-import Admonition from '@theme/Admonition';
-import Link from '@docusaurus/Link';
 
 
 export default function Playground(): JSX.Element {
@@ -29,7 +28,7 @@ export default function Playground(): JSX.Element {
             <div className="card" style={{ height: 'inherit' }}>
                 <div style={{ height: 110, overflow: 'hidden' }} className="card__image">
                     {t.previewImageUrl && <>
-                        <img src={useBaseUrl(t.previewImageUrl)} alt={t.demoName} title={t.demoName} onError={(e) => {
+                        <img src={t.previewImageUrl} alt={t.demoName} title={t.demoName} onError={(e) => {
                             e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
                             e.currentTarget.alt = 'demo preview image not found';
                             e.currentTarget.title = 'demo preview image not found';

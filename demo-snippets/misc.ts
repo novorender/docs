@@ -47,7 +47,7 @@ export function demo<T extends string>(
                 editorConfig: { clickToRun: true, mode: 'inline', canvas2D: false, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
                 code,
                 editUrl: `demo-snippets/tutorials/${dirName}/${demoName}.ts`,
-                previewImageUrl: `assets/demo-screenshots/${demoName}.png`,
+                previewImageUrl: `/assets/demo-screenshots/${demoName}.png`,
                 description: desc || 'No Description Available'
             } as const
     } as const;
