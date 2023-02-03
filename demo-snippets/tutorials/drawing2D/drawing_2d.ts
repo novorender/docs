@@ -18,7 +18,6 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
     const { vec2, vec3 } = glMatrix;
 
     const _measureApi = await measureAPI.createMeasureAPI();
-    _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
     const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
 
@@ -98,6 +97,10 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
         draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
     }
 }
+
+
+
+
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
 export interface ColorSettings {
@@ -418,6 +421,9 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
     }
     return false;
 }
+
+
+
 
 
 /**
