@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
+import Spinner from "../misc/spinner";
 
 /** Types */
 import type { API } from "@novorender/webgl-api";
-import type { MeasureAPI } from "@novorender/measure-api";
+// import type { MeasureAPI } from "@novorender/measure-api";
 import type { IEditorConfig } from "@site/demo-snippets/misc";
 /** Types END */
 
@@ -26,7 +27,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
-    const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
+    // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
 
     useEffect(() => {
@@ -74,8 +75,9 @@ export default function Renderer({ main, isDoingActivity, canvasRef, api, measur
 
     return (
         <BrowserOnly>
-            {
-                () => <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
+            {() =>
+                <div style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
+                    <Spinner wrapperStyles={{ margin: 'auto', position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: '-1' }} />
                     <canvas ref={canvas} style={{ width: '100%', height: '100%' }}></canvas>
                     {editorConfig?.canvas2D && <canvas ref={canvas2D} style={{ pointerEvents: 'none', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />}
                 </div>
