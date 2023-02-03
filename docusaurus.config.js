@@ -167,6 +167,19 @@ const config = {
                                 href: 'https://novorender.com/cookie-policy/',
                             },
                         ],
+                    },
+                    {
+                        title: 'Get in touch',
+                        items: [
+                            {
+                                label: 'LinkedIn',
+                                href: 'https://www.linkedin.com/company/novorender/',
+                            },
+                            {
+                                label: 'info@novorender.com',
+                                href: 'mailto:info@novorender.com',
+                            },
+                        ],
                     }
                 ],
                 copyright: `Copyright © ${new Date().getFullYear()} Novorender.`,
