@@ -23,6 +23,7 @@
 
   /* misc */
   --landing-header-sub-tagline-color: var(--ifm-color-gray-700);
+  --custom-spinner-color: var(--ifm-color-gray-800);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -45,6 +46,7 @@
 
   /* misc */
   --landing-header-sub-tagline-color: var(--ifm-color-gray-500);
+  --custom-spinner-color: #fff;
 }
 
 .docusaurus-highlight-code-line {

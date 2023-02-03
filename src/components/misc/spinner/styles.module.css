@@ -11,8 +11,9 @@
   height: inherit;
   margin: 0 10px;
   border-radius: 50%;
-  border: 2px solid #fff;
-  border-color: #fff transparent #fff transparent;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--custom-spinner-color) transparent var(--custom-spinner-color) transparent;
   animation: ldsDualRing 350ms linear infinite;
 }
 
