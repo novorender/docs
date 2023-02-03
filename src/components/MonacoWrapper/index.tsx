@@ -108,6 +108,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
 
         if (code) {
             setInitialCode(code);
+            setTsCodeForClipboard(code); // for clipboard copy
         }
     }, [code]);
 
@@ -407,11 +408,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
                             }
                         </Allotment>}
                     </div>
-                    <textarea
-                        ref={textAreaInstance}
-                        defaultValue={tsCodeForClipboard}
-                        style={{ position: 'absolute', width: 0, height: 0, top: 5 }}
-                    />
+                    <textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: 'absolute', width: 0, height: 0, top: 5 }}/>
 
                     <nav className="navbar playground_navbar" ref={editorFooterInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
                         <div className="navbar__inner">
