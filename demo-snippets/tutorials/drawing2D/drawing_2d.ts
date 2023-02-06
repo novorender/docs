@@ -70,6 +70,7 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
                 if (measureEntity1) {
                     result = await measureScene.measure(measureEntity1, measureEntity2);
                 }
+                await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result as any, glMatrix);
             }
         }
     });
@@ -94,7 +95,7 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
             }
             image?.close();
         }
-        draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
+        await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
     }
 }
 
