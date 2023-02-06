@@ -89,6 +89,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
     const [theme, setTheme] = useState<'light' | 'vs-dark' | ''>('');
     const [isActivity, setIsActivity] = useState<boolean>(false);
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
+    const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null)
     const [api, setApiInstance] = useState<any>(); // Create API
     const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
@@ -326,7 +327,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
 
     // toggle canvas fullscreen mode
     function toggleCanvasFullscreenMode(): void {
-        canvasRef.requestFullscreen()
+        canvasWrapperRef.requestFullscreen()
             .catch(e => {
                 console.log('Failed to request fullscreen => ', e);
                 alert('Failed to expand canvas');
@@ -403,7 +404,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
                                 </div>}
                             </div>
                             {main
-                                ? <Renderer api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} editorConfig={editorConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
+                                ? <Renderer canvasWrapperRef={setCanvasWrapperRef} api={api} measureApiInstance={measureApiInstance} main={main} isDoingActivity={setIsActivity} canvasRef={setCanvasRef} panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight} panesWidth={rendererPaneWidth} editorConfig={editorConfig} onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))} />
                                 : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
                             }
                         </Allotment>}
