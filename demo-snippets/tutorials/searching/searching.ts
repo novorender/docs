@@ -85,7 +85,7 @@ async function initView(
   // Load scene metadata
   const sceneData = await dataApi
     // Condos scene ID, but can be changed to any public scene ID
-    .loadScene("95a89d20dd084d9486e383e131242c4c")
+    .loadScene("3b5e65560dc4422da5c7c3f827b6a77c")
     .then((res) => {
       if ("error" in res) {
         throw res;
