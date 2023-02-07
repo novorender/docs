@@ -61,7 +61,7 @@ export async function main({ webglAPI, canvas, measureAPI }: IParams) {
                 // Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
                 if (measureEntity1) {
                     const _log = await measureScene.measure(measureEntity1, measureEntity2);
-                    openAlert(JSON.stringify(_log));
+                    openInfoPane(_log);
                 }
             }
         }
