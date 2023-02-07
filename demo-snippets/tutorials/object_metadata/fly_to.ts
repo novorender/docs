@@ -124,25 +124,6 @@ export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
   }
 }
 
-// UI setup
-function createPropertyBox(container: HTMLElement): HTMLPreElement {
-  const wrapper = document.createElement("div");
-  wrapper.style.position = "absolute";
-  wrapper.style.top = "0";
-  wrapper.style.width = "200px";
-  wrapper.style.height = "200px";
-  wrapper.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-  wrapper.style.resize = "both";
-  wrapper.style.overflow = "auto";
-
-  const pre = document.createElement("pre");
-
-  wrapper.append(pre);
-  container.append(wrapper);
-
-  return pre;
-}
-
 function highlightObjects(scene: Novorender.Scene, ids: number[]) {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
