@@ -439,6 +439,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
  * @param result 
  * @param glMatrix 
  */
+
 async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
     measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
     canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
