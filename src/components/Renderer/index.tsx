@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
+import CodeBlock from '@theme/CodeBlock';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
 import Spinner from "../misc/spinner";
@@ -30,6 +31,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     const canvas2D = useRef<HTMLCanvasElement>(null);
     const [canvasDimensions, setCanvasDimensions] = useState<{ width: number, height: number; }>({ width: 0, height: 0 });
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
+    const [infoPaneContent, setInfoPaneContent] = useState('');
     // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
     useEffect(() => {
@@ -43,6 +45,10 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         });
 
         resizeObserver.observe(canvas.current);
+
+        window['openInfoPane'] = (content: string) => {
+            setInfoPaneContent(content);
+          };
     }, []);
 
     useEffect(() => {
@@ -96,8 +102,25 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
                     <Spinner wrapperStyles={{ margin: 'auto', position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: '-1' }} />
                     <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: '100%', height: '100%' }}></canvas>
                     {editorConfig?.canvas2D && <canvas ref={canvas2D} width={canvasDimensions.width} height={canvasDimensions.height} style={{ pointerEvents: 'none', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />}
+                    <InfoBox content={infoPaneContent} />
                 </div>
             }
         </BrowserOnly>
     );
+}
+
+export function InfoBox({ content }) {
+
+    const [isCodeBlock, setIsCodeBlock] = useState(false);
+
+    useEffect(()=>{
+        setIsCodeBlock(!!content);
+    }, [content])
+
+    return <div className="info-pane-container" style={{ position: 'absolute', bottom: isCodeBlock ? -20 : 0, left: 0, fontSize: 12, margin: 10, overflow: 'auto', maxWidth: '25%' }}>
+        {!isCodeBlock && <button onClick={() => { setIsCodeBlock(true); }} title="Show info pane" className="button button--outline button--primary" style={{ padding: '0 5px', marginBottom: 2 }}>ℹ️</button>}
+        {isCodeBlock && <button onClick={() => { setIsCodeBlock(false); }} title="Hide info pane" className="button" style={{ padding: '0 5px' }}>➖</button>}
+        {isCodeBlock && <CodeBlock language="json">{JSON.stringify(content, null, 2) || 'Nothing to see here...'}</CodeBlock>}
+    </div>;
+
 }

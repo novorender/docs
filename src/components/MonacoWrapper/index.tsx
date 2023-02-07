@@ -249,7 +249,13 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
              * @description opens an alert that displays provided content
              * @param content string to show in the alert
              */
-            declare function openAlert(content:string):void`);
+            declare function openAlert(content:string):void
+            
+            /**
+            * @description opens a pane in bottom left of renderer to show any text
+            * @param content string to show in the info pane
+            */
+            declare function openInfoPane(content: string): void;`);
 
             // monaco.languages.typescript.typescriptDefaults.addExtraLib(
             //    GlMatrixDTS,
