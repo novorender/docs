@@ -89,13 +89,13 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
     const [theme, setTheme] = useState<'light' | 'vs-dark' | ''>('');
     const [isActivity, setIsActivity] = useState<boolean>(false);
     const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
-    const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null)
+    const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null);
     const [api, setApiInstance] = useState<any>(); // Create API
     const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
     const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-    const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === 'inline' ? 300 : (innerHeight / 2) - 68); // minus editor top-bar and footer height
-    const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === 'inline' ? 200 : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
+    const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === 'inline' ? (innerHeight / 3) : (innerHeight / 2) - 68); // minus editor top-bar and footer height
+    const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === 'inline' ? (innerHeight / 3) : (innerHeight / 2) - 68);  // minus editor top-bar and footer height
     const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
     const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
     const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
@@ -245,7 +245,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
             );
 
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            `/**
+                `/**
              * @description opens an alert that displays provided content
              * @param content string to show in the alert
              */
@@ -415,7 +415,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
                             }
                         </Allotment>}
                     </div>
-                    <textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: 'absolute', width: 0, height: 0, top: 5 }}/>
+                    <textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: 'absolute', width: 0, height: 0, top: 5 }} />
 
                     <nav className="navbar playground_navbar" ref={editorFooterInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
                         <div className="navbar__inner">
