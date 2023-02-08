@@ -18,7 +18,6 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     const view = await initView(webglAPI, canvas, dataJsAPI);
     const scene = view.scene!;
     run(view, canvas);
-    const metadataBox = createMetadataBox(canvas.parentElement!);
 
     const iterator = scene.search({
       searchPattern: "Roof",
@@ -50,7 +49,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
       searchResult.map((object) => object.id)
     );
     // Display metadata
-    metadataBox.innerText = JSON.stringify(searchResult, undefined, 2);
+    openInfoPane(searchResult);
   } catch (e) {
     // Handle however you like
     console.warn(e);
@@ -68,22 +67,6 @@ function highlightObjects(scene: Novorender.Scene, ids: number[]) {
   scene.objectHighlighter.commit();
 }
 
-// UI setup
-function createMetadataBox(container: HTMLElement): HTMLPreElement {
-  const pre = document.createElement("pre");
-  pre.style.position = "absolute";
-  pre.style.top = "24px";
-  pre.style.width = "200px";
-  pre.style.height = "200px";
-  pre.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-  pre.style.resize = "both";
-  pre.style.overflow = "auto";
-  pre.style.color = "black";
-
-  container.append(pre);
-
-  return pre;
-}
 
 async function initView(
   api: Novorender.API,
