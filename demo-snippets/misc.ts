@@ -5,7 +5,7 @@ export type IDemo = Record<string, IDempProps>;
 export interface IEditorConfig {
     /** should playground start automatically? defaults to `true` */
     clickToRun?: boolean;
-    /** whether to enable a secondary canvas for 2D or not, defaults to `false` */
+    /** whether to enable a secondary canvas for 2D or not, defaults to `true` */
     canvas2D?: boolean;
     /** using `fill` will make the playground to take entire viewport's width and height, `inline` is default */
     mode?: 'inline' | 'fill';
@@ -44,7 +44,7 @@ export function demo<T extends string>(
             {
                 dirName,
                 demoName,
-                editorConfig: { clickToRun: true, mode: 'inline', canvas2D: false, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
+                editorConfig: { clickToRun: true, mode: 'inline', canvas2D: true, cursorPosition: { column: 1, lineNumber: 15 }, revealLine: 20, ...config },
                 code,
                 editUrl: `demo-snippets/tutorials/${dirName}/${demoName}.ts`,
                 previewImageUrl: `/assets/demo-screenshots/${demoName}.png`,
