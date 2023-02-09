@@ -39,9 +39,9 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                                     ? <div style={{ position: 'relative' }}>
                                         <button onClick={runPlayground} className="cu-button">Click to run the demo</button>
                                         {previewImageUrl && <>
-                                            <img src={`/assets/playground-placeholder-${colorMode}.png`} style={{ filter: 'blur(2px)' }} />
+                                            <img src={`/assets/playground-placeholder-${colorMode}.png`} style={{ filter: 'blur(2px)', width: '100%' }} />
                                             <img src={previewImageUrl} onError={(e) => {
-                                                e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
+                                                e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.jpg`).default;
                                             }} style={{ width: '100%', position: 'absolute', display: 'block', bottom: 42 }} />
                                         </>}
                                     </div>

@@ -29,7 +29,7 @@ export default function Playground(): JSX.Element {
                 <div style={{ height: 110, overflow: 'hidden' }} className="card__image">
                     {t.previewImageUrl && <>
                         <img src={t.previewImageUrl} alt={t.demoName} title={t.demoName} onError={(e) => {
-                            e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.png`).default;
+                            e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.jpg`).default;
                             e.currentTarget.alt = 'demo preview image not found';
                             e.currentTarget.title = 'demo preview image not found';
                         }} />
