@@ -26,7 +26,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     // This will find all objects on the 2nd floor
     const iterator = scene.search({
       parentPath:
-        "Farger.IFC/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
+        "Condos.ifc/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
     });
 
     // In this example we just want to isolate the objects so all we need is the object ID
