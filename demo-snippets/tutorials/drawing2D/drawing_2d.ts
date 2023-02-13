@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
@@ -12,96 +13,6 @@ export interface IParams {
     glMatrix: typeof GlMatrix;
     canvas2D: HTMLCanvasElement;
 };
-
-export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
-
-    const { vec2, vec3 } = glMatrix;
-
-    const _measureApi = await measureAPI.createMeasureAPI();
-    const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
-
-
-    // create a view
-    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
-    // provide a camera controller
-    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
-
-    // create an empty scene
-    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
-
-    // create a bitmap context to display render output
-    const ctx = canvas.getContext("bitmaprenderer");
-    const context2D = canvas2D.getContext("2d");
-
-    let currentOutput: NovoRender.RenderOutput;
-
-    //Parametric entities used to measure between
-    let measureEntity1: MeasureAPI.MeasureEntity | undefined = undefined;
-    let measureEntity2: MeasureAPI.MeasureEntity | undefined = undefined;
-    //number to alternate between selected entities.
-    let selectEntity: 1 | 2 = 1;
-
-    //Save the measure result so it can be drawn in the draw loop
-    let result: MeasureAPI.MeasurementValues | undefined = undefined;
-
-
-    canvas.addEventListener("click", async (e) => {
-        if (currentOutput) {
-            let result1 = await currentOutput.pick(e.offsetX, e.offsetY);
-            if (result1) {
-                if (selectEntity === 1) {
-                    //Find measure entity at pick location
-                    measureEntity1 = (await measureScene.pickMeasureEntity(
-                        result1.objectId,
-                        result1.position
-                    )).entity;
-                    selectEntity = 2;
-                }
-                else {
-                    //Find measure entity at pick location
-                    measureEntity2 = (await measureScene.pickMeasureEntity(
-                        result1.objectId,
-                        result1.position
-                    )).entity;
-                    selectEntity = 1;
-                }
-                //As long as one object is selected log out the values
-                //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
-                if (measureEntity1) {
-                    result = await measureScene.measure(measureEntity1, measureEntity2);
-                }
-                await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result as any, glMatrix);
-            }
-        }
-    });
-
-
-    // main render loop
-    for (; ;) {
-        // handle canvas resizes
-        const { clientWidth, clientHeight } = canvas;
-        const width = Math.round(clientWidth * devicePixelRatio);
-        const height = Math.round(clientHeight * devicePixelRatio);
-        view.applySettings({ display: { width, height } });
-
-        // render frame
-        currentOutput = await view.render();
-        {
-            // finalize output image
-            const image = await currentOutput.getImage();
-            if (image) {
-                // display in canvas
-                ctx?.transferFromImageBitmap(image);
-            }
-            image?.close();
-        }
-        await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
-    }
-}
-
-
-
-
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
 export interface ColorSettings {
@@ -423,23 +334,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
     return false;
 }
 
-
-
-
-
-/**
- * @description draw2d
- * @param _measureApi 
- * @param view 
- * @param measureScene 
- * @param measureEntity1 
- * @param measureEntity2 
- * @param context2D 
- * @param canvas2D 
- * @param result 
- * @param glMatrix 
- */
-
+// HiddenRangeEnded
 async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
     measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
     canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
@@ -493,3 +388,91 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
         }
     }
 }
+
+// HiddenRangeStarted
+export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
+
+    const { vec2, vec3 } = glMatrix;
+
+    const _measureApi = await measureAPI.createMeasureAPI();
+    const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
+
+
+    // create a view
+    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    // provide a camera controller
+    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
+
+    // create an empty scene
+    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
+
+    // create a bitmap context to display render output
+    const ctx = canvas.getContext("bitmaprenderer");
+    const context2D = canvas2D.getContext("2d");
+
+    let currentOutput: NovoRender.RenderOutput;
+
+    //Parametric entities used to measure between
+    let measureEntity1: MeasureAPI.MeasureEntity | undefined = undefined;
+    let measureEntity2: MeasureAPI.MeasureEntity | undefined = undefined;
+    //number to alternate between selected entities.
+    let selectEntity: 1 | 2 = 1;
+
+    //Save the measure result so it can be drawn in the draw loop
+    let result: MeasureAPI.MeasurementValues | undefined = undefined;
+
+
+    canvas.addEventListener("click", async (e) => {
+        if (currentOutput) {
+            let result1 = await currentOutput.pick(e.offsetX, e.offsetY);
+            if (result1) {
+                if (selectEntity === 1) {
+                    //Find measure entity at pick location
+                    measureEntity1 = (await measureScene.pickMeasureEntity(
+                        result1.objectId,
+                        result1.position
+                    )).entity;
+                    selectEntity = 2;
+                }
+                else {
+                    //Find measure entity at pick location
+                    measureEntity2 = (await measureScene.pickMeasureEntity(
+                        result1.objectId,
+                        result1.position
+                    )).entity;
+                    selectEntity = 1;
+                }
+                //As long as one object is selected log out the values
+                //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
+                if (measureEntity1) {
+                    result = await measureScene.measure(measureEntity1, measureEntity2);
+                }
+                await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result as any, glMatrix);
+            }
+        }
+    });
+
+
+    // main render loop
+    for (; ;) {
+        // handle canvas resizes
+        const { clientWidth, clientHeight } = canvas;
+        const width = Math.round(clientWidth * devicePixelRatio);
+        const height = Math.round(clientHeight * devicePixelRatio);
+        view.applySettings({ display: { width, height } });
+
+        // render frame
+        currentOutput = await view.render();
+        {
+            // finalize output image
+            const image = await currentOutput.getImage();
+            if (image) {
+                // display in canvas
+                ctx?.transferFromImageBitmap(image);
+            }
+            image?.close();
+        }
+        await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
+    }
+}
+// HiddenRangeEnded

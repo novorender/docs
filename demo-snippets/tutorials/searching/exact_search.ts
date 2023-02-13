@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -11,7 +12,7 @@ export interface IParams {
   glMatrix: typeof GlMatrix;
   canvas2D: HTMLCanvasElement;
 }
-
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     // Init
@@ -50,7 +51,7 @@ function isolateObjects(scene: NovoRender.Scene, ids: number[]): void {
 
   scene.objectHighlighter.commit();
 }
-
+// HiddenRangeStarted
 async function initView(
   api: NovoRender.API,
   canvas: HTMLCanvasElement,
@@ -130,3 +131,4 @@ async function run(
     }
   }
 }
+// HiddenRangeEnded

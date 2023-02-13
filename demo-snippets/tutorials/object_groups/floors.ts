@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -11,6 +12,7 @@ export interface IParams {
   canvas2D: HTMLCanvasElement;
 }
 
+// HiddenRangeEnded
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
@@ -96,6 +98,7 @@ async function handleVisibilityChanges(
   scene.objectHighlighter.commit();
 }
 
+// HiddenRangeStarted
 // UI setup
 function createFloorButtons(
   container: HTMLElement,
@@ -205,3 +208,4 @@ async function run(
     }
   }
 }
+// HiddenRangeEnded
