@@ -4,6 +4,7 @@ import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Admonition from '@theme/Admonition';
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+import { editor } from 'monaco-editor';
 import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover';
 import Renderer from '@site/src/components/Renderer';
@@ -275,11 +276,16 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
         }
     }, [monaco]);
 
-    async function handleEditorDidMount(editor, monaco: Monaco) {
+    async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
-        if (editorConfig.hiddenAreas && editorConfig.hiddenAreas.length) {
-            editor.setHiddenAreas(editorConfig.hiddenAreas.map(r => new monaco.Range(r.startLineNumber, 0, r.endLineNumber, 0)));
+
+        // hide ranges based on comments "\\ HiddenRangeStarted \\HiddenRangeEnded"
+        const rangesToHide = editor.getModel().findMatches("\/\/\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HiddenRangeEnded", false, true, false, null, true);
+        console.log('rangesToHide ', rangesToHide);
+        if (rangesToHide && rangesToHide.length) {
+            // @ts-expect-error
+            editor.setHiddenAreas(rangesToHide.map(r => new monaco.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
         }
         await editor.getAction('editor.action.formatDocument').run();
         editor.setPosition(editorConfig.cursorPosition);
