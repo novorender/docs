@@ -13,7 +13,16 @@ export interface IEditorConfig {
     cursorPosition?: IPosition;
     /** Scroll vertically as necessary and reveal a line close to the top of the viewport, defaults to `20` (https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IEditor.html#revealLineNearTop) */
     revealLine?: number;
-    /** Lines to hide in the editor */
+    /** Lines to hide in the editor 
+     * @deprecated use `// HiddenRangeStarted` and `// HiddenRangeEnded` within snippets.
+     * see usage example below:
+     * ```
+     * // HiddenRangeStarted
+     * some code that needs to be hidden
+     * another line of code that will also be hidden....
+     * // HiddenRangeEnded
+     * ```
+    */
     hiddenAreas?: Array<{ startLineNumber: number, endLineNumber: number; }>;
 };
 export interface IDempProps {
