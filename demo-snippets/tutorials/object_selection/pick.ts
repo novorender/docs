@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as Novorender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -12,6 +13,7 @@ export interface IParams {
   canvas2D: HTMLCanvasElement;
 }
 
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas }: IParams) {
   // Init
   const view = await initView(webglAPI, canvas);
@@ -19,7 +21,7 @@ export async function main({ webglAPI, canvas }: IParams) {
   run(view, canvas);
 
   // Set up highlight groups
-  const desaturated = webglAPI.createHighlight({
+  const deSaturated = webglAPI.createHighlight({
     kind: "hsla",
     saturation: 0.5,
   });
@@ -28,7 +30,7 @@ export async function main({ webglAPI, canvas }: IParams) {
     color: [0, 1, 0],
   });
 
-  view.settings.objectHighlights = [desaturated, limeGreen];
+  view.settings.objectHighlights = [deSaturated, limeGreen];
 
   // Listen to click events to pick objects
   canvas.addEventListener("click", async (e) => {
@@ -36,7 +38,7 @@ export async function main({ webglAPI, canvas }: IParams) {
     if (result) {
       // Reset highlights
       // Here we set all objects to use the highlight found at view.settings.objectHighlights[0]
-      // In this case "desaturated"
+      // In this case "deSaturated"
       scene.objectHighlighter.objectHighlightIndices.fill(0);
 
       // Set selected object to use highlight found at view.settings.objectHighlights[1]
@@ -47,7 +49,7 @@ export async function main({ webglAPI, canvas }: IParams) {
     }
   });
 }
-
+// HiddenRangeStarted
 async function initView(webglApi: Novorender.API, canvas: HTMLCanvasElement) {
   // Create a view
   const view = await webglApi.createView(
@@ -66,11 +68,10 @@ async function initView(webglApi: Novorender.API, canvas: HTMLCanvasElement) {
 
   return view;
 }
-
 async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
-
+  
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -81,7 +82,7 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
       });
     }
   });
-
+  
   resizeObserver.observe(canvas);
 
   // Main render loop
@@ -99,3 +100,4 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
     }
   }
 }
+// HiddenRangeEnded

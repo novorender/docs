@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
@@ -12,6 +13,7 @@ export interface IParams {
   canvas2D: HTMLCanvasElement;
 };
 
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas }: IParams) {
   // Create a view
   const view = await webglAPI.createView(
