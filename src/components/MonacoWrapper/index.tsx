@@ -288,8 +288,8 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
             editor.setHiddenAreas(rangesToHide.map(r => new monaco.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
         }
         await editor.getAction('editor.action.formatDocument').run();
-        editor.setPosition(editorConfig.cursorPosition);
-        editor.revealLineNearTop(editorConfig.revealLine);
+        if (editorConfig.cursorPosition) { editor.setPosition(editorConfig.cursorPosition); }
+        if (editorConfig.revealLine) { editor.revealLineNearTop(editorConfig.revealLine); }
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
         const { main } = await returnRenderConfigFromOutput(output);
