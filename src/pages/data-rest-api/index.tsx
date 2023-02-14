@@ -10,8 +10,9 @@ import Head from '@docusaurus/Head';
 export default function DataRestAPI(): JSX.Element {
 
   const { siteConfig } = useDocusaurusContext();
-  const { customFields: { swaggerUI, swaggerJSON } } = siteConfig;
+  const { customFields: { swaggerUI, swaggerJSON_V1, swaggerJSON_V2 } } = siteConfig;
   const [isMD, setIsMD] = useState<boolean>(); // use to switch API layout on < MD devices
+  const [currentDefinition, setCurrentDefinition] = useState<string>(swaggerJSON_V1 as string); // use to switch API layout on < MD devices
 
   useEffect(() => {
 
@@ -39,8 +40,8 @@ export default function DataRestAPI(): JSX.Element {
         observer.disconnect();
         observer = null;
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <BrowserOnly
@@ -51,22 +52,30 @@ export default function DataRestAPI(): JSX.Element {
         require('./index.css');
         return (
           <>
-          <Head>
-            <meta name="description" content="NovoRender Data Rest API Documentation" />
-            <meta property="og:description" content="NovoRender Data Rest API Documentation" />
-            <title>NovoRender | Data Rest API Documentation</title>
-          </Head>
-          <Layout title={`Data Rest API`} description="Data Rest API Documentation">
+            <Head>
+              <meta name="description" content="NovoRender Data Rest API Documentation" />
+              <meta property="og:description" content="NovoRender Data Rest API Documentation" />
+              <title>NovoRender | Data Rest API Documentation</title>
+            </Head>
+            <Layout title={`Data Rest API`} description="Data Rest API Documentation">
 
-            <Link style={{ position: 'absolute', right: 25, top: 70 }} to={swaggerUI as string}>
-              Swagger
-              <IconExternalLink />
-            </Link>
+              <div style={{ position: 'absolute', left: 190, top: 90, zIndex: 999 }} className="dropdown dropdown--hoverable">
+                <button style={{ padding: '0 10px', maxWidth: 60 }} className="button button--primary">V1 <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" className="svg-inline--fa fa-chevron-down fa-fw sl-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></button>
+                <ul style={{ position: 'relative' }} className="dropdown__menu">
+                  <li onClick={() => { setCurrentDefinition(swaggerJSON_V1 as string); }} className="dropdown__link">Data API V1</li>
+                  <li onClick={() => { setCurrentDefinition(swaggerJSON_V2 as string); }} className="dropdown__link">Data API V2</li>
+                </ul>
+              </div>
 
-            <API router="hash" layout={isMD ? 'stacked' : 'sidebar'} apiDescriptionUrl={swaggerJSON} />
-          </Layout>
+              <Link style={{ position: 'absolute', right: 25, top: 70 }} to={swaggerUI + `/index.html?urls.primaryName=Novorender%20Data%20API%20${currentDefinition === swaggerJSON_V1 ? 'v1' : 'v2'}`}>
+                Swagger
+                <IconExternalLink />
+              </Link>
+
+              {currentDefinition && <API router="hash" layout={isMD ? 'stacked' : 'sidebar'} apiDescriptionUrl={currentDefinition} />}
+            </Layout>
           </>
-        )
+        );
       }}
     </BrowserOnly>
 

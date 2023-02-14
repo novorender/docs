@@ -256,7 +256,8 @@ const config = {
     ],
     customFields: {
         swaggerUI: `${baseAPI}/swagger`,
-        swaggerJSON: `${baseAPI}/swagger/v1/swagger.json`
+        swaggerJSON_V1: `${baseAPI}/swagger/v1/swagger.json`,
+        swaggerJSON_V2: `${baseAPI}/swagger/v2/swagger.json`
     }
 };
 
