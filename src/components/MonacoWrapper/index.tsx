@@ -280,13 +280,37 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
 
+        const model = editor.getModel();
         // hide ranges based on comments "\\ HiddenRangeStarted \\HiddenRangeEnded"
-        const rangesToHide = editor.getModel().findMatches("\/\/\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HiddenRangeEnded", false, true, false, null, true);
+        const rangesToHide = model.findMatches("\/\/\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HiddenRangeEnded", false, true, false, null, true);
         console.log('rangesToHide ', rangesToHide);
         if (rangesToHide && rangesToHide.length) {
             // @ts-expect-error
             editor.setHiddenAreas(rangesToHide.map(r => new monaco.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
         }
+
+        // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
+        const rangesToHighlight = model.findMatches("\/\/\\s*HighlightedRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HighlightedRangeEnded", false, true, false, null, true);
+        if (rangesToHighlight && rangesToHighlight.length) {
+
+            let _rangesToHighlight = [];
+            let _rangesToRemove = [];
+
+            rangesToHighlight.map(r => {
+                _rangesToHighlight.push({
+                    range: new monaco.Range((r.range.startLineNumber === 0 ? r.range.startLineNumber : r.range.startLineNumber + 1), 0, (r.range.endLineNumber - 1), 0),
+                    options: { inlineClassName: "playground-monaco-inline-decoration", isWholeLine: true }
+                });
+                _rangesToRemove.push(
+                    { range: new monaco.Range(r.range.startLineNumber, 0, r.range.startLineNumber + 1, 0), text: null },
+                    { range: new monaco.Range(r.range.endLineNumber, 0, r.range.endLineNumber + 1, 0), text: null }
+                );
+            });
+
+            editor.deltaDecorations([], _rangesToHighlight);
+            model.applyEdits(_rangesToRemove);
+        }
+
         await editor.getAction('editor.action.formatDocument').run();
         if (editorConfig.cursorPosition) { editor.setPosition(editorConfig.cursorPosition); }
         if (editorConfig.revealLine) { editor.revealLineNearTop(editorConfig.revealLine); }
