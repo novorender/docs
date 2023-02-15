@@ -2566,7 +2566,7 @@ samp {
 }
 
 .data-rest-api-wrapper,
-.data-rest-api-wrapper>div,
+.data-rest-api-wrapper>div:not(.dropdown),
 .data-rest-api-wrapper>div>div:not(.sl-tooltip),
 .data-rest-api-wrapper>div>div>div:first-child:not(.sl-tooltip) {
     min-height: 100%;
