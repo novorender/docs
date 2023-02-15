@@ -2575,6 +2575,14 @@ samp {
     flex: 1 0 auto
 }
 
+.data-rest-api-wrapper .dropdown.api-version-dropdown {
+    position: absolute;
+    left: 190px;
+    top: 90px;
+    z-index: 99;
+    height: 25px;
+}
+
 .sl-h-full {
     height: 100%;
     flex: 1 0 auto;
@@ -10652,4 +10660,11 @@ input {
     .data-rest-api-wrapper {
         padding: 25px 15px;
     }
+
+    .data-rest-api-wrapper .dropdown.api-version-dropdown {
+        left: 18px;
+        top: 65px;
+        height: 22px;
+    }
+
 }

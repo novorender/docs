@@ -59,7 +59,7 @@ export default function DataRestAPI(): JSX.Element {
             </Head>
             <Layout title={`Data Rest API`} description="Data Rest API Documentation">
 
-              <div style={{ position: 'absolute', left: 190, top: 90, zIndex: 99, height: 25 }} className="dropdown dropdown--hoverable">
+              <div className="dropdown api-version-dropdown dropdown--hoverable">
                 <button style={{ padding: '0 10px', maxWidth: 60 }} className="button button--primary">{currentDefinition.label} <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" className="svg-inline--fa fa-chevron-down fa-fw sl-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></button>
                 <ul className="dropdown__menu">
                   <li onClick={() => { setCurrentDefinition({ label: 'V1', definition: swaggerJSON_V1 as string }); }} className="dropdown__link">Data API V1</li>
