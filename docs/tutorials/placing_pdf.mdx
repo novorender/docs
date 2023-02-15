@@ -40,6 +40,20 @@ if (pdfScene.db) {
   }
 }
 return undefined;
+
+for (let i = 0; i < 5; i++) {
+  const iteratorResult = await iterator.next();
+
+  if (iteratorResult.done) {
+    break;
+  }
+
+  // Because we have set the search option "full: true"
+  // .loadMetadata() will not result in any more requests being made
+  // Try flipping it to false and see the difference in the network request log
+  const objectWithMetadata = await iteratorResult.value.loadMetaData();
+  searchResult.push(objectWithMetadata);
+}
 ```
 
 The image can be drawn on a 2d canvas
