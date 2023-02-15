@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -12,6 +13,7 @@ export interface IParams {
   canvas2D: HTMLCanvasElement;
 }
 
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
@@ -60,27 +62,27 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     console.warn(e);
   }
 }
-
+// HiddenRangeStarted
 async function run(
   view: NovoRender.View,
   canvas: HTMLCanvasElement
-): Promise<void> {
-  // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      canvas.width = entry.contentRect.width;
-      canvas.height = entry.contentRect.height;
-      view.applySettings({
-        display: { width: canvas.width, height: canvas.height },
-      });
-    }
+  ): Promise<void> {
+    // Handle canvas resizes
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        canvas.width = entry.contentRect.width;
+        canvas.height = entry.contentRect.height;
+        view.applySettings({
+          display: { width: canvas.width, height: canvas.height },
+        });
+      }
   });
-
+  
   resizeObserver.observe(canvas);
-
+  
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
-
+  
   // Main render loop
   while (true) {
     // Render frame
@@ -96,3 +98,4 @@ async function run(
     }
   }
 }
+// HiddenRangeEnded

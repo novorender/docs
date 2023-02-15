@@ -1,17 +1,19 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from '@novorender/measure-api';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: NovoRender.API;
-  canvas: HTMLCanvasElement;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
-  glMatrix: typeof GlMatrix;
-  canvas2D: HTMLCanvasElement;
+    webglAPI: NovoRender.API;
+    canvas: HTMLCanvasElement;
+    measureAPI: typeof MeasureAPI;
+    dataJsAPI: typeof DataJsAPI;
+    glMatrix: typeof GlMatrix;
+    canvas2D: HTMLCanvasElement;
 };
 
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas }: IParams) {
     // create a view
     const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);

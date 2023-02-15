@@ -2566,13 +2566,21 @@ samp {
 }
 
 .data-rest-api-wrapper,
-.data-rest-api-wrapper>div,
-.data-rest-api-wrapper>div>div,
-.data-rest-api-wrapper>div>div>div:first-child {
+.data-rest-api-wrapper>div:not(.dropdown),
+.data-rest-api-wrapper>div>div:not(.sl-tooltip),
+.data-rest-api-wrapper>div>div>div:first-child:not(.sl-tooltip) {
     min-height: 100%;
     display: flex;
     flex-direction: column;
     flex: 1 0 auto
+}
+
+.data-rest-api-wrapper .dropdown.api-version-dropdown {
+    position: absolute;
+    left: 190px;
+    top: 90px;
+    z-index: 99;
+    height: 25px;
 }
 
 .sl-h-full {
@@ -10652,4 +10660,11 @@ input {
     .data-rest-api-wrapper {
         padding: 25px 15px;
     }
+
+    .data-rest-api-wrapper .dropdown.api-version-dropdown {
+        left: 18px;
+        top: 65px;
+        height: 22px;
+    }
+
 }

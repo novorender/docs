@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -11,7 +12,7 @@ export interface IParams {
   glMatrix: typeof GlMatrix;
   canvas2D: HTMLCanvasElement;
 }
-
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     // Init
@@ -21,31 +22,13 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     const scene = view.scene!;
 
     // Run the searches
-    // Try changing which search to run
-
     // Path is similar to filesystem file/folder hierarchical paths, e.g. my_folder/my_object
     // Paths reflect original CAD model hierarchy (.ifc, .rvm, etc)
     // This will find all objects on the 2nd floor
     const iterator = scene.search({
       parentPath:
-        "Farger.IFC/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
+        "Condos.ifc/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
     });
-
-    // Fluffy search which will search all properties for words starting with "Roof"
-    // "Roo" will still find roofs, but "oof" will not
-    // const iterator = scene.search({ searchPattern: "Roof" });
-
-    // Exact search only checking the propery "ifcClass" and the exact value "ifcRoof"
-    // const iterator = scene.search({
-    //   searchPattern: [{ property: "ifcClass", value: "ifcRoof", exact: true }],
-    // });
-
-    // Same as the one above, but with exclude. This will return all object except the ones found above.
-    // const iterator = scene.search({
-    //   searchPattern: [
-    //     { property: "ifcClass", value: "ifcRoof", exact: true, exclude: true },
-    //   ],
-    // });
 
     // In this example we just want to isolate the objects so all we need is the object ID
     const result: number[] = [];
@@ -71,7 +54,7 @@ function isolateObjects(scene: NovoRender.Scene, ids: number[]): void {
 
   scene.objectHighlighter.commit();
 }
-
+// HiddenRangeStarted
 async function initView(
   api: NovoRender.API,
   canvas: HTMLCanvasElement,
@@ -151,3 +134,4 @@ async function run(
     }
   }
 }
+// HiddenRangeEnded

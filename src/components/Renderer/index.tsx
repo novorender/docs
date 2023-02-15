@@ -120,7 +120,7 @@ export function InfoBox({ content }: { content: object | string | any; }) {
     return <div className="info-pane-container" style={{ position: 'absolute', bottom: isCodeBlock ? -20 : 0, left: 0, fontSize: 12, margin: 10, overflow: 'auto', maxWidth: '25%' }}>
         {!isCodeBlock && <button onClick={() => { setIsCodeBlock(true); }} title="Show info pane" className="button button--outline button--primary" style={{ padding: '0 5px', marginBottom: 2 }}>ℹ️</button>}
         {isCodeBlock && <button onClick={() => { setIsCodeBlock(false); }} title="Hide info pane" className="button" style={{ padding: '0 5px' }}>➖</button>}
-        {isCodeBlock && <CodeBlock language="json">{JSON.stringify(content, null, 2) || 'Nothing to see here...'}</CodeBlock>}
+        {isCodeBlock && <CodeBlock language="json">{(content && JSON.stringify(content, null, 2)) || 'Nothing to see here...'}</CodeBlock>}
     </div>;
 
 }

@@ -102,6 +102,10 @@
   overflow-wrap: anywhere;
 }
 
+.playground-monaco-inline-decoration {
+  background: #557e9b33;
+}
+
 /* Search bar customization */
 
 .aa-DetachedSearchButton {

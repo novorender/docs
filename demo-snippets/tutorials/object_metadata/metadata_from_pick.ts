@@ -1,3 +1,4 @@
+// HiddenRangeStarted
 import * as Novorender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
@@ -11,14 +12,13 @@ export interface IParams {
   glMatrix: typeof GlMatrix;
   canvas2D: HTMLCanvasElement;
 }
-
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     // Init
     const view = await initView(webglAPI, canvas, dataJsAPI);
     const scene = view.scene!;
     run(view, canvas);
-    const metadataBox = createMetadataBox(canvas.parentElement!);
 
     // Listen to click events on the canvas
     canvas.onclick = async (event) => {
@@ -43,7 +43,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
         .loadMetaData();
 
       // Display metadata
-      metadataBox.innerText = JSON.stringify(objectData, undefined, 2);
+      openInfoPane(objectData);
     };
   } catch (e) {
     // Handle however you like
@@ -61,24 +61,7 @@ function highlightObject(scene: Novorender.Scene, id: number) {
 
   scene.objectHighlighter.commit();
 }
-
-// UI setup
-function createMetadataBox(container: HTMLElement): HTMLPreElement {
-  const pre = document.createElement("pre");
-  pre.style.position = "absolute";
-  pre.style.top = "0";
-  pre.style.width = "200px";
-  pre.style.height = "200px";
-  pre.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-  pre.style.resize = "both";
-  pre.style.overflow = "auto";
-  pre.style.color = "black";
-
-  container.append(pre);
-
-  return pre;
-}
-
+// HiddenRangeStarted
 async function initView(
   api: Novorender.API,
   canvas: HTMLCanvasElement,
@@ -163,3 +146,4 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
     }
   }
 }
+// HiddenRangeEnded

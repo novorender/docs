@@ -1,11 +1,11 @@
 // HiddenRangeStarted
-import * as Novorender from "@novorender/webgl-api";
+import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
-  webglAPI: Novorender.API;
+  webglAPI: NovoRender.API;
   canvas: HTMLCanvasElement;
   measureAPI: typeof MeasureAPI;
   dataJsAPI: typeof DataJsAPI;
@@ -17,69 +17,51 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     // Init
     const view = await initView(webglAPI, canvas, dataJsAPI);
-    const scene = view.scene!;
     run(view, canvas);
 
-    const iterator = scene.search({
-      searchPattern: "Roof",
-      // True so that metadata is preloaded
-      full: true,
-    });
+    const scene = view.scene!;
 
-    const searchResult: Novorender.ObjectData[] = [];
+    // Run the searches
+    // Fluffy search which will search all properties for words starting with "Roof"
+    // "Roo" will still find roofs, but "oof" will not
+    const iterator = scene.search({ searchPattern: "Roof" });
 
-    // Use the first 5 results to keep the properties in the property box
-    // relatively short
-    for (let i = 0; i < 5; i++) {
-      const iteratorResult = await iterator.next();
-
-      if (iteratorResult.done) {
-        break;
-      }
-
-      // Because we have set the search option "full: true"
-      // .loadMetadata() will not result in any more requests being made
-      // Try flipping it to false and see the difference in the network request log
-      const objectWithMetadata = await iteratorResult.value.loadMetaData();
-      searchResult.push(objectWithMetadata);
+    // In this example we just want to isolate the objects so all we need is the object ID
+    const result: number[] = [];
+    for await (const object of iterator) {
+      result.push(object.id);
     }
 
-    // Highlight results
-    highlightObjects(
-      scene,
-      searchResult.map((object) => object.id)
-    );
-    // Display metadata
-    openInfoPane(searchResult);
+    // Then we isolate the objects found
+    isolateObjects(scene, result);
   } catch (e) {
-    // Handle however you like
     console.warn(e);
   }
 }
 
-function highlightObjects(scene: Novorender.Scene, ids: number[]) {
-  // Reset highlights
-  scene.objectHighlighter.objectHighlightIndices.fill(0);
+function isolateObjects(scene: NovoRender.Scene, ids: number[]): void {
+  // Set highlight 255 on all objects
+  // Highlight index 255 is reserved fully transparent
+  scene.objectHighlighter.objectHighlightIndices.fill(255);
 
-  // Set highlight to 1 for the selected objects
-  // In this case the highlight is green, set in initView()
-  ids.forEach((id) => (scene.objectHighlighter.objectHighlightIndices[id] = 1));
+  // Set highlight back to 0 for objects to be isolated
+  // Highlight 0 should be neutral as we haven't changed view.settings.objectHighlights
+  ids.forEach((id) => (scene.objectHighlighter.objectHighlightIndices[id] = 0));
 
   scene.objectHighlighter.commit();
 }
-
 // HiddenRangeStarted
 async function initView(
-  api: Novorender.API,
+  api: NovoRender.API,
   canvas: HTMLCanvasElement,
   dataJsAPI: typeof DataJsAPI
-) {
+): Promise<NovoRender.View> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
-  // Load scene metadataa
+  // Load scene metadata
   const sceneData = await dataApi
     // Condos scene ID, but can be changed to any public scene ID
     .loadScene("3b5e65560dc4422da5c7c3f827b6a77c")
@@ -110,21 +92,13 @@ async function initView(
   // Assign the scene to the view
   view.scene = scene;
 
-  // make object highlights
-  const highlightGroup0 = api.createHighlight({ kind: "neutral" });
-  const highlightGroup1 = api.createHighlight({
-    kind: "color",
-    color: [0, 1, 0],
-  });
-  view.settings.objectHighlights = [highlightGroup0, highlightGroup1];
-
   return view;
 }
 
-async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
-  // Create a bitmap context to display render output
-  const ctx = canvas.getContext("bitmaprenderer");
-
+async function run(
+  view: NovoRender.View,
+  canvas: HTMLCanvasElement
+): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -137,6 +111,9 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
   });
 
   resizeObserver.observe(canvas);
+
+  // Create a bitmap context to display render output
+  const ctx = canvas.getContext("bitmaprenderer");
 
   // Main render loop
   while (true) {
