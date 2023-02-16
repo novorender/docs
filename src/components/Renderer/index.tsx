@@ -4,6 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 import * as DataJsAPI from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
 import Spinner from "../misc/spinner";
+import { Allotment } from "allotment";
 
 /** Types */
 import type { API } from "@novorender/webgl-api";
@@ -29,6 +30,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     const canvasWrapper = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
+    const previewCanvas = useRef<HTMLCanvasElement>(null);
     const [canvasDimensions, setCanvasDimensions] = useState<{ width: number, height: number; }>({ width: 0, height: 0 });
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [infoPaneContent, setInfoPaneContent] = useState<string | object | any>('');
@@ -58,7 +60,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         canvasWrapperRef(canvasWrapper.current);
         (async () => {
             try {
-                await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current });
+                await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
             } catch (err) {
                 console.log('something got caught ', err);
             }
@@ -99,9 +101,17 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         <BrowserOnly>
             {() =>
                 <div ref={canvasWrapper} style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
-                    <Spinner wrapperStyles={{ margin: 'auto', position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: '-1' }} />
-                    <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: '100%', height: '100%' }}></canvas>
-                    {editorConfig?.canvas2D && <canvas ref={canvas2D} width={canvasDimensions.width} height={canvasDimensions.height} style={{ pointerEvents: 'none', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />}
+                    <Allotment>
+                        <Allotment.Pane>
+                            <RenderSpinner />
+                            <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: '100%', height: '100%' }}></canvas>
+                            {editorConfig?.canvas2D && <canvas ref={canvas2D} width={canvasDimensions.width} height={canvasDimensions.height} style={{ pointerEvents: 'none', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />}
+                        </Allotment.Pane>
+                        <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
+                            <RenderSpinner />
+                            <canvas ref={previewCanvas} style={{ width: '100%', height: '100%' }} />
+                        </Allotment.Pane>
+                    </Allotment>
                     <InfoBox content={infoPaneContent} />
                 </div>
             }
@@ -124,3 +134,5 @@ export function InfoBox({ content }: { content: object | string | any; }) {
     </div>;
 
 }
+
+export const RenderSpinner = () => <Spinner wrapperStyles={{ margin: 'auto', position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: '-1' }} />;

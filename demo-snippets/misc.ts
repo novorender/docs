@@ -7,6 +7,8 @@ export interface IEditorConfig {
     clickToRun?: boolean;
     /** whether to enable a secondary canvas for 2D or not, defaults to `true` */
     canvas2D?: boolean;
+    /** whether to enable a third canvas for 2D image preview or not, defaults to `false` */
+    enablePreviewCanvas?: boolean;
     /** using `fill` will make the playground to take entire viewport's width and height, `inline` is default */
     mode?: 'inline' | 'fill';
     /** Set the primary position of the cursor (https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IEditor.html#setPosition)*/
@@ -53,7 +55,7 @@ export function demo<T extends string>(
             {
                 dirName,
                 demoName,
-                editorConfig: { clickToRun: true, mode: 'inline', canvas2D: true, ...config },
+                editorConfig: { clickToRun: true, mode: 'inline', canvas2D: true, enablePreviewCanvas: false, ...config },
                 code,
                 editUrl: `demo-snippets/tutorials/${dirName}/${demoName}.ts`,
                 previewImageUrl: `/assets/demo-screenshots/${demoName}.png`,
