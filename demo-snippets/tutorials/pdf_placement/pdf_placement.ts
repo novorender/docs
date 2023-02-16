@@ -31,7 +31,7 @@ export async function main({ webglAPI, canvas, dataJsAPI, previewCanvas }: IPara
         const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as DataJsAPI.SceneData;
         console.log('pdfScene==> ', pdfScene);
         const view = await initView(webglAPI, canvas, pdfScene);
-        const elevation = await getElevation(view.scene as NovoRender.Scene);
+        // const elevation = await getElevation(view.scene as NovoRender.Scene);
         const preview = await downloadPdfPreview(pdfScene as DataJsAPI.SceneData);
         const context2D = previewCanvas.getContext("2d");
         const img = new Image();
