@@ -36,8 +36,6 @@ export async function main({ webglAPI, canvas, dataJsAPI, previewCanvas }: IPara
         const context2D = previewCanvas.getContext("2d");
         const img = new Image();
         img.onload = function () {
-            console.log('img ', img);
-
             if (context2D) {
                 context2D.drawImage(
                     img,
@@ -96,7 +94,7 @@ async function initView(
     const { url, db, settings, camera: cameraParams } = pdfScene;
 
     // Load scene
-    const scene = await api.loadScene(url, db);
+    const scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
 
     // Create a view with the scene's saved settings
     const view = await api.createView(settings, canvas);
@@ -105,7 +103,7 @@ async function initView(
     view.applySettings({ quality: { resolution: { value: 1 } } });
 
     // Create a camera controller with the saved parameters with turntable as fallback
-    const camera = cameraParams ?? ({ kind: "flight" } as any);
+    const camera = cameraParams ?? ({ kind: "orbit" } as any);
     view.camera.controller = api.createCameraController(camera, canvas);
 
     // Assign the scene to the view
@@ -125,6 +123,13 @@ async function run(
             canvas.height = entry.contentRect.height;
             view.applySettings({
                 display: { width: canvas.width, height: canvas.height },
+                // clippingVolume: {
+                //     enabled: true,
+                //     mode: "union",
+                //     planes: [
+                //         [0,1,0,3.5]
+                //     ]
+                // }
             });
         }
     });
