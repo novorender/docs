@@ -150,14 +150,13 @@ async function run(
     }
 }
 
-export async function getElevation(scene: NovoRender.Scene): Promise<string | undefined> {
-    const iterator = scene.search({ searchPattern: [{ property: "Novorender/Document/Preview", exact: true }] }, undefined);
+export async function getElevation(scene: NovoRender.Scene): Promise<number | undefined> {
+    const iterator = scene.search({ searchPattern: [{ property: "IfcClass", value: "IfcBuildingStorey", exact: true },], }, undefined);
     const iteratorResult = await iterator.next();
     const data = await iteratorResult.value.loadMetaData();
     for (const prop of data.properties) {
-        if (prop[0] === "Novorender/Document/Preview") {
-            //This is the PDF image
-            return prop[1];
+        if (prop[0] === "Novorender/Elevation") {
+            return Number(prop[1]);
         }
     }
     return undefined;
