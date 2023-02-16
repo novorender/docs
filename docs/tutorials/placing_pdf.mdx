@@ -30,23 +30,30 @@ if (pdfScene.db) {
     },
     undefined
   );
-  let done = false;
-  //Loop trough metadata and return the image, this will find the first PDF preview if there are several in the same scene
-  while (!done) {
-    const [result, _done] = await iterateAsync({ iterator, count: 10000 });
-    done = _done;
-    for (const ref of result) {
-      const data = await ref.loadMetaData();
-      for (const prop of data.properties) {
-        if (prop[0] === "Novorender/Document/Preview") {
-          return prop[1];
-        }
-      }
+  const iteratorResult = await iterator.next();
+  const data = await iteratorResult.value.loadMetaData();
+  for (const prop of data.properties) {
+    if (prop[0] === "Novorender/Document/Preview") {
+      //This is the PDF image
+      return prop[1];
     }
-    await sleep(1);
   }
 }
 return undefined;
+
+for (let i = 0; i < 5; i++) {
+  const iteratorResult = await iterator.next();
+
+  if (iteratorResult.done) {
+    break;
+  }
+
+  // Because we have set the search option "full: true"
+  // .loadMetadata() will not result in any more requests being made
+  // Try flipping it to false and see the difference in the network request log
+  const objectWithMetadata = await iteratorResult.value.loadMetaData();
+  searchResult.push(objectWithMetadata);
+}
 ```
 
 The image can be drawn on a 2d canvas
