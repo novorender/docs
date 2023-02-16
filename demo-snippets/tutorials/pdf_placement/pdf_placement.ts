@@ -52,7 +52,7 @@ export async function main({ webglAPI, canvas, dataJsAPI, previewCanvas }: IPara
                 );
             }
         };
-        img.src = preview?.image as string;
+        img.src = preview as string;
 
         run(view, canvas);
 
@@ -82,7 +82,6 @@ async function login(): Promise<string> {
             // Handle however you like
             return { token: "" };
         });
-    console.log('got token ', res);
     return res.token;
 }
 
@@ -151,7 +150,7 @@ async function run(
     }
 }
 
-export async function getElevation(scene: NovoRender.Scene): Promise<any> {
+export async function getElevation(scene: NovoRender.Scene): Promise<string | undefined> {
     const iterator = scene.search({ searchPattern: [{ property: "Novorender/Document/Preview", exact: true }] }, undefined);
     const iteratorResult = await iterator.next();
     const data = await iteratorResult.value.loadMetaData();
@@ -161,24 +160,22 @@ export async function getElevation(scene: NovoRender.Scene): Promise<any> {
             return prop[1];
         }
     }
+    return undefined;
+
 }
 
-export class PDFPreview {
-    constructor(readonly image: string) { };
-}
-
-export async function downloadPdfPreview(scene: DataJsAPI.SceneData): Promise<PDFPreview | undefined> {
+export async function downloadPdfPreview(scene: DataJsAPI.SceneData): Promise<string | undefined> {
 
     if (scene.db) {
         const iterator = scene.db.search({ searchPattern: [{ property: "Novorender/Document/Preview", exact: true }] }, undefined);
         const iteratorResult = await iterator.next();
         const data = await iteratorResult.value.loadMetaData();
         for (const prop of data.properties) {
-            
+
             if (prop[0] === "Novorender/Document/Preview") {
                 console.log('scene1212 ', prop);
                 //This is the PDF image
-                return new PDFPreview(prop[1]);
+                return prop[1];
             }
         }
     }
