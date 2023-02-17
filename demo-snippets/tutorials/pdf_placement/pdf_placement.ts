@@ -4,6 +4,7 @@ import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
+import type { vec2 } from 'gl-matrix';
 export interface IParams {
     webglAPI: NovoRender.API;
     canvas: HTMLCanvasElement;
@@ -15,7 +16,7 @@ export interface IParams {
 }
 // HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
-export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix,canvas, canvas2D, previewCanvas }: IParams) {
+export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
     try {
         // Init
         // Initialize the data API with the Novorender data server service
@@ -50,6 +51,88 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix,canvas, c
         img.src = preview as string;
 
         run(view, canvas, canvas2D, _measureApi, glMatrix);
+
+        let selectingA = true;
+        let pdfPosA: vec2 | undefined = undefined;
+        let pdfPosB: vec2 | undefined = undefined;
+
+        previewCanvas.onclick = (event) => {
+            // if (previewCanvas && preview && previewCanvasContext2D) {
+
+            //     console.log('clicking');
+
+            //     const rect = canvas.getBoundingClientRect();
+            //     const x = event.clientX - rect.left;
+            //     const y = event.clientY - rect.top;
+            //     // view.camera.controller.moveTo(
+            //     //     minimap.toWorld(vec2.fromValues(x * (1 / 0.7) + 300, y * (1 / 0.7) + 200)),
+            //     //     view.camera.rotation
+            //     // );
+            //     if (selectingA) {
+            //         pdfPosA = glMatrix.vec2.fromValues(x, y);
+            //     } else {
+            //         pdfPosB = glMatrix.vec2.fromValues(x, y);
+            //     }
+            //     selectingA = !selectingA;
+            //     if (preview && previewCanvasContext2D) {
+            //         const img = new Image();
+            //         img.onload = function () {
+            //             if (previewCanvasContext2D && preview) {
+            //                 //Redraw the image for te minimap
+            //                 previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+            //                 //previewCanvasContext2D.drawImage(img, 450, 200, img.width * 0.7, img.height * 0.7, 0, 0, width, height);
+            //                 previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+            //                 // imgHeight.current = img.height;
+            //                 // imgWidth.current = img.width;
+            //                 if (pdfPosA) {
+            //                     previewCanvasContext2D.fillStyle = "green";
+            //                     previewCanvasContext2D.beginPath();
+            //                     previewCanvasContext2D.ellipse(pdfPosA[0], pdfPosA[1], 5, 5, 0, 0, Math.PI * 2);
+            //                     previewCanvasContext2D.fill();
+            //                 }
+            //                 if (pdfPosB) {
+            //                     previewCanvasContext2D.fillStyle = "blue";
+            //                     previewCanvasContext2D.beginPath();
+            //                     previewCanvasContext2D.ellipse(pdfPosB[0], pdfPosB[1], 5, 5, 0, 0, Math.PI * 2);
+            //                     previewCanvasContext2D.fill();
+            //                 }
+            //             }
+            //         };
+            //         img.src = preview;
+            //     }
+            //     if (pdfPosA && pdfPosB) {
+            //         const modelPos: vec2[] = [];
+            //         // _measureApi.getDrawObjectFromPoints()
+            //         if (modelPos.length === 2) {
+            //             const pixelPosA = glMatrix.vec2.fromValues(pdfPosA[0], previewCanvas.height - pdfPosA[1]);
+            //             const picelPosB = glMatrix.vec2.fromValues(pdfPosB[0], previewCanvas.height - pdfPosB[1]);
+            //             const pixelLength = glMatrix.vec2.dist(pixelPosA, picelPosB);
+            //             const modelLength = glMatrix.vec2.dist(modelPos[0], modelPos[1]);
+            //             const modelDir = glMatrix.vec2.sub(glMatrix.vec2.create(), modelPos[1], modelPos[0]);
+            //             glMatrix.vec2.normalize(modelDir, modelDir);
+            //             const pixDir = glMatrix.vec2.sub(glMatrix.vec2.create(), pixelPosA, picelPosB);
+            //             glMatrix.vec2.normalize(pixDir, pixDir);
+            //             const scale = modelLength / pixelLength;
+            //             const angleAroundZ = glMatrix.vec2.dot(modelDir, pixDir);
+            //             const pdfScale = previewCanvas.height * scale;
+            //             const zeroWorld = glMatrix.vec2.sub(
+            //                 glMatrix.vec2.create(),
+            //                 modelPos[0],
+            //                 glMatrix.vec2.fromValues(pixelPosA[0] * scale, pixelPosA[1] * scale)
+            //             );
+
+            //             console.log("angleAroundZ");
+            //             console.log(angleAroundZ);
+            //             console.log("pdfScale");
+            //             console.log(pdfScale);
+            //             console.log("zeroWorld");
+            //             console.log(zeroWorld);
+            //             //calulations
+            //         }
+            //     }
+            // }
+        };
 
     } catch (e) {
         console.warn("ee ", e);
@@ -105,8 +188,8 @@ async function initView(
     (orthoController as any).init([750, 18, -180], [0, 0, 0], view.camera);
     (orthoController.params as NovoRender.OrthoControllerParams).referenceCoordSys =
         [
-            0, 0, 1, 0,
             1, 0, 0, 0,
+            0, 0, -1, 0,
             0, 1, 0, 0,
             728, 7, -230, 1
         ];
@@ -164,34 +247,36 @@ async function run(
     const context2D = canvas2D.getContext("2d");
 
     canvas.onclick = async (e) => {
-
-
-
         if (currentOutput) {
             let result1 = await currentOutput.pick(e.offsetX, e.offsetY);
+            let draw: MeasureAPI.DrawProduct | undefined;
             if (result1) {
-                if (selectEntity === 1) {
-                    //Find measure entity at pick location
-                    measureEntity1 = (await measureScene.pickMeasureEntity(
-                        result1.objectId,
-                        result1.position
-                    )).entity;
-                    selectEntity = 2;
-                }
-                else {
-                    //Find measure entity at pick location
-                    measureEntity2 = (await measureScene.pickMeasureEntity(
-                        result1.objectId,
-                        result1.position
-                    )).entity;
-                    selectEntity = 1;
-                }
-                //As long as one object is selected log out the values
-                //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
-                if (measureEntity1) {
-                    result = await measureScene.measure(measureEntity1, measureEntity2);
-                }
-                await draw2d(measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result as any, glMatrix);
+
+                draw = measureApi.getDrawObjectFromPoints(view, [result1.position], false, false);
+
+                // if (selectEntity === 1) {
+                //     //Find measure entity at pick location
+                //     measureEntity1 = (await measureScene.pickMeasureEntity(
+                //         result1.objectId,
+                //         result1.position
+                //     )).entity;
+                //     selectEntity = 2;
+                // }
+                // else {
+                //     //Find measure entity at pick location
+                //     measureEntity2 = (await measureScene.pickMeasureEntity(
+                //         result1.objectId,
+                //         result1.position
+                //     )).entity;
+                //     selectEntity = 1;
+                // }
+                // //As long as one object is selected log out the values
+                // //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
+                // if (measureEntity1) {
+                //     result = await measureScene.measure(measureEntity1, measureEntity2);
+                // }
+
+                await draw2d(measureApi, view, context2D, canvas2D, glMatrix, draw as MeasureAPI.DrawProduct);
             }
         }
     };
@@ -266,19 +351,21 @@ export interface CameraSettings {
     dir: GlMatrix.ReadonlyVec3;
 }
 
-async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
-    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
-    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
+async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, context2D: CanvasRenderingContext2D | null,
+    canvas2D: HTMLCanvasElement, glMatrix: typeof GlMatrix, draw: MeasureAPI.DrawProduct) {
     //Await all draw objects first to avoid flickering
-    const [
-        drawResult,
-        drawProduct1,
-        drawProduct2,
-    ] = await Promise.all([
-        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
-        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
-        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
-    ]);
+    // const [
+    //     drawResult,
+    //     drawProduct1,
+    //     drawProduct2,
+    // ] = await Promise.all([
+    //     result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
+    //     measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
+    //     measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
+    // ]);
+
+    // _measureApi.getDrawObjectFromPoints(view, measureScene, false, false);
+
 
     //Extract needed camera settings
     const { camera } = view;
@@ -286,37 +373,15 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
     const camSettings = { pos: camera.position, dir: cameraDirection };
 
     if (context2D) {
+        
         context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
 
-        //Draw result in green, all lines use 3 pixel width
-        if (drawResult) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawResult,
-                { lineColor: "green" },
-                3,
-                glMatrix);
-        }
-
-        //Draw first object with yellow line and blue fill
-        if (drawProduct1) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct1,
-                { lineColor: "yellow", fillColor: "blue" },
-                3,
-                glMatrix);
-        }
-
-        //Draw second object with blue lines and yellow fill 
-        if (drawProduct2) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct2,
-                { lineColor: "blue", fillColor: "yellow" },
-                3,
-                glMatrix);
-        }
+        drawProduct(context2D as CanvasRenderingContext2D,
+            camSettings,
+            draw,
+            { lineColor: "green" },
+            3,
+            glMatrix);
     }
 }
 
@@ -392,7 +457,7 @@ export function drawPart(
         // } else if (part.drawType === "lines" || part.drawType === "filled") {
         //     return drawLinesOrPolygon(ctx, part, colorSettings, glMatrix, textSettings);
         // } else if (part.drawType === "vertex") {
-            return drawPoints(ctx, part, colorSettings);
+        return drawPoints(ctx, part, colorSettings);
         // }
     }
     return false;
