@@ -34,6 +34,8 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     const [canvasDimensions, setCanvasDimensions] = useState<{ width: number, height: number; }>({ width: 0, height: 0 });
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [infoPaneContent, setInfoPaneContent] = useState<string | object | any>('');
+    const [previewCanvasWidth, setPreviewCanvasWidth] = useState<number>(0);
+    const [isFullScreen, setIsFullScreen] = useState(false);
     // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
     useEffect(() => {
@@ -67,41 +69,17 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         })();
     }, [main]);
 
-    // useEffect(() => {
-    //     document.addEventListener('fullscreenchange', resizeScene, false);
-    //     return () => { document.removeEventListener('fullscreenchange', resizeScene, false); };
-    // });
-
-    // // resizes the scene/view to fit the viewport
-    // function resizeScene() {
-    //     const { clientWidth, clientHeight } = canvas.current;
-    //     const width = clientWidth * devicePixelRatio;
-    //     const height = clientHeight * devicePixelRatio;
-    //     try {
-    //         // handle resizes
-    //         // view.applySettings({ display: { width, height } });
-    //     } catch (e) {
-    //         console.log('[canvas size update]: couldn\'t resize, ', e);
-    //     }
-    // }
-
-    // // handle canvas resize when split pane size changes.
-    // useEffect(() => {
-    //     if (!canvas) {
-    //         console.log('View or Canvas not found, couldn\'t apply the settings ', canvas);
-    //         return;
-    //     }
-    //     if (panesHeight || panesWidth) {
-    //         resizeScene();
-    //     }
-    // }, [panesHeight, panesWidth]);
+    useEffect(() => {
+        document.addEventListener('fullscreenchange', () => setIsFullScreen(!!document.fullscreenElement), false);
+        return () => { document.removeEventListener('fullscreenchange', () => setIsFullScreen(!!document.fullscreenElement), false); };
+    });
 
 
     return (
         <BrowserOnly>
             {() =>
                 <div ref={canvasWrapper} style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
-                    <Allotment>
+                    <Allotment onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
                         <Allotment.Pane>
                             <RenderSpinner />
                             <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: '100%', height: '100%' }}></canvas>
@@ -109,7 +87,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
                         </Allotment.Pane>
                         <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
                             <RenderSpinner />
-                            <canvas ref={previewCanvas} style={{ width: '100%', height: '100%' }} />
+                            <canvas ref={previewCanvas} width={previewCanvasWidth} height={!isFullScreen ? panesHeight : innerHeight} />
                         </Allotment.Pane>
                     </Allotment>
                     <InfoBox content={infoPaneContent} />
