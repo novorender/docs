@@ -13,7 +13,50 @@ export default function Root({ children }) {
 
     const [runningPlaygroundId, setRunningPlaygroundId] = useState('');
 
+    /**
+     * @description login with demo user to store the token localstorage
+     * for further usage in the demos that require authentication.
+     */
+    async function login(): Promise<string> {
+        // Hardcoded values for demo purposes
+        const username = "demouser";
+        const password = "demopassword";
+
+        // POST to the dataserver service's /user/login endpoint
+        const res: { token: string; } = await fetch(
+            "https://data.novorender.com/api/user/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `username=${username}&password=${password}`,
+            }
+        )
+            .then((res) => res.json())
+            .catch(() => {
+                // Handle however you like
+                return { token: "" };
+            });
+        return res.token;
+    }
+
     useEffect(() => {
+
+        (async () => {
+            const message = `Unable to obtain access token; some demos requiring an access token may not function; please reload the application to try again.`;
+            try {
+                const accessToken = await login();
+                if (!accessToken) {
+                    console.warn(message);
+                    return alert(message);
+                }
+                localStorage.setItem('demo_access_token', accessToken);
+            } catch (error) {
+                console.warn(message);
+                alert(message);
+            }
+        })();
 
         /**
          * Global custom alert component to display any kind of info,
