@@ -139,14 +139,14 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
      * @param transpiledOutput string that contains config
      * @returns RenderConfig
      */
-    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: any; }> => {
+    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: () => void; showTip?: () => void; }> => {
         const encodedJs = encodeURIComponent(transpiledOutput);
         const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-        const { main } = await import(/* webpackIgnore: true */dataUri);
+        const { main, showTip } = await import(/* webpackIgnore: true */dataUri);
 
         console.log('main ==> ', main);
 
-        return { main };
+        return { main, showTip };
     };
 
     const codeChangeHandler = async (tsCode: string) => {
@@ -316,7 +316,15 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
         if (editorConfig.revealLine) { editor.revealLineNearTop(editorConfig.revealLine); }
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
-        const { main } = await returnRenderConfigFromOutput(output);
+        const { main, showTip } = await returnRenderConfigFromOutput(output);
+
+        if (showTip) {
+            try {
+                showTip();
+            } catch (error) {
+                console.error('An error occurred while trying to execute showTip');
+            }
+        }
 
         if (main) {
             setMain(() => main);

@@ -15,7 +15,10 @@ export interface IParams {
     previewCanvas: HTMLCanvasElement;
 }
 
-openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
+// we export this function to our react component which will then execute it once the demo started running.
+export function showTip() {
+    return openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
+}
 
 // HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
