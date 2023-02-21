@@ -14,6 +14,9 @@ export interface IParams {
     canvas2D: HTMLCanvasElement;
     previewCanvas: HTMLCanvasElement;
 }
+
+openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
+
 // HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
