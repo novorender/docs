@@ -20,6 +20,15 @@ export default function PlaygroundComponent({ code, demoName, description, edito
 
     useEffect(() => {
         if (!demoName) { console.error('Prop `demoName` is required and must be unique'); return; };
+
+        return () => {
+            // close any existing alerts
+            const existing_alert = document.querySelector('.custom-alert-container');
+            if (existing_alert) {
+                document.body.removeChild(existing_alert);
+            }
+        };
+
     }, []);
 
     const runPlayground = (): void => {
