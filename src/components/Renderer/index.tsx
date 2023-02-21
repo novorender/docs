@@ -33,7 +33,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     const previewCanvas = useRef<HTMLCanvasElement>(null);
     const [canvasDimensions, setCanvasDimensions] = useState<{ width: number, height: number; }>({ width: 0, height: 0 });
     const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
-    const [infoPaneContent, setInfoPaneContent] = useState<string | object | any>('');
+    const [infoPaneContent, setInfoPaneContent] = useState<{ content: string | object | any; title?: string; }>({ content: '' });
     const [previewCanvasWidth, setPreviewCanvasWidth] = useState<number>(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
     // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
@@ -50,8 +50,8 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
 
         resizeObserver.observe(canvas.current);
 
-        window['openInfoPane'] = (content: string) => {
-            setInfoPaneContent(content);
+        window['openInfoPane'] = (content: object | string | any, title?: string) => {
+            setInfoPaneContent({ content, title });
         };
     }, []);
 
@@ -90,14 +90,14 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
                             <canvas ref={previewCanvas} width={previewCanvasWidth} height={!isFullScreen ? panesHeight : innerHeight} />
                         </Allotment.Pane>
                     </Allotment>
-                    <InfoBox content={infoPaneContent} />
+                    <InfoBox content={infoPaneContent.content} title={infoPaneContent.title} />
                 </div>
             }
         </BrowserOnly>
     );
 }
 
-export function InfoBox({ content }: { content: object | string | any; }) {
+export function InfoBox({ content, title }: { content: object | string | any; title?: string; }) {
 
     const [isCodeBlock, setIsCodeBlock] = useState(false);
 
@@ -108,7 +108,7 @@ export function InfoBox({ content }: { content: object | string | any; }) {
     return <div className="info-pane-container" style={{ position: 'absolute', bottom: isCodeBlock ? -20 : 0, left: 0, fontSize: 12, margin: 10, overflow: 'auto', maxWidth: '25%' }}>
         {!isCodeBlock && <button onClick={() => { setIsCodeBlock(true); }} title="Show info pane" className="button button--outline button--primary" style={{ padding: '0 5px', marginBottom: 2 }}>ℹ️</button>}
         {isCodeBlock && <button onClick={() => { setIsCodeBlock(false); }} title="Hide info pane" className="button" style={{ padding: '0 5px' }}>➖</button>}
-        {isCodeBlock && <CodeBlock language="json">{(content && JSON.stringify(content, null, 2)) || 'Nothing to see here...'}</CodeBlock>}
+        {isCodeBlock && <CodeBlock title={title} language="json">{(content && JSON.stringify(content, null, 2)) || 'Nothing to see here...'}</CodeBlock>}
     </div>;
 
 }

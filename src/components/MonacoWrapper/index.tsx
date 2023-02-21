@@ -256,8 +256,8 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
             * @description opens a pane in bottom left of renderer to show any text
             * @param content string to show in the info pane
             */
-            declare function openInfoPane(content: string | object | any): void;`);
-
+            declare function openInfoPane(content: object | string | any, title?: string): void;`);
+            
             // monaco.languages.typescript.typescriptDefaults.addExtraLib(
             //    GlMatrixDTS,
             //     'file:///node_modules/gl-matrix/index.d.ts'

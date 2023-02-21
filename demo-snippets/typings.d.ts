@@ -14,4 +14,4 @@ declare function openAlert(content: string, type: 'primary' | 'secondary' | 'suc
 * @description opens a pane in bottom left of renderer to show any text
 * @param content string to show in the info pane
 */
-declare function openInfoPane(content: string | object | any): void;
+declare function openInfoPane(content: object | string | any, title?: string): void;
