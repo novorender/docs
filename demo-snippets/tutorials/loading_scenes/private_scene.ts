@@ -13,20 +13,21 @@ export interface IParams {
   canvas2D: HTMLCanvasElement;
 }
 
+const demo_access_token = localStorage.getItem('demo_access_token')
+
 // HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
-  // For the demo we have simplified the login flow to always run the login call
-  const accessToken = await login();
-
   // Initialize the data API with the Novorender data server service
   // and a callback which returns the auth header with the access token
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: DATA_API_SERVICE_URL,
     authHeader: async () => ({
       header: "Authorization",
-      value: `Bearer ${accessToken}`,
+      // We are using pre-generated demo token here for brevity.
+      // To get your own token, look at "https://docs.novorender.com/data-rest-api/#/operations/Login".
+      value: `Bearer ${demo_access_token}`,
     }),
   });
 
@@ -75,35 +76,11 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   }
 }
 
-async function login(): Promise<string> {
-  // Hardcoded values for demo purposes
-  const username = "demouser";
-  const password = "demopassword";
-
-  // POST to the dataserver service's /user/login endpoint
-  const res: { token: string } = await fetch(
-    DATA_API_SERVICE_URL + "/user/login",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `username=${username}&password=${password}`,
-    }
-  )
-    .then((res) => res.json())
-    .catch(() => {
-      // Handle however you like
-      return { token: "" };
-    });
-
-  return res.token;
-}
 // HiddenRangeStarted
 async function run(
   view: NovoRender.View,
   canvas: HTMLCanvasElement
-  ): Promise<void> {
+): Promise<void> {
   // Handle canvas resizes
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -114,12 +91,12 @@ async function run(
       });
     }
   });
-  
+
   resizeObserver.observe(canvas);
-  
+
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
-  
+
   // Main render loop
   while (true) {
     // Render frame

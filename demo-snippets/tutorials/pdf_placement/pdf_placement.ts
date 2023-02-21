@@ -15,6 +15,8 @@ export interface IParams {
     previewCanvas: HTMLCanvasElement;
 }
 
+const demo_access_token = localStorage.getItem('demo_access_token');
+
 // we export this function to our react component which will then execute it once the demo started running.
 export function showTip() {
     return openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
@@ -26,12 +28,13 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     try {
         // Init
         // Initialize the data API with the Novorender data server service
-        const accessToken = await login();
         const dataApi = dataJsAPI.createAPI({
             serviceUrl: DATA_API_SERVICE_URL,
             authHeader: async () => ({
                 header: "Authorization",
-                value: `Bearer ${accessToken}`,
+                // We are using pre-generated demo token here for brevity.
+                // To get your own token, look at "https://docs.novorender.com/data-rest-api/#/operations/Login".
+                value: `Bearer ${demo_access_token}`,
             }),
         });
         const _measureApi = await measureAPI.createMeasureAPI();
@@ -181,30 +184,6 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     } catch (e) {
         console.warn("An error occurred ", e);
     }
-}
-
-async function login(): Promise<string> {
-    // Hardcoded values for demo purposes
-    const username = "";
-    const password = "";
-
-    // POST to the dataserver service's /user/login endpoint
-    const res: { token: string; } = await fetch(
-        "https://data.novorender.com/api/user/login",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: `username=${username}&password=${password}`,
-        }
-    )
-        .then((res) => res.json())
-        .catch(() => {
-            // Handle however you like
-            return { token: "" };
-        });
-    return res.token;
 }
 
 // HiddenRangeStarted
