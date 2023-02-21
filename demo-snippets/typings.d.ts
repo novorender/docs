@@ -8,7 +8,7 @@ declare module "*.ts?raw" {
 * @description opens an alert that displays provided content
 * @param content string to show in the alert
 */
-declare function openAlert(content: string): void;
+declare function openAlert(content: string, type: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' = 'info'): void;
 
 /**
 * @description opens a pane in bottom left of renderer to show any text

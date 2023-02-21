@@ -21,7 +21,7 @@ export default function Root({ children }) {
          * components aren't available
          * just do `openAlert('whatever content...')` to show an alert
          */
-        window['openAlert'] = (content: string) => {
+        window['openAlert'] = (content: string, type: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' = 'info') => {
             const existing_alert = document.querySelector('.custom-alert-container');
             if (existing_alert) {
                 document.body.removeChild(existing_alert);
@@ -32,7 +32,7 @@ export default function Root({ children }) {
             close_btn.setAttribute('type', 'button');
             close_btn.innerHTML = `<span aria-hidden="true">&times;</span>`;
             close_btn.addEventListener('click', () => { document.body.removeChild(ele); });
-            ele.classList.add('alert', 'alert--info', 'custom-alert-container');
+            ele.classList.add('alert', `alert--${type}`, 'custom-alert-container');
             ele.appendChild(close_btn);
             ele.append(content);
             document.body.appendChild(ele);
