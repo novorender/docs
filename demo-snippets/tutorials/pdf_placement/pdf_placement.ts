@@ -60,27 +60,36 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         // @todo - re-enable
         // const elevation = await getElevation(view.scene as Scene);
 
-        const preview = await downloadPdfPreview(pdfScene as SceneData);
+        let preview: string | undefined;
+
+        if (pdfScene && !(pdfScene as any).error) {
+            preview = await downloadPdfPreview(pdfScene as SceneData);
+        }
         const previewCanvasContext2D = previewCanvas.getContext("2d");
 
-        // image to draw on PDF view (right side).
-        const img = new Image();
-        img.onload = () => {
-            if (previewCanvasContext2D) {
-                previewCanvasContext2D.drawImage(
-                    img,
-                    0,
-                    0,
-                    previewCanvas.width,
-                    previewCanvas.height,
-                    // 0,
-                    // 0,
-                    // previewCanvas.width,
-                    // previewCanvas.height
-                );
-            }
-        };
-        img.src = preview as string;
+        if (preview) {
+            // image to draw on PDF view (right side).
+            const img = new Image();
+            img.onload = () => {
+                if (previewCanvasContext2D) {
+                    previewCanvasContext2D.drawImage(
+                        img,
+                        0,
+                        0,
+                        previewCanvas.width,
+                        previewCanvas.height,
+                        // 0,
+                        // 0,
+                        // previewCanvas.width,
+                        // previewCanvas.height
+                    );
+                }
+            };
+            img.src = preview as string;
+        } else {
+            // just to show error details on previewCanvas, if preview failed to load
+            showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
+        }
 
         let currentOutput: RenderOutput;
 
@@ -235,6 +244,14 @@ async function downloadPdfPreview(scene: SceneData): Promise<string | undefined>
 }
 
 // HiddenRangeStarted
+function showErrorDetails(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null, error: string) {
+    ctx!.font = "18px Arial";
+    ctx!.fillStyle = "red";
+    ctx!.textAlign = "center";
+    ctx!.fillText(`Failed to load the PDF Preview.`, canvas.width / 2, canvas.height / 2);
+    ctx!.fillText(`Error: ${error}`, canvas.width / 2, canvas.height / 1.8);
+}
+
 async function initView(
     api: API,
     canvas: HTMLCanvasElement,
