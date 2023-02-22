@@ -5,12 +5,13 @@ import * as DataJsAPI from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: NovoRender.API;
-  canvas: HTMLCanvasElement;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
-  glMatrix: typeof GlMatrix;
-  canvas2D: HTMLCanvasElement;
+    webglAPI: NovoRender.API;
+    measureAPI: typeof MeasureAPI;
+    dataJsAPI: typeof DataJsAPI;
+    glMatrix: typeof GlMatrix;
+    canvas: HTMLCanvasElement;
+    canvas2D: HTMLCanvasElement;
+    previewCanvas: HTMLCanvasElement;
 };
 
 // HiddenRangeEnded

@@ -6,12 +6,13 @@ import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglAPI: NovoRender.API;
-  canvas: HTMLCanvasElement;
   measureAPI: typeof MeasureAPI;
   dataJsAPI: typeof DataJsAPI;
   glMatrix: typeof GlMatrix;
+  canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
-}
+  previewCanvas: HTMLCanvasElement;
+};
 
 const demo_access_token = localStorage.getItem('demo_access_token')
 

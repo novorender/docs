@@ -7,11 +7,12 @@ import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 
 export interface IParams {
     webglAPI: NovoRender.API;
-    canvas: HTMLCanvasElement;
     measureAPI: typeof MeasureAPI;
     dataJsAPI: typeof DataJsAPI;
     glMatrix: typeof GlMatrix;
+    canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
+    previewCanvas: HTMLCanvasElement;
 };
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)

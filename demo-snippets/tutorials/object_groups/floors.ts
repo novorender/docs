@@ -5,17 +5,18 @@ import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
 export interface IParams {
   webglAPI: NovoRender.API;
-  canvas: HTMLCanvasElement;
   measureAPI: typeof MeasureAPI;
   dataJsAPI: typeof DataJsAPI;
   glMatrix: typeof GlMatrix;
+  canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
-}
+  previewCanvas: HTMLCanvasElement;
+};
 
-// HiddenRangeEnded
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
+// HiddenRangeEnded
 export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   try {
     const [view, dataApi, objectGroups] = await initView(

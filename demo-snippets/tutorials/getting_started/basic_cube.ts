@@ -6,16 +6,16 @@ import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
     webglAPI: NovoRender.API;
-    canvas: HTMLCanvasElement;
     measureAPI: typeof MeasureAPI;
     dataJsAPI: typeof DataJsAPI;
     glMatrix: typeof GlMatrix;
+    canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
+    previewCanvas: HTMLCanvasElement;
 };
 
 // HiddenRangeEnded
 export async function main({ webglAPI, canvas }: IParams) {
-
     // Create a view
     const view = await webglAPI.createView({ background: { color: [0, 0, 0.25, 1] } }, canvas);
 

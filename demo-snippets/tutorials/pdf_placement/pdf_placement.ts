@@ -8,14 +8,14 @@ import type { SceneData } from '@novorender/data-js-api';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 import type { vec2, ReadonlyVec3 } from 'gl-matrix';
 export interface IParams {
-    webglAPI: API;
-    canvas: HTMLCanvasElement;
+    webglAPI: NovoRender.API;
     measureAPI: typeof MeasureAPI;
     dataJsAPI: typeof DataJsAPI;
     glMatrix: typeof GlMatrix;
+    canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
     previewCanvas: HTMLCanvasElement;
-}
+};
 
 const demo_access_token = localStorage.getItem('demo_access_token');
 
