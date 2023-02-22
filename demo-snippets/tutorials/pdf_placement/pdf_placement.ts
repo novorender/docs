@@ -3,10 +3,12 @@ import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
+import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene } from '@novorender/webgl-api';
+import type { SceneData } from '@novorender/data-js-api';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 import type { vec2, ReadonlyVec3 } from 'gl-matrix';
 export interface IParams {
-    webglAPI: NovoRender.API;
+    webglAPI: API;
     canvas: HTMLCanvasElement;
     measureAPI: typeof MeasureAPI;
     dataJsAPI: typeof DataJsAPI;
@@ -21,12 +23,10 @@ const demo_access_token = localStorage.getItem('demo_access_token');
 export function showTip() {
     return openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
 }
-
-// HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
+// HiddenRangeEnded
 export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
     try {
-        // Init
         // Initialize the data API with the Novorender data server service
         const dataApi = dataJsAPI.createAPI({
             serviceUrl: DATA_API_SERVICE_URL,
@@ -37,15 +37,33 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                 value: `Bearer ${demo_access_token}`,
             }),
         });
+
         const _measureApi = await measureAPI.createMeasureAPI();
 
-        const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as DataJsAPI.SceneData;
-        const view = await initView(webglAPI, canvas, pdfScene);
-        // @todo - reenable
-        // const elevation = await getElevation(view.scene as NovoRender.Scene);
+        const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as SceneData;
 
-        const preview = await downloadPdfPreview(pdfScene as DataJsAPI.SceneData);
+        // adjust however you want
+        const renderSettings: RecursivePartial<RenderSettings> = {
+            quality: {
+                resolution: { value: 1 } // Set resolution scale to 1
+            },
+            clippingVolume: {
+                enabled: true,
+                mode: "union",
+                planes: [
+                    [0, 1, 0, -5.5]
+                ]
+            }
+        };
+
+        const view = await initView(webglAPI, canvas, pdfScene, renderSettings);
+        // @todo - re-enable
+        // const elevation = await getElevation(view.scene as Scene);
+
+        const preview = await downloadPdfPreview(pdfScene as SceneData);
         const previewCanvasContext2D = previewCanvas.getContext("2d");
+
+        // image to draw on PDF view (right side).
         const img = new Image();
         img.onload = () => {
             if (previewCanvasContext2D) {
@@ -60,26 +78,29 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                     // previewCanvas.width,
                     // previewCanvas.height
                 );
-
             }
         };
         img.src = preview as string;
 
-        let currentOutput: NovoRender.RenderOutput;
+        let currentOutput: RenderOutput;
 
-        // run the demo and render loop
+        // run the demo and the render loop
         run(view, canvas, (output) => { currentOutput = output; });
-
-        let selectEntity: 1 | 2 = 1;
 
         const context2D = canvas2D.getContext("2d");
 
+        let selectEntity: 1 | 2 = 1;
         let posA: ReadonlyVec3;
         let posB: ReadonlyVec3;
         let draw: MeasureAPI.DrawProduct | undefined;
+        let selectingA = true;
+        let pdfPosA: vec2 | undefined = undefined;
+        let pdfPosB: vec2 | undefined = undefined;
+        let imgHeight: number;
+        let imgWidth: number;
 
         // World view click listener
-        canvas.onclick = async (e) => {
+        canvas.onclick = async (e: MouseEvent) => {
             if (currentOutput) {
                 const result1 = await currentOutput.pick(e.offsetX, e.offsetY);
                 if (result1) {
@@ -101,16 +122,12 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
             }
         };
 
-        let selectingA = true;
-        let pdfPosA: vec2 | undefined = undefined;
-        let pdfPosB: vec2 | undefined = undefined;
-
-        let imgHeight: number;
-        let imgWidth: number;
-
-        // Preview Canvas (left-side) click listener
+        // Preview Canvas (right-side) click listener
         previewCanvas.onclick = (e: MouseEvent) => {
+
+            // destructure necessary glMatrix functions
             const { vec2: { fromValues, dist, sub, create, normalize, dot } } = glMatrix;
+
             if (previewCanvas && preview && previewCanvasContext2D) {
                 const x = e.offsetX;
                 const y = e.offsetY;
@@ -186,12 +203,44 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     }
 }
 
+async function getElevation(scene: Scene): Promise<number | undefined> {
+    try {
+        const iterator = scene.search({ searchPattern: [{ property: "IfcClass", value: "IfcBuildingStorey", exact: true },], }, undefined);
+        const iteratorResult = await iterator.next();
+        const data = await iteratorResult.value.loadMetaData();
+        for (const prop of data.properties) {
+            if (prop[0] === "Novorender/Elevation") {
+                return Number(prop[1]);
+            }
+        }
+        return undefined;
+
+    } catch (error) { console.log(error); }
+}
+
+async function downloadPdfPreview(scene: SceneData): Promise<string | undefined> {
+    if (scene.db) {
+        // perform a db search to get the metadata
+        const iterator = scene.db.search({ searchPattern: [{ property: "Novorender/Document/Preview", exact: true }] }, undefined);
+        const iteratorResult = await iterator.next();
+        const data = await iteratorResult.value.loadMetaData();
+        for (const prop of data.properties) {
+            if (prop[0] === "Novorender/Document/Preview") {
+                //This is the PDF image
+                return prop[1];
+            }
+        }
+    }
+    return undefined;
+}
+
 // HiddenRangeStarted
 async function initView(
-    api: NovoRender.API,
+    api: API,
     canvas: HTMLCanvasElement,
-    pdfScene: DataJsAPI.SceneData
-): Promise<NovoRender.View> {
+    pdfScene: SceneData,
+    renderSettings: RecursivePartial<RenderSettings>
+): Promise<View> {
 
     // Destructure relevant properties into variables
     const { url, db, settings, camera: cameraParams } = pdfScene;
@@ -202,19 +251,18 @@ async function initView(
     // Create a view with the scene's saved settings
     const view = await api.createView(settings, canvas);
 
-    // Set resolution scale to 1
-    view.applySettings({ quality: { resolution: { value: 1 } } });
+    view.applySettings(renderSettings);
 
     const orthoController = api.createCameraController({ kind: "ortho" }, canvas);
     (orthoController as any).init([750, 18, -180], [0, 0, 0], view.camera);
-    (orthoController.params as NovoRender.OrthoControllerParams).referenceCoordSys =
+    (orthoController.params as OrthoControllerParams).referenceCoordSys =
         [
             1, 0, 0, 0,
             0, 0, -1, 0,
             0, 1, 0, 0,
             728, 7, -230, 1
         ];
-    (orthoController.params as NovoRender.OrthoControllerParams).fieldOfView = 35;
+    (orthoController.params as OrthoControllerParams).fieldOfView = 35;
     view.camera.controller = orthoController;
 
     // Assign the scene to the view
@@ -224,12 +272,12 @@ async function initView(
 }
 
 async function run(
-    view: NovoRender.View,
+    view: View,
     canvas: HTMLCanvasElement,
-    cb: (output: NovoRender.RenderOutput) => void
+    cb: (output: RenderOutput) => void
 ): Promise<void> {
 
-    let currentOutput: NovoRender.RenderOutput;
+    let currentOutput: RenderOutput;
 
     // Handle canvas resizes
     const resizeObserver = new ResizeObserver((entries) => {
@@ -237,14 +285,7 @@ async function run(
             canvas.width = entry.contentRect.width;
             canvas.height = entry.contentRect.height;
             view.applySettings({
-                display: { width: canvas.width, height: canvas.height },
-                clippingVolume: {
-                    enabled: true,
-                    mode: "union",
-                    planes: [
-                        [0, 1, 0, -5.5]
-                    ]
-                }
+                display: { width: canvas.width, height: canvas.height }
             });
         }
     });
@@ -271,41 +312,8 @@ async function run(
     }
 }
 
-export async function getElevation(scene: NovoRender.Scene): Promise<number | undefined> {
-    try {
-        const iterator = scene.search({ searchPattern: [{ property: "IfcClass", value: "IfcBuildingStorey", exact: true },], }, undefined);
-        const iteratorResult = await iterator.next();
-
-        const data = await iteratorResult.value.loadMetaData();
-        for (const prop of data.properties) {
-            if (prop[0] === "Novorender/Elevation") {
-                return Number(prop[1]);
-            }
-        }
-        return undefined;
-
-    } catch (error) { console.log(error); }
-}
-
-export async function downloadPdfPreview(scene: DataJsAPI.SceneData): Promise<string | undefined> {
-
-    if (scene.db) {
-        const iterator = scene.db.search({ searchPattern: [{ property: "Novorender/Document/Preview", exact: true }] }, undefined);
-        const iteratorResult = await iterator.next();
-        const data = await iteratorResult.value.loadMetaData();
-        for (const prop of data.properties) {
-
-            if (prop[0] === "Novorender/Document/Preview") {
-                //This is the PDF image
-                return prop[1];
-            }
-        }
-    }
-    return undefined;
-}
-
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
-export interface ColorSettings {
+interface ColorSettings {
     lineColor?: string | CanvasGradient;
     fillColor?: string;
     pointColor?: string | { start: string; middle: string; end: string; };
@@ -313,12 +321,12 @@ export interface ColorSettings {
     complexCylinder?: boolean;
 }
 
-export function drawProduct(
+function drawProduct(
     context2D: CanvasRenderingContext2D | null,
     product: DrawProduct | undefined,
     pixelWidth: number,
     canvas2D: HTMLCanvasElement
-) {
+): void {
     if (context2D) {
         context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
         for (const obj of (product as DrawProduct).objects) {
@@ -329,7 +337,7 @@ export function drawProduct(
     }
 }
 
-export function drawPart(
+function drawPart(
     ctx: CanvasRenderingContext2D,
     part: DrawPart,
     pixelWidth: number,
