@@ -17,8 +17,6 @@ export interface IParams {
     previewCanvas: HTMLCanvasElement;
 };
 
-const demo_access_token = localStorage.getItem('demo_access_token');
-
 // we export this function to our react component which will then execute it once the demo started running.
 export function showTip() {
     return openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
@@ -29,18 +27,14 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     try {
         // Initialize the data API with the Novorender data server service
         const dataApi = dataJsAPI.createAPI({
+            // we're loading a public scene so it doesn't require any auth header, 
+            // see `https://docs.novorender.com/docs/tutorials/loading_scenes#private-scenes` if you want to load private scenes.
             serviceUrl: DATA_API_SERVICE_URL,
-            authHeader: async () => ({
-                header: "Authorization",
-                // We are using pre-generated demo token here for brevity.
-                // To get your own token, look at "https://docs.novorender.com/data-rest-api/#/operations/Login".
-                value: `Bearer ${demo_access_token}`,
-            }),
         });
 
         const _measureApi = await measureAPI.createMeasureAPI();
 
-        const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as SceneData;
+        const pdfScene = (await dataApi.loadScene("4f50d89ea8cd493ea3bc16f504ad5a1f")) as SceneData;
 
         // adjust however you want
         const renderSettings: RecursivePartial<RenderSettings> = {
