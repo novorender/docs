@@ -24,143 +24,136 @@ export function showTip() {
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 // HiddenRangeEnded
 export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
-    try {
-        // Initialize the data API with the Novorender data server service
-        const dataApi = dataJsAPI.createAPI({
-            // we're loading a public scene so it doesn't require any auth header, 
-            // see `https://docs.novorender.com/docs/tutorials/loading_scenes#private-scenes` if you want to load private scenes.
-            serviceUrl: DATA_API_SERVICE_URL,
-        });
+    // Initialize the data API with the Novorender data server service
+    const dataApi = dataJsAPI.createAPI({
+        // we're loading a public scene so it doesn't require any auth header, 
+        // see `https://docs.novorender.com/docs/tutorials/loading_scenes#private-scenes` if you want to load private scenes.
+        serviceUrl: DATA_API_SERVICE_URL,
+    });
 
-        const _measureApi = await measureAPI.createMeasureAPI();
+    const _measureApi = await measureAPI.createMeasureAPI();
 
-        const pdfScene = (await dataApi.loadScene("4f50d89ea8cd493ea3bc16f504ad5a1f")) as SceneData;
+    const pdfScene = (await dataApi.loadScene("4f50d89ea8cd493ea3bc16f504ad5a1f")) as SceneData;
 
-        // adjust however you want
-        const renderSettings: RecursivePartial<RenderSettings> = {
-            quality: {
-                resolution: { value: 1 } // Set resolution scale to 1
-            },
-            clippingVolume: {
-                enabled: true,
-                mode: "union",
-                planes: [
-                    [0, 1, 0, -5.5]
-                ]
+    // adjust however you want
+    const renderSettings: RecursivePartial<RenderSettings> = {
+        quality: {
+            resolution: { value: 1 } // Set resolution scale to 1
+        },
+        clippingVolume: {
+            enabled: true,
+            mode: "union",
+            planes: [
+                [0, 1, 0, -5.5]
+            ]
+        }
+    };
+
+    const view = await initView(webglAPI, canvas, pdfScene, renderSettings);
+    // @todo - re-enable
+    // const elevation = await getElevation(view.scene as Scene);
+
+    let preview: string | undefined;
+
+    if (pdfScene && !(pdfScene as any).error) {
+        preview = await downloadPdfPreview(pdfScene as SceneData);
+    }
+    const previewCanvasContext2D = previewCanvas.getContext("2d");
+
+    if (preview) {
+        // image to draw on PDF view (right side).
+        const img = new Image();
+        img.onload = () => {
+            if (previewCanvasContext2D) {
+                previewCanvasContext2D.drawImage(
+                    img,
+                    0,
+                    0,
+                    previewCanvas.width,
+                    previewCanvas.height,
+                    // 0,
+                    // 0,
+                    // previewCanvas.width,
+                    // previewCanvas.height
+                );
             }
         };
+        img.src = preview as string;
+    } else {
+        // just to show error details on previewCanvas, if preview failed to load
+        showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
+    }
 
-        const view = await initView(webglAPI, canvas, pdfScene, renderSettings);
-        // @todo - re-enable
-        // const elevation = await getElevation(view.scene as Scene);
+    const context2D = canvas2D.getContext("2d");
+    let currentOutput: RenderOutput;
+    let selectEntity: 1 | 2 = 1;
+    let posA: ReadonlyVec3 | undefined;
+    let posB: ReadonlyVec3 | undefined;
+    let draw: MeasureAPI.DrawProduct | undefined;
+    let selectingA = true;
+    let pdfPosA: vec2 | undefined;
+    let pdfPosB: vec2 | undefined;
+    let imgHeight: number;
+    let imgWidth: number;
 
-        let preview: string | undefined;
-
-        if (pdfScene && !(pdfScene as any).error) {
-            preview = await downloadPdfPreview(pdfScene as SceneData);
-        }
-        const previewCanvasContext2D = previewCanvas.getContext("2d");
-
-        if (preview) {
-            // image to draw on PDF view (right side).
-            const img = new Image();
-            img.onload = () => {
-                if (previewCanvasContext2D) {
-                    previewCanvasContext2D.drawImage(
-                        img,
-                        0,
-                        0,
-                        previewCanvas.width,
-                        previewCanvas.height,
-                        // 0,
-                        // 0,
-                        // previewCanvas.width,
-                        // previewCanvas.height
-                    );
-                }
-            };
-            img.src = preview as string;
-        } else {
-            // just to show error details on previewCanvas, if preview failed to load
-            showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
-        }
-
-        let currentOutput: RenderOutput;
-
-        // run the demo and the render loop
-        run(view, canvas, (output) => { currentOutput = output; });
-
-        const context2D = canvas2D.getContext("2d");
-
-        let selectEntity: 1 | 2 = 1;
-        let posA: ReadonlyVec3;
-        let posB: ReadonlyVec3;
-        let draw: MeasureAPI.DrawProduct | undefined;
-        let selectingA = true;
-        let pdfPosA: vec2 | undefined = undefined;
-        let pdfPosB: vec2 | undefined = undefined;
-        let imgHeight: number;
-        let imgWidth: number;
-
-        // World view click listener
-        canvas.onclick = async (e: MouseEvent) => {
-            if (currentOutput) {
-                const result1 = await currentOutput.pick(e.offsetX, e.offsetY);
-                if (result1) {
-                    if (selectEntity === 1) {
-                        posA = result1.position;
-                        selectEntity = 2;
-                    }
-                    else {
-                        posB = result1.position;
-                        selectEntity = 1;
-                    }
-                    if (posA && posB) {
-                        draw = _measureApi.getDrawObjectFromPoints(view, [posA, posB], false, false);
-                    } else {
-                        draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
-                    }
-                    await drawProduct(context2D, draw, 3, canvas2D);
-                }
-            }
-        };
-
-        // Preview Canvas (right-side) click listener
-        previewCanvas.onclick = (e: MouseEvent) => {
-
-            // destructure necessary glMatrix functions
-            const { vec2: { fromValues, dist, sub, create, normalize, dot } } = glMatrix;
-
-            if (previewCanvas && preview && previewCanvasContext2D) {
-                const x = e.offsetX;
-                const y = e.offsetY;
-                if (selectingA) {
-                    pdfPosA = fromValues(x, y);
+    // 3D view click listener
+    canvas.onclick = async (e: MouseEvent) => {
+        if (currentOutput) {
+            const pickInfo = await currentOutput.pick(e.offsetX, e.offsetY);
+            if (pickInfo) {
+                if (selectEntity === 1) {
+                    posA = pickInfo.position;
+                    selectEntity = 2;
                 } else {
-                    pdfPosB = fromValues(x, y);
+                    posB = pickInfo.position;
+                    selectEntity = 1;
                 }
-                selectingA = !selectingA;
-                if (preview && previewCanvasContext2D) {
-                    const img = new Image();
-                    img.onload = function () {
-                        if (previewCanvasContext2D && preview) {
-                            // Redraw the image to the preview canvas
-                            previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-                            previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-                            imgHeight = img.height;
-                            imgWidth = img.width;
-                            if (pdfPosA) {
-                                drawArc(previewCanvasContext2D, pdfPosA[0], pdfPosA[1], "green");
-                            }
-                            if (pdfPosB) {
-                                drawArc(previewCanvasContext2D, pdfPosB[0], pdfPosB[1], "blue");
-                            }
-                        }
-                    };
-                    img.src = preview;
+                if (posA && posB) {
+                    draw = _measureApi.getDrawObjectFromPoints(view, [posA, posB], false, false);
+                } else if (posA) {
+                    draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
                 }
+                await drawProduct(context2D, draw, 3, canvas2D);
+            }
+        }
+    };
 
-                if (pdfPosA && pdfPosB && draw) {
+    // Preview Canvas (right-side) click listener
+    previewCanvas.onclick = (e: MouseEvent) => {
+
+        // destructure necessary glMatrix functions
+        const { vec2: { fromValues, dist, sub, create, normalize, dot } } = glMatrix;
+
+        if (previewCanvas && preview && previewCanvasContext2D) {
+            const x = e.offsetX;
+            const y = e.offsetY;
+            if (selectingA) {
+                pdfPosA = fromValues(x, y);
+            } else {
+                pdfPosB = fromValues(x, y);
+            }
+            selectingA = !selectingA;
+            if (preview && previewCanvasContext2D) {
+                const img = new Image();
+                img.onload = function () {
+                    if (previewCanvasContext2D && preview) {
+                        // Redraw the image to the preview canvas
+                        previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                        previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+                        imgHeight = img.height;
+                        imgWidth = img.width;
+                        if (pdfPosA) {
+                            drawArc(previewCanvasContext2D, pdfPosA[0], pdfPosA[1], "green");
+                        }
+                        if (pdfPosB) {
+                            drawArc(previewCanvasContext2D, pdfPosB[0], pdfPosB[1], "blue");
+                        }
+                    }
+                };
+                img.src = preview;
+            }
+            if (posA && posB && draw) {
+                if (pdfPosA && pdfPosB) {
                     const modelPosA = fromValues(posA[0], posA[2] * -1);
                     const modelPosB = fromValues(posB[0], posB[2] * -1);
                     const canvasToImageScaleX = imgWidth / previewCanvas.width;
@@ -193,11 +186,36 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                     openInfoPane(calculations);
                 }
             }
-        };
+        }
+    };
 
-    } catch (e) {
-        console.warn("An error occurred ", e);
+    // Create a bitmap context to display render output
+    const ctx = canvas.getContext("bitmaprenderer");
+
+    runResizeObserver(view, canvas);
+
+    // Main render loop
+    while (true) {
+        // Render frame
+        currentOutput = await view.render();
+        // cb(currentOutput);
+        {
+            // Finalize output image
+            const image = await currentOutput.getImage();
+            if (image) {
+                // Display in canvas
+                ctx?.transferFromImageBitmap(image);
+                image.close();
+            }
+        }
+        if (posA && posB) {
+            draw = _measureApi.getDrawObjectFromPoints(view, [posA, posB], false, false);
+        } else if (posA) {
+            draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
+        }
+        await drawProduct(context2D, draw, 3, canvas2D);
     }
+
 }
 
 async function getElevation(scene: Scene): Promise<number | undefined> {
@@ -276,14 +294,10 @@ async function initView(
     return view;
 }
 
-async function run(
+async function runResizeObserver(
     view: View,
-    canvas: HTMLCanvasElement,
-    cb: (output: RenderOutput) => void
+    canvas: HTMLCanvasElement
 ): Promise<void> {
-
-    let currentOutput: RenderOutput;
-
     // Handle canvas resizes
     const resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -294,27 +308,7 @@ async function run(
             });
         }
     });
-
     resizeObserver.observe(canvas);
-
-    // Create a bitmap context to display render output
-    const ctx = canvas.getContext("bitmaprenderer");
-
-    // Main render loop
-    while (true) {
-        // Render frame
-        currentOutput = await view.render();
-        cb(currentOutput);
-        {
-            // Finalize output image
-            const image = await currentOutput.getImage();
-            if (image) {
-                // Display in canvas
-                ctx?.transferFromImageBitmap(image);
-                image.close();
-            }
-        }
-    }
 }
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
@@ -332,12 +326,14 @@ function drawProduct(
     pixelWidth: number,
     canvas2D: HTMLCanvasElement
 ): void {
-    if (context2D) {
-        context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-        for (const obj of (product as DrawProduct).objects) {
-            obj.parts.forEach(part => {
-                drawPart(context2D, part, pixelWidth);
-            });
+    if (product) {
+        if (context2D) {
+            context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+            for (const obj of (product as DrawProduct).objects) {
+                obj.parts.forEach(part => {
+                    drawPart(context2D, part, pixelWidth);
+                });
+            }
         }
     }
 }
