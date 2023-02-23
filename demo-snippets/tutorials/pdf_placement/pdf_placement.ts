@@ -183,7 +183,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
 
                     // calculations to show in info pane
                     const calculations = { angleAroundZ, pdfToWorldScale, translation };
-                    openInfoPane(calculations);
+                    openInfoPane(calculations, "PDF Transformation");
                 }
             }
         }
