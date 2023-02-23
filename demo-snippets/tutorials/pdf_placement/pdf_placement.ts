@@ -150,16 +150,10 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                             imgHeight = img.height;
                             imgWidth = img.width;
                             if (pdfPosA) {
-                                previewCanvasContext2D.fillStyle = "green";
-                                previewCanvasContext2D.beginPath();
-                                previewCanvasContext2D.ellipse(pdfPosA[0], pdfPosA[1], 5, 5, 0, 0, Math.PI * 2);
-                                previewCanvasContext2D.fill();
+                                drawArc(previewCanvasContext2D, pdfPosA[0], pdfPosA[1], "green");
                             }
                             if (pdfPosB) {
-                                previewCanvasContext2D.fillStyle = "blue";
-                                previewCanvasContext2D.beginPath();
-                                previewCanvasContext2D.ellipse(pdfPosB[0], pdfPosB[1], 5, 5, 0, 0, Math.PI * 2);
-                                previewCanvasContext2D.fill();
+                                drawArc(previewCanvasContext2D, pdfPosB[0], pdfPosB[1], "blue");
                             }
                         }
                     };
@@ -351,16 +345,18 @@ function drawProduct(
 function drawPart(
     ctx: CanvasRenderingContext2D,
     part: DrawPart,
-    pixelWidth: number,
-): boolean {
+    pixelWidth: number
+): void {
     if (part.vertices2D) {
         ctx.lineWidth = pixelWidth;
-        return drawPoints(ctx, part);
+        drawPoints(ctx, part);
     }
-    return false;
 }
 
-function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart) {
+function drawPoints(
+    ctx: CanvasRenderingContext2D,
+    part: DrawPart
+): void {
 
     const colorSettings: Array<ColorSettings> = [
         { fillColor: 'green', outlineColor: 'green', lineColor: 'green' },
@@ -369,17 +365,23 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart) {
 
     if (part.vertices2D) {
         for (let i = 0; i < part.vertices2D.length; ++i) {
-            ctx.fillStyle = colorSettings[i].fillColor as string;
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "black";
-            ctx.beginPath();
-            ctx.arc(part.vertices2D[i][0], part.vertices2D[i][1], 5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.stroke();
+            drawArc(ctx, part.vertices2D[i][0], part.vertices2D[i][1], colorSettings[i].fillColor as string);
         }
-        return true;
     }
-    return false;
 }
 
+function drawArc(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    fillStyle: string
+): void {
+    ctx.fillStyle = fillStyle;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+}
 // HiddenRangeEnded
