@@ -135,7 +135,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
             selectingA = !selectingA;
             if (preview && previewCanvasContext2D) {
                 const img = new Image();
-                img.onload = function () {
+                img.onload = () => {
                     if (previewCanvasContext2D && preview) {
                         // Redraw the image to the preview canvas
                         previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
@@ -192,7 +192,14 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     // Create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
-    runResizeObserver(view, canvas);
+    // runs resizeObserver for both main canvas (3D view) and the preview canvas (right-side) to re-draw
+    // images/arc or update size on pane resizes.
+    runResizeObserver(view, canvas, previewCanvas, previewCanvasContext2D, preview,
+        () => {
+            // clear previous positions after previewCanvas resize.
+            pdfPosA = undefined;
+            pdfPosB = undefined;
+        });
 
     // Main render loop
     while (true) {
@@ -296,19 +303,43 @@ async function initView(
 
 async function runResizeObserver(
     view: View,
-    canvas: HTMLCanvasElement
+    canvas: HTMLCanvasElement,
+    previewCanvas: HTMLCanvasElement,
+    previewCanvasContext2D: CanvasRenderingContext2D | null,
+    preview: string | undefined,
+    cb: () => void
 ): Promise<void> {
+
     // Handle canvas resizes
     const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            canvas.width = entry.contentRect.width;
-            canvas.height = entry.contentRect.height;
-            view.applySettings({
-                display: { width: canvas.width, height: canvas.height }
-            });
+        for (const { target, contentRect } of entries) {
+            switch (target) {
+                case canvas:
+                    canvas.width = contentRect.width;
+                    canvas.height = contentRect.height;
+                    view.applySettings({
+                        display: { width: canvas.width, height: canvas.height }
+                    });
+                    break;
+                case previewCanvas:
+                    if (preview && previewCanvasContext2D) {
+                        const img = new Image();
+                        img.onload = () => {
+                            if (previewCanvasContext2D && preview) {
+                                previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                                // Redraw the image to the preview canvas
+                                previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+                            }
+                        };
+                        img.src = preview;
+                        cb();
+                    }
+                    break;
+            }
         }
     });
     resizeObserver.observe(canvas);
+    resizeObserver.observe(previewCanvas);
 }
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
