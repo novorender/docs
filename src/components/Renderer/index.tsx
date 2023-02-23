@@ -70,10 +70,19 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     }, [main]);
 
     useEffect(() => {
-        document.addEventListener('fullscreenchange', () => setIsFullScreen(!!document.fullscreenElement), false);
-        return () => { document.removeEventListener('fullscreenchange', () => setIsFullScreen(!!document.fullscreenElement), false); };
+        document.addEventListener('fullscreenchange', fullScreenEventListener, false);
+        /**
+         * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
+         * not sure if this can cause any interference with API's internal events.
+         */
+        canvas.current.addEventListener('wheel', wheelEventListener, { passive: false });
+        return () => {
+            document.removeEventListener('fullscreenchange', fullScreenEventListener, false);
+            canvas?.current?.removeEventListener('wheel', wheelEventListener, false);
+        };
     });
-
+    const fullScreenEventListener = () => setIsFullScreen(!!document.fullscreenElement);
+    const wheelEventListener = (e: MouseEvent) => { if (!isFullScreen) { e.preventDefault(); } };
 
     return (
         <BrowserOnly>
