@@ -84,18 +84,15 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
     }
 
+    /** vars for 3D view click listener */
     const context2D = canvas2D.getContext("2d");
     let currentOutput: RenderOutput;
     let selectEntity: 1 | 2 = 1;
     let posA: ReadonlyVec3 | undefined;
     let posB: ReadonlyVec3 | undefined;
     let draw: MeasureAPI.DrawProduct | undefined;
-    let selectingA = true;
-    let pdfPosA: vec2 | undefined;
-    let pdfPosB: vec2 | undefined;
-    let imgHeight: number;
-    let imgWidth: number;
-
+    /** END */
+    
     // 3D view click listener
     canvas.onclick = async (e: MouseEvent) => {
         if (currentOutput) {
@@ -118,6 +115,18 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         }
     };
 
+    /** vars for PDF view (right-side) click listener */
+    let pdfPosA: vec2 | undefined;
+    let pdfPosB: vec2 | undefined;
+    let imgHeight: number;
+    let imgWidth: number;
+    let previewCanvasWidth: number;
+    let previewCanvasHeight: number;
+    let updatedPdfPosA: vec2;
+    let updatedPdfPosB: vec2;
+    let selectingA = true;
+    /** END */
+
     // Preview Canvas (right-side) click listener
     previewCanvas.onclick = (e: MouseEvent) => {
 
@@ -125,8 +134,17 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         const { vec2: { fromValues, dist, sub, create, normalize, dot } } = glMatrix;
 
         if (previewCanvas && preview && previewCanvasContext2D) {
+            // check if positions were updated via pane resizes
+            // not necessary if you don't resize pane/canvas
+            if (updatedPdfPosA) pdfPosA = updatedPdfPosA;
+            if (updatedPdfPosB) pdfPosB = updatedPdfPosB;
+
+            previewCanvasWidth = previewCanvas.width;
+            previewCanvasHeight = previewCanvas.height;
+
             const x = e.offsetX;
             const y = e.offsetY;
+
             if (selectingA) {
                 pdfPosA = fromValues(x, y);
             } else {
@@ -138,8 +156,8 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                 img.onload = () => {
                     if (previewCanvasContext2D && preview) {
                         // Redraw the image to the preview canvas
-                        previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-                        previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+                        previewCanvasContext2D.clearRect(0, 0, previewCanvasWidth, previewCanvasHeight);
+                        previewCanvasContext2D.drawImage(img, 0, 0, previewCanvasWidth, previewCanvasHeight);
                         imgHeight = img.height;
                         imgWidth = img.width;
                         if (pdfPosA) {
@@ -156,8 +174,8 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                 if (pdfPosA && pdfPosB) {
                     const modelPosA = fromValues(posA[0], posA[2] * -1);
                     const modelPosB = fromValues(posB[0], posB[2] * -1);
-                    const canvasToImageScaleX = imgWidth / previewCanvas.width;
-                    const canvasToImageScaleY = imgHeight / previewCanvas.height;
+                    const canvasToImageScaleX = imgWidth / previewCanvasWidth;
+                    const canvasToImageScaleY = imgHeight / previewCanvasHeight;
                     //Invert Y axis on the pixel positions on the pdf image
                     const pixelPosA = fromValues(pdfPosA[0] * canvasToImageScaleX, imgHeight - (pdfPosA[1] * canvasToImageScaleY));
                     const pixelPosB = fromValues(pdfPosB[0] * canvasToImageScaleX, imgHeight - (pdfPosB[1] * canvasToImageScaleY));
@@ -192,14 +210,39 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     // Create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
-    // runs resizeObserver for both main canvas (3D view) and the preview canvas (right-side) to re-draw
-    // images/arc or update size on pane resizes.
-    runResizeObserver(view, canvas, previewCanvas, previewCanvasContext2D, preview,
-        () => {
-            // clear previous positions after previewCanvas resize.
-            pdfPosA = undefined;
-            pdfPosB = undefined;
-        });
+    // runs resizeObserver for main canvas (3D view).
+    runResizeObserver(view, canvas);
+    // resizeObserver for preview canvas (right-side) to re-draw images/arc or update size on pane resizes.
+    new ResizeObserver((entries) => {
+        for (const { contentRect } of entries) {
+            const scaledWidth = contentRect.width / previewCanvasWidth;
+            const scaledHeight = contentRect.height / previewCanvasHeight;
+            if (pdfPosA) {
+                updatedPdfPosA = glMatrix.vec2.fromValues(scaledWidth * pdfPosA[0], scaledHeight * pdfPosA[1]);
+            }
+            if (pdfPosB) {
+                updatedPdfPosB = glMatrix.vec2.fromValues(scaledWidth * pdfPosB[0], scaledHeight * pdfPosB[1]);
+            }
+            if (preview && previewCanvasContext2D) {
+                const img = new Image();
+                img.onload = () => {
+                    if (previewCanvasContext2D && preview) {
+                        previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
+                        // Redraw the image to the preview canvas
+                        previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
+                        if (pdfPosA) {
+                            drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
+                        }
+                        if (pdfPosB) {
+                            drawArc(previewCanvasContext2D, updatedPdfPosB[0], updatedPdfPosB[1], "blue");
+                        }
+                    }
+                };
+                img.src = preview;
+            }
+            break;
+        }
+    }).observe(previewCanvas);
 
     // Main render loop
     while (true) {
@@ -303,43 +346,19 @@ async function initView(
 
 async function runResizeObserver(
     view: View,
-    canvas: HTMLCanvasElement,
-    previewCanvas: HTMLCanvasElement,
-    previewCanvasContext2D: CanvasRenderingContext2D | null,
-    preview: string | undefined,
-    cb: () => void
+    canvas: HTMLCanvasElement
 ): Promise<void> {
 
     // Handle canvas resizes
-    const resizeObserver = new ResizeObserver((entries) => {
+    new ResizeObserver((entries) => {
         for (const { target, contentRect } of entries) {
-            switch (target) {
-                case canvas:
-                    canvas.width = contentRect.width;
-                    canvas.height = contentRect.height;
-                    view.applySettings({
-                        display: { width: canvas.width, height: canvas.height }
-                    });
-                    break;
-                case previewCanvas:
-                    if (preview && previewCanvasContext2D) {
-                        const img = new Image();
-                        img.onload = () => {
-                            if (previewCanvasContext2D && preview) {
-                                previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-                                // Redraw the image to the preview canvas
-                                previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-                            }
-                        };
-                        img.src = preview;
-                        cb();
-                    }
-                    break;
-            }
+            canvas.width = contentRect.width;
+            canvas.height = contentRect.height;
+            view.applySettings({
+                display: { width: canvas.width, height: canvas.height }
+            });
         }
-    });
-    resizeObserver.observe(canvas);
-    resizeObserver.observe(previewCanvas);
+    }).observe(canvas);
 }
 
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
