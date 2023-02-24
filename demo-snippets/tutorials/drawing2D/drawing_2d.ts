@@ -458,9 +458,9 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
     for (; ;) {
         // handle canvas resizes
         const { clientWidth, clientHeight } = canvas;
-        const width = Math.round(clientWidth * devicePixelRatio);
-        const height = Math.round(clientHeight * devicePixelRatio);
-        view.applySettings({ display: { width, height } });
+        // const width = Math.round(clientWidth * devicePixelRatio);
+        // const height = Math.round(clientHeight * devicePixelRatio);
+        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
 
         // render frame
         currentOutput = await view.render();
