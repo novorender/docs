@@ -31,9 +31,7 @@ async function run(canvas: HTMLCanvasElement, snippet: SnippetModule, state: { r
 
         // handle canvas resizes
         const { clientWidth, clientHeight } = canvas;
-        const width = Math.round(clientWidth * devicePixelRatio);
-        const height = Math.round(clientHeight * devicePixelRatio);
-        view.applySettings({ display: { width, height } });
+        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
         const output = await view.render(cb);
         {
             const image = await output.getImage();

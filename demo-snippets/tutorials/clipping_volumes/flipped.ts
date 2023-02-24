@@ -46,9 +46,7 @@ export async function main({ webglAPI, canvas }: IParams) {
     for (; ;) {
         // handle canvas resizes
         const { clientWidth, clientHeight } = canvas;
-        const width = Math.round(clientWidth * devicePixelRatio);
-        const height = Math.round(clientHeight * devicePixelRatio);
-        view.applySettings({ display: { width, height } });
+        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
 
         // render frame
         const output = await view.render();
