@@ -28,9 +28,9 @@ export async function main({ webglAPI, canvas }: IParams) {
     const ctx = canvas.getContext("bitmaprenderer");
     for (; ;) { // render-loop https://dens.website/tutorials/webgl/render-loop
 
-        const { clientWidth: width, clientHeight: height } = canvas;
+        const { clientWidth, clientHeight } = canvas;
         // handle resizes
-        view.applySettings({ display: { width, height } });
+        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
         const output = await view.render();
 
         {
