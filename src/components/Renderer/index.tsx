@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import CodeBlock from '@theme/CodeBlock';
-import * as DataJsAPI from '@novorender/data-js-api';
+import { Allotment } from "allotment";
+import * as dataJsApi from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
 import Spinner from "../misc/spinner";
-import { Allotment } from "allotment";
 
 /** Types */
-import type { API } from "@novorender/webgl-api";
-// import type { MeasureAPI } from "@novorender/measure-api";
+// import type { API } from "@novorender/webgl-api";
+import * as NovoRender from "@novorender/webgl-api";
+import * as MeasureAPI from '@novorender/measure-api';
 import type { IEditorConfig } from "@site/demo-snippets/misc";
 /** Types END */
 
 interface Props {
-    main: any;
-    api: any;
-    measureApiInstance: any;
+    main: ({ }: any) => void;
+    webglApi: typeof NovoRender;
+    measureApi: typeof MeasureAPI;
     panesHeight: number;
     panesWidth: number;
     editorConfig: IEditorConfig;
@@ -25,14 +26,14 @@ interface Props {
     onMessagesAndAlert: (m: string) => void;
 };
 
-export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, api, measureApiInstance, panesHeight, panesWidth, onMessagesAndAlert, editorConfig }: Props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig }: Props): JSX.Element {
 
     const canvasWrapper = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const canvas2D = useRef<HTMLCanvasElement>(null);
     const previewCanvas = useRef<HTMLCanvasElement>(null);
     const [canvasDimensions, setCanvasDimensions] = useState<{ width: number, height: number; }>({ width: 0, height: 0 });
-    const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
+    // const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [infoPaneContent, setInfoPaneContent] = useState<{ content: string | object | any; title?: string; }>({ content: '' });
     const [previewCanvasWidth, setPreviewCanvasWidth] = useState<number>(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
@@ -57,12 +58,12 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
 
     useEffect(() => {
         console.log('main from renderer', main);
-        console.log('api from renderer', apiInstance);
+        // console.log('api from renderer', apiInstance);
         canvasRef(canvas.current);
         canvasWrapperRef(canvasWrapper.current);
         (async () => {
             try {
-                await main({ webglAPI: apiInstance, canvas: canvas.current, measureAPI: measureApiInstance, dataJsAPI: DataJsAPI, glMatrix: glMatrix, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
+                await main({ webglApi, measureApi, dataJsApi, glMatrix, canvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
             } catch (err) {
                 console.log('something got caught ', err);
             }

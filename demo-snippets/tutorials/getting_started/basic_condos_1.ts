@@ -1,13 +1,13 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from '@novorender/measure-api';
-import * as DataJsAPI from '@novorender/data-js-api';
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: NovoRender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
@@ -15,24 +15,28 @@ export interface IParams {
 };
 
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas }: IParams) {
+export async function main({ webglApi, canvas }: IParams) {
+
+  // initialize the webgl api
+  const api = webglApi.createAPI();
+
   // Create a view
-  const view = await webglAPI.createView(
+  const view = await api.createView(
     { background: { color: [0, 0, 0, 0] } }, // Transparent
     canvas
   );
 
-  // Provide a camera controller
-  view.camera.controller = webglAPI.createCameraController({ kind: "turntable" });
+  // load a predefined scene into the view, available views are cube, oilrig, condos
+  view.scene = await api.loadScene(webglApi.WellKnownSceneUrls.condos);
 
-  // Load the Condos demo scene
-  view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
+  // provide a camera controller, available controller types are static, orbit, flight and turntable
+  view.camera.controller = api.createCameraController({ kind: "turntable" });
 
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 
   // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
+  new ResizeObserver((entries) => {
     for (const entry of entries) {
       canvas.width = entry.contentRect.width;
       canvas.height = entry.contentRect.height;
@@ -40,22 +44,21 @@ export async function main({ webglAPI, canvas }: IParams) {
         display: { width: canvas.width, height: canvas.height },
       });
     }
-  });
+  }).observe(canvas);
 
-  resizeObserver.observe(canvas);
-
-  // Main render loop
-  while (true) {
+  while (true) { // render loop: https://dens.website/tutorials/webgl/render-loop
     // Render frame
     const output = await view.render();
     {
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }

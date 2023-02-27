@@ -1,14 +1,14 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from '@novorender/measure-api';
-import * as DataJsAPI from '@novorender/data-js-api';
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 
 export interface IParams {
-    webglAPI: NovoRender.API;
-    measureAPI: typeof MeasureAPI;
-    dataJsAPI: typeof DataJsAPI;
+    webglApi: typeof WebglApi;
+    measureApi: typeof MeasureApi;
+    dataJsApi: typeof DataJsApi;
     glMatrix: typeof GlMatrix;
     canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
@@ -43,6 +43,12 @@ export function drawProduct(
     pixelWidth: number,
     glMatrix: typeof GlMatrix
 ) {
+
+    /** Destructure commonly used methods/properties */
+    const { vec2 } = glMatrix;
+    const { createLinearGradient } = ctx;
+    /** END of Destructuring */
+
     for (const obj of product.objects) {
         if (colorSettings.complexCylinder && obj.kind === "cylinder" && obj.parts.length === 3) {
             let startCol = "red";
@@ -54,9 +60,9 @@ export function drawProduct(
                     startCol = endCol;
                     endCol = tmp;
                 }
-                const gradX = glMatrix.vec2.fromValues(cylinderLine.vertices2D[0][0], cylinderLine.vertices2D[1][0]);
-                const gradY = glMatrix.vec2.fromValues(cylinderLine.vertices2D[0][1], cylinderLine.vertices2D[1][1]);
-                const gradient = ctx.createLinearGradient(gradX[0], gradY[0], gradX[1], gradY[1]);
+                const gradX = vec2.fromValues(cylinderLine.vertices2D[0][0], cylinderLine.vertices2D[1][0]);
+                const gradY = vec2.fromValues(cylinderLine.vertices2D[0][1], cylinderLine.vertices2D[1][1]);
+                const gradient = createLinearGradient(gradX[0], gradY[0], gradX[1], gradY[1]);
                 gradient.addColorStop(0, startCol);
                 gradient.addColorStop(1, endCol);
                 drawPart(
@@ -114,7 +120,12 @@ export function drawPart(
 
 function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: DrawPart, glMatrix: typeof GlMatrix) {
 
-    const { vec2, vec3 } = glMatrix;
+    /** Destructure commonly used methods/properties */
+    const { vec2, vec3
+    } = glMatrix;
+
+    const { beginPath, arc, stroke, translate, strokeText, fillText, resetTransform } = ctx;
+    /** End of Destructuring */
 
     if (part.vertices2D) {
         ctx.fillStyle = "transparent";
@@ -170,10 +181,10 @@ function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: 
             angleB = tmp;
         }
 
-        ctx.beginPath();
+        beginPath();
 
-        ctx.arc(anglePoint[0], anglePoint[1], 50, angleA, angleB);
-        ctx.stroke();
+        arc(anglePoint[0], anglePoint[1], 50, angleA, angleB);
+        stroke();
 
         if (part.text) {
             ctx.fillStyle = "white";
@@ -183,10 +194,10 @@ function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: 
 
             const textX = anglePoint[0] + dir[0] * 25;
             const textY = anglePoint[1] + dir[1] * 25;
-            ctx.translate(textX, textY);
-            ctx.strokeText(part.text, 0, 0);
-            ctx.fillText(part.text, 0, 0);
-            ctx.resetTransform();
+            translate(textX, textY);
+            strokeText(part.text, 0, 0);
+            fillText(part.text, 0, 0);
+            resetTransform();
         }
         return true;
     }
@@ -201,59 +212,81 @@ function drawLinesOrPolygon(
     text?: TextSettings
 ) {
 
-    const { vec2 } = glMatrix;
+    /** Destructure commonly used methods/properties */
+    const {
+        vec2,
+    } = glMatrix;
 
-    if (part.vertices2D) {
-        ctx.beginPath();
-        ctx.moveTo(part.vertices2D[0][0], part.vertices2D[0][1]);
-        for (let i = 1; i < part.vertices2D.length; ++i) {
-            ctx.lineTo(part.vertices2D[i][0], part.vertices2D[i][1]);
+    const {
+        beginPath, arc, stroke, translate, strokeText, fillText, resetTransform, lineTo, closePath, fill, rotate, measureText
+    } = ctx;
+
+    const {
+        vertices2D,
+        drawType,
+        voids
+    } = part;
+
+    const {
+        lineColor,
+        outlineColor,
+        pointColor
+    } = colorSettings;
+    /** End of destructure */
+
+    if (vertices2D) {
+
+        beginPath();
+        moveTo(vertices2D[0][0], vertices2D[0][1]);
+
+        for (let i = 1; i < vertices2D.length; ++i) {
+            lineTo(vertices2D[i][0], vertices2D[i][1]);
         }
 
-        if (part.voids) {
-            ctx.closePath();
-            part.voids.forEach((drawVoid) => {
+        if (voids) {
+            closePath();
+            voids.forEach((drawVoid) => {
                 if (drawVoid.vertices2D) {
-                    ctx.moveTo(drawVoid.vertices2D[0][0], drawVoid.vertices2D[0][1]);
+                    moveTo(drawVoid.vertices2D[0][0], drawVoid.vertices2D[0][1]);
                     for (let i = 1; i < drawVoid.vertices2D.length; ++i) {
-                        ctx.lineTo(drawVoid.vertices2D[i][0], drawVoid.vertices2D[i][1]);
+                        lineTo(drawVoid.vertices2D[i][0], drawVoid.vertices2D[i][1]);
                     }
-                    ctx.closePath();
+                    closePath();
                 }
             });
         }
 
-        if (part.drawType === "filled") {
-            ctx.closePath();
-            ctx.fill();
+        if (drawType === "filled") {
+            closePath();
+            fill();
         }
 
-        if (colorSettings.outlineColor && colorSettings.lineColor) {
+        if (outlineColor && lineColor) {
             const tmpWidth = ctx.lineWidth;
             ctx.lineWidth *= 2;
-            ctx.strokeStyle = colorSettings.outlineColor;
+            ctx.strokeStyle = outlineColor;
             ctx.lineCap = "round";
-            ctx.stroke();
+            stroke();
             ctx.lineWidth = tmpWidth;
-            ctx.strokeStyle = colorSettings.lineColor;
+            ctx.strokeStyle = lineColor;
             ctx.lineCap = "butt";
         }
 
-        ctx.stroke();
+        stroke();
 
-        if (colorSettings.pointColor) {
-            for (let i = 0; i < part.vertices2D.length; ++i) {
-                ctx.fillStyle = getPointColor(colorSettings.pointColor, i, part.vertices2D.length);
+        if (pointColor) {
+            for (let i = 0; i < vertices2D.length; ++i) {
+                ctx.fillStyle = getPointColor(pointColor, i, vertices2D.length);
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = "black";
-                ctx.beginPath();
-                ctx.arc(part.vertices2D[i][0], part.vertices2D[i][1], 5, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.stroke();
+                beginPath();
+                arc(vertices2D[i][0], vertices2D[i][1], 5, 0, 2 * Math.PI);
+                fill();
+                stroke();
             }
         }
 
-        if (text && (text.customText?.length || part.text)) {
+        if (text && (text.customText?.length || text)) {
             ctx.strokeStyle = "black";
             ctx.fillStyle = "white";
             ctx.lineWidth = 2;
@@ -262,15 +295,15 @@ function drawLinesOrPolygon(
             ctx.textAlign = "center";
 
             if (text.type === "distance") {
-                const points = part.vertices2D;
+                const points = vertices2D;
                 for (let i = 0; i < points.length - 1; ++i) {
-                    const textStr = `${text.customText && i < text.customText.length ? text.customText[i] : part.text
+                    const textStr = `${text.customText && i < text.customText.length ? text.customText[i] : text
                         } ${text.unit ? text.unit : "m"}`;
                     let dir =
                         points[i][0] > points[i + 1][0]
                             ? vec2.sub(vec2.create(), points[i], points[i + 1])
                             : vec2.sub(vec2.create(), points[i + 1], points[i]);
-                    const pixLen = ctx.measureText(textStr).width + 20;
+                    const pixLen = measureText(textStr).width + 20;
                     if (vec2.sqrLen(dir) > pixLen * pixLen) {
                         const center = vec2.create();
                         vec2.lerp(center, points[i], points[i + 1], 0.5);
@@ -278,22 +311,22 @@ function drawLinesOrPolygon(
                         const y = center[1];
                         vec2.normalize(dir, dir);
                         const angle = Math.atan2(dir[1], dir[0]);
-                        ctx.translate(x, y);
-                        ctx.rotate(angle);
-                        ctx.strokeText(textStr, 0, 0);
-                        ctx.fillText(textStr, 0, 0);
-                        ctx.resetTransform();
+                        translate(x, y);
+                        rotate(angle);
+                        strokeText(textStr, 0, 0);
+                        fillText(textStr, 0, 0);
+                        resetTransform();
                     }
                 }
-            } else if (text.type === "center" && part.vertices2D.length > 2) {
+            } else if (text.type === "center" && vertices2D.length > 2) {
                 const center = vec2.create();
-                for (const p of part.vertices2D) {
+                for (const p of vertices2D) {
                     vec2.add(center, center, p);
                 }
-                const textStr = `${text.customText && text.customText.length > 0 ? text.customText : part.text ? part.text : ""
+                const textStr = `${text.customText && text.customText.length > 0 ? text.customText : text ? text : ""
                     } ${text.unit ? text.unit : "m"}`;
-                ctx.strokeText(textStr, center[0] / part.vertices2D.length, center[1] / part.vertices2D.length);
-                ctx.fillText(textStr, center[0] / part.vertices2D.length, center[1] / part.vertices2D.length);
+                strokeText(textStr, center[0] / vertices2D.length, center[1] / vertices2D.length);
+                fillText(textStr, center[0] / vertices2D.length, center[1] / vertices2D.length);
             }
         }
         return true;
@@ -336,29 +369,45 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
 }
 
 // HiddenRangeEnded
-async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
-    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
-    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
-    //Await all draw objects first to avoid flickering
+async function draw2d(
+    _measureApi: MeasureApi.MeasureAPI,
+    view: WebglApi.View,
+    measureScene: MeasureApi.MeasureScene,
+    measureEntity1: MeasureApi.MeasureEntity | undefined,
+    measureEntity2: MeasureApi.MeasureEntity | undefined,
+    context2D: CanvasRenderingContext2D | null,
+    canvas2D: HTMLCanvasElement,
+    result: MeasureApi.DuoMeasurementValues | undefined,
+    glMatrix: typeof GlMatrix
+) {
+
+    /** Destructure commonly used methods/properties */
+    const { getDrawMeasureEntity } = _measureApi;
+
+    const { vec3 } = glMatrix;
+
+    /** End of Destructuring */
+
+    // Await all draw objects first to avoid flickering
     const [
         drawResult,
         drawProduct1,
         drawProduct2,
     ] = await Promise.all([
-        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
-        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
-        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
+        result && getDrawMeasureEntity(view, measureScene, result),
+        measureEntity1 && getDrawMeasureEntity(view, measureScene, measureEntity1),
+        measureEntity2 && getDrawMeasureEntity(view, measureScene, measureEntity2)
     ]);
 
-    //Extract needed camera settings
+    // Extract needed camera settings
     const { camera } = view;
-    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
+    const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), camera.rotation);
     const camSettings = { pos: camera.position, dir: cameraDirection };
 
     if (context2D) {
         context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
 
-        //Draw result in green, all lines use 3 pixel width
+        // Draw result in green, all lines use 3 pixel width
         if (drawResult) {
             drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
@@ -368,7 +417,7 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
                 glMatrix);
         }
 
-        //Draw first object with yellow line and blue fill
+        // Draw first object with yellow line and blue fill
         if (drawProduct1) {
             drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
@@ -378,7 +427,7 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
                 glMatrix);
         }
 
-        //Draw second object with blue lines and yellow fill 
+        // Draw second object with blue lines and yellow fill 
         if (drawProduct2) {
             drawProduct(context2D as CanvasRenderingContext2D,
                 camSettings,
@@ -391,37 +440,36 @@ async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View,
 }
 
 // HiddenRangeStarted
-export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
+export async function main({ webglApi, measureApi, canvas, glMatrix, canvas2D }: IParams) {
 
-    const { vec2, vec3 } = glMatrix;
+    const { createView, createCameraController, loadScene } = webglApi.createAPI();
 
-    const _measureApi = await measureAPI.createMeasureAPI();
-    const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
-
+    const _measureApi = await measureApi.createMeasureAPI();
+    const measureScene = await _measureApi.loadScene(webglApi.WellKnownSceneUrls.condos);
 
     // create a view
-    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    const view = await createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+
     // provide a camera controller
-    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
+    view.camera.controller = createCameraController({ kind: "orbit" }, canvas);
 
     // create an empty scene
-    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const scene = view.scene = await loadScene(webglApi.WellKnownSceneUrls.condos);
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
     const context2D = canvas2D.getContext("2d");
 
-    let currentOutput: NovoRender.RenderOutput;
+    let currentOutput: WebglApi.RenderOutput;
 
     //Parametric entities used to measure between
-    let measureEntity1: MeasureAPI.MeasureEntity | undefined = undefined;
-    let measureEntity2: MeasureAPI.MeasureEntity | undefined = undefined;
+    let measureEntity1: MeasureApi.MeasureEntity | undefined = undefined;
+    let measureEntity2: MeasureApi.MeasureEntity | undefined = undefined;
     //number to alternate between selected entities.
     let selectEntity: 1 | 2 = 1;
 
     //Save the measure result so it can be drawn in the draw loop
-    let result: MeasureAPI.MeasurementValues | undefined = undefined;
-
+    let result: MeasureApi.MeasurementValues | undefined = undefined;
 
     canvas.addEventListener("click", async (e) => {
         if (currentOutput) {
