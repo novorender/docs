@@ -92,7 +92,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     let posB: ReadonlyVec3 | undefined;
     let draw: MeasureAPI.DrawProduct | undefined;
     /** END */
-    
+
     // 3D view click listener
     canvas.onclick = async (e: MouseEvent) => {
         if (currentOutput) {
@@ -122,8 +122,8 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     let imgWidth: number;
     let previewCanvasWidth: number;
     let previewCanvasHeight: number;
-    let updatedPdfPosA: vec2;
-    let updatedPdfPosB: vec2;
+    let updatedPdfPosA: vec2 | null;
+    let updatedPdfPosB: vec2 | null;
     let selectingA = true;
     /** END */
 
@@ -136,8 +136,8 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         if (previewCanvas && preview && previewCanvasContext2D) {
             // check if positions were updated via pane resizes
             // not necessary if you don't resize pane/canvas
-            if (updatedPdfPosA) pdfPosA = updatedPdfPosA;
-            if (updatedPdfPosB) pdfPosB = updatedPdfPosB;
+            if (updatedPdfPosA) { pdfPosA = updatedPdfPosA; updatedPdfPosA = null; }
+            if (updatedPdfPosB) { pdfPosB = updatedPdfPosB; updatedPdfPosB = null; }
 
             previewCanvasWidth = previewCanvas.width;
             previewCanvasHeight = previewCanvas.height;
@@ -210,7 +210,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     // Create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
-    // runs resizeObserver for main canvas (3D view).
+    // runs resizeObserver for main canvas (3D view), just to update width/height.
     runResizeObserver(view, canvas);
     // resizeObserver for preview canvas (right-side) to re-draw images/arc or update size on pane resizes.
     new ResizeObserver((entries) => {
@@ -230,10 +230,10 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                         previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
                         // Redraw the image to the preview canvas
                         previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
-                        if (pdfPosA) {
+                        if (updatedPdfPosA) {
                             drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
                         }
-                        if (pdfPosB) {
+                        if (updatedPdfPosB) {
                             drawArc(previewCanvasContext2D, updatedPdfPosB[0], updatedPdfPosB[1], "blue");
                         }
                     }
