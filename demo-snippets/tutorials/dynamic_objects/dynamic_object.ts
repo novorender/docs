@@ -17,43 +17,55 @@ export interface IParams {
 // HiddenRangeEnded
 export async function main({ webglApi, canvas }: IParams) {
 
-    const { createView, createCameraController, loadScene, loadAsset } = webglApi.createAPI();
+    // initialize the webgl api
+    const api = webglApi.createAPI();
 
     // create a view
-    const view = await createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
+    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
-    // provide a camera controller
-    view.camera.controller = createCameraController({ kind: "orbit" }, canvas);
+    // create an empty scene, available scenes are cube, oilrig, condos
+    const scene = view.scene = await api.loadScene(webglApi.WellKnownSceneUrls.empty);
 
-    // create an empty scene
-    const scene = view.scene = await loadScene(webglApi.WellKnownSceneUrls.empty);
+    // provide a camera controller, available controller types are static, orbit, flight and turntable
+    view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
 
     // load dynamic object asset
-    const asset = await loadAsset(new URL("https://api.novorender.com/assets/gltf/shaderball.glb"));
+    const asset = await api.loadAsset(new URL("https://api.novorender.com/assets/gltf/shaderball.glb"));
 
     // Add instance into scene
     const instance = scene.createDynamicObject(asset); // we can make multiple instances from same asset.
+    
+    // render the object
     instance.visible = true;
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
 
-    // main render loop
-    for (; ;) {
-        // handle canvas resizes
-        const { clientWidth, clientHeight } = canvas;
-        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
+    // Handle canvas resizes
+    new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            canvas.width = entry.contentRect.width;
+            canvas.height = entry.contentRect.height;
+            view.applySettings({
+                display: { width: canvas.width, height: canvas.height },
+            });
+        }
+    }).observe(canvas);
 
-        // render frame
+    // render loop
+    while (true) {
+        // Render frame
         const output = await view.render();
         {
-            // finalize output image
+            // Finalize output image
             const image = await output.getImage();
             if (image) {
-                // display in canvas
+                // Display the given ImageBitmap in the canvas associated with this rendering context.
                 ctx?.transferFromImageBitmap(image);
+                // release bitmap data
+                image.close();
             }
-            image?.close();
         }
+        (output as any).dispose();
     }
 }

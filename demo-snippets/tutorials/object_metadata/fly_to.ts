@@ -1,24 +1,28 @@
 // HiddenRangeStarted
-import * as Novorender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: Novorender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
 };
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
+export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
+
   try {
-    // Init
-    const view = await initView(webglAPI, canvas, dataJsAPI);
+    // load scene into data api, create webgl api, view and load scene.
+    const view = await initView(webglApi, dataJsApi, canvas);
+
     const scene = view.scene!;
+
+    // run render loop and canvas resizeObserver
     run(view, canvas);
 
     // Run search and fly to on load
@@ -41,7 +45,7 @@ export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
         full: false,
       });
 
-      const searchResult: Novorender.HierarcicalObjectReference[] = [];
+      const searchResult: WebglApi.HierarcicalObjectReference[] = [];
       for await (const object of iterator) {
         searchResult.push(object);
       }
@@ -53,7 +57,7 @@ export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
       );
 
       // Calculate bounds of multiple objects and fly to them
-      const bounds = getTotalBoundingSphere(searchResult);
+      const bounds = getTotalBoundingSphere(searchResult, glMatrix);
       if (bounds) {
         view.camera.controller.zoomTo(bounds);
       }
@@ -61,7 +65,6 @@ export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
 
     // Listen to click events on the canvas
     canvas.onclick = async (event) => {
-      console.log(event);
       // Pick object at clicked position
       const result = await view.lastRenderOutput?.pick(
         event.offsetX,
@@ -91,42 +94,44 @@ export async function main({ webglAPI, canvas, dataJsAPI, glMatrix }: IParams) {
     console.warn(e);
   }
 
-  function getTotalBoundingSphere(
-    nodes: Novorender.HierarcicalObjectReference[]
-  ): Novorender.BoundingSphere | undefined {
-    const vec3 = glMatrix.vec3;
-
-    const spheres: Novorender.BoundingSphere[] = [];
-    for (const node of nodes) {
-      const sphere = node.bounds?.sphere;
-
-      if (sphere) {
-        spheres.push(sphere);
-      }
-    }
-
-    if (spheres.length < 1) {
-      return;
-    }
-
-    const center = vec3.clone(spheres[0].center);
-    let radius = spheres[0].radius;
-
-    for (let sphere of spheres) {
-      const delta = vec3.sub(vec3.create(), sphere.center, center);
-      const dist = vec3.len(delta) + sphere.radius;
-
-      if (dist > radius) {
-        radius = (radius + dist) * 0.5;
-        vec3.add(center, center, vec3.scale(delta, delta, 1 - radius / dist));
-      }
-    }
-
-    return { center, radius };
-  }
 }
 
-function highlightObjects(scene: Novorender.Scene, ids: number[]) {
+function getTotalBoundingSphere(
+  nodes: WebglApi.HierarcicalObjectReference[],
+  glMatrix: typeof GlMatrix
+): WebglApi.BoundingSphere | undefined {
+  const vec3 = glMatrix.vec3;
+
+  const spheres: WebglApi.BoundingSphere[] = [];
+  for (const node of nodes) {
+    const sphere = node.bounds?.sphere;
+
+    if (sphere) {
+      spheres.push(sphere);
+    }
+  }
+
+  if (spheres.length < 1) {
+    return;
+  }
+
+  const center = vec3.clone(spheres[0].center);
+  let radius = spheres[0].radius;
+
+  for (let sphere of spheres) {
+    const delta = vec3.sub(vec3.create(), sphere.center, center);
+    const dist = vec3.len(delta) + sphere.radius;
+
+    if (dist > radius) {
+      radius = (radius + dist) * 0.5;
+      vec3.add(center, center, vec3.scale(delta, delta, 1 - radius / dist));
+    }
+  }
+
+  return { center, radius };
+}
+
+function highlightObjects(scene: WebglApi.Scene, ids: number[]) {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
 
@@ -138,16 +143,16 @@ function highlightObjects(scene: Novorender.Scene, ids: number[]) {
 }
 // HiddenRangeStarted
 async function initView(
-  api: Novorender.API,
-  canvas: HTMLCanvasElement,
-  dataJsAPI: typeof DataJsAPI
+  webglApi: typeof WebglApi,
+  dataJsAPI: typeof DataJsApi,
+  canvas: HTMLCanvasElement
 ) {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
-  // Load scene metadataa
+  // Load scene metadata
   const sceneData = await dataApi
     // Condos scene ID, but can be changed to any public scene ID
     .loadScene("3b5e65560dc4422da5c7c3f827b6a77c")
@@ -161,6 +166,9 @@ async function initView(
 
   // Destructure relevant properties into variables
   const { url, db, settings, camera: cameraParams } = sceneData;
+
+  // initialize the webgl api
+  const api = webglApi.createAPI();
 
   // Load scene
   const scene = await api.loadScene(url, db);
@@ -189,12 +197,13 @@ async function initView(
   return view;
 }
 
-async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement) {
+
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 
   // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
+  new ResizeObserver((entries) => {
     for (const entry of entries) {
       canvas.width = entry.contentRect.width;
       canvas.height = entry.contentRect.height;
@@ -202,11 +211,9 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
         display: { width: canvas.width, height: canvas.height },
       });
     }
-  });
+  }).observe(canvas);
 
-  resizeObserver.observe(canvas);
-
-  // Main render loop
+  // render loop
   while (true) {
     // Render frame
     const output = await view.render();
@@ -214,11 +221,13 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }
 // HiddenRangeEnded

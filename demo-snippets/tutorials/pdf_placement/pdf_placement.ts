@@ -1,16 +1,17 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene } from '@novorender/webgl-api';
 import type { SceneData } from '@novorender/data-js-api';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 import type { vec2, ReadonlyVec3 } from 'gl-matrix';
+
 export interface IParams {
-    webglAPI: NovoRender.API;
-    measureAPI: typeof MeasureAPI;
-    dataJsAPI: typeof DataJsAPI;
+    webglApi: typeof WebglApi;
+    measureApi: typeof MeasureApi;
+    dataJsApi: typeof DataJsApi;
     glMatrix: typeof GlMatrix;
     canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
@@ -22,20 +23,24 @@ export function showTip() {
     return openAlert('Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.');
 }
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
+
 // HiddenRangeEnded
-export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
+export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, canvas2D, previewCanvas }: IParams) {
+
     // Initialize the data API with the Novorender data server service
-    const dataApi = dataJsAPI.createAPI({
+    const dataApi = dataJsApi.createAPI({
         // we're loading a public scene so it doesn't require any auth header, 
         // see `https://docs.novorender.com/docs/tutorials/loading_scenes#private-scenes` if you want to load private scenes.
         serviceUrl: DATA_API_SERVICE_URL,
     });
 
-    const _measureApi = await measureAPI.createMeasureAPI();
+    // Initialize measureApi instance
+    const _measureApi = await measureApi.createMeasureAPI();
 
+    // load a public scene
     const pdfScene = (await dataApi.loadScene("4f50d89ea8cd493ea3bc16f504ad5a1f")) as SceneData;
 
-    // adjust however you want
+    // render config, adjust however you want
     const renderSettings: RecursivePartial<RenderSettings> = {
         quality: {
             resolution: { value: 1 } // Set resolution scale to 1
@@ -49,7 +54,9 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
         }
     };
 
-    const view = await initView(webglAPI, canvas, pdfScene, renderSettings);
+    // create webgl api, view and load scene and set cameraController.
+    const view = await initView(webglApi, canvas, pdfScene, renderSettings);
+
     // @todo - re-enable
     // const elevation = await getElevation(view.scene as Scene);
 
@@ -90,7 +97,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
     let selectEntity: 1 | 2 = 1;
     let posA: ReadonlyVec3 | undefined;
     let posB: ReadonlyVec3 | undefined;
-    let draw: MeasureAPI.DrawProduct | undefined;
+    let draw: MeasureApi.DrawProduct | undefined;
     /** END */
 
     // 3D view click listener
@@ -212,6 +219,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
 
     // runs resizeObserver for main canvas (3D view), just to update width/height.
     runResizeObserver(view, canvas);
+
     // resizeObserver for preview canvas (right-side) to re-draw images/arc or update size on pane resizes.
     new ResizeObserver((entries) => {
         for (const { contentRect } of entries) {
@@ -240,21 +248,20 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
                 };
                 img.src = preview;
             }
-            break;
         }
     }).observe(previewCanvas);
 
-    // Main render loop
+    // render loop
     while (true) {
         // Render frame
         currentOutput = await view.render();
-        // cb(currentOutput);
         {
             // Finalize output image
             const image = await currentOutput.getImage();
             if (image) {
-                // Display in canvas
+                // Display the given ImageBitmap in the canvas associated with this rendering context.
                 ctx?.transferFromImageBitmap(image);
+                // release bitmap data
                 image.close();
             }
         }
@@ -264,6 +271,7 @@ export async function main({ webglAPI, measureAPI, dataJsAPI, glMatrix, canvas, 
             draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
         }
         await drawProduct(context2D, draw, 3, canvas2D);
+        (currentOutput as any).dispose();
     }
 
 }
@@ -309,23 +317,27 @@ function showErrorDetails(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext
 }
 
 async function initView(
-    api: API,
+    webglApi: typeof WebglApi,
     canvas: HTMLCanvasElement,
     pdfScene: SceneData,
     renderSettings: RecursivePartial<RenderSettings>
 ): Promise<View> {
 
     // Destructure relevant properties into variables
-    const { url, db, settings, camera: cameraParams } = pdfScene;
+    const { settings } = pdfScene;
+
+    // initialize the webgl api
+    const api = webglApi.createAPI();
 
     // Load scene
-    const scene = await api.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    const scene = await api.loadScene(WebglApi.WellKnownSceneUrls.condos);
 
     // Create a view with the scene's saved settings
     const view = await api.createView(settings, canvas);
 
     view.applySettings(renderSettings);
 
+    //set up camera controller
     const orthoController = api.createCameraController({ kind: "ortho" }, canvas);
     (orthoController as any).init([750, 18, -180], [0, 0, 0], view.camera);
     (orthoController.params as OrthoControllerParams).referenceCoordSys =

@@ -1,24 +1,29 @@
 // HiddenRangeStarted
-import * as Novorender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: Novorender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
 };
+
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
+export async function main({ webglApi, dataJsApi, canvas }: IParams) {
+
   try {
-    // Init
-    const view = await initView(webglAPI, canvas, dataJsAPI);
+    // load scene into data api, create webgl api, view and load scene.
+    const view = await initView(webglApi, dataJsApi, canvas);
+
     const scene = view.scene!;
+
+    // run render loop and canvas resizeObserver
     run(view, canvas);
 
     const iterator = scene.search({
@@ -27,11 +32,12 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
       full: true,
     });
 
-    const searchResult: Novorender.ObjectData[] = [];
+    const searchResult: WebglApi.ObjectData[] = [];
 
     // Use the first 5 results to keep the properties in the property box
     // relatively short
     for (let i = 0; i < 5; i++) {
+
       const iteratorResult = await iterator.next();
 
       if (iteratorResult.done) {
@@ -58,7 +64,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
   }
 }
 
-function highlightObjects(scene: Novorender.Scene, ids: number[]) {
+function highlightObjects(scene: WebglApi.Scene, ids: number[]): void {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
 
@@ -71,10 +77,10 @@ function highlightObjects(scene: Novorender.Scene, ids: number[]) {
 
 // HiddenRangeStarted
 async function initView(
-  api: Novorender.API,
+  webglApi: typeof WebglApi,
+  dataJsAPI: typeof DataJsApi,
   canvas: HTMLCanvasElement,
-  dataJsAPI: typeof DataJsAPI
-) {
+): Promise<WebglApi.View> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -94,6 +100,9 @@ async function initView(
 
   // Destructure relevant properties into variables
   const { url, db, settings, camera: cameraParams } = sceneData;
+
+  // initialize the webgl api
+  const api = webglApi.createAPI();
 
   // Load scene
   const scene = await api.loadScene(url, db);
@@ -122,12 +131,12 @@ async function initView(
   return view;
 }
 
-async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 
   // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
+  new ResizeObserver((entries) => {
     for (const entry of entries) {
       canvas.width = entry.contentRect.width;
       canvas.height = entry.contentRect.height;
@@ -135,11 +144,9 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
         display: { width: canvas.width, height: canvas.height },
       });
     }
-  });
+  }).observe(canvas);
 
-  resizeObserver.observe(canvas);
-
-  // Main render loop
+  // render loop
   while (true) {
     // Render frame
     const output = await view.render();
@@ -147,11 +154,13 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }
 // HiddenRangeEnded

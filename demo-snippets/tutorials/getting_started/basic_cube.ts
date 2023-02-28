@@ -17,30 +17,43 @@ export interface IParams {
 // HiddenRangeEnded
 export async function main({ webglApi, canvas }: IParams) {
 
-    const { createView, createCameraController, loadScene } = webglApi.createAPI();
+    // initialize the webgl api
+    const api = webglApi.createAPI();
 
     // Create a view
-    const view = await createView({ background: { color: [0, 0, 0.25, 1] } }, canvas);
+    const view = await api.createView({ background: { color: [0, 0, 0.25, 1] } }, canvas);
 
-    // load a predefined scene into the view, available views are cube, oilrig, condos
-    view.scene = await loadScene(webglApi.WellKnownSceneUrls.cube);
+    // load a predefined scene into the view, available scenes are cube, oilrig, condos
+    view.scene = await api.loadScene(webglApi.WellKnownSceneUrls.cube);
 
     // provide a controller, available controller types are static, orbit, flight and turntable
-    view.camera.controller = createCameraController({ kind: "turntable" });
+    view.camera.controller = api.createCameraController({ kind: "turntable" });
 
+    // Create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
-    for (; ;) { // render-loop https://dens.website/tutorials/webgl/render-loop
 
-        const { clientWidth, clientHeight } = canvas;
-        // handle resizes
-        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
+    // Handle canvas resizes
+    new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            canvas.width = entry.contentRect.width;
+            canvas.height = entry.contentRect.height;
+            view.applySettings({
+                display: { width: canvas.width, height: canvas.height },
+            });
+        }
+    }).observe(canvas);
+
+    while (true) { // render-loop https://dens.website/tutorials/webgl/render-loop
+        // Render frame
         const output = await view.render();
-
         {
+            // Finalize output image
             const image = await output.getImage();
             if (image) {
-                // display in canvas
+                // Display the given ImageBitmap in the canvas associated with this rendering context.
                 ctx?.transferFromImageBitmap(image);
+                // release bitmap data
+                image.close();
             }
         }
         (output as any).dispose();

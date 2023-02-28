@@ -23,7 +23,7 @@ export async function main({ webglApi, canvas }: IParams) {
     // Create a view
     const view = await api.createView({ background: { color: [0, 0, 0.25, 1] } }, canvas);
 
-    // load a predefined scene into the view, available views are cube, oilrig, condos
+    // load a predefined scene into the view, available scenes are cube, oilrig, condos
     view.scene = await api.loadScene(webglApi.WellKnownSceneUrls.condos);
 
     // provide a camera controller, available controller types are static, orbit, flight and turntable
