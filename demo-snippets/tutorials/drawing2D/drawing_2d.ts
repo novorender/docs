@@ -1,20 +1,76 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from '@novorender/measure-api';
-import * as DataJsAPI from '@novorender/data-js-api';
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
 import * as GlMatrix from 'gl-matrix';
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 
 export interface IParams {
-    webglAPI: NovoRender.API;
-    measureAPI: typeof MeasureAPI;
-    dataJsAPI: typeof DataJsAPI;
+    webglApi: typeof WebglApi;
+    measureApi: typeof MeasureApi;
+    dataJsApi: typeof DataJsApi;
     glMatrix: typeof GlMatrix;
     canvas: HTMLCanvasElement;
     canvas2D: HTMLCanvasElement;
     previewCanvas: HTMLCanvasElement;
 };
 
+// HiddenRangeEnded
+async function draw2d(_measureApi: MeasureApi.MeasureAPI, view: WebglApi.View, measureScene: MeasureApi.MeasureScene,
+    measureEntity1: MeasureApi.MeasureEntity | undefined, measureEntity2: MeasureApi.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
+    canvas2D: HTMLCanvasElement, result: MeasureApi.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
+    //Await all draw objects first to avoid flickering
+    const [
+        drawResult,
+        drawProduct1,
+        drawProduct2,
+    ] = await Promise.all([
+        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
+        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
+        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
+    ]);
+
+    //Extract needed camera settings
+    const { camera } = view;
+    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
+    const camSettings = { pos: camera.position, dir: cameraDirection };
+
+    if (context2D) {
+        context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+
+        //Draw result in green, all lines use 3 pixel width
+        if (drawResult) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawResult,
+                { lineColor: "green" },
+                3,
+                glMatrix);
+        }
+
+        //Draw first object with yellow line and blue fill
+        if (drawProduct1) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawProduct1,
+                { lineColor: "yellow", fillColor: "blue" },
+                3,
+                glMatrix);
+        }
+
+        //Draw second object with blue lines and yellow fill 
+        if (drawProduct2) {
+            drawProduct(context2D as CanvasRenderingContext2D,
+                camSettings,
+                drawProduct2,
+                { lineColor: "blue", fillColor: "yellow" },
+                3,
+                glMatrix);
+        }
+    }
+}
+
+// HiddenRangeStarted
 // Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
 export interface ColorSettings {
     lineColor?: string | CanvasGradient;
@@ -335,97 +391,46 @@ function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart, colorSettings
     return false;
 }
 
-// HiddenRangeEnded
-async function draw2d(_measureApi: MeasureAPI.MeasureAPI, view: NovoRender.View, measureScene: MeasureAPI.MeasureScene,
-    measureEntity1: MeasureAPI.MeasureEntity | undefined, measureEntity2: MeasureAPI.MeasureEntity | undefined, context2D: CanvasRenderingContext2D | null,
-    canvas2D: HTMLCanvasElement, result: MeasureAPI.DuoMeasurementValues | undefined, glMatrix: typeof GlMatrix) {
-    //Await all draw objects first to avoid flickering
-    const [
-        drawResult,
-        drawProduct1,
-        drawProduct2,
-    ] = await Promise.all([
-        result && _measureApi.getDrawMeasureEntity(view, measureScene, result),
-        measureEntity1 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity1),
-        measureEntity2 && _measureApi.getDrawMeasureEntity(view, measureScene, measureEntity2)
-    ]);
+export async function main({ webglApi, measureApi, glMatrix, canvas, canvas2D }: IParams) {
 
-    //Extract needed camera settings
-    const { camera } = view;
-    const cameraDirection = glMatrix.vec3.transformQuat(glMatrix.vec3.create(), glMatrix.vec3.fromValues(0, 0, -1), camera.rotation);
-    const camSettings = { pos: camera.position, dir: cameraDirection };
+    // initialize the webgl api
+    const api = await webglApi.createAPI();
 
-    if (context2D) {
-        context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+    // initialize the measure api
+    const _measureApi = await measureApi.createMeasureAPI();
 
-        //Draw result in green, all lines use 3 pixel width
-        if (drawResult) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawResult,
-                { lineColor: "green" },
-                3,
-                glMatrix);
-        }
-
-        //Draw first object with yellow line and blue fill
-        if (drawProduct1) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct1,
-                { lineColor: "yellow", fillColor: "blue" },
-                3,
-                glMatrix);
-        }
-
-        //Draw second object with blue lines and yellow fill 
-        if (drawProduct2) {
-            drawProduct(context2D as CanvasRenderingContext2D,
-                camSettings,
-                drawProduct2,
-                { lineColor: "blue", fillColor: "yellow" },
-                3,
-                glMatrix);
-        }
-    }
-}
-
-// HiddenRangeStarted
-export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }: IParams) {
-
-    const { vec2, vec3 } = glMatrix;
-
-    const _measureApi = await measureAPI.createMeasureAPI();
-    const measureScene = await _measureApi.loadScene(NovoRender.WellKnownSceneUrls.condos);
-
+    // load a predefined scene into measureapi, available scenes are cube, oilrig, condos
+    const measureScene = await _measureApi.loadScene(webglApi.WellKnownSceneUrls.condos);
 
     // create a view
-    const view = await webglAPI.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
-    // provide a camera controller
-    view.camera.controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
+    const view = await api.createView({ background: { color: [0, 0, 0.1, 1] } }, canvas);
 
-    // create an empty scene
-    const scene = view.scene = await webglAPI.loadScene(NovoRender.WellKnownSceneUrls.condos);
+    // provide a camera controller, available controller types are static, orbit, flight and turntable
+    view.camera.controller = api.createCameraController({ kind: "orbit" }, canvas);
+
+    // load a predefined scene into the view, available scenes are cube, oilrig, condos
+    view.scene = await api.loadScene(webglApi.WellKnownSceneUrls.condos);
 
     // create a bitmap context to display render output
     const ctx = canvas.getContext("bitmaprenderer");
+
+    // create 2d context for drawing
     const context2D = canvas2D.getContext("2d");
 
-    let currentOutput: NovoRender.RenderOutput;
+    let output: WebglApi.RenderOutput;
 
     //Parametric entities used to measure between
-    let measureEntity1: MeasureAPI.MeasureEntity | undefined = undefined;
-    let measureEntity2: MeasureAPI.MeasureEntity | undefined = undefined;
+    let measureEntity1: MeasureApi.MeasureEntity | undefined = undefined;
+    let measureEntity2: MeasureApi.MeasureEntity | undefined = undefined;
     //number to alternate between selected entities.
     let selectEntity: 1 | 2 = 1;
 
     //Save the measure result so it can be drawn in the draw loop
-    let result: MeasureAPI.MeasurementValues | undefined = undefined;
-
+    let result: MeasureApi.MeasurementValues | undefined = undefined;
 
     canvas.addEventListener("click", async (e) => {
-        if (currentOutput) {
-            let result1 = await currentOutput.pick(e.offsetX, e.offsetY);
+        if (output) {
+            let result1 = await output.pick(e.offsetX, e.offsetY);
             if (result1) {
                 if (selectEntity === 1) {
                     //Find measure entity at pick location
@@ -453,25 +458,33 @@ export async function main({ webglAPI, canvas, glMatrix, canvas2D, measureAPI }:
         }
     });
 
+    // Handle canvas resizes
+    new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            canvas.width = entry.contentRect.width;
+            canvas.height = entry.contentRect.height;
+            view.applySettings({
+                display: { width: canvas.width, height: canvas.height },
+            });
+        }
+    }).observe(canvas);
 
-    // main render loop
-    for (; ;) {
-        // handle canvas resizes
-        const { clientWidth, clientHeight } = canvas;
-        view.applySettings({ display: { width: clientWidth, height: clientHeight } });
-
-        // render frame
-        currentOutput = await view.render();
+    // render loop
+    while (true) {
+        // Render frame
+        output = await view.render();
         {
-            // finalize output image
-            const image = await currentOutput.getImage();
+            // Finalize output image
+            const image = await output.getImage();
             if (image) {
-                // display in canvas
+                // Display the given ImageBitmap in the canvas associated with this rendering context.
                 ctx?.transferFromImageBitmap(image);
+                // release bitmap data
+                image.close();
             }
-            image?.close();
         }
         await draw2d(_measureApi, view, measureScene, measureEntity1, measureEntity2, context2D, canvas2D, result, glMatrix);
+        (output as any).dispose();
     }
 }
 // HiddenRangeEnded

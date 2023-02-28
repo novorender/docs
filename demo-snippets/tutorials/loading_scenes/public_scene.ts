@@ -1,13 +1,13 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: NovoRender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
@@ -15,9 +15,10 @@ export interface IParams {
 };
 
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
+export async function main({ webglApi, dataJsApi, canvas }: IParams) {
+
   // Initialize the data API with the Novorender data server service
-  const dataApi = dataJsAPI.createAPI({
+  const dataApi = dataJsApi.createAPI({
     serviceUrl: "https://data.novorender.com/api",
   });
 
@@ -37,26 +38,30 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     // Destructure relevant properties into variables
     const { url, db, settings, camera: cameraParams } = sceneData;
 
+    // initialize webgl api 
+    const api = webglApi.createAPI();
+
     // Load scene
-    const scene = await webglAPI.loadScene(url, db);
+    const scene = await api.loadScene(url, db);
 
     // The code above is all you need to load the scene,
     // however there is more scene data loaded that you can apply
 
     // Create a view with the scene's saved settings
-    const view = await webglAPI.createView(settings, canvas);
+    const view = await api.createView(settings, canvas);
 
     // Set resolution scale to 1
     view.applySettings({ quality: { resolution: { value: 1 } } });
 
     // Create a camera controller with the saved parameters with turntable as fallback
+    // available controller types are static, orbit, flight and turntable
     const camera = cameraParams ?? ({ kind: "turntable" } as any);
-    view.camera.controller = webglAPI.createCameraController(camera, canvas);
+    view.camera.controller = api.createCameraController(camera, canvas);
 
     // Assign the scene to the view
     view.scene = scene;
 
-    // Run render loop
+    // Run render loop and the resizeObserver
     run(view, canvas);
   } catch (e) {
     // Handle errors however you like
@@ -65,26 +70,24 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
 }
 // HiddenRangeStarted
 async function run(
-  view: NovoRender.View,
+  view: WebglApi.View,
   canvas: HTMLCanvasElement
-  ): Promise<void> {
-    // Handle canvas resizes
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        canvas.width = entry.contentRect.width;
-        canvas.height = entry.contentRect.height;
-        view.applySettings({
-          display: { width: canvas.width, height: canvas.height },
-        });
-      }
-  });
-  
-  resizeObserver.observe(canvas);
-  
+): Promise<void> {
+  // Handle canvas resizes
+  new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      canvas.width = entry.contentRect.width;
+      canvas.height = entry.contentRect.height;
+      view.applySettings({
+        display: { width: canvas.clientWidth, height: canvas.clientHeight },
+      });
+    }
+  }).observe(canvas);
+
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
-  
-  // Main render loop
+
+  // render loop
   while (true) {
     // Render frame
     const output = await view.render();
@@ -92,11 +95,13 @@ async function run(
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }
 // HiddenRangeEnded
