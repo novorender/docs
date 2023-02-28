@@ -1,13 +1,13 @@
 // HiddenRangeStarted
-import * as Novorender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
 
 export interface IParams {
-  webglAPI: Novorender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
@@ -15,18 +15,25 @@ export interface IParams {
 };
 
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas }: IParams) {
-  // Init
-  const view = await initView(webglAPI, canvas);
+export async function main({ webglApi, canvas }: IParams) {
+
+  // initialize the webgl api
+  const api = webglApi.createAPI();
+
+  // Create View, camera controller and load scene
+  const view = await initView(api, canvas);
+
   const scene = view.scene!;
+
+  // run render loop and canvas resizeObserver
   run(view, canvas);
 
   // Set up highlight groups
-  const deSaturated = webglAPI.createHighlight({
+  const deSaturated = api.createHighlight({
     kind: "hsla",
     saturation: 0.5,
   });
-  const limeGreen = webglAPI.createHighlight({
+  const limeGreen = api.createHighlight({
     kind: "color",
     color: [0, 1, 0],
   });
@@ -34,7 +41,7 @@ export async function main({ webglAPI, canvas }: IParams) {
   view.settings.objectHighlights = [deSaturated, limeGreen];
 
   // Listen to click events to pick objects
-  canvas.addEventListener("click", async (e) => {
+  canvas.onclick = async (e: MouseEvent) => {
     const result = await view.lastRenderOutput?.pick(e.offsetX, e.offsetY);
     if (result) {
       // Reset highlights
@@ -48,33 +55,34 @@ export async function main({ webglAPI, canvas }: IParams) {
 
       scene.objectHighlighter.commit();
     }
-  });
+  };
 }
 // HiddenRangeStarted
-async function initView(webglApi: Novorender.API, canvas: HTMLCanvasElement) {
+async function initView(api: WebglApi.API, canvas: HTMLCanvasElement): Promise<WebglApi.View> {
+
   // Create a view
-  const view = await webglApi.createView(
+  const view = await api.createView(
     { background: { color: [0, 0, 0, 0] } }, // Transparent
     canvas
   );
 
   // Provide a camera controller
-  view.camera.controller = webglApi.createCameraController(
+  view.camera.controller = api.createCameraController(
     { kind: "flight" },
     canvas
   );
 
   // Load the Condos demo scene
-  view.scene = await webglApi.loadScene(Novorender.WellKnownSceneUrls.condos);
+  view.scene = await api.loadScene(WebglApi.WellKnownSceneUrls.condos);
 
   return view;
 }
-async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
-  
+
   // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
+  new ResizeObserver((entries) => {
     for (const entry of entries) {
       canvas.width = entry.contentRect.width;
       canvas.height = entry.contentRect.height;
@@ -82,11 +90,9 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
         display: { width: canvas.width, height: canvas.height },
       });
     }
-  });
-  
-  resizeObserver.observe(canvas);
+  }).observe(canvas);
 
-  // Main render loop
+  // render loop
   while (true) {
     // Render frame
     const output = await view.render();
@@ -94,11 +100,13 @@ async function run(view: Novorender.View, canvas: HTMLCanvasElement) {
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }
 // HiddenRangeEnded

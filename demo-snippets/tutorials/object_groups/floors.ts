@@ -1,30 +1,41 @@
 // HiddenRangeStarted
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
+import * as WebglApi from "@novorender/webgl-api";
+import * as MeasureApi from '@novorender/measure-api';
+import * as DataJsApi from '@novorender/data-js-api';
+import * as GlMatrix from 'gl-matrix';
+
 export interface IParams {
-  webglAPI: NovoRender.API;
-  measureAPI: typeof MeasureAPI;
-  dataJsAPI: typeof DataJsAPI;
+  webglApi: typeof WebglApi;
+  measureApi: typeof MeasureApi;
+  dataJsApi: typeof DataJsApi;
   glMatrix: typeof GlMatrix;
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
 };
 
+// we export this function to our react component which will then execute it once the demo started running.
+export function showTip() {
+  return openAlert('Choose and click on any floor from the top-left to isolate the objectGroups in the selected floor\'s group.');
+}
+
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
 // HiddenRangeEnded
-export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
+export async function main({ webglApi, dataJsApi, canvas }: IParams) {
+
   try {
+    // load scene into data api, create webgl api, view and load scene.
     const [view, dataApi, objectGroups] = await initView(
-      webglAPI,
-      canvas,
-      dataJsAPI
+      webglApi,
+      dataJsApi,
+      canvas
     );
+
     const scene = view.scene!;
+
+    // run render loop and canvas resizeObserver
     run(view, canvas);
 
     // Find floor groups
@@ -33,7 +44,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
     );
 
     // Create buttons
-    createFloorButtons(canvas.parentElement!, floors, (floor: DataJsAPI.ObjectGroup | undefined) => {
+    createFloorButtons(canvas.parentElement!, floors, (floor: DataJsApi.ObjectGroup | undefined) => {
       if (floor) {
         // Hide all floors
         floors.forEach((floor) => (floor.hidden = true));
@@ -48,6 +59,7 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
       // Handle visibility changes
       handleVisibilityChanges(dataApi, scene, objectGroups);
     });
+
   } catch (e) {
     // Handle errors however you like
     console.warn(e);
@@ -58,9 +70,9 @@ export async function main({ webglAPI, canvas, dataJsAPI }: IParams) {
 let refillId = 0;
 // Hide check groups' .hidden property and toggle their objects' visibility
 async function handleVisibilityChanges(
-  dataApi: DataJsAPI.API,
-  scene: NovoRender.Scene,
-  groups: DataJsAPI.ObjectGroup[]
+  dataApi: DataJsApi.API,
+  scene: WebglApi.Scene,
+  groups: DataJsApi.ObjectGroup[]
 ) {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
@@ -103,8 +115,8 @@ async function handleVisibilityChanges(
 // UI setup
 function createFloorButtons(
   container: HTMLElement,
-  floors: DataJsAPI.ObjectGroup[],
-  onClick: (floor?: DataJsAPI.ObjectGroup) => void
+  floors: DataJsApi.ObjectGroup[],
+  onClick: (floor?: DataJsApi.ObjectGroup) => void
 ): void {
   const wrapper = document.createElement("div");
   wrapper.style.position = "absolute";
@@ -131,10 +143,10 @@ function createFloorButtons(
 }
 
 async function initView(
-  api: NovoRender.API,
+  webglApi: typeof WebglApi,
+  dataJsAPI: typeof DataJsApi,
   canvas: HTMLCanvasElement,
-  dataJsAPI: typeof DataJsAPI
-): Promise<[NovoRender.View, DataJsAPI.API, DataJsAPI.ObjectGroup[]]> {
+): Promise<[WebglApi.View, DataJsApi.API, DataJsApi.ObjectGroup[]]> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -154,6 +166,9 @@ async function initView(
 
   // Destructure relevant properties into variables
   const { url, db, settings, camera: cameraParams, objectGroups } = sceneData;
+
+  // initialize the webgl api
+  const api = webglApi.createAPI();
 
   // Load scene
   const scene = await api.loadScene(url, db);
@@ -175,11 +190,11 @@ async function initView(
 }
 
 async function run(
-  view: NovoRender.View,
+  view: WebglApi.View,
   canvas: HTMLCanvasElement
 ): Promise<void> {
   // Handle canvas resizes
-  const resizeObserver = new ResizeObserver((entries) => {
+  new ResizeObserver((entries) => {
     for (const entry of entries) {
       canvas.width = entry.contentRect.width;
       canvas.height = entry.contentRect.height;
@@ -187,14 +202,12 @@ async function run(
         display: { width: canvas.width, height: canvas.height },
       });
     }
-  });
-
-  resizeObserver.observe(canvas);
+  }).observe(canvas);
 
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 
-  // Main render loop
+  // render loop
   while (true) {
     // Render frame
     const output = await view.render();
@@ -202,11 +215,13 @@ async function run(
       // Finalize output image
       const image = await output.getImage();
       if (image) {
-        // Display in canvas
+        // Display the given ImageBitmap in the canvas associated with this rendering context.
         ctx?.transferFromImageBitmap(image);
+        // release bitmap data
         image.close();
       }
     }
+    (output as any).dispose();
   }
 }
 // HiddenRangeEnded
