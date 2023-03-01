@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Link from "@docusaurus/Link";
 import Admonition from '@theme/Admonition';
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from 'monaco-editor';
@@ -23,6 +24,7 @@ import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
 import ExpandIconSvg from '@site/static/img/expand.svg';
 import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
+import IconExternalLink from '@theme/Icon/ExternalLink';
 /** Icons END */
 
 // @ts-expect-error
@@ -74,7 +76,7 @@ function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue;
 }
 
-export default function MonacoWrapper({ code, demoName, description, editorConfig, editUrl }: IDempProps): JSX.Element {
+export default function MonacoWrapper({ code, demoName, dirName, description, editorConfig, editUrl }: IDempProps): JSX.Element {
 
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
@@ -492,6 +494,13 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
                             </div>
 
                             <div className="navbar__items navbar__items--right">
+                                {/* open the demo in playground */}
+                                {editorConfig.mode === 'inline' &&
+                                    <Link className="navbar__item" title='Open this demo in the Playground' style={{ marginTop: '-2px' }} to={`/playground/run?id=${dirName}___${demoName}`}>
+                                        <IconExternalLink />
+                                    </Link>
+                                }
+
                                 {/* expand canvas to fullscreen */}
                                 <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen' style={{ marginTop: '-2px' }}>
                                     <ExpandIconSvg className={styles.editorSvgIcon} />
