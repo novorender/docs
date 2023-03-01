@@ -437,6 +437,7 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
                                         folding: false,
                                         showFoldingControls: "never",
                                         guides: { indentation: true },
+                                        fixedOverflowWidgets: true
                                     }}
                                     onMount={handleEditorDidMount}
                                     onValidate={handleEditorValidation}
