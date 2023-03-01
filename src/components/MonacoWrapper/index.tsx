@@ -81,8 +81,8 @@ export default function MonacoWrapper({ code, demoName, description, editorConfi
     const { colorMode } = useColorMode();
     const editorInstance = useRef(null);
     const textAreaInstance = useRef<HTMLTextAreaElement>(null);
-    const editorFooterInstance = useRef<HTMLElement>(null);
-    const editorNavbarInstance = useRef<HTMLElement>(null);
+    const editorFooterInstance = useRef<HTMLElement>();
+    const editorNavbarInstance = useRef<HTMLElement>();
     const [codeOutput, setCodeOutput] = useState<string>(null);
     const [codeError, setCodeError] = useState(null);
     const [initialCode, setInitialCode] = useState<string>(null);
