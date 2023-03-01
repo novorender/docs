@@ -20,13 +20,14 @@ interface Props {
     panesHeight: number;
     panesWidth: number;
     editorConfig: IEditorConfig;
+    splitPaneDirectionVertical: boolean;
     isDoingActivity: (a: boolean) => void;
     canvasRef: (a: HTMLCanvasElement) => void;
     canvasWrapperRef: (a: HTMLDivElement) => void;
     onMessagesAndAlert: (m: string) => void;
 };
 
-export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig }: Props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
 
     const canvasWrapper = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -89,7 +90,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         <BrowserOnly>
             {() =>
                 <div ref={canvasWrapper} style={{ height: panesHeight, position: 'relative' }} className="canvas-overscroll-fix">
-                    <Allotment onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
+                    <Allotment vertical={!splitPaneDirectionVertical} onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
                         <Allotment.Pane>
                             <RenderSpinner />
                             <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: '100%', height: '100%' }}></canvas>
@@ -97,7 +98,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
                         </Allotment.Pane>
                         <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
                             <RenderSpinner />
-                            <canvas ref={previewCanvas} width={previewCanvasWidth} height={!isFullScreen ? panesHeight : innerHeight} />
+                            <canvas ref={previewCanvas} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
                         </Allotment.Pane>
                     </Allotment>
                     <InfoBox content={infoPaneContent.content} title={infoPaneContent.title} />
