@@ -20,7 +20,7 @@ import "allotment/dist/style.css";
 
 /** Icons */
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
-import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faCode, faSlash } from '@fortawesome/free-solid-svg-icons';
 /** Icons END */
 
 // @ts-expect-error
@@ -100,6 +100,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
     const [main, setMain] = useState<any>();
+    const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
     const main_debounced = useDebounce(codeOutput, 1000);
 
     useEffect(() => {
@@ -278,15 +279,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
 
-        const model = editor.getModel();
-        // hide ranges based on comments "\\ HiddenRangeStarted \\HiddenRangeEnded"
-        const rangesToHide = model.findMatches("\/\/\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HiddenRangeEnded", false, true, false, null, true);
-        console.log('rangesToHide ', rangesToHide);
-        if (rangesToHide && rangesToHide.length) {
-            // @ts-expect-error
-            editor.setHiddenAreas(rangesToHide.map(r => new monaco.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
-        }
+        // hide hidden ranges upon init
+        toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
 
+        const model = editor.getModel();
         // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
         const rangesToHighlight = model.findMatches("\/\/\\s*HighlightedRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HighlightedRangeEnded", false, true, false, null, true);
         if (rangesToHighlight && rangesToHighlight.length) {
@@ -329,6 +325,25 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         }
 
         setIsActivity(false); // toggle spinner
+    }
+
+    // toggle hidden areas in the editor
+    function toggleHiddenAreas(show: boolean, editor: editor.ICodeEditor, monacoInstance: Monaco): void {
+        if (show) {
+            // @ts-expect-error
+            editor.setHiddenAreas([]);
+        } else {
+            const model = editor.getModel();
+            // hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
+            const rangesToHide = model.findMatches("\/\/\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)\/\/\\s*HiddenRangeEnded", false, true, false, null, true);
+            console.log('rangesToHide ', rangesToHide);
+            if (rangesToHide && rangesToHide.length) {
+                // @ts-expect-error
+                editor.setHiddenAreas(rangesToHide.map(r => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
+            }
+        }
+
+        setIsHiddenAreasShowing(show);
     }
 
     function handleEditorValidation(markers) {
@@ -375,7 +390,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                 alert('Failed to expand canvas');
             });
     }
-
 
     return (
         <BrowserOnly>
@@ -497,6 +511,14 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         <FontAwesomeIcon icon={faSquareArrowUpRight} className='fa-icon size-14' />
                                     </Link>
                                 }
+
+                                {/* toggle hidden areas in the editor */}
+                                <button onClick={() => { toggleHiddenAreas(!isHiddenAreasShowing, editorInstance.current, monaco); }} className='clean-btn navbar__item' title={`${isHiddenAreasShowing ? 'Hide' : 'Show hidden'} boilerplate code`} style={{ marginTop: '-2px' }}>
+                                    <span className="fa-layers">
+                                        <FontAwesomeIcon icon={faCode} className='fa-icon size-14' />
+                                        {isHiddenAreasShowing && <FontAwesomeIcon icon={faSlash} transform="grow-2" style={{ color: 'grey' }} />}
+                                    </span>
+                                </button>
 
                                 {/* expand canvas to fullscreen */}
                                 <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen'>
