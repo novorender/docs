@@ -405,10 +405,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
                                         <div className={styles.popoverContent}>
-                                            <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description}</p>
+                                            <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description || 'There is no description provided for this demo.'}</p>
                                         </div>}
                                 >
-                                    <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item' title='Description for this demo' style={{ marginTop: 4 }}>
+                                    <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item'>
                                         <FontAwesomeIcon icon={faCircleInfo} className='fa-icon size-14' style={{ color: 'var(--ifm-color-secondary-darkest)' }} />
                                     </button>
                                 </Popover>
