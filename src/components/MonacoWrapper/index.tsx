@@ -3,9 +3,10 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from "@docusaurus/Link";
-import Admonition from '@theme/Admonition';
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from 'monaco-editor';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Admonition from '@theme/Admonition';
 import { Allotment } from "allotment";
 import { Popover } from 'react-tiny-popover';
 import Renderer from '@site/src/components/Renderer';
@@ -18,13 +19,8 @@ import "allotment/dist/style.css";
 /** CSS END */
 
 /** Icons */
-import EditIconSvg from '@site/static/img/pen-to-square-solid.svg';
-import CopyIconSvg from '@site/static/img/copy-solid.svg';
-import DownloadIconSvg from '@site/static/img/download-solid.svg';
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
-import ExpandIconSvg from '@site/static/img/expand.svg';
-import AlertsIconSvg from '@site/static/img/alert-circle-outline.svg';
-import IconExternalLink from '@theme/Icon/ExternalLink';
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 /** Icons END */
 
 // @ts-expect-error
@@ -399,7 +395,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         </div>}
                                 >
                                     <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item' title='Description for this demo' style={{ marginTop: 4 }}>
-                                        <AlertsIconSvg className={styles.editorSvgIcon} style={{ color: 'var(--ifm-color-secondary-darkest)', fill: 'var(--ifm-color-secondary-darkest)' }} />
+                                        <FontAwesomeIcon icon={faCircleInfo} className='fa-icon size-14' style={{ color: 'var(--ifm-color-secondary-darkest)' }} />
                                     </button>
                                 </Popover>
                                 {demoName}
@@ -472,7 +468,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
                     <nav className="navbar playground_navbar" ref={editorFooterInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
                         <div className="navbar__inner">
-                            <div className="navbar__items">
+                            <div className="navbar__items" style={{ height: '100%' }}>
                                 {/* Messages/alert popover */}
                                 <Popover
                                     isOpen={isMessagesAndAlertPopoverOpen}
@@ -488,41 +484,44 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         </div>}
                                 >
                                     <button onMouseEnter={() => { setIsMessagesAndAlertPopoverOpen(true); }} onMouseLeave={() => { setIsMessagesAndAlertPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px', marginLeft: '-12px' }}>
-                                        <AlertsIconSvg className={styles.editorSvgIcon} style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)', fill: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)', fill: 'var(--ifm-color-gray-800)' }} />
+                                        <FontAwesomeIcon icon={faCircleInfo} className='fa-icon size-14' style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)' }} />
+
                                     </button>
                                 </Popover>
                             </div>
 
-                            <div className="navbar__items navbar__items--right">
+                            <div className="navbar__items navbar__items--right" style={{ height: '100%' }}>
                                 {/* open the demo in playground */}
                                 {editorConfig.mode === 'inline' &&
-                                    <Link className="navbar__item" title='Open this demo in the Playground' style={{ marginTop: '-2px' }} to={`/playground/run?id=${dirName}___${demoName}`}>
-                                        <IconExternalLink />
+                                    <Link className="navbar__item" title='Open this demo in the Playground' to={`/playground/run?id=${dirName}___${demoName}`}>
+                                        <FontAwesomeIcon icon={faSquareArrowUpRight} className='fa-icon size-14' />
                                     </Link>
                                 }
 
                                 {/* expand canvas to fullscreen */}
-                                <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen' style={{ marginTop: '-2px' }}>
-                                    <ExpandIconSvg className={styles.editorSvgIcon} />
+                                <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen'>
+                                    <FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} className='fa-icon size-14' />
                                 </button>
 
                                 {/* Pane mode change */}
-                                <button onClick={changeSplitPaneRotation} className='clean-btn navbar__item' title='Change split pane mode' style={{ marginTop: '-2px' }}>
+                                <button onClick={changeSplitPaneRotation} className='clean-btn navbar__item' title='Change split pane mode' style={{ marginTop: 4 }}>
                                     <RotationIconSvg className={styles.editorSvgIcon} />
                                 </button>
 
                                 {/* Download image */}
-                                <button onClick={downloadCanvasAsImage} disabled={!canvasRef} className='clean-btn navbar__item' title='Download current view as image' style={{ marginTop: '-2px' }}>
-                                    <DownloadIconSvg className={styles.editorSvgIcon} />
+                                <button onClick={downloadCanvasAsImage} disabled={!canvasRef} className='clean-btn navbar__item' title='Download current view as image'>
+                                    <FontAwesomeIcon icon={faDownload} className='fa-icon size-14' />
                                 </button>
 
                                 {/* Copy snippet */}
-                                <button onClick={copyToClipboard} className='clean-btn navbar__item' title='Copy TypeScript code to clipboard' style={{ marginTop: '-2px' }}>
-                                    <CopyIconSvg className={styles.editorSvgIcon} />
+                                <button onClick={copyToClipboard} className='clean-btn navbar__item' title='Copy TypeScript code to clipboard'>
+                                    <FontAwesomeIcon icon={faCopy} className='fa-icon size-14' />
                                 </button>
 
                                 {/* Edit snippet */}
-                                <a href={`${siteConfig.presets[0][1]['docs'].editUrl}${editUrl ? '/' + editUrl : '/demo-snippets/' + demoName + '/render-settings.ts'}`} className="navbar__item" title='Edit this code snippet on Github' style={{ marginTop: '-2px' }} target="_blank"><EditIconSvg className={styles.editorSvgIcon} /></a>
+                                <a href={`${siteConfig.presets[0][1]['docs'].editUrl}${editUrl ? '/' + editUrl : '/demo-snippets/' + demoName + '/render-settings.ts'}`} className="navbar__item" title='Edit this code snippet on Github' target="_blank">
+                                    <FontAwesomeIcon icon={faPenToSquare} className='fa-icon size-14' />
+                                </a>
                             </div>
                         </div>
                     </nav>

@@ -2,9 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import CodeBlock from '@theme/CodeBlock';
 import { Allotment } from "allotment";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as dataJsApi from '@novorender/data-js-api';
 import * as glMatrix from 'gl-matrix';
 import Spinner from "../misc/spinner";
+
+/** Icons */
+import { faReceipt, faCircleChevronDown } from '@fortawesome/free-solid-svg-icons';
+/** Icons end */
 
 /** Types */
 // import type { API } from "@novorender/webgl-api";
@@ -117,9 +122,19 @@ export function InfoBox({ content, title }: { content: object | string | any; ti
     }, [content]);
 
     return <div className="info-pane-container" style={{ position: 'absolute', bottom: isCodeBlock ? -20 : 0, left: 0, fontSize: 12, margin: 10, overflow: 'auto', maxWidth: '25%' }}>
-        {!isCodeBlock && <button onClick={() => { setIsCodeBlock(true); }} title="Show info pane" className="button button--outline button--primary" style={{ padding: '0 5px', marginBottom: 2 }}>ℹ️</button>}
-        {isCodeBlock && <button onClick={() => { setIsCodeBlock(false); }} title="Hide info pane" className="button" style={{ padding: '0 5px' }}>➖</button>}
-        {isCodeBlock && <CodeBlock title={title} language="json">{(content && JSON.stringify(content, null, 2)) || 'Nothing to see here...'}</CodeBlock>}
+        {!isCodeBlock &&
+            <button onClick={() => { setIsCodeBlock(true); }} title="Show info pane" className="button button--outline button--primary" style={{ padding: '0 5px', marginBottom: 2 }}>
+                <FontAwesomeIcon icon={faReceipt} className={`fa-icon size-14 ${content ? 'fa-bounce' : ''}`} />
+            </button>
+        }
+        {isCodeBlock &&
+            <button onClick={() => { setIsCodeBlock(false); }} title="Hide info pane" className="button" style={{ padding: '0px 5px', bottom: '-10px', zIndex: 99, position: 'relative' }}>
+                <FontAwesomeIcon icon={faCircleChevronDown} className='fa-icon size-14' />
+            </button>
+        }
+        {isCodeBlock &&
+            <CodeBlock title={title} language="json">{(content && JSON.stringify(content, null, 2)) || 'Nothing to see here...'}</CodeBlock>
+        }
     </div>;
 
 }

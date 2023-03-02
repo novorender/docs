@@ -49,6 +49,14 @@
   --custom-spinner-color: #fff;
 }
 
+.fa-icon {
+  color: var(--ifm-color-primary);
+}
+
+.fa-icon.size-14 {
+  font-size: 14px;
+}
+
 .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.1);
   display: block;
