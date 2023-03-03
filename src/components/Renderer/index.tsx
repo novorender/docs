@@ -60,6 +60,18 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         window['openInfoPane'] = (content: object | string | any, title?: string) => {
             setInfoPaneContent({ content, title });
         };
+
+        document.addEventListener('fullscreenchange', fullScreenEventListener, false);
+        /**
+         * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
+         * not sure if this can cause any interference with API's internal events.
+         */
+        canvas.current.addEventListener('wheel', wheelEventListener, { passive: false });
+        return () => {
+            document.removeEventListener('fullscreenchange', fullScreenEventListener, false);
+            canvas?.current?.removeEventListener('wheel', wheelEventListener, false);
+        };
+
     }, []);
 
     useEffect(() => {
@@ -76,18 +88,6 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
         })();
     }, [main]);
 
-    useEffect(() => {
-        document.addEventListener('fullscreenchange', fullScreenEventListener, false);
-        /**
-         * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
-         * not sure if this can cause any interference with API's internal events.
-         */
-        canvas.current.addEventListener('wheel', wheelEventListener, { passive: false });
-        return () => {
-            document.removeEventListener('fullscreenchange', fullScreenEventListener, false);
-            canvas?.current?.removeEventListener('wheel', wheelEventListener, false);
-        };
-    });
     const fullScreenEventListener = () => setIsFullScreen(!!document.fullscreenElement);
     const wheelEventListener = (e: MouseEvent) => { if (!isFullScreen) { e.preventDefault(); } };
 

@@ -3,6 +3,7 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useColorMode } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from "@docusaurus/Link";
+import { useHistory } from "@docusaurus/router";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from 'monaco-editor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -77,6 +78,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
     const { colorMode } = useColorMode();
+    const history = useHistory();
     const editorInstance = useRef(null);
     const textAreaInstance = useRef<HTMLTextAreaElement>(null);
     const editorFooterInstance = useRef<HTMLElement>();
@@ -102,6 +104,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     const [main, setMain] = useState<any>();
     const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
     const main_debounced = useDebounce(codeOutput, 1000);
+    const [hasMainChanged, setHasMainChanged] = useState(false);
 
     useEffect(() => {
 
@@ -166,6 +169,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
         // set current output in state so we can compare later
         setCodeOutput(output);
+        setHasMainChanged(true);
 
     };
 
@@ -187,6 +191,24 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         }
     }, [main_debounced]);
 
+    useEffect(() => {
+        if (hasMainChanged) {
+            // Block navigation and register a callback that
+            // fires when a navigation attempt is blocked.
+            history.block((tx) => {
+                // Navigation was blocked! Let's show a confirmation dialog
+                // so the user can decide if they actually want to navigate
+                // away and discard changes they've made in the current page.
+                if (!window.confirm('Are you sure you want to leave this page? changes you made could be lost.')) {
+                    return false;
+                }
+            });
+            window.addEventListener('beforeunload', unloadEventHandler);
+        }
+
+        return () => { window.removeEventListener('beforeunload', unloadEventHandler); };
+
+    }, [hasMainChanged]);
 
     useEffect(() => {
 
@@ -203,10 +225,16 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
             if (!apiInstance['supportsOffscreenCanvas']) {
                 setMessagesAndAlerts([...messagesAndAlerts, '⚠ OffscreenCanvas is not supported in this browser.']);
             }
-
         })();
 
     }, []);
+
+    const unloadEventHandler = (e) => {
+        if (hasMainChanged) {
+            e.preventDefault();
+            return e.returnValue = '';
+        }
+    };
 
     // handle editor theme based on docusaurus colorMode.
     useEffect(() => {
