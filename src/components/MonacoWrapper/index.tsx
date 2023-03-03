@@ -522,6 +522,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         showFoldingControls: "never",
                                         guides: { indentation: true },
                                         fixedOverflowWidgets: true,
+                                        lineNumbers: 'off',
                                         fontSize,
                                     }}
                                     onMount={handleEditorDidMount}
