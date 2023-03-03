@@ -21,7 +21,7 @@ import "allotment/dist/style.css";
 
 /** Icons */
 import RotationIconSvg from '@site/static/img/landscape-portrait.svg';
-import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faCode, faSlash } from '@fortawesome/free-solid-svg-icons';
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faCode, faSlash, faGear } from '@fortawesome/free-solid-svg-icons';
 /** Icons END */
 
 // @ts-expect-error
@@ -105,6 +105,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
     const main_debounced = useDebounce(codeOutput, 1000);
     const [hasMainChanged, setHasMainChanged] = useState(false);
+    const [fontSize, setFontSize] = useState<number>();
 
     useEffect(() => {
 
@@ -303,6 +304,17 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         }
     }, [monaco]);
 
+    function handleEditorWillMount(monaco) {
+        configureFontSize();
+    }
+
+    function configureFontSize(size?: number): void {
+        const lsKey = 'playground.fontSize';
+        const fontSize = size || Number(localStorage.getItem(lsKey)) || 14; // default font-size 14;
+        localStorage.setItem(lsKey, fontSize.toString());
+        setFontSize(fontSize);
+    }
+
     async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
         setIsActivity(true); // toggle spinner
         editorInstance.current = editor;
@@ -443,6 +455,27 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                 {demoName}
                                 {isActivity && <Spinner />}
                             </div>
+
+                            <div className="navbar__items navbar__items--right" style={{ height: '100%' }}>
+                                <div className="dropdown dropdown--hoverable dropdown--right">
+                                    {/* editor settings */}
+                                    <button className='clean-btn navbar__item' title='Configure editor settings'>
+                                        <FontAwesomeIcon icon={faGear} className='fa-icon size-16' />
+                                    </button>
+                                    <ul className="dropdown__menu">
+                                        <li>
+                                            <span style={{ fontSize: 10 }}>Font Size: </span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                {
+                                                    [10, 12, 14, 16, 18].map(size => <button onClick={() => { configureFontSize(size); }} className={`button button--primary ${fontSize !== size ? 'button--outline' : ''}`} key={size} style={{ padding: 5, marginRight: 5, borderRadius: '50%', width: 25, fontSize: 12, height: 25, lineHeight: 1 }}>{size}</button>)
+                                                }
+                                            </div>
+                                            <hr style={{ marginTop: 8, marginBottom: 12, background: 'var(--ifm-color-gray-800)' }} />
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
                         </div>
                     </nav>
 
@@ -477,9 +510,11 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         folding: false,
                                         showFoldingControls: "never",
                                         guides: { indentation: true },
-                                        fixedOverflowWidgets: true
+                                        fixedOverflowWidgets: true,
+                                        fontSize,
                                     }}
                                     onMount={handleEditorDidMount}
+                                    beforeMount={handleEditorWillMount}
                                     onValidate={handleEditorValidation}
                                 />
                                 {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, maxWidth: '600px' }}>
