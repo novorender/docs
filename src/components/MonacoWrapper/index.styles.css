@@ -1,0 +1,51 @@
+.editor-svg-icon {
+    fill: var(--ifm-color-primary);
+}
+
+.editor-svg-icon path {
+    transform: scale(0.035)
+}
+
+.popover-content {
+    background: var(--ifm-navbar-background-color);
+    padding: 5px;
+    border: 1px solid var(--ifm-color-gray-800);
+    font-size: 12px;
+    border-radius: 4px;
+    box-shadow: var(--ifm-global-shadow-lw);
+}
+
+.editor-config-dropdown {}
+
+.editor-config-dropdown hr {
+    margin-top: 8px;
+    margin-bottom: 0px;
+    background: var(--ifm-color-gray-800);
+}
+
+.editor-config-dropdown>li>span {
+    font-size: 10px;
+}
+
+.editor-config-dropdown>li>div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.editor-config-dropdown>li>div .font-size-button {
+    padding: 5px;
+    margin-right: 5px;
+    border-radius: 50%;
+    width: 25px;
+    font-size: 12px;
+    height: 25px;
+    line-height: 1;
+}
+
+.editor-config-dropdown>li>div .hidden-areas-toggle-button {
+    padding: 5px;
+    margin-right: 5px;
+    font-size: 12;
+    line-height: 1;
+}

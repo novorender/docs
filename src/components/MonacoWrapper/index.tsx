@@ -15,7 +15,7 @@ import Spinner from '@site/src/components/misc/spinner';
 const { devDependencies } = require('../../../package.json');
 
 /** CSS */
-import styles from './styles.module.css';
+import './index.styles.css';
 import "allotment/dist/style.css";
 /** CSS END */
 
@@ -444,7 +444,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     positions={['bottom', 'right', 'top', 'left']}
                                     parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
-                                        <div className={styles.popoverContent}>
+                                        <div className='popover-content'>
                                             <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description || 'There is no description provided for this demo.'}</p>
                                         </div>}
                                 >
@@ -462,15 +462,26 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     <button className='clean-btn navbar__item' title='Configure editor settings'>
                                         <FontAwesomeIcon icon={faGear} className='fa-icon size-16' />
                                     </button>
-                                    <ul className="dropdown__menu">
+                                    <ul className={`dropdown__menu editor-config-dropdown`}>
+                                        {/* Font Size config */}
                                         <li>
-                                            <span style={{ fontSize: 10 }}>Font Size: </span>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span>Font Size: </span>
+                                            <div>
                                                 {
-                                                    [10, 12, 14, 16, 18].map(size => <button onClick={() => { configureFontSize(size); }} className={`button button--primary ${fontSize !== size ? 'button--outline' : ''}`} key={size} style={{ padding: 5, marginRight: 5, borderRadius: '50%', width: 25, fontSize: 12, height: 25, lineHeight: 1 }}>{size}</button>)
+                                                    [10, 12, 14, 16, 18].map(size => <button onClick={() => { configureFontSize(size); }} className={`button button--primary font-size-button ${fontSize !== size ? 'button--outline' : ''}`} key={size}>{size}</button>)
                                                 }
                                             </div>
-                                            <hr style={{ marginTop: 8, marginBottom: 12, background: 'var(--ifm-color-gray-800)' }} />
+                                            <hr />
+                                        </li>
+                                        {/* toggle hidden areas in the editor */}
+                                        <li>
+                                            <span>Show/Hide boilerplate code: </span>
+                                            <div>
+                                                {
+                                                    ['Show', 'Hide'].map(e => <button onClick={() => { toggleHiddenAreas((e === 'Show'), editorInstance.current, monaco); }} className={`button button--primary hidden-areas-toggle-button ${(e === 'Show' && isHiddenAreasShowing) || (e === 'Hide' && !isHiddenAreasShowing) ? '' : 'button--outline'}`} key={e}>{e}</button>)
+                                                }
+                                            </div>
+                                            <hr />
                                         </li>
                                     </ul>
                                 </div>
@@ -552,7 +563,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     positions={['top', 'right', 'bottom', 'left']}
                                     parentElement={editorConfig.mode === 'inline' ? editorFooterInstance.current : undefined}
                                     content={
-                                        <div className={styles.popoverContent}>
+                                        <div className='popover-content'>
                                             <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>WebGL API: {devDependencies['@novorender/webgl-api']}</p>
                                             <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Data JS API: {devDependencies['@novorender/data-js-api']}</p>
                                             <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Measure API: {devDependencies['@novorender/measure-api']}</p>
@@ -575,14 +586,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     </Link>
                                 }
 
-                                {/* toggle hidden areas in the editor */}
-                                <button onClick={() => { toggleHiddenAreas(!isHiddenAreasShowing, editorInstance.current, monaco); }} className='clean-btn navbar__item' title={`${isHiddenAreasShowing ? 'Hide' : 'Show hidden'} boilerplate code`} style={{ marginTop: '-2px' }}>
-                                    <span className="fa-layers">
-                                        <FontAwesomeIcon icon={faCode} className='fa-icon size-14' />
-                                        {isHiddenAreasShowing && <FontAwesomeIcon icon={faSlash} transform="grow-2" style={{ color: 'grey' }} />}
-                                    </span>
-                                </button>
-
                                 {/* expand canvas to fullscreen */}
                                 <button onClick={toggleCanvasFullscreenMode} className='clean-btn navbar__item' title='Expand the canvas to fullscreen'>
                                     <FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} className='fa-icon size-14' />
@@ -590,7 +593,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
                                 {/* Pane mode change */}
                                 <button onClick={changeSplitPaneRotation} className='clean-btn navbar__item' title='Change split pane mode' style={{ marginTop: 4 }}>
-                                    <RotationIconSvg className={styles.editorSvgIcon} />
+                                    <RotationIconSvg className='editor-svg-icon' />
                                 </button>
 
                                 {/* Download image */}
