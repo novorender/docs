@@ -71,7 +71,21 @@ function useDebounce<T>(value: T, delay?: number): T {
     }, [value, delay]);
 
     return debouncedValue;
-}
+};
+
+const editorOptions: editor.IEditorConstructionOptions = {
+    minimap: { enabled: false },
+    formatOnPaste: true,
+    formatOnType: true,
+    scrollBeyondLastLine: false,
+    automaticLayout: true,
+    contextmenu: false,
+    folding: false,
+    showFoldingControls: "never",
+    guides: { indentation: true },
+    fixedOverflowWidgets: true,
+    lineNumbers: 'off',
+};
 
 export default function MonacoWrapper({ code, demoName, dirName, description, editorConfig, editUrl }: IDempProps): JSX.Element {
 
@@ -435,7 +449,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         <BrowserOnly>
             {
                 () => <Fragment>
-                    <nav className="navbar playground_navbar" ref={editorNavbarInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 36, marginBottom: 5 }}>
+                    <nav className="navbar playground_navbar" ref={editorNavbarInstance}>
                         <div className="navbar__inner">
                             <div className="navbar__items">
                                 {/* Demo description popover */}
@@ -445,7 +459,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     parentElement={editorConfig.mode === 'inline' ? editorNavbarInstance.current : undefined}
                                     content={
                                         <div className='popover-content'>
-                                            <p style={{ color: 'var(--ifm-color-gray-400)', fontSize: 12, margin: 0 }}>{description || 'There is no description provided for this demo.'}</p>
+                                            <p>{description || 'There is no description provided for this demo.'}</p>
                                         </div>}
                                 >
                                     <button onMouseEnter={() => { setIsDemoDescPopoverOpen(true); }} onMouseLeave={() => { setIsDemoDescPopoverOpen(false); }} className='clean-btn navbar__item'>
@@ -491,71 +505,57 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                     </nav>
 
                     <div style={{ height: Boolean(editorHeight) && Boolean(rendererHeight) && (editorHeight + rendererHeight) }}>
-                        {force_rerender_allotment && <Allotment onChange={(e: Array<number>) => {
-                            if (e?.length > 1) {
-                                if (splitPaneDirectionVertical) {
-                                    setEditorHeight(e[0]);
-                                    setRendererHeight(e[1]);
-                                } else {
-                                    setRendererPaneWidth(e[1]);
+                        {force_rerender_allotment &&
+                            <Allotment vertical={splitPaneDirectionVertical} onChange={(e: Array<number>) => {
+                                if (e?.length > 1) {
+                                    if (splitPaneDirectionVertical) {
+                                        setEditorHeight(e[0]);
+                                        setRendererHeight(e[1]);
+                                    } else {
+                                        setRendererPaneWidth(e[1]);
+                                    }
                                 }
-                            }
-                        }}
-                            vertical={splitPaneDirectionVertical}>
-
-                            <div style={{ position: 'relative' }}>
-                                <Editor
-                                    height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
-                                    defaultLanguage="typescript"
-                                    value={initialCode}
-                                    onChange={codeChangeHandler}
-                                    loading="loading the playground"
-                                    theme={theme}
-                                    options={{
-                                        minimap: { enabled: false },
-                                        formatOnPaste: true,
-                                        formatOnType: true,
-                                        scrollBeyondLastLine: false,
-                                        automaticLayout: true,
-                                        contextmenu: false,
-                                        folding: false,
-                                        showFoldingControls: "never",
-                                        guides: { indentation: true },
-                                        fixedOverflowWidgets: true,
-                                        lineNumbers: 'off',
-                                        fontSize,
-                                    }}
-                                    onMount={handleEditorDidMount}
-                                    beforeMount={handleEditorWillMount}
-                                    onValidate={handleEditorValidation}
-                                />
-                                {codeError && <div style={{ position: 'absolute', bottom: 0, right: 30, maxWidth: '600px' }}>
-                                    <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
-                                        <p>{codeError.message}</p>
-                                    </Admonition>
-                                </div>}
-                            </div>
-                            {main
-                                ? <Renderer
-                                    canvasWrapperRef={setCanvasWrapperRef}
-                                    webglApi={api}
-                                    measureApi={measureApiInstance}
-                                    main={main}
-                                    isDoingActivity={setIsActivity}
-                                    canvasRef={setCanvasRef}
-                                    panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
-                                    panesWidth={rendererPaneWidth}
-                                    editorConfig={editorConfig}
-                                    onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))}
-                                    splitPaneDirectionVertical={splitPaneDirectionVertical}
-                                />
-                                : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading the renderer...</div>
-                            }
-                        </Allotment>}
+                            }}>
+                                <div style={{ position: 'relative' }}>
+                                    <Editor
+                                        height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
+                                        defaultLanguage="typescript"
+                                        value={initialCode}
+                                        onChange={codeChangeHandler}
+                                        loading="loading the playground"
+                                        theme={theme}
+                                        options={{ fontSize, ...editorOptions }}
+                                        onMount={handleEditorDidMount}
+                                        beforeMount={handleEditorWillMount}
+                                        onValidate={handleEditorValidation}
+                                    />
+                                    {codeError && <div className="editor-error-alert">
+                                        <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
+                                            <p>{codeError.message}</p>
+                                        </Admonition>
+                                    </div>}
+                                </div>
+                                {main
+                                    ? <Renderer
+                                        canvasWrapperRef={setCanvasWrapperRef}
+                                        webglApi={api}
+                                        measureApi={measureApiInstance}
+                                        main={main}
+                                        isDoingActivity={setIsActivity}
+                                        canvasRef={setCanvasRef}
+                                        panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
+                                        panesWidth={rendererPaneWidth}
+                                        editorConfig={editorConfig}
+                                        onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))}
+                                        splitPaneDirectionVertical={splitPaneDirectionVertical}
+                                    />
+                                    : <div style={{ height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight }} className="renderer-loading-message">Loading the renderer...</div>
+                                }
+                            </Allotment>}
                     </div>
                     <textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: 'absolute', width: 0, height: 0, top: 5 }} />
 
-                    <nav className="navbar playground_navbar" ref={editorFooterInstance} style={{ paddingTop: 0, paddingBottom: 0, height: 26, marginTop: 5 }}>
+                    <nav className="navbar playground_footer_navbar" ref={editorFooterInstance} style={{}}>
                         <div className="navbar__inner">
                             <div className="navbar__items" style={{ height: '100%' }}>
                                 {/* Messages/alert popover */}
@@ -565,16 +565,15 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     parentElement={editorConfig.mode === 'inline' ? editorFooterInstance.current : undefined}
                                     content={
                                         <div className='popover-content'>
-                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>WebGL API: {devDependencies['@novorender/webgl-api']}</p>
-                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Data JS API: {devDependencies['@novorender/data-js-api']}</p>
-                                            <p style={{ color: 'var(--ifm-color-gray-800)', fontSize: 12, margin: 0 }}>Measure API: {devDependencies['@novorender/measure-api']}</p>
-                                            <hr style={{ margin: '5px 0' }} />
+                                            <p>WebGL API: {devDependencies['@novorender/webgl-api']}</p>
+                                            <p>Data JS API: {devDependencies['@novorender/data-js-api']}</p>
+                                            <p>Measure API: {devDependencies['@novorender/measure-api']}</p>
+                                            <hr />
                                             <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
                                         </div>}
                                 >
                                     <button onMouseEnter={() => { setIsMessagesAndAlertPopoverOpen(true); }} onMouseLeave={() => { setIsMessagesAndAlertPopoverOpen(false); }} className='clean-btn navbar__item' title='messages and alerts' style={{ marginTop: '-2px', marginLeft: '-12px' }}>
                                         <FontAwesomeIcon icon={faCircleInfo} className='fa-icon size-14' style={messagesAndAlerts.length ? { color: 'var(--ifm-color-warning-darkest)' } : { color: 'var(--ifm-color-gray-800)' }} />
-
                                     </button>
                                 </Popover>
                             </div>

@@ -158,7 +158,8 @@
 @media screen and (max-width: 996px) {
 
   /* don't hide playground navbar buttons on < md */
-  .playground_navbar .navbar__item {
+  .playground_navbar .navbar__item,
+  .playground_footer_navbar .navbar__item {
     display: inline-block;
   }
 }
