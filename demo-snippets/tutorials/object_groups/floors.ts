@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,11 +12,11 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // we export this function to our react component which will then execute it once the demo started running.
 export function showTip() {
-  return openAlert('Choose and click on any floor from the top-left to isolate the objectGroups in the selected floor\'s group.');
+  return openAlert("Choose and click on any floor from the top-left to isolate the objectGroups in the selected floor's group.");
 }
 
 // Condos demo scene
@@ -24,14 +24,9 @@ const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
 
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
-
   try {
     // load scene into data api, create webgl api, view and load scene.
-    const [view, dataApi, objectGroups] = await initView(
-      webglApi,
-      dataJsApi,
-      canvas
-    );
+    const [view, dataApi, objectGroups] = await initView(webglApi, dataJsApi, canvas);
 
     const scene = view.scene!;
 
@@ -39,9 +34,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
     run(view, canvas);
 
     // Find floor groups
-    const floors = objectGroups.filter(
-      (group) => group.grouping?.toLowerCase() === "floors"
-    );
+    const floors = objectGroups.filter((group) => group.grouping?.toLowerCase() === "floors");
 
     // Create buttons
     createFloorButtons(canvas.parentElement!, floors, (floor: DataJsApi.ObjectGroup | undefined) => {
@@ -59,7 +52,6 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
       // Handle visibility changes
       handleVisibilityChanges(dataApi, scene, objectGroups);
     });
-
   } catch (e) {
     // Handle errors however you like
     console.warn(e);
@@ -69,11 +61,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
 // ID to track if handleVisibilityChanges has been called again before IDs have finished loading
 let refillId = 0;
 // Hide check groups' .hidden property and toggle their objects' visibility
-async function handleVisibilityChanges(
-  dataApi: DataJsApi.API,
-  scene: WebglApi.Scene,
-  groups: DataJsApi.ObjectGroup[]
-) {
+async function handleVisibilityChanges(dataApi: DataJsApi.API, scene: WebglApi.Scene, groups: DataJsApi.ObjectGroup[]) {
   // Reset highlights
   scene.objectHighlighter.objectHighlightIndices.fill(0);
 
@@ -100,24 +88,14 @@ async function handleVisibilityChanges(
   }
 
   // Hide groups that have .hidden == true
-  groups
-    .filter((group) => group.hidden)
-    .forEach((group) =>
-      group.ids?.forEach(
-        (id) => (scene.objectHighlighter.objectHighlightIndices[id] = 255)
-      )
-    );
+  groups.filter((group) => group.hidden).forEach((group) => group.ids?.forEach((id) => (scene.objectHighlighter.objectHighlightIndices[id] = 255)));
 
   scene.objectHighlighter.commit();
 }
 
 // HiddenRangeStarted
 // UI setup
-function createFloorButtons(
-  container: HTMLElement,
-  floors: DataJsApi.ObjectGroup[],
-  onClick: (floor?: DataJsApi.ObjectGroup) => void
-): void {
+function createFloorButtons(container: HTMLElement, floors: DataJsApi.ObjectGroup[], onClick: (floor?: DataJsApi.ObjectGroup) => void): void {
   const wrapper = document.createElement("div");
   wrapper.style.position = "absolute";
   wrapper.style.top = "0";
@@ -142,11 +120,7 @@ function createFloorButtons(
   container.append(wrapper);
 }
 
-async function initView(
-  webglApi: typeof WebglApi,
-  dataJsAPI: typeof DataJsApi,
-  canvas: HTMLCanvasElement,
-): Promise<[WebglApi.View, DataJsApi.API, DataJsApi.ObjectGroup[]]> {
+async function initView(webglApi: typeof WebglApi, dataJsAPI: typeof DataJsApi, canvas: HTMLCanvasElement): Promise<[WebglApi.View, DataJsApi.API, DataJsApi.ObjectGroup[]]> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -189,10 +163,7 @@ async function initView(
   return [view, dataApi, objectGroups];
 }
 
-async function run(
-  view: WebglApi.View,
-  canvas: HTMLCanvasElement
-): Promise<void> {
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   new ResizeObserver((entries) => {
     for (const entry of entries) {

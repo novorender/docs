@@ -1,9 +1,9 @@
 ---
-title: 'Dynamic Objects'
-description: 'Adding dynamic 3D objects into the view.'
+title: "Dynamic Objects"
+description: "Adding dynamic 3D objects into the view."
 ---
 
-import { tutorials } from '@site/demo-snippets/index';
+import { tutorials } from "@site/demo-snippets/index";
 
 While NovoRender is mostly about streaming and rendering large, static 3D scenes, sometimes you may want to add smaller, dynamic 3D objects into the view.
 Dynamic objects are meant for small and lightweight objects, such as 3D widgets or avatars.
@@ -42,14 +42,14 @@ The camera will not auto-fit to dynamic objects, so make sure the units are in m
 To change object orientation, assign new position and/or rotation.
 
 ```typescript
-instance.position = [x,y,z]; // 3D vector
-instance.rotation = [0,0,0,1]; // identity quaternion
+instance.position = [x, y, z]; // 3D vector
+instance.rotation = [0, 0, 0, 1]; // identity quaternion
 ```
 
 While you can use raw arrays like above for trivial cases, it's likely that you will want to use a linear algebra library, like [gl-matrix](https://glmatrix.net/).
 
 ```typescript
-instance.position = vec3.fromValues(px,py,pz); // 3D vector
+instance.position = vec3.fromValues(px, py, pz); // 3D vector
 instance.rotation = quat.fromEuler(quat.create(), rx, ry, rz); // Quaternion from euler angles
 ```
 
@@ -66,6 +66,7 @@ instance.visible = true;
 ### Disposing
 
 To delete/remove an instance, call <code>[dispose()](/docs/webgl-api/interfaces/NovoRender.API#dispose)</code>.
+
 ```typescript
 instance.dispose();
 ```

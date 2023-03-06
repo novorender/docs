@@ -5,7 +5,7 @@
  */
 function helloWorld(name: string): string {
   // begin_code_block_1
-  const greet = 'Hello';
+  const greet = "Hello";
   // end_code_block_1
 
   // begin_code_block_2

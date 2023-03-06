@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,11 +12,10 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
-
   try {
     // load scene into data api, create webgl api, view and load scene.
     const view = await initView(webglApi, dataJsApi, canvas);
@@ -37,7 +36,6 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
     // Use the first 5 results to keep the properties in the property box
     // relatively short
     for (let i = 0; i < 5; i++) {
-
       const iteratorResult = await iterator.next();
 
       if (iteratorResult.done) {
@@ -76,11 +74,7 @@ function highlightObjects(scene: WebglApi.Scene, ids: number[]): void {
 }
 
 // HiddenRangeStarted
-async function initView(
-  webglApi: typeof WebglApi,
-  dataJsAPI: typeof DataJsApi,
-  canvas: HTMLCanvasElement,
-): Promise<WebglApi.View> {
+async function initView(webglApi: typeof WebglApi, dataJsAPI: typeof DataJsApi, canvas: HTMLCanvasElement): Promise<WebglApi.View> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",

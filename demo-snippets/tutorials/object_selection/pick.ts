@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,11 +12,10 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // HiddenRangeEnded
 export async function main({ webglApi, canvas }: IParams) {
-
   // initialize the webgl api
   const api = webglApi.createAPI();
 
@@ -59,7 +58,6 @@ export async function main({ webglApi, canvas }: IParams) {
 }
 // HiddenRangeStarted
 async function initView(api: WebglApi.API, canvas: HTMLCanvasElement): Promise<WebglApi.View> {
-
   // Create a view
   const view = await api.createView(
     { background: { color: [0, 0, 0, 0] } }, // Transparent
@@ -67,10 +65,7 @@ async function initView(api: WebglApi.API, canvas: HTMLCanvasElement): Promise<W
   );
 
   // Provide a camera controller
-  view.camera.controller = api.createCameraController(
-    { kind: "flight" },
-    canvas
-  );
+  view.camera.controller = api.createCameraController({ kind: "flight" }, canvas);
 
   // Load the Condos demo scene
   view.scene = await api.loadScene(WebglApi.WellKnownSceneUrls.condos);

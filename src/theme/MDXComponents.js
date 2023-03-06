@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 // Import the original mapper
-import MDXComponents from '@theme-original/MDXComponents';
-import PlaygroundComponent from '@site/src/components/PlaygroundComponent';
+import MDXComponents from "@theme-original/MDXComponents";
+import PlaygroundComponent from "@site/src/components/PlaygroundComponent";
 
 export default {
   // Re-use the default mapping

@@ -2,7 +2,7 @@
 import type * as NovoRender from "@novorender/webgl-api";
 
 export async function init(canvas: HTMLCanvasElement, webglAPI: NovoRender.API) {
-    // provide a camera controller
-    const controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
-    return { controller } as const;
+  // provide a camera controller
+  const controller = webglAPI.createCameraController({ kind: "orbit" }, canvas);
+  return { controller } as const;
 }

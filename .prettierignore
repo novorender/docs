@@ -1,0 +1,19 @@
+# Ignore artifacts:
+.docusaurus/*
+.git
+.github
+.husky
+.vscode
+.markdownlint.json
+build
+coverage
+blog
+scene-screenshot-gen
+static
+type-definitions
+LICENSE
+typings.d.ts
+tsconfig.json
+docs/data-js-api
+docs/measure-api
+docs/webgl-api

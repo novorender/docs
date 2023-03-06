@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,14 +12,13 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
-const demo_access_token = localStorage.getItem('demo_access_token');
+const demo_access_token = localStorage.getItem("demo_access_token");
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
-
   // Initialize the data API with the Novorender data server service
   // and a callback which returns the auth header with the access token
   const dataApi = dataJsApi.createAPI({
@@ -82,10 +81,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
 }
 
 // HiddenRangeStarted
-async function run(
-  view: WebglApi.View,
-  canvas: HTMLCanvasElement
-): Promise<void> {
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   new ResizeObserver((entries) => {
     for (const entry of entries) {
