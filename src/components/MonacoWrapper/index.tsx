@@ -201,22 +201,27 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   }, [main_debounced]);
 
   useEffect(() => {
+    let unblock;
     if (hasMainChanged) {
       // Block navigation and register a callback that
       // fires when a navigation attempt is blocked.
-      history.block((tx) => {
+      unblock = history.block((tx) => {
         // Navigation was blocked! Let's show a confirmation dialog
         // so the user can decide if they actually want to navigate
         // away and discard changes they've made in the current page.
-        if (!window.confirm("Are you sure you want to leave this page? changes you made could be lost.")) {
-          return false;
+        if (window.confirm("Are you sure you want to leave this page? changes you made could be lost.")) {
+          return unblock();
         }
+        return false;
       });
       window.addEventListener("beforeunload", unloadEventHandler);
     }
 
     return () => {
       window.removeEventListener("beforeunload", unloadEventHandler);
+      if (unblock) {
+        unblock();
+      }
     };
   }, [hasMainChanged]);
 
@@ -235,6 +240,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         setMessagesAndAlerts([...messagesAndAlerts, "⚠ OffscreenCanvas is not supported in this browser."]);
       }
     })();
+
+    return () => {
+      window.removeEventListener("beforeunload", unloadEventHandler);
+    };
   }, []);
 
   const unloadEventHandler = (e) => {
