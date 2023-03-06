@@ -45,6 +45,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      metadata: [{ name: "keywords", content: "novorender, novorender docs, novorender documentation, novorender/webgl-api, novorender/data-js-api, novorender/measure-api, novorender rest api docs, api docs" }],
       docs: {
         sidebar: {
           hideable: true,

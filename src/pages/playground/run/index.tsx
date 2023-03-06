@@ -40,7 +40,7 @@ export default function Playground(): JSX.Element {
   }, []);
 
   return (
-    <Layout title={`Playground`} description="novorender api playground">
+    <Layout title={`Playground`} description="novorender interactive api playground">
       <div>
         {/* <div className="navbar__items navbar__items--right" style={{ padding: '5px 18px' }}>
                         <button className='clean-btn navbar__item' title='go back to tutorials'>✖️</button>

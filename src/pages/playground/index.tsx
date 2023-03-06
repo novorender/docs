@@ -69,7 +69,7 @@ export default function Playground(): JSX.Element {
   };
 
   return (
-    <Layout title={`Playground`} description="novorender api playground">
+    <Layout title={`Playground`} description="novorender interactive api playground">
       <div
         style={{
           height: "calc(100vh - 60px)",

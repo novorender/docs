@@ -90,7 +90,7 @@ function Feature({ title, description, Svg }: FeatureItem) {
 
 export default function Home(): JSX.Element {
   return (
-    <Layout title={`API Docs`} description="Novorender API Documentation <head />">
+    <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
       <HomepageHeader />
       <main className={styles.featuresContainer}>
         <WavesInverted className={styles.wavesInverted} />

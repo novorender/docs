@@ -76,7 +76,7 @@ export default function DataRestAPI(): JSX.Element {
               <meta property="og:description" content="NovoRender Data Rest API Documentation" />
               <title>NovoRender | Data Rest API Documentation</title>
             </Head>
-            <Layout title={`Data Rest API`} description="Data Rest API Documentation">
+            <Layout title={`Data Rest API`}>
               <div className="dropdown api-version-dropdown dropdown--hoverable">
                 <button style={{ padding: "0 10px", maxWidth: 60 }} className="button button--primary">
                   {currentDefinition.label} <FontAwesomeIcon icon={faChevronDown} />
