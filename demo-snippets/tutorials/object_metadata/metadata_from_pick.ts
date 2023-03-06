@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,16 +12,15 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // we export this function to our react component which will then execute it once the demo started running.
 export function showTip() {
-  return openAlert('Select any object to display its metadata');
+  return openAlert("Select any object to display its metadata");
 }
 
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
-
   try {
     // load scene into data api, create webgl api, view and load scene.
     const view = await initView(webglApi, dataJsApi, canvas);
@@ -33,12 +32,8 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
 
     // Listen to click events on the canvas
     canvas.onclick = async (event) => {
-
       // Pick object at clicked position
-      const result = await view.lastRenderOutput?.pick(
-        event.offsetX,
-        event.offsetY
-      );
+      const result = await view.lastRenderOutput?.pick(event.offsetX, event.offsetY);
 
       // If picked position does not have any objects result will be undefined
       if (!result) {
@@ -49,9 +44,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
       highlightObject(scene, result.objectId);
 
       // Load metadata
-      const objectData = await scene
-        .getObjectReference(result.objectId)
-        .loadMetaData();
+      const objectData = await scene.getObjectReference(result.objectId).loadMetaData();
 
       // Display metadata
       openInfoPane(objectData);
@@ -74,11 +67,7 @@ function highlightObject(scene: WebglApi.Scene, id: number): void {
 }
 
 // HiddenRangeStarted
-async function initView(
-  webglApi: typeof WebglApi,
-  dataJsAPI: typeof DataJsApi,
-  canvas: HTMLCanvasElement,
-): Promise<WebglApi.View> {
+async function initView(webglApi: typeof WebglApi, dataJsAPI: typeof DataJsApi, canvas: HTMLCanvasElement): Promise<WebglApi.View> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -129,7 +118,6 @@ async function initView(
 }
 
 async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
-
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 

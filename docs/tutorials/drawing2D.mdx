@@ -24,27 +24,13 @@ Check the parametric measure tutorial on how to select measure entities.
 
 ```typescript
 const entity = await measureScene.pickMeasureEntity(objectId, position);
-const drawProd = await measureApi.getDrawMeasureEntity(
-  view,
-  measureScene,
-  entity
-);
+const drawProd = await measureApi.getDrawMeasureEntity(view, measureScene, entity);
 const { camera } = view;
-const cameraDirection = vec3.transformQuat(
-  vec3.create(),
-  vec3.fromValues(0, 0, -1),
-  camera.rotation
-);
+const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), camera.rotation);
 const camSettings = { pos: camera.position, dir: cameraDirection };
 if (drawProd) {
   //Function found in the utility ts file
-  drawProduct(
-    context2D,
-    camSettings,
-    drawProd,
-    { lineColor: "yellow", fillColor: "blue" },
-    3
-  );
+  drawProduct(context2D, camSettings, drawProd, { lineColor: "yellow", fillColor: "blue" }, 3);
 }
 ```
 
@@ -58,11 +44,7 @@ Example shows distance line drawn in blue, the z-axis line and angle drawn in gr
 
 ```typescript
 const measureResult = await measurescene.measure(entity1, entity2);
-const drawProd = await measureApi.getDrawMeasureEntity(
-  view,
-  measureScene,
-  measureResult
-);
+const drawProd = await measureApi.getDrawMeasureEntity(view, measureScene, measureResult);
 for (const obj of drawProd.objects) {
   for (const part of obj.parts) {
     if (part.vertices2D === undefined) {
@@ -99,24 +81,12 @@ The position from webgl API <code>[pick()](/docs/webgl-api/interfaces/NovoRender
 
 ```typescript
 //Draw a point line with line names and angles
-const drawProd = measureApi.getDrawObjectFromPoints(
-  view,
-  pointLinePoints,
-  false,
-  true
-);
+const drawProd = measureApi.getDrawObjectFromPoints(view, pointLinePoints, false, true);
 if (drawProd) {
   const textList = pointLineResult.segmentLengths.map((v) => v.toFixed(2));
   drawProd.objects.forEach((obj) => {
     obj.parts.forEach((part) => {
-      drawPart(
-        context2D,
-        camSettings,
-        part,
-        { lineColor: "yellow", pointColor: { start: "green" } },
-        2,
-        { type: "distance", customText: textList }
-      );
+      drawPart(context2D, camSettings, part, { lineColor: "yellow", pointColor: { start: "green" } }, 2, { type: "distance", customText: textList });
     });
   });
 }

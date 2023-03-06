@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,11 +12,10 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // HiddenRangeEnded
 export async function main({ webglApi, canvas }: IParams) {
-
   // initialize the webgl api
   const api = webglApi.createAPI();
 
@@ -43,7 +42,8 @@ export async function main({ webglApi, canvas }: IParams) {
     }
   }).observe(canvas);
 
-  while (true) { // render loop: https://dens.website/tutorials/webgl/render-loop
+  // render loop: https://dens.website/tutorials/webgl/render-loop
+  while (true) {
     // Render frame
     const output = await view.render();
     {

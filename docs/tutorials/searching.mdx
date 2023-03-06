@@ -1,30 +1,38 @@
 ---
-title: 'Searching'
+title: "Searching"
 sidebar_position: 4
-description: 'Search using Novorender.'
+description: "Search using Novorender."
 ---
 
-import { tutorials } from '@site/demo-snippets/index';
+import { tutorials } from "@site/demo-snippets/index";
 
 Searching will be integral part of most applications using Novorender.
 In the example below we demonstrate a few different search patterns where the resulting objects are isolated in the view.  
 Make sure to also check out the <code>[Scene.search()](/docs/webgl-api/interfaces/NovoRender.Scene#search)</code> documentation.
 
 ### Search By Path
+
 Example of a Path search pattern where the isolated objects represent the results.
+
 <PlaygroundComponent {...tutorials.searching.searchByPath} />
 <br />
 
 ### Fluffy Search
+
 Fluffy search pattern that looks for terms beginning with "Roof" in all properties.
+
 <PlaygroundComponent {...tutorials.searching.fluffySearch} />
 <br />
 
 ### Exact Search
+
 Exact search that only checks the property "ifcClass" and the exact value "ifcRoof".
+
 <PlaygroundComponent {...tutorials.searching.exactSearch} />
 <br />
 
 ### Exact Search Excluding Results
+
 Very similar to the Exact search pattern, but with exclude. All objects other than those located above will be returned.
+
 <PlaygroundComponent {...tutorials.searching.exactSearchExcludingResult} />

@@ -3,7 +3,6 @@
  * and scoped locally.
  */
 
-
 .headerContainer {
   display: flex;
   flex-direction: column;
@@ -22,7 +21,7 @@
 }
 
 .headerTagLine {
-  background: linear-gradient(90deg, #12C2E9 0%, #c471ed 50%, var(--ifm-color-primary) 100%);
+  background: linear-gradient(90deg, #12c2e9 0%, #c471ed 50%, var(--ifm-color-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   max-width: 750px;
@@ -40,7 +39,7 @@
 
 .headerButtonMain {
   color: white;
-  background: linear-gradient(93deg, #12C2E9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
+  background: linear-gradient(93deg, #12c2e9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
   border-radius: 8px;
   transition: 0.2s ease-in-out;
   padding: 15px 20px;
@@ -66,7 +65,7 @@
 
 .wavesInverted {
   width: 100%;
-  height: 75px
+  height: 75px;
 }
 
 .features {
@@ -80,7 +79,6 @@
   height: 200px;
   width: 200px;
 }
-
 
 @media screen and (max-width: 599px) {
   .headerContainer {
@@ -142,7 +140,6 @@
   .featuresContainer {
     overflow: hidden;
   }
-
 }
 
 @media screen and (min-width: 960px) and (max-width: 1279px) {

@@ -1,6 +1,6 @@
 ---
 title: "Parametric measure"
-description: 'Fetch parametric data based on real world position, and calculate measurements between 2 objects using Measure API.'
+description: "Fetch parametric data based on real world position, and calculate measurements between 2 objects using Measure API."
 ---
 
 import { tutorials } from "@site/demo-snippets/index";
@@ -18,10 +18,7 @@ The normal way of getting measure entities is to used the <code>[pickMeasureEnti
 const output = await view.render();
 const result = output.pick(x, y);
 if (result) {
-  const entity = await measureScene.pickMeasureEntity(
-    result.objectId,
-    result.position
-  );
+  const entity = await measureScene.pickMeasureEntity(result.objectId, result.position);
 }
 ```
 
@@ -49,19 +46,11 @@ const result1 = output.pick(x1, y1);
 
 const result2 = output.pick(x2, y2);
 if (result1 && result2) {
-  const entity1 = await measureScene.pickMeasureEntity(
-    result1.objectId,
-    result1.position
-  );
+  const entity1 = await measureScene.pickMeasureEntity(result1.objectId, result1.position);
 
-  const entity2 = await measureScene.pickMeasureEntity(
-    result2.objectId,
-    result2.position
-  );
+  const entity2 = await measureScene.pickMeasureEntity(result2.objectId, result2.position);
 
-  const measureValues = (await measurescene.measure(entity1, entity2)) as
-    | DuoMeasurementValues
-    | undefined;
+  const measureValues = (await measurescene.measure(entity1, entity2)) as DuoMeasurementValues | undefined;
   if (measureValues && measureValues.distance) {
     console.log(`Distance between objects is: ${measureValues.distance}`);
   }

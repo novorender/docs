@@ -1,10 +1,10 @@
 ---
-title: 'Object Selection'
+title: "Object Selection"
 sidebar_position: 3
-description: 'Highlighting sets of objects using WebGL API.'
+description: "Highlighting sets of objects using WebGL API."
 ---
 
-import { tutorials } from '@site/demo-snippets/index';
+import { tutorials } from "@site/demo-snippets/index";
 
 NovoRender lets you highlight sets of objects.
 This could be used to visualize current object selection, or groups of objects, for instance the results of data queries.
@@ -18,7 +18,7 @@ One way of obtaining such an id is using the <code>[pick()](/docs/webgl-api/inte
 ```typescript
 const result = await renderOutput.pick(x, y);
 if (result) {
-    const {objectId} = result;
+  const { objectId } = result;
 }
 ```
 
@@ -32,7 +32,10 @@ For now, we'll simply make the selected object lime green.
 const red = 0.0;
 const green = 1.0;
 const blue = 0.0;
-const highlightGroup1 = api.createHighlight({kind: "color", color: [red,green,blue]});
+const highlightGroup1 = api.createHighlight({
+  kind: "color",
+  color: [red, green, blue],
+});
 ```
 
 Highlights are applied to groups of objects.
@@ -47,7 +50,7 @@ scene.objectHighlighter.commit(); // call this to commit all changes
 To make our selected objects stand out even further, we make all other objects less colorful by halving their color saturation.
 
 ```typescript
-const highlightGroup0 = api.createHighlight({kind: "hsla", saturation: 0.5});
+const highlightGroup0 = api.createHighlight({ kind: "hsla", saturation: 0.5 });
 ```
 
 We then assign these highlights to our two groups, default and selected respectively:
@@ -60,7 +63,7 @@ view.settings.objectHighlights = [highlightGroup0, highlightGroup1];
 
 Click on objects to turn them green.
 
-<PlaygroundComponent {...tutorials.objectSelection.pick}></PlaygroundComponent> 
+<PlaygroundComponent {...tutorials.objectSelection.pick}></PlaygroundComponent>
 <br />
 
 :::note

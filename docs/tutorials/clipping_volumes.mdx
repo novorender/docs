@@ -1,11 +1,11 @@
 ---
-title: 'Clipping Volumes'
-description: 'Clipping allows you to render only part of a scene.'
+title: "Clipping Volumes"
+description: "Clipping allows you to render only part of a scene."
 ---
 
-import { tutorials } from '@site/demo-snippets/index';
+import { tutorials } from "@site/demo-snippets/index";
 
-Clipping allows you to render only part of a scene. 
+Clipping allows you to render only part of a scene.
 This can be useful to reveal internal structures that would otherwise be obscured by surrounding geometry, such as walls and outer shells.
 
 :::note
@@ -17,13 +17,13 @@ Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (neg
 From this we can compute a signed distance to that plane for any given 3D coordinate (x,y,z).
 
 ```typescript
-signed_distance = (x,y,z) => x*nx + y*ny + z*nz + o
+signed_distance = (x, y, z) => x * nx + y * ny + z * nz + o;
 ```
 
 This can be expressed as a 4D dot product where the w component of the input is 1.
 
 ```typescript
-signed_distance = dot_product([x,y,z,1], [nx,ny,nz,o])
+signed_distance = dot_product([x, y, z, 1], [nx, ny, nz, o]);
 ```
 
 The positive side of this plane, i.e. signed_distance > 0, is considered "outside" the halfspace, whereas the negative sinde "inside".
@@ -64,8 +64,8 @@ When combining multiple such half spaces, we must determine whether to use the i
 Put simply, intersection is the volume that lies on the positive side of all the planes, while union is the volume that lines on the positive side of any of the planes.
 
 ```typescript
-intersection = sd1 > 0 && sd2 > 0
-union = sd1 > 0 || sd2 > 0
+intersection = sd1 > 0 && sd2 > 0;
+union = sd1 > 0 || sd2 > 0;
 ```
 
 :::info
@@ -96,9 +96,10 @@ Let's define an axis aligned clipping box.
 <PlaygroundComponent {...tutorials.clippingVolumes.box}></PlaygroundComponent>
 <br />
 
-
 :::info
+
 Using clipping volumes currently does not affect memory usage or significantly impact rendering performance.
 They simply work by excluding pixels that lie outside the volume at the very last stage of the rendering pipeline.
 Their intended use it as a visual aid, not as an optimization.
+
 :::

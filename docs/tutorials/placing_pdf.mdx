@@ -19,9 +19,7 @@ PDF documents uploaded to Novorender will have a preview property that can be us
 This image can be found by using database search and getting the metadata.
 
 ```typescript
-const pdfScene = (await dataApi.loadScene(
-  "bad260f94a5340b9b767ea2756392be4"
-)) as SceneData;
+const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as SceneData;
 if (pdfScene.db) {
   //Search for preview Property
   const iterator = pdfScene.db.search(
@@ -62,17 +60,7 @@ The image can be drawn on a 2d canvas
 const img = new Image();
 img.onload = function () {
   if (context) {
-    context.drawImage(
-      img,
-      0,
-      0,
-      img.width,
-      img.height,
-      0,
-      0,
-      img.width,
-      img.height
-    );
+    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
   }
 };
 img.src = previewImage;
@@ -137,11 +125,7 @@ const scale = modelLength / pixelLength;
 
 const angleAroundZ = vec2.dot(modelDir, pixDir);
 const pdfToWorldScale = imgHeight.current * scale;
-const translation = vec2.sub(
-  vec2.create(),
-  modelPosA,
-  vec2.fromValues(pixelPosA[0] * scale, pixelPosA[1] * scale)
-);
+const translation = vec2.sub(vec2.create(), modelPosA, vec2.fromValues(pixelPosA[0] * scale, pixelPosA[1] * scale));
 ```
 
 ### Placing a preview of PDF in scene and update
@@ -158,11 +142,7 @@ const instance = scene.createDynamicObject(asset);
 
 instance.rotation = quat.fromEuler(quat.create(), 0, 0, angleAroundZ);
 //flip back to coordinates where Y axis is up and adding elevation
-instance.position = vec3.fromValues(
-  translation[0],
-  elevation,
-  translation[1] * -1
-);
+instance.position = vec3.fromValues(translation[0], elevation, translation[1] * -1);
 instance.scale = pdfToWorldScale;
 ```
 
@@ -172,6 +152,4 @@ When it looks good this asset can be added to the scene.
 
 Below example shows how to create a 2d view of the model and the PDF. placing two matching points on each will calculate the translation scale and roatation needed to place the pdf properly in model space
 
-<PlaygroundComponent
-  {...tutorials.PDFPlacement.pdf_placement}
-></PlaygroundComponent>
+<PlaygroundComponent {...tutorials.PDFPlacement.pdf_placement}></PlaygroundComponent>

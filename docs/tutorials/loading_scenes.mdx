@@ -1,12 +1,12 @@
 ---
-title: 'Loading scenes'
+title: "Loading scenes"
 sidebar_position: 2
-description: 'Loading scenes via Data JS API or Data REST API.'
+description: "Loading scenes via Data JS API or Data REST API."
 ---
 
-import { tutorials } from '@site/demo-snippets/index';
+import { tutorials } from "@site/demo-snippets/index";
 
-To load your own scenes we recommend that you use the [`@novorender/data-js-api`](../data-js-api) package, but you can also use the [Novorender data REST API](/data-rest-api) directly if you prefer. 
+To load your own scenes we recommend that you use the [`@novorender/data-js-api`](../data-js-api) package, but you can also use the [Novorender data REST API](/data-rest-api) directly if you prefer.
 We will be using the npm package in all our examples.
 
 ## Public scenes
@@ -24,16 +24,13 @@ Only scene related endpoints are covered by the NPM package, so for user / authe
 ### Active Directory
 
 To get started authenticating with Active Directory we recommend you use [MSAL](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview) with the following config:
+
 ```json
 {
-    "clientId": "074eb42a-f94a-4a97-b7ad-0a187eb57f96",
-    "authority": "https://login.microsoftonline.com/{YOUR_TENANT_ID}",
-    "scopes": [
-        "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/resource.read",
-        "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/scene.edit"
-    ]
+  "clientId": "074eb42a-f94a-4a97-b7ad-0a187eb57f96",
+  "authority": "https://login.microsoftonline.com/{YOUR_TENANT_ID}",
+  "scopes": ["api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/resource.read", "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/scene.edit"]
 }
-````
+```
 
 Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of <code>POST [/api/user/login](/data-rest-api/#/operations/Login)</code>.
-

@@ -1,3 +1,3 @@
-import * as tutorials from './tutorials';
+import * as tutorials from "./tutorials";
 
-export { tutorials }
+export { tutorials };

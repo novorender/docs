@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,10 +12,9 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
-
   try {
     // load scene into data api, create webgl api, view and load scene.
     const view = await initView(webglApi, dataJsApi, canvas);
@@ -32,12 +31,7 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
         searchPattern: [
           {
             property: "GUID",
-            value: [
-              "06yaxhMh5CwutD_i1oN9HO",
-              "06yaxhMh5CwutD_i1oN9HR",
-              "0aq88u2xXFvBCrfVLun4gr",
-              "0aq88u2xXFvBCrfVLun4gH",
-            ],
+            value: ["06yaxhMh5CwutD_i1oN9HO", "06yaxhMh5CwutD_i1oN9HR", "0aq88u2xXFvBCrfVLun4gr", "0aq88u2xXFvBCrfVLun4gH"],
           },
         ],
         // false/undefined because we don't need full metadata as the object bounds
@@ -66,10 +60,7 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
     // Listen to click events on the canvas
     canvas.onclick = async (event) => {
       // Pick object at clicked position
-      const result = await view.lastRenderOutput?.pick(
-        event.offsetX,
-        event.offsetY
-      );
+      const result = await view.lastRenderOutput?.pick(event.offsetX, event.offsetY);
 
       // If picked position does not have any objects result will be undefined
       if (!result) {
@@ -80,9 +71,7 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
       highlightObjects(scene, [result.objectId]);
 
       // Load metadata as object bounds are not included in the pick result
-      const objectData = await scene
-        .getObjectReference(result.objectId)
-        .loadMetaData();
+      const objectData = await scene.getObjectReference(result.objectId).loadMetaData();
 
       // No calculation needed for single object
       if (objectData.bounds?.sphere) {
@@ -93,13 +82,9 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas }: IParams) {
     // Handle however you like
     console.warn(e);
   }
-
 }
 
-function getTotalBoundingSphere(
-  nodes: WebglApi.HierarcicalObjectReference[],
-  glMatrix: typeof GlMatrix
-): WebglApi.BoundingSphere | undefined {
+function getTotalBoundingSphere(nodes: WebglApi.HierarcicalObjectReference[], glMatrix: typeof GlMatrix): WebglApi.BoundingSphere | undefined {
   const vec3 = glMatrix.vec3;
 
   const spheres: WebglApi.BoundingSphere[] = [];
@@ -142,11 +127,7 @@ function highlightObjects(scene: WebglApi.Scene, ids: number[]) {
   scene.objectHighlighter.commit();
 }
 // HiddenRangeStarted
-async function initView(
-  webglApi: typeof WebglApi,
-  dataJsAPI: typeof DataJsApi,
-  canvas: HTMLCanvasElement
-) {
+async function initView(webglApi: typeof WebglApi, dataJsAPI: typeof DataJsApi, canvas: HTMLCanvasElement) {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -198,7 +179,6 @@ async function initView(
 }
 
 async function run(view: WebglApi.View, canvas: HTMLCanvasElement) {
-
   // Create a bitmap context to display render output
   const ctx = canvas.getContext("bitmaprenderer");
 

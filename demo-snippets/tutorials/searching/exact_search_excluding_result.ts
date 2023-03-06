@@ -1,8 +1,8 @@
 // HiddenRangeStarted
 import * as WebglApi from "@novorender/webgl-api";
-import * as MeasureApi from '@novorender/measure-api';
-import * as DataJsApi from '@novorender/data-js-api';
-import * as GlMatrix from 'gl-matrix';
+import * as MeasureApi from "@novorender/measure-api";
+import * as DataJsApi from "@novorender/data-js-api";
+import * as GlMatrix from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -12,11 +12,10 @@ export interface IParams {
   canvas: HTMLCanvasElement;
   canvas2D: HTMLCanvasElement;
   previewCanvas: HTMLCanvasElement;
-};
+}
 
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
-
   try {
     // load scene into data api, create webgl api, view and load scene and set cameraController.
     const view = await initView(webglApi, dataJsApi, canvas);
@@ -29,9 +28,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
     // Run the searches
     // Same as the exact search, but with exclude. This will return all object except the ones found above.
     const iterator = scene.search({
-      searchPattern: [
-        { property: "ifcClass", value: "ifcRoof", exact: true, exclude: true },
-      ],
+      searchPattern: [{ property: "ifcClass", value: "ifcRoof", exact: true, exclude: true }],
     });
 
     // In this example we just want to isolate the objects so all we need is the object ID
@@ -42,7 +39,6 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
 
     // Then we isolate the objects found
     isolateObjects(scene, result);
-
   } catch (e) {
     console.warn(e);
   }
@@ -60,12 +56,7 @@ function isolateObjects(scene: WebglApi.Scene, ids: number[]): void {
   scene.objectHighlighter.commit();
 }
 // HiddenRangeStarted
-async function initView(
-  webglApi: typeof WebglApi,
-  dataJsAPI: typeof DataJsApi,
-  canvas: HTMLCanvasElement
-): Promise<WebglApi.View> {
-
+async function initView(webglApi: typeof WebglApi, dataJsAPI: typeof DataJsApi, canvas: HTMLCanvasElement): Promise<WebglApi.View> {
   // Initialize the data API with the Novorender data server service
   const dataApi = dataJsAPI.createAPI({
     serviceUrl: "https://data.novorender.com/api",
@@ -108,11 +99,7 @@ async function initView(
   return view;
 }
 
-async function run(
-  view: WebglApi.View,
-  canvas: HTMLCanvasElement
-): Promise<void> {
-
+async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void> {
   // Handle canvas resizes
   new ResizeObserver((entries) => {
     for (const entry of entries) {
