@@ -1,0 +1,130 @@
+.chat-ui {
+  display: flex;
+  flex-direction: column;
+  width: 70vw;
+  margin: 10px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 5px;
+  align-self: center;
+  height: calc(100vh - 80px);
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--ifm-color-primary);
+  font-size: 22px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.status {
+  color: #999;
+  font-size: 12px;
+}
+
+.messages {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: auto;
+}
+
+.message-container {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.me.message-container {
+  justify-content: flex-end;
+}
+
+.them.message-container {
+  justify-content: flex-start;
+}
+
+.message {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #eee;
+  max-width: 70%;
+  align-self: flex-start;
+  color: #484646;
+  position: relative;
+}
+
+.me .message:after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 16px solid transparent;
+  border-left-color: #007aff;
+  border-right: 0;
+  border-top: 0;
+  margin-top: -16px;
+  margin-right: -16px;
+}
+
+.me .message {
+  background-color: #007aff;
+  color: #fff;
+  margin-right: 16px;
+}
+
+.them .message {
+  margin-left: 16px;
+}
+
+.them .message:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 16px solid transparent;
+  border-right-color: #eee;
+  border-left: 0;
+  border-top: 0;
+  margin-top: -16px;
+  margin-left: -16px;
+}
+
+.input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid var(--ifm-color-emphasis-100);
+}
+
+.input-area input {
+  flex: 1;
+  border: none;
+  border-radius: 20px;
+  padding: 10px;
+  margin-right: 10px;
+}
