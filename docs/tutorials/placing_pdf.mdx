@@ -115,12 +115,12 @@ const modelPosA = vec2.fromValues(pickPositionA[0], pickPositionA[2] * -1);
 const modelPosB = vec2.fromValues(pickPositionB[0], pickPositionB[2] * -1);
 //Invert Y axis on the pixel positions on the pdf image
 const pixelPosA = vec2.fromValues(pdfPosA[0], imgHeight.current - pdfPosA[1]);
-const picelPosB = vec2.fromValues(pdfPosB[0], imgHeight.current - pdfPosB[1]);
-const pixelLength = vec2.dist(pixelPosA, picelPosB);
+const pixelPosB = vec2.fromValues(pdfPosB[0], imgHeight.current - pdfPosB[1]);
+const pixelLength = vec2.dist(pixelPosA, pixelPosB);
 const modelLength = vec2.dist(modelPosA, modelPosB);
 const modelDir = vec2.sub(vec2.create(), modelPosB, modelPosA);
 vec2.normalize(modelDir, modelDir);
-const pixDir = vec2.sub(vec2.create(), picelPosB, pixelPosA);
+const pixDir = vec2.sub(vec2.create(), pixelPosB, pixelPosA);
 vec2.normalize(pixDir, pixDir);
 const scale = modelLength / pixelLength;
 
