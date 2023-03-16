@@ -120,13 +120,14 @@ const pixelLength = vec2.dist(pixelPosA, picelPosB);
 const modelLength = vec2.dist(modelPosA, modelPosB);
 const modelDir = vec2.sub(vec2.create(), modelPosB, modelPosA);
 vec2.normalize(modelDir, modelDir);
-const pixDir = vec2.sub(vec2.create(), pixelPosA, picelPosB);
+const pixDir = vec2.sub(vec2.create(), picelPosB, pixelPosA);
 vec2.normalize(pixDir, pixDir);
 const scale = modelLength / pixelLength;
 
-const angleAroundZ = vec2.dot(modelDir, pixDir);
+const radAroundZ = Math.acos(vec2.dot(modelDir, pixDir)) * -1;
+const degreesAroundZ = (angleAroundZRad / Math.PI) * 180;
 const pdfToWorldScale = imgHeight.current * scale;
-const translation = vec2.sub(vec2.create(), modelPosA, vec2.fromValues(pixelPosA[0] * scale, pixelPosA[1] * scale));
+const translation = vec2.sub(vec2.create(), modelPos[0], vec2.fromValues(pixelPosA[0] * scale * Math.cos(radAroundZ), pixelPosA[1] * scale * Math.sin(radAroundZ)));
 ```
 
 ### Placing a preview of PDF in scene and update
