@@ -305,8 +305,10 @@ async function downloadPdfPreview(scene: SceneData): Promise<string | undefined>
     const data = await iteratorResult.value.loadMetaData();
     for (const prop of data.properties) {
       if (prop[0] === "Novorender/Document/Preview") {
-        //This is the PDF image
-        return prop[1];
+        // This is the PDF image
+        const url = new URL((scene as any).url);
+        url.pathname += prop[1];
+        return url.toString();
       }
     }
   }
