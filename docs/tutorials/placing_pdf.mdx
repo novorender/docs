@@ -139,15 +139,19 @@ see [Dynamic Objects](./dynamic_objects). The dynamic model data can be found us
 section will be used to set scale, translation and rotation.
 
 ```typescript
-const resource = await dataAPI.getResource("bad260f94a5340b9b767ea2756392be4");
+const resource = await this.dataApi.getResource("bad260f94a5340b9b767ea2756392be4");
 const url = new URL(resource.gltf);
-const asset = await api.loadAsset(url);
-const instance = scene.createDynamicObject(asset);
+const asset = await this.api.loadAsset(url);
+const instance = this.view.scene.createDynamicObject(asset);
+instance.scale = vec3.fromValues(pdfToWorldScale, pdfToWorldScale, 1);
+instance.visible = true;
 
-instance.rotation = quat.fromEuler(quat.create(), 0, 0, angleAroundZ);
-//flip back to coordinates where Y axis is up and adding elevation
-instance.position = vec3.fromValues(translation[0], elevation, translation[1] * -1);
-instance.scale = pdfToWorldScale;
+// Rotate back to y as height
+const rotation = quat.fromValues(-0.70710677, 0, 0, 0.70710677);
+instance.position = vec3.transformQuat(vec3.create(), vec3.fromValues(translation[0], translation[1], 161.9), rotation);
+
+// Rotate around Z to match
+instance.rotation = quat.multiply(rotation, rotation, quat.fromEuler(quat.create(), 0, 0, degreesAroundZ));
 ```
 
 When it looks good this asset can be added to the scene.
