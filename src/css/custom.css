@@ -210,3 +210,46 @@
     opacity: 1;
   }
 }
+
+.search-test-wrapper-element {
+  position: absolute;
+  top: 0;
+  padding: 10px;
+  background: #3794ff;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 50%;
+  border-radius: 0 0 5px 5px;
+}
+
+.search-test-wrapper-element input {
+  width: 85%;
+  border: 1px solid;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.search-test-wrapper-element input + button {
+  background: white;
+  color: gray;
+  border-radius: 5px;
+}
+
+.search-test-chip-element {
+  font-size: 11px;
+  background: #3e34d3;
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 12px;
+}
+
+.search-test-chip-element button {
+  background: red;
+  border-radius: 10px;
+  font-size: 10px;
+  position: relative;
+  bottom: 1px;
+  left: 3px;
+}
