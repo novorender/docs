@@ -24,7 +24,6 @@ yarn-debug.log*
 yarn-error.log*
 docusaurus-theme-github-codeblock-main
 
-
 scene-screenshot-gen/index.js
 demo-snippets/**/*.js
 src/shared/*.js
