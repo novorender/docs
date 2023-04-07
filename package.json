@@ -24,7 +24,7 @@
     "lint": "eslint src/ demo-snippets/ --max-warnings=0"
   },
   "dependencies": {
-    "@cmfcmf/docusaurus-search-local": "1.0.0",
+    "@cmfcmf/docusaurus-search-local": "0.11.0",
     "@docusaurus/core": "2.3.1",
     "@docusaurus/preset-classic": "2.3.1",
     "@docusaurus/theme-live-codeblock": "2.3.1",
