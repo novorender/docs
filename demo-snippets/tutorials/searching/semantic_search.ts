@@ -121,7 +121,7 @@ async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void
 }
 
 // Function to create chip
-function createChip(label: string, onClick: (label: string) => void) {
+function createChip(label: string, scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>) {
   // Create chip container div
   const chipContainer = document.createElement("div");
 
@@ -136,8 +136,16 @@ function createChip(label: string, onClick: (label: string) => void) {
   chipCloseButton.textContent = "x";
 
   // Add click event listener to chip close button
-  chipCloseButton.onclick = () => {
-    onClick(label);
+  chipCloseButton.onclick = async () => {
+    const labelToRemove = props.findIndex((p) => {
+      const currentLabel = label.split(": ");
+      return p[0] === currentLabel[0] && p[1] === currentLabel[1];
+    });
+
+    if (labelToRemove !== -1) {
+      props.splice(labelToRemove, 1);
+      await createChipElementsThenSearchAndIsolate(scene, chipWrapper, props);
+    }
   };
 
   // Append chip span and chip close button to chip container
@@ -164,7 +172,13 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
 
+  let noResultsMsg: HTMLParagraphElement;
+
   searchButton.onclick = async () => {
+    if (noResultsMsg) {
+      wrapper.removeChild(noResultsMsg);
+    }
+
     searchButton.textContent = "Loading...";
 
     const response = await fetch(`https://novorender-semantic-search-test-api.onrender.com/search?query=${input.value}`);
@@ -173,12 +187,17 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
     const validJSONStr = res.replace(/'/g, '"');
 
     const props: Array<string[]> = JSON.parse(validJSONStr);
-    createChipElements(scene, chipWrapper, props);
+
+    await createChipElementsThenSearchAndIsolate(scene, chipWrapper, props);
+
+    if (!props.length) {
+      noResultsMsg = document.createElement("p");
+      noResultsMsg.textContent = "No results found for you query, try rephrasing your query.";
+      wrapper.appendChild(noResultsMsg);
+    }
 
     searchButton.textContent = "Search";
     input.value = "";
-
-    await searchAndIsolate(scene, props);
   };
 
   // Append input field and search button to container
@@ -193,27 +212,19 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
 function createChipElements(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>) {
   chipWrapper.replaceChildren(
     ...props.map((chip) => {
-      return createChip(`${chip[0]}: ${chip[1]}`, async (label) => {
-        // props.splice(props.indexOf())
-        const labelToRemove = props.findIndex((p) => {
-          const currentLabel = label.split(": ");
-          return p[0] === currentLabel[0] && p[1] === currentLabel[1];
-        });
-
-        if (labelToRemove !== -1) {
-          props.splice(labelToRemove, 1);
-          createChipElements(scene, chipWrapper, props);
-
-          // reset and re-apply the search
-          scene.objectHighlighter.objectHighlightIndices.fill(0);
-          scene.objectHighlighter.commit();
-          if (props.length) {
-            await searchAndIsolate(scene, props);
-          }
-        }
-      });
+      return createChip(`${chip[0]}: ${chip[1]}`, scene, chipWrapper, props);
     })
   );
+}
+
+async function createChipElementsThenSearchAndIsolate(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>) {
+  // reset and re-apply the search
+  scene.objectHighlighter.objectHighlightIndices.fill(0);
+  scene.objectHighlighter.commit();
+  createChipElements(scene, chipWrapper, props);
+  if (props.length) {
+    await searchAndIsolate(scene, props);
+  }
 }
 
 async function searchAndIsolate(scene: WebglApi.Scene, props: Array<string[]>) {
