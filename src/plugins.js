@@ -58,6 +58,7 @@ const webpackPlugin = (context, options) => {
                 filename: "[hash]",
               },
             },
+            { test: /\.ts\?raw$/, use: "raw-loader" },
           ],
         },
       };
