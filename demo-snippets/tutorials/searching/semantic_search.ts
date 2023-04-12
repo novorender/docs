@@ -163,6 +163,12 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
 
   wrapper.classList.add("search-test-wrapper-element");
 
+  // Create index name field
+  const indexName = document.createElement("input");
+  indexName.type = "text";
+  indexName.placeholder = "Enter pinecone index name";
+  indexName.value = "condos-test-index-001";
+  indexName.style.width = "25%";
   // Create input field
   const input = document.createElement("input");
   input.type = "text";
@@ -181,7 +187,7 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
 
     searchButton.textContent = "Loading...";
 
-    const response = await fetch(`https://novorender-semantic-search-test-api.onrender.com/search?query=${input.value}`);
+    const response = await fetch(`https://novorender-semantic-search-test-api.onrender.com/search?indexName=${indexName.value}&&query=${input.value}`);
     const { res } = await response.json();
     // Replace all single quotes with double quotes so we can json parse
     const validJSONStr = res.replace(/'/g, '"');
@@ -201,6 +207,7 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
   };
 
   // Append input field and search button to container
+  wrapper.appendChild(indexName);
   wrapper.appendChild(input);
   wrapper.appendChild(searchButton);
   wrapper.appendChild(chipWrapper);
