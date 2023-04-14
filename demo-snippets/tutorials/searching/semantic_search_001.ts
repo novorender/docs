@@ -54,7 +54,7 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
       });
 
     // Destructure relevant properties into variables
-    const { url, db, settings, camera: cameraParams } = sceneData;
+    const { url, db, settings, camera: cameraParams, objectGroups } = sceneData;
 
     // initialize the webgl api
     const api = webglApi.createAPI();
@@ -74,13 +74,26 @@ export async function main({ webglApi, dataJsApi, canvas }: IParams) {
     // Create a camera controller with the saved parameters with turntable as fallback
     // available controller types are static, orbit, flight and turntable
     const camera = cameraParams ?? ({ kind: "turntable" } as any);
-    view.camera.controller = api.createCameraController(camera, canvas);
+    const controller = api.createCameraController(camera, canvas);
+    controller.autoZoomToScene = !cameraParams;
+    view.camera.controller = controller;
 
     // Assign the scene to the view
     view.scene = scene;
 
     // Run render loop and the resizeObserver
     run(view, canvas);
+
+    const ids: number[] = [];
+    objectGroups
+      .filter((e) => e.hidden)
+      .forEach((e) => {
+        if (e.ids?.length) {
+          ids.push(...e.ids);
+        }
+      });
+    ids.forEach((id) => (scene.objectHighlighter.objectHighlightIndices[id] = 255));
+    scene.objectHighlighter.commit();
   } catch (e) {
     // Handle errors however you like
     console.warn(e);
