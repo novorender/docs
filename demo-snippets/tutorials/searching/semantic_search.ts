@@ -167,7 +167,7 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
   const namespace = document.createElement("input");
   namespace.type = "text";
   namespace.placeholder = "Enter pinecone index name";
-  namespace.value = "condos-test-index-001";
+  namespace.value = "condos";
   namespace.style.width = "25%";
   // Create input field
   const input = document.createElement("input");
@@ -187,7 +187,7 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene) {
 
     searchButton.textContent = "Loading...";
 
-    const response = await fetch(`https://novorender-semantic-search-test-api.onrender.com/search?namespace=${namespace.value}&&query=${input.value}`);
+    const response = await fetch(`https://novorender-semantic-search-test-api.onrender.com/search?namespace=${namespace.value}&query=${input.value}`);
     const { res } = await response.json();
     // Replace all single quotes with double quotes so we can json parse
     const validJSONStr = res.replace(/'/g, '"');
