@@ -303,11 +303,11 @@ async function searchAndIsolate(scene: WebglApi.Scene, props: Array<string[]>) {
   // In this example we just want to isolate the objects so all we need is the object ID
   const result: number[] = [];
   for await (const object of iterator) {
-    console.log("ite ", object);
+    // console.log("ite ", object);
     result.push(object.id);
   }
 
-  console.log("result ", result);
+  // console.log("result ", result);
 
   // Then we isolate the objects found
   isolateObjects(scene, result);
