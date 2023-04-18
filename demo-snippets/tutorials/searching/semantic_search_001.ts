@@ -199,6 +199,8 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene, sceneId: 
   // Create container div
   const wrapper = document.createElement("div");
   const chipWrapper = document.createElement("div");
+  chipWrapper.style.maxHeight = "70px";
+  chipWrapper.style.overflow = "auto";
 
   wrapper.classList.add("search-test-wrapper-element");
 
