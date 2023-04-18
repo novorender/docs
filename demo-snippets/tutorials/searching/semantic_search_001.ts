@@ -17,9 +17,9 @@ export interface IParams {
 // HiddenRangeEnded
 export async function main({ webglApi, dataJsApi, canvas }: IParams) {
   // Hardcoded values for demo purposes
-  const username = "";
-  const password = "";
-  const sceneId = "";
+  const username = "aamir@banenor";
+  const password = "kDbV52SihkwI0eRs";
+  const sceneId = "3747a98478be4b2787bb39a685af9c4d";
 
   const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 
@@ -303,11 +303,8 @@ async function searchAndIsolate(scene: WebglApi.Scene, props: Array<string[]>) {
   // In this example we just want to isolate the objects so all we need is the object ID
   const result: number[] = [];
   for await (const object of iterator) {
-    console.log("ite ", object);
     result.push(object.id);
   }
-
-  console.log("result ", result);
 
   // Then we isolate the objects found
   isolateObjects(scene, result);
