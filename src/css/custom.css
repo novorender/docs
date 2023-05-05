@@ -243,13 +243,18 @@
   display: inline-block;
   padding: 0 5px;
   border-radius: 12px;
+  cursor: pointer;
 }
 
-.search-test-chip-element button {
+.search-test-chip-element:not(.is-active) {
+  filter: opacity(0.5);
+}
+
+/* .search-test-chip-element button {
   background: red;
   border-radius: 10px;
   font-size: 10px;
   position: relative;
   bottom: 1px;
   left: 3px;
-}
+} */

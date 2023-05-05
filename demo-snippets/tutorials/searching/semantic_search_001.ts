@@ -159,36 +159,35 @@ async function run(view: WebglApi.View, canvas: HTMLCanvasElement): Promise<void
   }
 }
 
+let props: Array<{ prop: string[]; isActive: boolean }> = [];
+
 // Function to create chip
-function createChip(label: string, scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>, sceneId: any, dataApi: any, objectGroups: any) {
+function createChip(label: string, scene: WebglApi.Scene, chipWrapper: HTMLDivElement, sceneId: any, dataApi: any, objectGroups: any, isActive: boolean) {
   // Create chip container div
   const chipContainer = document.createElement("div");
 
   chipContainer.classList.add("search-test-chip-element");
 
+  if (isActive) {
+    chipContainer.classList.add("is-active");
+  }
+
   // Create chip span
   const chipSpan = document.createElement("span");
   chipSpan.textContent = label + " ";
 
-  // Create chip close button
-  const chipCloseButton = document.createElement("button");
-  chipCloseButton.textContent = "x";
-
-  // Add click event listener to chip close button
-  chipCloseButton.onclick = async () => {
-    const labelToRemove = props.findIndex((p) => {
+  chipContainer.onclick = async () => {
+    props.forEach((p) => {
       const currentLabel = label.split(": ");
-      return p[0] === currentLabel[0] && p[1] === currentLabel[1];
+      if (p.prop[0] === currentLabel[0] && p.prop[1] === currentLabel[1]) {
+        p.isActive = !p.isActive;
+      }
     });
 
-    if (labelToRemove !== -1) {
-      props.splice(labelToRemove, 1);
-      await createChipElementsThenSearchAndIsolate(scene, chipWrapper, props, sceneId, dataApi, objectGroups);
-    }
+    await createChipElementsThenSearchAndIsolate(scene, chipWrapper, sceneId, dataApi, objectGroups);
   };
 
   // Append chip span and chip close button to chip container
-  chipSpan.appendChild(chipCloseButton);
   chipContainer.appendChild(chipSpan);
 
   // Return chip container
@@ -233,9 +232,9 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene, sceneId: 
     // Replace all single quotes with double quotes so we can json parse
     const validJSONStr = res.replace(/'/g, '"');
 
-    const props: Array<string[]> = JSON.parse(validJSONStr);
+    props = JSON.parse(validJSONStr).map((e: any) => ({ prop: e, isActive: true }));
 
-    await createChipElementsThenSearchAndIsolate(scene, chipWrapper, props, sceneId, dataApi, objectGroups);
+    await createChipElementsThenSearchAndIsolate(scene, chipWrapper, sceneId, dataApi, objectGroups);
 
     if (!props.length) {
       noResultsMsg = document.createElement("p");
@@ -257,15 +256,15 @@ function createSearchUi(container: HTMLElement, scene: WebglApi.Scene, sceneId: 
   container.appendChild(wrapper);
 }
 
-function createChipElements(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>, sceneId: any, dataApi: any, objectGroups: any) {
+function createChipElements(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, sceneId: any, dataApi: any, objectGroups: any) {
   chipWrapper.replaceChildren(
     ...props.map((chip) => {
-      return createChip(`${chip[0]}: ${chip[1]}`, scene, chipWrapper, props, sceneId, dataApi, objectGroups);
+      return createChip(`${chip.prop[0]}: ${chip.prop[1]}`, scene, chipWrapper, sceneId, dataApi, objectGroups, chip.isActive);
     })
   );
 }
 
-async function createChipElementsThenSearchAndIsolate(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, props: Array<string[]>, sceneId: any, dataApi: any, objectGroups: any) {
+async function createChipElementsThenSearchAndIsolate(scene: WebglApi.Scene, chipWrapper: HTMLDivElement, sceneId: any, dataApi: any, objectGroups: any) {
   // For groups that have large .ids lists we have to explicitly load the IDs
   // when needed as to not bloat the .loadScene() response
   const groupIdRequests: Promise<void>[] = objectGroups.map(async (group: any) => {
@@ -287,19 +286,19 @@ async function createChipElementsThenSearchAndIsolate(scene: WebglApi.Scene, chi
   // reset and then re-apply the search
 
   // scene.objectHighlighter.commit();
-  createChipElements(scene, chipWrapper, props, sceneId, dataApi, objectGroups);
-  if (props.length) {
-    await searchAndIsolate(scene, props);
+  createChipElements(scene, chipWrapper, sceneId, dataApi, objectGroups);
+  if (props.filter((p) => p.isActive).length) {
+    await searchAndIsolate(scene);
   }
 }
 
-async function searchAndIsolate(scene: WebglApi.Scene, props: Array<string[]>) {
-  console.log("searchAndIsolate ", props);
+async function searchAndIsolate(scene: WebglApi.Scene) {
+  const filteredProps = props.filter((p) => p.isActive);
 
   // Run the searches
   // Exact search only checking the property "ifcClass" and the exact value "ifcRoof"
   const iterator = scene.search({
-    searchPattern: props.map((i: any) => ({ property: i[0], value: i[1], exact: true })),
+    searchPattern: filteredProps.map((i: any) => ({ property: i.prop[0], value: i.prop[1], exact: true })),
   });
 
   // In this example we just want to isolate the objects so all we need is the object ID
