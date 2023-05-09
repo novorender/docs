@@ -197,17 +197,13 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
           const pixDir = sub(create(), pixelPosA, pixelPosB);
           normalize(pixDir, pixDir);
           const scale = modelLength / pixelLength;
-          const angleAroundZ = 1 + dot(modelDir, pixDir);
+          const radAroundZ = Math.acos(dot(modelDir, pixDir)) * -1;
+          const degreesAroundZ = (radAroundZ / Math.PI) * 180;
           const pdfToWorldScale = imgHeight * scale;
-          const translation = sub(create(), modelPosA, fromValues(pixelPosA[0] * scale, pixelPosA[1] * scale));
+          const translation = sub(create(), modelPosA, fromValues(pixelPosA[0] * scale * Math.cos(radAroundZ), pixelPosA[1] * scale * Math.sin(radAroundZ)));
 
-          // logs
-          console.log("angleAroundZ", angleAroundZ);
-          console.log("pdfToWorldScale ", pdfToWorldScale);
-          console.log("translation ", translation);
-
-          // calculations to show in info pane
-          const calculations = { angleAroundZ, pdfToWorldScale, translation };
+          // calculations to show/log in the info pane
+          const calculations = { radians: radAroundZ, degrees: degreesAroundZ, pdfToWorldScale, translation };
           openInfoPane(calculations, "PDF Transformation");
         }
       }
@@ -309,8 +305,10 @@ async function downloadPdfPreview(scene: SceneData): Promise<string | undefined>
     const data = await iteratorResult.value.loadMetaData();
     for (const prop of data.properties) {
       if (prop[0] === "Novorender/Document/Preview") {
-        //This is the PDF image
-        return prop[1];
+        const url = new URL((scene as any).url);
+        url.pathname += prop[1];
+        // This is the PDF image URL
+        return url.toString();
       }
     }
   }
