@@ -3,7 +3,7 @@ import { Configuration } from "openai";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { HNSWLib } from "langchain/vectorstores/hnswlib";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { AIChatMessage, ChainValues, HumanChatMessage } from "langchain/schema";
+import { AIChatMessage, HumanChatMessage } from "langchain/schema";
 import { PromptTemplate } from "langchain/prompts";
 const cors = require("cors");
 require("dotenv").config();
@@ -21,31 +21,38 @@ const model = new ChatOpenAI(
   configuration
 );
 
-export const search = async (query: string): Promise<ChainValues> => {
-  // Load the vector store from the same directory
-  const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
+export const search = async (query: string): Promise<string> => {
+  let res: string;
 
-  const result = await loadedVectorStore.similaritySearch(query, 5);
+  try {
+    // Load the vector store from the same directory
+    const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
 
-  console.log("loadedVectorStore ", result);
+    const result = await loadedVectorStore.similaritySearch(query, 5);
 
-  const prompt = `provide an answer based on the given context and format the response in Markdown. If the answer is not known, respond with "I don't know."\n\nContext: {context}\n\nQuestion: {question}`;
+    console.log("loadedVectorStore ", result);
 
-  const promptTemplate = new PromptTemplate({
-    template: prompt,
-    inputVariables: ["context", "question"],
-  });
+    const prompt = `provide an answer based on the given context and format the response in Markdown. If the answer is not known, respond with "I don't know."\n\nContext: {context}\n\nQuestion: {question}`;
 
-  const fewShots: Array<HumanChatMessage | AIChatMessage> = [];
+    const promptTemplate = new PromptTemplate({
+      template: prompt,
+      inputVariables: ["context", "question"],
+    });
 
-  const promptWithActualQuestion = await promptTemplate.format({ context: `${result.map((r) => r.pageContent).join("\n")}\n`, question: query });
-  fewShots.push(new HumanChatMessage(promptWithActualQuestion));
+    const fewShots: Array<HumanChatMessage | AIChatMessage> = [];
 
-  const { text } = await model.call(fewShots);
+    const promptWithActualQuestion = await promptTemplate.format({ context: `${result.map((r) => r.pageContent).join("\n")}\n`, question: query });
+    fewShots.push(new HumanChatMessage(promptWithActualQuestion));
 
-  console.log("match ", text);
+    const { text } = await model.call(fewShots);
 
-  return "res" as any;
+    console.log("match ", text);
+
+    res = text;
+  } catch (error) {
+    console.log("An error occurred ", error);
+  }
+  return res!;
 };
 
 // const callbackManager = CallbackManager.fromHandlers({
