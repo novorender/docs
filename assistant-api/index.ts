@@ -25,6 +25,8 @@ export const search = async (query: string): Promise<string> => {
   let res: string;
 
   try {
+    console.log("Query, ", query);
+
     // Load the vector store from the same directory
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
     console.log("loadedVectorStore ", loadedVectorStore);
