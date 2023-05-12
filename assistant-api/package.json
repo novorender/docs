@@ -20,5 +20,8 @@
     "@types/express": "^4.17.17",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
