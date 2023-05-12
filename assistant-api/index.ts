@@ -27,10 +27,11 @@ export const search = async (query: string): Promise<string> => {
   try {
     // Load the vector store from the same directory
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
+    console.log("loadedVectorStore ", loadedVectorStore);
 
     const result = await loadedVectorStore.similaritySearch(query, 5);
 
-    console.log("loadedVectorStore ", result);
+    console.log("similaritySearch results ", result);
 
     const prompt = `provide an answer based on the given context and format the response in Markdown. If the answer is not known, respond with "I don't know."\n\nContext: {context}\n\nQuestion: {question}`;
 
