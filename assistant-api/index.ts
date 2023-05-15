@@ -5,8 +5,10 @@ import { HNSWLib } from "langchain/vectorstores/hnswlib";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { AIChatMessage, HumanChatMessage } from "langchain/schema";
 import { PromptTemplate } from "langchain/prompts";
+import { ConversationalRetrievalQAChain } from "langchain/chains";
 const cors = require("cors");
 require("dotenv").config();
+const bodyParser = require("body-parser");
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,37 +23,26 @@ const model = new ChatOpenAI(
   configuration
 );
 
-export const search = async (query: string): Promise<string> => {
+export const search = async (question: string, chat_history: Array<string> = []): Promise<string> => {
   let res: string;
 
   try {
-    console.log("Query, ", query);
+    console.log("Query, ", question);
 
     // Load the vector store from the same directory
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
     console.log("loadedVectorStore ", loadedVectorStore);
 
-    const result = await loadedVectorStore.similaritySearch(query, 5);
+    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown.
+{context}
+Question: {question}
+Helpful Answer:`;
 
-    console.log("similaritySearch results ", result);
+    const chain = ConversationalRetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever(), { qaTemplate });
+    /* Ask it a question */
+    const llm_res = await chain.call({ question, chat_history });
 
-    const prompt = `provide an answer based on the given context and format the response in Markdown. If the answer is not known, respond with "I don't know."\n\nContext: {context}\n\nQuestion: {question}`;
-
-    const promptTemplate = new PromptTemplate({
-      template: prompt,
-      inputVariables: ["context", "question"],
-    });
-
-    const fewShots: Array<HumanChatMessage | AIChatMessage> = [];
-
-    const promptWithActualQuestion = await promptTemplate.format({ context: `${result.map((r) => r.pageContent).join("\n")}\n`, question: query });
-    fewShots.push(new HumanChatMessage(promptWithActualQuestion));
-
-    const { text } = await model.call(fewShots);
-
-    console.log("match ", text);
-
-    res = text;
+    res = llm_res.text;
   } catch (error) {
     console.log("An error occurred ", error);
   }
@@ -73,25 +64,17 @@ export const search = async (query: string): Promise<string> => {
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
 const port = process.env.PORT || 3001;
 
-// lightweight function to validate query params
-function validateQuery(fields: string[]) {
-  return (req: Request, res: Response, next: express.NextFunction) => {
-    for (const field of fields) {
-      if (!req.query[field]) {
-        // Field isn't present, end request
-        return res.status(400).send(`${field} is required`);
-      }
-    }
-    next(); // All fields are present, proceed
-  };
-}
+app.post("/ask", async (req: Request, res: Response) => {
+  console.log("req.body ", req.body);
 
-app.get("/ask", validateQuery(["query"]), async (req: Request, res: Response) => {
-  const { query } = req.query;
+  const { body } = req;
 
-  const chainResponse = await search(query as string);
+  const chainResponse = await search(body.question, body.chat_history);
+
+  console.log("Chain response ", chainResponse);
 
   res.send(chainResponse.toString());
 });
