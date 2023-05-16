@@ -63,7 +63,11 @@ Helpful Answer:`;
 // });
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["localhost:3000", "docs.novorender.com"],
+  })
+);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3001;
 
