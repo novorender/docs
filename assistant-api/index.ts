@@ -76,7 +76,7 @@ app.post("/ask", async (req: Request, res: Response) => {
 
   console.log("Chain response ", chainResponse);
 
-  res.send(chainResponse.toString());
+  res.status(200).json({ text: chainResponse.toString(), sender: "ai" });
 });
 
 app.listen(port, () => console.log(`Server listening on port ${port}!`));
