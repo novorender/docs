@@ -8,7 +8,7 @@ import { PromptTemplate } from "langchain/prompts";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 const cors = require("cors");
 require("dotenv").config();
-const bodyParser = require("body-parser");
+import { text } from "body-parser";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -63,20 +63,16 @@ Helpful Answer:`;
 // });
 
 const app = express();
-app.use(
-  cors({
-    origin: ["localhost:3000", "docs.novorender.com"],
-  })
-);
-app.use(bodyParser.json());
+app.use(cors());
+app.use(text());
 const port = process.env.PORT || 3001;
 
 app.post("/ask", async (req: Request, res: Response) => {
   console.log("req.body ", req.body);
 
-  const { body } = req;
+  const { question, chat_history } = JSON.parse(req.body);
 
-  const chainResponse = await search(body.question, body.chat_history);
+  const chainResponse = await search(question, chat_history);
 
   console.log("Chain response ", chainResponse);
 
