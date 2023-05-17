@@ -122,7 +122,7 @@ export default function Chat(): JSX.Element {
                   {messages
                     .sort((a, b) => b.timestamp - a.timestamp)
                     .map((m, i) => (
-                      <div key={m.timestamp} className={`message-container ${m.sender}`} ref={(el) => el && el.scrollIntoView()}>
+                      <div key={m.timestamp} className={`message-container ${m.sender}`}>
                         {m.parsedMarkdown ? <div className="message" dangerouslySetInnerHTML={{ __html: m.parsedMarkdown }}></div> : <div className="message">{m.content}</div>}
                       </div>
                     ))}
