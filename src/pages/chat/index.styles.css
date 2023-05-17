@@ -61,7 +61,7 @@
   justify-content: flex-end;
 }
 
-.them.message-container {
+.ai.message-container {
   justify-content: flex-start;
 }
 
@@ -96,11 +96,11 @@
   margin-right: 16px;
 }
 
-.them .message {
+.ai .message {
   margin-left: 16px;
 }
 
-.them .message:after {
+.ai .message:after {
   content: "";
   position: absolute;
   left: 0;

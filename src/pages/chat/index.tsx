@@ -5,14 +5,24 @@ import Spinner from "@site/src/components/misc/spinner";
 import Head from "@docusaurus/Head";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRobot, faHurricane } from "@fortawesome/free-solid-svg-icons";
+const unified = require("unified");
+import remarkParse from "remark-parse";
+import remarkHtml from "remark-html";
 
 /** CSS */
 import "./index.styles.css";
 /** CSS END */
 
+interface IMessage {
+  sender: "me" | "ai";
+  content: string;
+  parsedMarkdown?: string;
+  timestamp: number;
+}
+
 export default function Chat(): JSX.Element {
-  const [message, setMessage] = useState<{ sender: string; content: string; timestamp: number }>();
-  const [messages, setMessages] = useState<Array<{ sender: string; content: string; timestamp: number }>>([]);
+  const [message, setMessage] = useState<IMessage>();
+  const [messages, setMessages] = useState<Array<IMessage>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const chatInput = useRef<HTMLInputElement>(null);
@@ -22,16 +32,32 @@ export default function Chat(): JSX.Element {
 
     setIsLoading(true);
 
+    console.log("messages ", messages);
+
+    const requestBody = {
+      question: message.content,
+      chat_history: messages
+        .slice()
+        .reverse()
+        .slice(0, -1)
+        .map((m) => m.content),
+    };
+
     console.log("Sending Message ==> ", message);
-    fetch(`https://AamirShah.pythonanywhere.com/?question=${message?.content}`)
-      .then((res) => {
-        console.log("res ===> ", res);
+    fetch("https://docs-assistant-api.onrender.com/ask", {
+      method: "post",
+      body: JSON.stringify(requestBody),
+    })
+      .then(async (res) => {
         return res.json();
       })
-      .then((res) => {
+      .then(async (res) => {
+        console.log("res ", res);
+
         const newMessage = {
           sender: res.sender,
-          content: res.content,
+          content: res.text,
+          parsedMarkdown: await parseMarkdown(res.text),
           timestamp: new Date().getTime(),
         };
 
@@ -55,7 +81,7 @@ export default function Chat(): JSX.Element {
 
     const _message = chatInput.current?.value;
 
-    const newMessage = {
+    const newMessage: IMessage = {
       sender: "me",
       content: _message,
       timestamp: new Date().getTime(),
@@ -65,6 +91,10 @@ export default function Chat(): JSX.Element {
     setMessage(newMessage);
     chatInput.current.value = "";
     // setLastSender(lastSender === "me" ? "them" : "me");
+  };
+
+  const parseMarkdown = async (mdString: string): Promise<string> => {
+    return String(await unified().use(remarkParse).use(remarkHtml).process(mdString));
   };
 
   return (
@@ -93,7 +123,7 @@ export default function Chat(): JSX.Element {
                     .sort((a, b) => b.timestamp - a.timestamp)
                     .map((m, i) => (
                       <div key={m.timestamp} className={`message-container ${m.sender}`} ref={(el) => el && el.scrollIntoView()}>
-                        <div className="message">{m.content}</div>
+                        {m.parsedMarkdown ? <div className="message" dangerouslySetInnerHTML={{ __html: m.parsedMarkdown }}></div> : <div className="message">{m.content}</div>}
                       </div>
                     ))}
                 </div>
