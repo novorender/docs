@@ -1,4 +1,5 @@
 import { Configuration } from "openai";
+import https from "https";
 import { HNSWLib } from "langchain/vectorstores/hnswlib";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from "langchain/text_splitter";
@@ -14,6 +15,41 @@ const configuration = new Configuration({
   organization: process.env.OPENAI_API_ORGNIZATION,
 });
 
+async function loadRemoteJSON(url: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, (res) => {
+      let data = "";
+
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      res.on("end", () => {
+        try {
+          const jsonData = JSON.parse(data);
+          resolve(jsonData);
+        } catch (error) {
+          reject(new Error(`Error parsing JSON data from ${url}: ${(error as Error).message}`));
+        }
+      });
+    });
+
+    req.on("error", (error) => {
+      reject(new Error(`Error loading JSON from ${url}: ${error.message}`));
+    });
+  });
+}
+
+const loadJson = async (): Promise<string> => {
+  try {
+    const json_contents = await Promise.all([loadRemoteJSON("https://data.novorender.com/swagger/v1/swagger.json"), loadRemoteJSON("https://data.novorender.com/swagger/v2/swagger.json")]);
+    return JSON.stringify(json_contents);
+  } catch (error) {
+    console.log("Error: An error occurred while reading the open api json of data js api ===> ", error);
+    return "";
+  }
+};
+
 export const loadDocsAndCreateLocalEmbeddings = async () => {
   // console.log("cwd()", path.join(process.cwd(), "docs"));
 
@@ -28,6 +64,8 @@ export const loadDocsAndCreateLocalEmbeddings = async () => {
     // ".jsonl": (path) => new JSONLinesLoader(path, "/html"),
     // ".csv": (path) => new CSVLoader(path, "text"),
   });
+
+  const dataJsAPIJson = await loadJson();
 
   const dtsLoaderWebglApi = new TextLoader(path.join(process.cwd(), "../node_modules/@novorender/webgl-api/index.d.ts"));
   const dtsLoaderDataJsApi = new TextLoader(path.join(process.cwd(), "../node_modules/@novorender/data-js-api/index.d.ts"));
@@ -53,10 +91,18 @@ export const loadDocsAndCreateLocalEmbeddings = async () => {
     docs_markdown.map((e) => e.metadata)
   );
 
+  const restApiDocsSplitted = await textSplitter.createDocuments([dataJsAPIJson]);
+
   /* Create the vectorstore */
-  const vectorStore = await HNSWLib.fromDocuments([...textDocsSplitted, ...markdownDocsSplitted], new OpenAIEmbeddings({}, configuration));
+  const vectorStore = await HNSWLib.fromDocuments([...restApiDocsSplitted, ...markdownDocsSplitted, ...textDocsSplitted], new OpenAIEmbeddings({}, configuration));
 
   await vectorStore.save("./embeddings");
 };
 
-loadDocsAndCreateLocalEmbeddings();
+loadDocsAndCreateLocalEmbeddings()
+  .then(() => {
+    console.log("Finished!");
+  })
+  .catch((err) => {
+    console.log("An error occurred while loading and creating embeddings ==> ", err);
+  });

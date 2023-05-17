@@ -3,12 +3,10 @@ import { Configuration } from "openai";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { HNSWLib } from "langchain/vectorstores/hnswlib";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { AIChatMessage, HumanChatMessage } from "langchain/schema";
-import { PromptTemplate } from "langchain/prompts";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
+import { text } from "body-parser";
 const cors = require("cors");
 require("dotenv").config();
-import { text } from "body-parser";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -19,34 +17,50 @@ const configuration = new Configuration({
 const model = new ChatOpenAI(
   {
     modelName: "gpt-3.5-turbo",
+    temperature: 1,
   },
   configuration
 );
 
-export const search = async (question: string, chat_history: Array<string> = []): Promise<string> => {
-  let res: string;
+const src_regex = /^\/media\/Datas\/novorender\/docs|\.mdx?$/g;
+
+export const search = async (question: string, chat_history: Array<string> = []): Promise<{ text: string | null; sources: Array<string> }> => {
+  let res: {
+    text: string | null;
+    sources: Array<string>;
+  };
 
   try {
     console.log("Query, ", question);
 
     // Load the vector store from the same directory
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
-    console.log("loadedVectorStore ", loadedVectorStore);
+    // console.log("loadedVectorStore ", loadedVectorStore);
 
-    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown.
+    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown, additionally if you encounter any URL or link then enclose it in angle brackets.
 {context}
 Question: {question}
 Helpful Answer:`;
 
-    const chain = ConversationalRetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever(), { qaTemplate });
+    const chain = ConversationalRetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever(), { qaTemplate, returnSourceDocuments: true });
     /* Ask it a question */
-    const llm_res = await chain.call({ question, chat_history });
+    const { text, sourceDocuments } = await chain.call({ question, chat_history });
 
-    res = llm_res.text;
+    console.log("llm_res ", sourceDocuments);
+
+    let sources: Array<string> = sourceDocuments
+      .map((d: any) => d.metadata.source)
+      .filter((s: string) => s?.endsWith(".mdx") || s?.endsWith(".md"))
+      .map((s: string) => s.replace(src_regex, ""));
+
+    sources = [...new Set(sources)];
+
+    res = { text, sources };
   } catch (error) {
     console.log("An error occurred ", error);
+    res = { text: null, sources: [] };
   }
-  return res!;
+  return res;
 };
 
 // const callbackManager = CallbackManager.fromHandlers({
@@ -72,11 +86,9 @@ app.post("/ask", async (req: Request, res: Response) => {
 
   const { question, chat_history } = JSON.parse(req.body);
 
-  const chainResponse = await search(question, chat_history);
+  const { text, sources } = await search(question, chat_history);
 
-  console.log("Chain response ", chainResponse);
-
-  res.status(200).json({ text: chainResponse.toString(), sender: "ai" });
+  res.status(200).json({ text, sources, sender: "ai" });
 });
 
 app.listen(port, () => console.log(`Server listening on port ${port}!`));
