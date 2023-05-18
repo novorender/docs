@@ -22,7 +22,7 @@ const model = new ChatOpenAI(
   configuration
 );
 
-const src_regex = /^\/media\/Datas\/novorender\/docs|\.mdx?$/g;
+const src_regex = /^\/media\/Datas\/novorender\/docs|\.mdx?$|\/index\.md$/g;
 
 export const search = async (question: string, chat_history: Array<string> = []): Promise<{ text: string | null; sources: Array<string> }> => {
   let res: {
