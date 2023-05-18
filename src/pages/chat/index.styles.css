@@ -75,6 +75,18 @@
   position: relative;
 }
 
+.message .message-sources {
+  font-size: 12px;
+  background-color: var(--ifm-code-background);
+  border-radius: var(--ifm-code-border-radius);
+  border: 0.1rem solid rgba(0, 0, 0, 0.1);
+  padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
+}
+
+.message .message-sources p {
+  margin: 0;
+}
+
 .me .message:after {
   content: "";
   position: absolute;

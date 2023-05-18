@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Link from "@docusaurus/Link";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import Layout from "@theme/Layout";
 import Spinner from "@site/src/components/misc/spinner";
@@ -18,6 +19,7 @@ interface IMessage {
   content: string;
   parsedMarkdown?: string;
   timestamp: number;
+  sources?: Array<string>;
 }
 
 export default function Chat(): JSX.Element {
@@ -51,13 +53,14 @@ export default function Chat(): JSX.Element {
       .then(async (res) => {
         return res.json();
       })
-      .then(async (res) => {
-        console.log("res ", res);
+      .then(async ({ text, sender, sources }) => {
+        console.log("res ", text, sender, sources);
 
         const newMessage = {
-          sender: res.sender,
-          content: res.text,
-          parsedMarkdown: await parseMarkdown(res.text),
+          sender,
+          sources,
+          content: text,
+          parsedMarkdown: await parseMarkdown(text),
           timestamp: new Date().getTime(),
         };
 
@@ -123,7 +126,26 @@ export default function Chat(): JSX.Element {
                     .sort((a, b) => b.timestamp - a.timestamp)
                     .map((m, i) => (
                       <div key={m.timestamp} className={`message-container ${m.sender}`}>
-                        {m.parsedMarkdown ? <div className="message" dangerouslySetInnerHTML={{ __html: m.parsedMarkdown }}></div> : <div className="message">{m.content}</div>}
+                        {m.parsedMarkdown ? (
+                          <>
+                            <div className="message">
+                              <div dangerouslySetInnerHTML={{ __html: m.parsedMarkdown }}></div>
+                              <div className="message-sources">
+                                <p>sources:</p>
+                                <span>
+                                  {m.sources.map((s) => (
+                                    <>
+                                      <Link to={s}>{s}</Link>
+                                      <br />
+                                    </>
+                                  ))}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="message">{m.content}</div>
+                        )}
                       </div>
                     ))}
                 </div>
