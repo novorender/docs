@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import Link from "@docusaurus/Link";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import Layout from "@theme/Layout";
@@ -6,9 +6,8 @@ import Spinner from "@site/src/components/misc/spinner";
 import Head from "@docusaurus/Head";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRobot, faHurricane } from "@fortawesome/free-solid-svg-icons";
-const unified = require("unified");
-import remarkParse from "remark-parse";
-import remarkHtml from "remark-html";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /** CSS */
 import "./index.styles.css";
@@ -17,15 +16,17 @@ import "./index.styles.css";
 interface IMessage {
   sender: "me" | "ai";
   content: string;
-  parsedMarkdown?: string;
   timestamp: number;
   sources?: Array<string>;
 }
 
 export default function Chat(): JSX.Element {
   const [message, setMessage] = useState<IMessage>();
+  const [lastMessageText, setLastMessageText] = useState<string>("");
   const [messages, setMessages] = useState<Array<IMessage>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const res_separator = "@@----------@@";
 
   const chatInput = useRef<HTMLInputElement>(null);
 
@@ -46,32 +47,62 @@ export default function Chat(): JSX.Element {
     };
 
     console.log("Sending Message ==> ", message);
-    fetch("https://docs-assistant-api.onrender.com/ask", {
-      method: "post",
-      body: JSON.stringify(requestBody),
-    })
-      .then(async (res) => {
-        return res.json();
-      })
-      .then(async ({ text, sender, sources }) => {
-        console.log("res ", text, sender, sources);
-
-        const newMessage = {
-          sender,
-          sources,
-          content: text,
-          parsedMarkdown: await parseMarkdown(text),
-          timestamp: new Date().getTime(),
-        };
-
-        setMessages((messages) => messages.concat(newMessage));
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log("en error occurred ", err);
-        setIsLoading(false);
-      });
+    (async () => {
+      await fetchData(requestBody);
+    })();
   }, [message]);
+
+  const fetchData = async (requestBody) => {
+    try {
+      const response = await fetch("https://docs-assistant-api.onrender.com/ask", {
+        method: "post",
+        body: JSON.stringify(requestBody),
+      });
+      const reader = response.body?.getReader();
+      let chunks = "";
+
+      const processChunk = async ({ done, value }: { done: boolean; value: Uint8Array }) => {
+        if (done) {
+          setLastMessageText("");
+
+          // All chunks received, process the accumulated data
+          const chunksSplit = chunks.split(res_separator);
+
+          const newMessage = {
+            content: chunksSplit[1], // index 1 will always contain content
+            timestamp: new Date().getTime(),
+            sources: JSON.parse(chunksSplit[2]), // index 2 will always include sources
+            ...JSON.parse(chunksSplit[0]), // finally the 0 index will return `sender`
+          };
+
+          setMessages((messages) => messages.concat(newMessage));
+          setIsLoading(false);
+
+          return;
+        }
+
+        let sep_no: 0 | 1 = 1;
+        // Accumulate the chunks
+        let decodedValue = new TextDecoder().decode(value);
+        chunks += decodedValue;
+        if (decodedValue.includes(res_separator)) {
+          // chunk is not part of message
+
+          decodedValue = decodedValue.split(res_separator)[sep_no];
+          if (sep_no === 1) sep_no = 0;
+        }
+        setLastMessageText((m) => (m += decodedValue));
+
+        // Process the next chunk
+        return reader?.read().then(processChunk);
+      };
+
+      return reader?.read().then(processChunk);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error fetching data:", error);
+    }
+  };
 
   //   const handleMessageChange = (event) => {
   //     setMessage(event.target.value);
@@ -96,10 +127,6 @@ export default function Chat(): JSX.Element {
     // setLastSender(lastSender === "me" ? "them" : "me");
   };
 
-  const parseMarkdown = async (mdString: string): Promise<string> => {
-    return String(await unified().use(remarkParse).use(remarkHtml).process(mdString));
-  };
-
   return (
     <BrowserOnly fallback={<Spinner wrapperStyles={{ width: 32, height: 32, position: "absolute", margin: "auto", top: 0, bottom: 0, left: 0, right: 0 }} />}>
       {() => {
@@ -122,30 +149,33 @@ export default function Chat(): JSX.Element {
                   </div>
                 </div>
                 <div className="messages">
+                  {lastMessageText && (
+                    <div className={`message-container ai`}>
+                      <div className="message">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{lastMessageText}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
                   {messages
                     .sort((a, b) => b.timestamp - a.timestamp)
-                    .map((m, i) => (
+                    .map((m) => (
                       <div key={m.timestamp} className={`message-container ${m.sender}`}>
-                        {m.parsedMarkdown ? (
-                          <>
-                            <div className="message">
-                              <div dangerouslySetInnerHTML={{ __html: m.parsedMarkdown }}></div>
-                              <div className="message-sources">
-                                <p>sources:</p>
-                                <span>
-                                  {m.sources.map((s) => (
-                                    <>
-                                      <Link to={s}>{s}</Link>
-                                      <br />
-                                    </>
-                                  ))}
-                                </span>
-                              </div>
+                        <div className="message">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                          {m?.sources?.length && (
+                            <div className="message-sources">
+                              <p>sources:</p>
+                              <span>
+                                {m.sources.map((s, i) => (
+                                  <Fragment key={i}>
+                                    <Link to={s}>{s}</Link>
+                                    <br />
+                                  </Fragment>
+                                ))}
+                              </span>
                             </div>
-                          </>
-                        ) : (
-                          <div className="message">{m.content}</div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                 </div>

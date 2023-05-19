@@ -87,6 +87,10 @@
   margin: 0;
 }
 
+.message .message-sources span {
+  font-size: 10px;
+}
+
 .me .message:after {
   content: "";
   position: absolute;
