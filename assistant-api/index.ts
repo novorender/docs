@@ -18,17 +18,22 @@ const model = new ChatOpenAI(
   {
     modelName: "gpt-3.5-turbo",
     temperature: 1,
+    streaming: true,
   },
   configuration
 );
 
 const src_regex = /^\/media\/Datas\/novorender\/docs|\.mdx?$|\/index\.md$/g;
+const res_separator = "@@----------@@";
 
-export const search = async (question: string, chat_history: Array<string> = []): Promise<{ text: string | null; sources: Array<string> }> => {
+export const search = async (expressResponse: Response, question: string, chat_history: Array<string> = []): Promise<{ sources: Array<string> }> => {
   let res: {
-    text: string | null;
     sources: Array<string>;
   };
+
+  let sentInitialPayload = false;
+  let currentRunId: string;
+  let shouldWriteRes = false;
 
   try {
     console.log("Query, ", question);
@@ -37,16 +42,32 @@ export const search = async (question: string, chat_history: Array<string> = [])
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
     // console.log("loadedVectorStore ", loadedVectorStore);
 
-    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown, additionally if you encounter any URL or link then enclose it in angle brackets.
+    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown.
 {context}
 Question: {question}
 Helpful Answer:`;
 
     const chain = ConversationalRetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever(), { qaTemplate, returnSourceDocuments: true });
     /* Ask it a question */
-    const { text, sourceDocuments } = await chain.call({ question, chat_history });
-
-    console.log("llm_res ", sourceDocuments);
+    const { sourceDocuments } = await chain.call({ question, chat_history }, [
+      {
+        handleLLMNewToken(token: string, runid: string) {
+          console.log(token);
+          // handleLLMNewToken is also emitting the followup question in the response, we need to skip it.
+          if (!chat_history?.length || (chat_history?.length && currentRunId && currentRunId !== runid) || shouldWriteRes) {
+            shouldWriteRes = true;
+            if (!sentInitialPayload) {
+              expressResponse.status(200);
+              expressResponse.write(JSON.stringify({ sender: "ai" }));
+              expressResponse.write(res_separator); // just a separator for making client-side parsing easy.
+              sentInitialPayload = !sentInitialPayload;
+            }
+            expressResponse.write(token);
+          }
+          currentRunId = runid;
+        },
+      },
+    ]);
 
     let sources: Array<string> = sourceDocuments
       .map((d: any) => d.metadata.source)
@@ -55,10 +76,10 @@ Helpful Answer:`;
 
     sources = [...new Set(sources)];
 
-    res = { text, sources };
+    res = { sources };
   } catch (error) {
     console.log("An error occurred ", error);
-    res = { text: null, sources: [] };
+    res = { sources: [] };
   }
   return res;
 };
@@ -86,9 +107,12 @@ app.post("/ask", async (req: Request, res: Response) => {
 
   const { question, chat_history } = JSON.parse(req.body);
 
-  const { text, sources } = await search(question, chat_history);
+  const { sources } = await search(res, question, chat_history);
 
-  res.status(200).json({ text, sources, sender: "ai" });
+  res.write(res_separator); // just a separator for making client-side parsing easy.
+  res.write(JSON.stringify(sources));
+
+  res.end();
 });
 
 app.listen(port, () => console.log(`Server listening on port ${port}!`));

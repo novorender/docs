@@ -73,6 +73,9 @@ export const loadDocsAndCreateLocalEmbeddings = async () => {
 
   const docs_text = await Promise.all([tsLoader.load(), dtsLoaderWebglApi.load(), dtsLoaderDataJsApi.load(), dtsLoaderMeasureApi.load()]).then((e) => e.flat());
 
+  const textLoaderMiscInfo = new TextLoader(path.join(process.cwd(), "misc_info.txt"));
+  const miscInfoText = await textLoaderMiscInfo.load();
+
   const docs_markdown = await markdownLoader.load();
 
   // console.log("textDocs ", docs_text);
@@ -93,8 +96,10 @@ export const loadDocsAndCreateLocalEmbeddings = async () => {
 
   const restApiDocsSplitted = await textSplitter.createDocuments([dataJsAPIJson]);
 
+  const miscInfoSplitted = await textSplitter.createDocuments(miscInfoText.map((e) => e.pageContent));
+
   /* Create the vectorstore */
-  const vectorStore = await HNSWLib.fromDocuments([...restApiDocsSplitted, ...markdownDocsSplitted, ...textDocsSplitted], new OpenAIEmbeddings({}, configuration));
+  const vectorStore = await HNSWLib.fromDocuments([...miscInfoSplitted, ...restApiDocsSplitted, ...markdownDocsSplitted, ...textDocsSplitted], new OpenAIEmbeddings({}, configuration));
 
   await vectorStore.save("./embeddings");
 };
