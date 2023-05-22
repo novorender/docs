@@ -5,6 +5,8 @@ import styles from "./index.module.css";
 import Waves from "@site/static/img/waves.svg";
 import WavesInverted from "@site/static/img/waves_inverted.svg";
 import CardWaves from "@site/static/img/card_waves.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComments, faStarHalfStroke } from "@fortawesome/free-solid-svg-icons";
 
 type FeatureItem = {
   title: string;
@@ -161,6 +163,30 @@ export default function Home(): JSX.Element {
             </div>
           </div>
         </section>
+        <Link
+          title="Chat with AI powered assistant"
+          to={`/chat`}
+          className={"button button--info"}
+          style={{
+            borderRadius: "50%",
+            position: "fixed",
+            border: "none",
+            textAlign: "center",
+            boxShadow: "rgba(0, 0, 0, 0.1) 0px 1px 4px, rgba(0, 0, 0, 0.2) 0px 2px 12px",
+            padding: 10,
+            zIndex: 999,
+            bottom: 15,
+            right: 15,
+            fontSize: 24,
+            width: 60,
+            height: 60,
+          }}
+        >
+          <span className="wobble-hor-bottom" style={{ fontSize: 9, position: "absolute", top: "-2px", left: "-4px", background: "green", color: "#fff", borderRadius: 2, fontWeight: 600, padding: "0 2px" }}>
+            NEW
+          </span>
+          <FontAwesomeIcon icon={faComments} style={{ color: "#fff" }} />
+        </Link>
       </main>
     </Layout>
   );
