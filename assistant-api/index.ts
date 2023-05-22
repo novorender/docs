@@ -42,10 +42,14 @@ export const search = async (expressResponse: Response, question: string, chat_h
     const loadedVectorStore = await HNSWLib.load("./embeddings", new OpenAIEmbeddings({}, configuration));
     // console.log("loadedVectorStore ", loadedVectorStore);
 
-    const qaTemplate = `Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. format the answer in Markdown.
-{context}
-Question: {question}
-Helpful Answer:`;
+    const qaTemplate = `You are a very enthusiastic representative for NovoRender (a company that enables engineering teams to share their advanced 3D-models with employees, customers and business partners, regardless of 3D formats and file sizes.) who loves to help people! Given the following sections from the documentation, answer the question using only that information, output in Markdown format. If you are unsure and the answer is not explicitly written in the documentation, say "Apologies, I'm not familiar with the answer to your question. However, I suggest trying to rephrase the question as it may facilitate finding a solution.".
+
+    Context:
+    {context}
+    
+    Question: {question}
+    
+    Answer (including related code snippets if available):`;
 
     const chain = ConversationalRetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever(), { qaTemplate, returnSourceDocuments: true });
     /* Ask it a question */
