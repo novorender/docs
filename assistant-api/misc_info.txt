@@ -1,0 +1,8 @@
+Novorender Data Rest API documentation URL is https://docs.novorender.com/data-rest-api/ and the swagger file can be found here https://data.novorender.com/swagger/index.html
+For testing various demos, playground can be accessed via https://docs.novorender.com/playground/, there's also an open-source playground application that can be accessed via https://explorer.novorender.com and the source code is available on github https://github.com/novorender/novoweb
+Novorender Webgl api or @novorender/webgl-api documentation can be found here https://docs.novorender.com/docs/webgl-api
+Novorender measure api or @novorender/measure-api documentation can be found here https://docs.novorender.com/docs/measure-api
+Novorender data js api or @novorender/data-js-api documentation can be found here https://docs.novorender.com/docs/data-js-api
+Novorender's main website address is https://novorender.com and the documentation for open source libraries and packages can be found via https://docs.novorender.com
+NovoRender can be contacted via email addresses info@novorender.com and contact@novorender.com or linkedin profile www.linkedin.com/company/novorender or by filling a form here https://novorender.com/contact or you can directly call the following number +47 482 80 270
+A demo can be scheduled with NovoRender using the following URL https://novorender.com/book-demo/

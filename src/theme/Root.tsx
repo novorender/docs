@@ -79,5 +79,34 @@ export default function Root({ children }) {
     };
   }, []);
 
+  useEffect(() => {
+    let observer: MutationObserver;
+    observer = new MutationObserver(() => {
+      const ele: HTMLDivElement = document.querySelector("div.aa-DetachedContainer");
+      if (ele) {
+        const child: HTMLDivElement = document.querySelector("div.aa-DetachedFormContainer");
+        observer.disconnect();
+        observer = null;
+        const panelDiv = document.createElement("div");
+        const anchorTag = document.createElement("a");
+        anchorTag.innerText = "Try Now!";
+        anchorTag.href = "/chat";
+        panelDiv.classList.add("aa-panel");
+        panelDiv.innerText = "Can't find what you need? Give our new AI-powered Support Assistant a try! ";
+        panelDiv.append(anchorTag);
+        panelDiv.style.textAlign = "center";
+        panelDiv.style.padding = "10px";
+        ele.insertBefore(panelDiv, child);
+      }
+    });
+    observer.observe(document.body, { subtree: true, childList: true });
+    return () => {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+    };
+  }, []);
+
   return <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>;
 }
