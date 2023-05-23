@@ -149,6 +149,7 @@ export default function Chat(): JSX.Element {
                   </div>
                 </div>
                 <div className="messages">
+                  {!messages?.length && <p style={{ textAlign: "center", color: "var(--ifm-color-gray-700)", margin: "auto" }}>Nothing to see here, yet!</p>}
                   {lastMessageText && (
                     <div className={`message-container ai`}>
                       <div className="message">
@@ -180,7 +181,7 @@ export default function Chat(): JSX.Element {
                     ))}
                 </div>
                 <div className="input-area">
-                  <input type="text" placeholder="Type a message..." ref={chatInput} />
+                  <input type="text" placeholder="Type your query here..." ref={chatInput} />
                   <button onClick={handleSendMessage} className="button button--sm button--primary">
                     {isLoading ? <FontAwesomeIcon style={{ fontSize: 16 }} spin={true} icon={faHurricane} /> : <span>Send</span>}
                   </button>
