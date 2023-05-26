@@ -67,19 +67,21 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   if (preview) {
     // image to draw on PDF view (right side).
     const img = new Image();
+
     img.onload = () => {
+      // Calculate the scaling factor for the image
+      var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+
+      // Calculate the new dimensions for the image
+      var scaledWidth = img.width * scale;
+      var scaledHeight = img.height * scale;
+
+      // Calculate the position to center the image within the previewCanvas
+      var offsetX = (previewCanvas.width - scaledWidth) / 2;
+      var offsetY = (previewCanvas.height - scaledHeight) / 2;
+
       if (previewCanvasContext2D) {
-        previewCanvasContext2D.drawImage(
-          img,
-          0,
-          0,
-          previewCanvas.width,
-          previewCanvas.height
-          // 0,
-          // 0,
-          // previewCanvas.width,
-          // previewCanvas.height
-        );
+        previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
       }
     };
     img.src = preview as string;
@@ -137,6 +139,16 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   let baseOctant: string | null = null;
   let zoomLevel: number = 0;
 
+  // Function to load an image
+  function loadImage(src: string, url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = url.replace(/(\.jpeg)/, `_${src}$1`);
+    });
+  }
+
   // Function to handle the click event
   previewCanvas.onclick = (event: MouseEvent) => {
     // Get the position of the click relative to the canvas
@@ -158,23 +170,53 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     console.log("preview ", preview);
 
+    const images = [`${baseOctant}0`, `${baseOctant}1`, `${baseOctant}2`, `${baseOctant}3`];
+    const previewCanvasContext2D = previewCanvas.getContext("2d")!;
+
     if (preview) {
-      const modifiedImageUrl = preview.replace(/(\.jpeg)/, `_${baseOctant}$1`);
+      Promise.all(images.map((i) => loadImage(i, preview as string)))
+        .then((loadedImages) => {
+          // Calculate the size of each image in the grid
+          const imageSize = previewCanvas.width / 2;
 
-      console.log(modifiedImageUrl);
+          // Loop through the loaded images and draw them on the canvas
+          for (let i = 0; i < loadedImages.length; i++) {
+            const image = loadedImages[i];
+            const x = (i % 2) * imageSize;
+            const y = Math.floor(i / 2) * imageSize;
+            previewCanvasContext2D.drawImage(image, x, y, imageSize, imageSize);
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading images:", error);
+        });
 
-      const previewCanvasContext2D = previewCanvas.getContext("2d");
+      // const modifiedImageUrl = preview.replace(/(\.jpeg)/, `_${baseOctant}$1`);
 
-      // image to draw on PDF view (right side).
-      const img = new Image();
-      img.onload = () => {
-        if (previewCanvasContext2D) {
-          previewCanvasContext2D.clearRect(0, 0, previewCanvasWidth, previewCanvasHeight);
+      // console.log(modifiedImageUrl);
 
-          previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-        }
-      };
-      img.src = modifiedImageUrl as string;
+      // const previewCanvasContext2D = previewCanvas.getContext("2d");
+
+      // // image to draw on PDF view (right side).
+      // const img = new Image();
+      // img.onload = () => {
+      //   if (previewCanvasContext2D) {
+      //     previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+      //     var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+
+      //     // Calculate the new dimensions for the image
+      //     var scaledWidth = img.width * scale;
+      //     var scaledHeight = img.height * scale;
+
+      //     // Calculate the position to center the image within the previewCanvas
+      //     var offsetX = (previewCanvas.width - scaledWidth) / 2;
+      //     var offsetY = (previewCanvas.height - scaledHeight) / 2;
+
+      //     previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+      //   }
+      // };
+      // img.src = modifiedImageUrl as string;
     }
   };
 
@@ -204,7 +246,19 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         const img = new Image();
         img.onload = () => {
           if (previewCanvasContext2D) {
-            previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+            previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+            var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+
+            // Calculate the new dimensions for the image
+            var scaledWidth = img.width * scale;
+            var scaledHeight = img.height * scale;
+
+            // Calculate the position to center the image within the previewCanvas
+            var offsetX = (previewCanvas.width - scaledWidth) / 2;
+            var offsetY = (previewCanvas.height - scaledHeight) / 2;
+
+            previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
           }
         };
         img.src = modifiedImageUrl as string;
@@ -314,7 +368,22 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
           if (previewCanvasContext2D && preview) {
             previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
             // Redraw the image to the preview canvas
-            previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
+            // previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
+
+            var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+
+            // Calculate the new dimensions for the image
+            var scaledWidth = img.width * scale;
+            var scaledHeight = img.height * scale;
+
+            // Calculate the position to center the image within the previewCanvas
+            var offsetX = (previewCanvas.width - scaledWidth) / 2;
+            var offsetY = (previewCanvas.height - scaledHeight) / 2;
+
+            if (previewCanvasContext2D) {
+              previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+            }
+
             if (updatedPdfPosA) {
               drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
             }
