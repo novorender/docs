@@ -66,25 +66,34 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
   if (preview) {
     // image to draw on PDF view (right side).
-    const img = new Image();
+    // const img = new Image();
 
-    img.onload = () => {
-      // Calculate the scaling factor for the image
-      var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+    // img.onload = () => {
+    //   // Calculate the scaling factor for the image
+    //   var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
 
-      // Calculate the new dimensions for the image
-      var scaledWidth = img.width * scale;
-      var scaledHeight = img.height * scale;
+    //   // Calculate the new dimensions for the image
+    //   var scaledWidth = img.width * scale;
+    //   var scaledHeight = img.height * scale;
 
-      // Calculate the position to center the image within the previewCanvas
-      var offsetX = (previewCanvas.width - scaledWidth) / 2;
-      var offsetY = (previewCanvas.height - scaledHeight) / 2;
+    //   // Calculate the position to center the image within the previewCanvas
+    //   var offsetX = (previewCanvas.width - scaledWidth) / 2;
+    //   var offsetY = (previewCanvas.height - scaledHeight) / 2;
 
+    //   if (previewCanvasContext2D) {
+    //     previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+    //   }
+    // };
+    // img.src = preview as string;
+
+    try {
+      const initialImage = await loadImage(preview);
       if (previewCanvasContext2D) {
-        previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+        previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
       }
-    };
-    img.src = preview as string;
+    } catch (error) {
+      console.error('Failed to load the preview image ', error);
+    }
   } else {
     // just to show error details on previewCanvas, if preview failed to load
     showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
@@ -133,135 +142,157 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   let selectingA = true;
   /** END */
 
-  // Variables to store the current hover position and octant
-  // let hoverX: number | null = null;
-  // let hoverY: number | null = null;
-  let baseOctant: string | null = null;
-  let zoomLevel: number = 0;
+  // create tree
+  const quadTree = new Quadtree({
+    // tree width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
+    width: previewCanvas.width + previewCanvas.width / 2,
+    height: previewCanvas.height + previewCanvas.height / 2,
+    x: 0,
+    y: 0,
+    Id: 'root',
+  });
 
-  // Function to load an image
-  function loadImage(src: string, url: string): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => resolve(image);
-      image.onerror = reject;
-      image.src = url.replace(/(\.jpeg)/, `_${src}$1`);
-    });
-  }
+  // split tree
+  quadTree.split();
 
-  // Function to handle the click event
-  previewCanvas.onclick = (event: MouseEvent) => {
+  console.log('quadTree ', quadTree);
+
+
+  let wheelDelta = 1,
+    level: number,
+    currentLevel = 1,
+    previousArea: Rectangle | undefined;
+
+  previewCanvas.onwheel = async (e) => {
+    e.preventDefault();
+
+    wheelDelta += e.deltaY * -0.01;
+    wheelDelta = Math.min(Math.max(1, wheelDelta), 5);
+    // console.log('wheelde ', wheelDelta);
+    currentLevel = Math.ceil(wheelDelta);
+    if (currentLevel === 1) {
+      level = 1;
+      try {
+        const initialImage = await loadImage(preview as string);
+        if (previewCanvasContext2D) {
+          previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+          previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
+        }
+      } catch (error) {
+        console.error('Failed to load the preview image ', error);
+      }
+      previousArea = undefined;
+      return;
+    }
+    if (level === currentLevel) {
+      return;
+    }
+    level = currentLevel;
+
     // Get the position of the click relative to the canvas
     const rect = previewCanvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    let centerX = e.clientX - rect.left;
+    let centerY = e.clientY - rect.top;
 
-    // Calculate the octant based on the click position
-    if (!baseOctant) {
-      baseOctant = calculateOctant(previewCanvas, x, y);
-    } else {
-      baseOctant = `${baseOctant}${calculateOctant(previewCanvas, x, y)}`;
+    const width = previewCanvas.width / currentLevel;
+    const height = previewCanvas.height / currentLevel;
+    if (previousArea) {
+      const previousAreaMinX = previousArea.x;
+      const previousAreaMinY = previousArea.y;
+      centerX = previousAreaMinX + centerX / currentLevel;
+      centerY = previousAreaMinY + centerY / currentLevel;
     }
-    zoomLevel += 1;
 
-    // Log the octant number
-    console.log("Clicked in octant:", baseOctant);
-    console.log("zoomLevel ", zoomLevel);
+    const area = new Rectangle({
+      x: Math.max(0, centerX - width / 2),
+      y: Math.max(0, centerY - height / 2),
+      width: width,
+      height: height,
+    });
 
-    console.log("preview ", preview);
+    // console.log('initial area', area);
 
-    const images = [`${baseOctant}0`, `${baseOctant}1`, `${baseOctant}2`, `${baseOctant}3`];
-    const previewCanvasContext2D = previewCanvas.getContext("2d")!;
+    previousArea = area;
 
-    if (preview) {
-      Promise.all(images.map((i) => loadImage(i, preview as string)))
-        .then((loadedImages) => {
-          // Calculate the size of each image in the grid
-          const imageSize = previewCanvas.width / 2;
+    let elements = quadTree.retrieve(previousArea, currentLevel);
+    // filter-out unnecessary quads that are out of bounds of canvas
+    const outOfBoundsQuads = ['11', '13', '22', '23', '31', '32', '33'];
+    elements = elements.filter((e) => {
+      for (const quad of outOfBoundsQuads) {
+        if (e.Id.startsWith(quad)) {
+          return false;
+        }
+      }
+      return true;
+    });
 
-          // Loop through the loaded images and draw them on the canvas
-          for (let i = 0; i < loadedImages.length; i++) {
-            const image = loadedImages[i];
-            const x = (i % 2) * imageSize;
-            const y = Math.floor(i / 2) * imageSize;
-            previewCanvasContext2D.drawImage(image, x, y, imageSize, imageSize);
-          }
-        })
-        .catch((error) => {
-          console.error("Error loading images:", error);
-        });
+    // elements.sort((a, b) => a.bounds.y - b.bounds.y);
 
-      // const modifiedImageUrl = preview.replace(/(\.jpeg)/, `_${baseOctant}$1`);
+    console.log(`elements for level ${currentLevel} ==> `, elements);
 
-      // console.log(modifiedImageUrl);
+    previewCanvasContext2D!.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
-      // const previewCanvasContext2D = previewCanvas.getContext("2d");
 
-      // // image to draw on PDF view (right side).
-      // const img = new Image();
-      // img.onload = () => {
-      //   if (previewCanvasContext2D) {
-      //     previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    // Loop through the found nodes and draw images based on node on the canvas
+    for (let i = 0; i < elements.length; i++) {
+      const node = elements[i];
 
-      //     var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+      let nodeBoundsWidth = node.bounds.width;
+      let nodeBoundsHeight = node.bounds.height;
 
-      //     // Calculate the new dimensions for the image
-      //     var scaledWidth = img.width * scale;
-      //     var scaledHeight = img.height * scale;
-
-      //     // Calculate the position to center the image within the previewCanvas
-      //     var offsetX = (previewCanvas.width - scaledWidth) / 2;
-      //     var offsetY = (previewCanvas.height - scaledHeight) / 2;
-
-      //     previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+      // // divide initial levels bounds width/height
+      // // because the actual tree is bigger than
+      // // the canvas size
+      // if (node.level === 1) {
+      //   switch (node.Id) {
+      //     case '1':
+      //       nodeBoundsWidth = nodeBoundsWidth / 2;
+      //       break;
+      //     case '2':
+      //       nodeBoundsHeight = nodeBoundsHeight / 2;
+      //       break;
+      //     case '3':
+      //       nodeBoundsWidth = nodeBoundsWidth / 2;
+      //       nodeBoundsHeight = nodeBoundsHeight / 2;
+      //       break;
       //   }
-      // };
-      // img.src = modifiedImageUrl as string;
-    }
-  };
+      // }
 
-  previewCanvas.oncontextmenu = (event: MouseEvent) => {
-    // Prevent the default behavior, which would show the browser's context menu
-    event.preventDefault();
+      try {
+        const loadedImage = await loadImage(preview as string, node.Id);
+        const boundsWRatio = loadedImage.naturalWidth / nodeBoundsWidth;
+        const boundsHRatio = loadedImage.naturalHeight / nodeBoundsHeight;
+        const cutLeft = Math.max(0, area.x - node.bounds.x);
+        const cutRight = Math.max(0, node.bounds.x + node.bounds.width - (area.x + area.width));
+        const cutX = cutLeft + cutRight;
+        const cutTop = Math.max(0, area.y - node.bounds.y);
+        const cutBot = Math.max(0, node.bounds.y + node.bounds.height - (area.y + area.height));
+        const cutY = cutTop + cutBot;
 
-    // check if an octant is already active
-    if (baseOctant) {
-      baseOctant = baseOctant.slice(0, -1);
-      zoomLevel -= 1;
+        const zoom = currentLevel;
+        const x = (Math.max(node.bounds.x, area.x) - area.x) * zoom;
+        const y = (Math.max(node.bounds.y, area.y) - area.y) * zoom;
 
-      // Log the octant number
-      console.log("Clicked in octant:", baseOctant);
-      console.log("zoomLevel ", zoomLevel);
+        let sx = cutLeft * boundsWRatio;
+        let sy = cutTop * boundsHRatio;
+        const sWidth = loadedImage.naturalWidth - sx - cutRight * boundsWRatio;
+        const sHeight = loadedImage.naturalHeight - sy - cutBot * boundsHRatio;
+        const dWidth = (node.bounds.width - cutX) * zoom;
+        const dHeight = (node.bounds.height - cutY) * zoom;
 
-      console.log("preview ", preview);
-
-      if (preview) {
-        const modifiedImageUrl = preview.replace(/(\.jpeg)/, `_${baseOctant}$1`);
-
-        console.log(modifiedImageUrl);
-
-        const previewCanvasContext2D = previewCanvas.getContext("2d");
-
-        // image to draw on PDF view (right side).
-        const img = new Image();
-        img.onload = () => {
-          if (previewCanvasContext2D) {
-            previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-            var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
-
-            // Calculate the new dimensions for the image
-            var scaledWidth = img.width * scale;
-            var scaledHeight = img.height * scale;
-
-            // Calculate the position to center the image within the previewCanvas
-            var offsetX = (previewCanvas.width - scaledWidth) / 2;
-            var offsetY = (previewCanvas.height - scaledHeight) / 2;
-
-            previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
-          }
-        };
-        img.src = modifiedImageUrl as string;
+        previewCanvasContext2D!.drawImage(
+          loadedImage,
+          sx,
+          sy,
+          sWidth,
+          sHeight,
+          x,
+          y,
+          dWidth,
+          dHeight
+        );
+      } catch (err) {
+        console.error('Something went wrong', err);
       }
     }
   };
@@ -363,36 +394,23 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         updatedPdfPosB = glMatrix.vec2.fromValues(scaledWidth * pdfPosB[0], scaledHeight * pdfPosB[1]);
       }
       if (preview && previewCanvasContext2D) {
-        const img = new Image();
-        img.onload = () => {
-          if (previewCanvasContext2D && preview) {
-            previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
-            // Redraw the image to the preview canvas
-            // previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
 
-            var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+        loadImage(preview)
+          .then(img => {
+            if (previewCanvasContext2D && preview) {
+              previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
+              // Redraw the image to the preview canvas
+              previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
 
-            // Calculate the new dimensions for the image
-            var scaledWidth = img.width * scale;
-            var scaledHeight = img.height * scale;
-
-            // Calculate the position to center the image within the previewCanvas
-            var offsetX = (previewCanvas.width - scaledWidth) / 2;
-            var offsetY = (previewCanvas.height - scaledHeight) / 2;
-
-            if (previewCanvasContext2D) {
-              previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+              if (updatedPdfPosA) {
+                drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
+              }
+              if (updatedPdfPosB) {
+                drawArc(previewCanvasContext2D, updatedPdfPosB[0], updatedPdfPosB[1], "blue");
+              }
             }
-
-            if (updatedPdfPosA) {
-              drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
-            }
-            if (updatedPdfPosB) {
-              drawArc(previewCanvasContext2D, updatedPdfPosB[0], updatedPdfPosB[1], "blue");
-            }
-          }
-        };
-        img.src = preview;
+          })
+          .catch(err => console.log('Failed to load the preview image ', err));
       }
     }
   }).observe(previewCanvas);
@@ -519,7 +537,7 @@ async function runResizeObserver(view: View, canvas: HTMLCanvasElement): Promise
 interface ColorSettings {
   lineColor?: string | CanvasGradient;
   fillColor?: string;
-  pointColor?: string | { start: string; middle: string; end: string };
+  pointColor?: string | { start: string; middle: string; end: string; };
   outlineColor?: string;
   complexCylinder?: boolean;
 }
@@ -567,25 +585,350 @@ function drawArc(ctx: CanvasRenderingContext2D, x: number, y: number, fillStyle:
   ctx.stroke();
 }
 
-// Calculate the octant based on the given coordinates
-function calculateOctant(previewCanvas: HTMLCanvasElement, x: number, y: number): string {
-  // Calculate the center point of the canvas
-  const centerX = previewCanvas.width / 2;
-  const centerY = previewCanvas.height / 2;
 
-  // Determine the octant based on the position
-  if (x < centerX) {
-    if (y < centerY) {
-      return "0";
-    } else {
-      return "2";
+// Function to load an image
+function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = id ? url.replace(/(\.jpeg)/, `_${id}$1`) : url;
+  });
+}
+
+/**
+ * Class representing a Quadtree node.
+ *
+ * @example
+ * ```typescript
+ * const tree = new Quadtree({
+ *   width: 100,
+ *   height: 100,
+ *   x: 0,           // optional, default:  0
+ *   y: 0,           // optional, default:  0
+ * });
+ * ```
+ */
+export class Quadtree {
+  /**
+   * The numeric boundaries of this node.
+   * @readonly
+   */
+  bounds: NodeGeometry;
+
+  /**
+   * The level of this node.
+   * @defaultValue `0`
+   * @readonly
+   */
+  level: number;
+
+  /**
+   * Subnodes of this node
+   * @defaultValue `[]`
+   * @readonly
+   */
+  nodes: Quadtree[];
+
+  Id: string;
+
+  /**
+   * Quadtree Constructor
+   * @param props - bounds and properties of the node
+   * @param level - depth level (internal use only, required for subnodes)
+   */
+  constructor(props: QuadtreeProps, level = 0) {
+    this.bounds = {
+      x: props.x || 0,
+      y: props.y || 0,
+      width: props.width,
+      height: props.height,
+    };
+    this.level = level;
+    this.nodes = [];
+    this.Id = props.Id;
+  }
+
+  /**
+   * Get the quadrant (subnode indexes) an object belongs to.
+   *
+   * @example
+   * ```typescript
+   * const tree = new Quadtree({ width: 100, height: 100 });
+   * const rectangle = new Rectangle({ x: 25, y: 25, width: 10, height: 10 });
+   * const indexes = tree.getIndex(rectangle);
+   * console.log(indexes); // [1]
+   * ```
+   *
+   * @param obj - object to be checked
+   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
+   */
+  getIndex(obj: Rectangle | Indexable): number[] {
+    return obj.qtIndex(this.bounds);
+  }
+
+  /**
+   * Split the node into 4 subnodes.
+   * @internal
+   *
+   * @example
+   * ```typescript
+   * const tree = new Quadtree({ width: 100, height: 100 });
+   * tree.split();
+   * console.log(tree); // now tree has four subnodes
+   * ```
+   */
+  split(): void {
+    const level = this.level + 1;
+
+    const width = this.bounds.width / 2,
+      height = this.bounds.height / 2,
+      x = this.bounds.x,
+      y = this.bounds.y;
+
+    // max 5 levels
+    if (level > 5) {
+      return;
     }
-  } else {
-    if (y < centerY) {
-      return "1";
-    } else {
-      return "3";
+
+    const coords = [
+      { x: x, y: y },
+      { x: x + width, y: y },
+      { x: x, y: y + height },
+      { x: x + width, y: y + height },
+    ];
+    let _id;
+    for (let i = 0; i < 4; i++) {
+
+      if (this.Id === 'root' && level === 0) {
+        _id = 'root';
+      } else if (level === 1) {
+        _id = i.toString();
+      } else {
+        _id = this.Id + i.toString();
+      }
+
+      this.nodes[i] = new Quadtree(
+        {
+          x: coords[i].x,
+          y: coords[i].y,
+          width,
+          height,
+          Id: _id,
+        },
+        level
+      );
+
+      this.nodes[i].split();
     }
   }
+
+  /**
+   * Return all objects that could collide with the given geometry.
+   *
+   * @example
+   * ```typescript
+   * tree.retrieve(new Rectangle({ x: 25, y: 25, width: 10, height: 10, data: 'data' }));
+   * ```
+   *
+   * @param obj - geometry to be checked
+   * @returns Array containing all detected objects.
+   */
+  retrieve(obj: Rectangle | Indexable, testLevel: number): Quadtree[] {
+    const indexes = this.getIndex(obj);
+
+    let returnObjects: Quadtree[] = [];
+
+    //if we have subnodes, retrieve their objects
+    if (this.nodes.length && this.level < testLevel) {
+      for (let i = 0; i < indexes.length; i++) {
+        returnObjects = returnObjects.concat(
+          this.nodes[indexes[i]].retrieve(obj, testLevel)
+        );
+      }
+    } else {
+      returnObjects.push(this);
+    }
+    return returnObjects;
+  }
 }
+
+/**
+ * Class representing a Rectangle
+ *
+ * @example
+ * ```typescript
+ * const rectangle = new Rectangle({
+ *   x: 10,
+ *   y: 20,
+ *   width: 30,
+ *   height: 40,
+ * });
+ * ```
+ */
+export class Rectangle
+  implements RectangleGeometry, Indexable {
+  /**
+   * X start of the rectangle (top left).
+   */
+  x: number;
+
+  /**
+   * Y start of the rectangle (top left).
+   */
+  y: number;
+
+  /**
+   * Width of the rectangle.
+   */
+  width: number;
+
+  /**
+   * Height of the rectangle.
+   */
+  height: number;
+
+  constructor(props: RectangleGeometry) {
+    this.x = props.x;
+    this.y = props.y;
+    this.width = props.width;
+    this.height = props.height;
+  }
+
+  /**
+   * Determine which quadrant this rectangle belongs to.
+   * @param node - Quadtree node to be checked
+   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
+   */
+  qtIndex(node: RectangleGeometry): number[] {
+
+    const indexes: number[] = [];
+    let boundsCenterX, boundsCenterY;
+
+    boundsCenterX = node.x + node.width / 2;
+    boundsCenterY = node.y + node.height / 2;
+
+    const startIsNorth = this.y < boundsCenterY,
+      startIsWest = this.x < boundsCenterX,
+      endIsEast = this.x + this.width > boundsCenterX,
+      endIsSouth = this.y + this.height > boundsCenterY;
+
+    //top-left quad
+    if (startIsWest && startIsNorth) {
+      indexes.push(0);
+    }
+
+    //top-right quad
+    if (startIsNorth && endIsEast) {
+      indexes.push(1);
+    }
+
+    //bottom-left quad
+    if (startIsWest && endIsSouth) {
+      indexes.push(2);
+    }
+
+    //bottom-right quad
+    if (endIsEast && endIsSouth) {
+      indexes.push(3);
+    }
+
+    return indexes;
+  }
+}
+
+/**
+ * Quadtree Constructor Properties
+ */
+export interface QuadtreeProps {
+  /**
+   * Width of the node.
+   */
+  width: number;
+
+  /**
+   * Height of the node.
+   */
+  height: number;
+
+  /**
+   * X Offset of the node.
+   * @defaultValue `0`
+   */
+  x?: number;
+
+  /**
+   * Y Offset of the node.
+   * @defaultValue `0`
+   */
+  y?: number;
+
+  Id: string;
+}
+
+/**
+ * Rectangle Geometry *
+ * @remarks
+ * This interface simply represents a rectangle geometry.
+ */
+export interface RectangleGeometry {
+  /**
+   * X start of the rectangle (top left).
+   */
+  x: number;
+
+  /**
+   * Y start of the rectangle (top left).
+   */
+  y: number;
+
+  /**
+   * Width of the rectangle.
+   */
+  width: number;
+
+  /**
+   * Height of the rectangle.
+   */
+  height: number;
+}
+
+/**
+ * All shape classes must implement this interface.
+ */
+export interface Indexable {
+  /**
+   * This method is called on all objects that are inserted into or retrieved from the Quadtree.
+   * It must determine which quadrant an object belongs to.
+   * @param node - Quadtree node to be checked
+   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
+   */
+  qtIndex(node: NodeGeometry): number[];
+}
+
+/**
+ * Interface for geometry of a Quadtree node
+ */
+export interface NodeGeometry {
+  /**
+   * X position of the node
+   */
+  x: number;
+
+  /**
+   * Y position of the node
+   */
+  y: number;
+
+  /**
+   * Width of the node
+   */
+  width: number;
+
+  /**
+   * Height of the node
+   */
+  height: number;
+}
+
 // HiddenRangeEnded
