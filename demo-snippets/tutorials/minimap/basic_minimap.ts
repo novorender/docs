@@ -3,10 +3,10 @@ import * as WebglApi from "@novorender/webgl-api";
 import * as MeasureApi from "@novorender/measure-api";
 import * as DataJsApi from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
-import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene } from "@novorender/webgl-api";
+import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene, SearchPattern, HierarcicalObjectReference } from "@novorender/webgl-api";
 import type { SceneData } from "@novorender/data-js-api";
 import type { DrawPart, DrawProduct } from "@novorender/measure-api";
-import type { vec2, ReadonlyVec3 } from "gl-matrix";
+import type { vec2, ReadonlyVec3, vec3, quat } from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -916,6 +916,241 @@ export interface NodeGeometry {
  * *****************************************************************************************************
  * *****************************************************************************************************
  * END OF QUAD TREE CLASS & HELPERS
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ */
+
+
+
+/**
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ * MINIMAP CLASS & HELPERS (copied from novoweb)
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ */
+
+interface MinimapInfo {
+  aspect: number;
+  elevation: number;
+  image: string;
+  corner: vec3;
+  dx: number;
+  dy: number;
+  dirX: vec3;
+  dirY: vec3;
+}
+
+export class MinimapHelper {
+  pixelWidth = 0;
+  pixelHeight = 0;
+  currentIndex = 0;
+
+  glMatrix: typeof GlMatrix;
+
+  constructor(readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
+    this.glMatrix = glMatrix;
+  }
+  toMinimap(worldPos: vec3): vec2 {
+    const curInfo = this.getCurrentInfo();
+    const diff = this.glMatrix.vec3.sub(this.glMatrix.vec3.create(), worldPos, curInfo.corner);
+    const diffX = this.glMatrix.vec3.dot(diff, curInfo.dirX);
+    const diffY = this.glMatrix.vec3.dot(diff, curInfo.dirY);
+    const x = (diffX / curInfo.dx) * this.pixelWidth;
+    const y = this.pixelHeight - (diffY / curInfo.dy) * this.pixelHeight;
+    return this.glMatrix.vec2.fromValues(x, y);
+  }
+
+  toWorld(minimapPos: vec2): vec3 {
+    const curInfo = this.getCurrentInfo();
+    const diffX = minimapPos[0] / this.pixelWidth;
+    const diffY = 1 - minimapPos[1] / this.pixelHeight;
+    const pos = this.glMatrix.vec3.clone(curInfo.corner);
+    pos[1] += 0.75;
+    this.glMatrix.vec3.scaleAndAdd(pos, pos, curInfo.dirX, curInfo.dx * diffX);
+    this.glMatrix.vec3.scaleAndAdd(pos, pos, curInfo.dirY, curInfo.dy * diffY);
+    return pos;
+  }
+
+  directionPoints(worldPos: vec3, rot: quat): vec2[] {
+    const path: vec2[] = [];
+    path.push(this.toMinimap(worldPos));
+    const rotA = this.glMatrix.quat.rotateY(this.glMatrix.quat.create(), rot, Math.PI / 8);
+    const dirZ = this.glMatrix.vec3.fromValues(0, 0, -1);
+    const dirA = this.glMatrix.vec3.transformQuat(this.glMatrix.vec3.create(), dirZ, rotA);
+    const posA = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirA, 10);
+    path.push(this.toMinimap(posA));
+
+    const rotB = this.glMatrix.quat.rotateY(this.glMatrix.quat.create(), rot, -Math.PI / 8);
+    const dirB = this.glMatrix.vec3.transformQuat(this.glMatrix.vec3.create(), dirZ, rotB);
+    const posB = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirB, 10);
+    path.push(this.toMinimap(posB));
+
+    return path;
+  }
+
+  getCurrentInfo() {
+    return this.minimaps[this.currentIndex];
+  }
+
+  getMinimapImage() {
+    return this.getCurrentInfo().image;
+  }
+
+  getAspect() {
+    return this.getCurrentInfo().aspect;
+  }
+
+  update(camPos: vec3): boolean {
+    for (let i = 1; i < this.minimaps.length; ++i) {
+      if (camPos[1] - 0.5 < this.minimaps[i].elevation) {
+        if (i !== this.currentIndex) {
+          this.currentIndex = i - 1;
+          return true;
+        }
+        return false;
+      }
+    }
+    if (this.currentIndex !== this.minimaps.length - 1) {
+      this.currentIndex = this.minimaps.length - 1;
+      return true;
+    }
+    return false;
+  }
+}
+
+export async function downloadMinimap(scene: Scene, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
+  const minimaps: MinimapInfo[] = [];
+
+  await searchByPatterns({
+    scene,
+    searchPatterns: [{ property: "Novorender/Document/Corners", exact: true }],
+    callback: async (refs) => {
+      for (const ref of refs) {
+        const data = await ref.loadMetaData();
+        let corner = glMatrix.vec3.create();
+        const dirX = glMatrix.vec3.create();
+        const dirY = glMatrix.vec3.create();
+        let dx = 0;
+        let dy = 0;
+        let aspect = 0;
+        let elevation = 0;
+        let image = "";
+        for (const prop of data.properties) {
+          if (prop[0] === "Novorender/Document/Corners") {
+            const points = prop[1].split("]");
+            const c1 = points[0].replaceAll("[", "").split(",");
+            const c2 = points[1].replaceAll("[", "").split(",");
+            const c3 = points[2].replaceAll("[", "").split(",");
+            const a = glMatrix.vec3.fromValues(Number(c1[0]), Number(c1[1]), Number(c1[2]));
+            const b = glMatrix.vec3.fromValues(Number(c2[1]), Number(c2[2]), Number(c2[3]));
+            const c = glMatrix.vec3.fromValues(Number(c3[1]), Number(c3[2]), Number(c3[3]));
+            glMatrix.vec3.sub(dirX, b, a);
+            dx = glMatrix.vec3.len(dirX);
+            glMatrix.vec3.normalize(dirX, dirX);
+            glMatrix.vec3.sub(dirY, c, b);
+            dy = glMatrix.vec3.len(dirY);
+            glMatrix.vec3.normalize(dirY, dirY);
+            corner = glMatrix.vec3.clone(a);
+            elevation = a[1];
+            aspect = dx / dy;
+          } else if (prop[0] === "Novorender/Document/Preview") {
+            image = prop[1];
+          }
+        }
+        minimaps.push({
+          aspect,
+          image,
+          dx,
+          dy,
+          corner,
+          dirX,
+          dirY,
+          elevation,
+        });
+      }
+    },
+    full: true,
+  });
+
+  minimaps.sort((a, b) => a.elevation - b.elevation);
+  return new MinimapHelper(minimaps, glMatrix);
+}
+
+const defaultCallbackInterval = 10000;
+
+/**
+    Find objects matching the specified patterns.
+    The callback gets called at the specified interval with only the new results since the last call.
+
+    @remarks
+    Some searches may return thousands of objects and take several seconds to complete.
+*/
+export async function searchByPatterns({
+  scene,
+  searchPatterns,
+  callback,
+  callbackInterval = defaultCallbackInterval,
+  abortSignal,
+  full,
+}: {
+  scene: Scene;
+  searchPatterns: SearchPattern[] | string;
+  callback: (result: HierarcicalObjectReference[]) => void;
+  callbackInterval?: number;
+  abortSignal?: AbortSignal;
+  full?: boolean;
+}): Promise<void> {
+  const iterator = scene.search({ searchPattern: searchPatterns, full }, abortSignal);
+  let done = false;
+
+  while (!done && !abortSignal?.aborted) {
+    const [result, _done] = await iterateAsync({ iterator, abortSignal, count: callbackInterval });
+    done = _done;
+    callback(result);
+    await sleep(1);
+  }
+}
+
+
+export async function iterateAsync<T = HierarcicalObjectReference>({
+  iterator,
+  count,
+  abortSignal,
+}: {
+  iterator: AsyncIterableIterator<T>;
+  count: number;
+  abortSignal?: AbortSignal;
+}): Promise<[T[], boolean]> {
+  let values: T[] = [];
+  let done = false;
+
+  for (let i = 0; i < count; i++) {
+    if (abortSignal?.aborted) {
+      break;
+    }
+
+    const next = await iterator.next();
+
+    if (next.done) {
+      done = true;
+      break;
+    }
+
+    values = [...values, next.value];
+  }
+
+  return [values, done];
+}
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ * END OF MINIMAP CLASS & HELPERS
  * *****************************************************************************************************
  * *****************************************************************************************************
  */
