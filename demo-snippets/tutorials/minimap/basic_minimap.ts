@@ -597,6 +597,14 @@ function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
 }
 
 /**
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ * QUAD TREE CLASS & HELPERS
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ */
+
+/**
  * Class representing a Quadtree node.
  *
  * @example
@@ -767,7 +775,7 @@ export class Quadtree {
  * ```
  */
 export class Rectangle
-  implements RectangleGeometry, Indexable {
+  implements NodeGeometry, Indexable {
   /**
    * X start of the rectangle (top left).
    */
@@ -788,7 +796,7 @@ export class Rectangle
    */
   height: number;
 
-  constructor(props: RectangleGeometry) {
+  constructor(props: NodeGeometry) {
     this.x = props.x;
     this.y = props.y;
     this.width = props.width;
@@ -800,7 +808,7 @@ export class Rectangle
    * @param node - Quadtree node to be checked
    * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
    */
-  qtIndex(node: RectangleGeometry): number[] {
+  qtIndex(node: NodeGeometry): number[] {
 
     const indexes: number[] = [];
     let boundsCenterX, boundsCenterY;
@@ -867,33 +875,6 @@ export interface QuadtreeProps {
 }
 
 /**
- * Rectangle Geometry *
- * @remarks
- * This interface simply represents a rectangle geometry.
- */
-export interface RectangleGeometry {
-  /**
-   * X start of the rectangle (top left).
-   */
-  x: number;
-
-  /**
-   * Y start of the rectangle (top left).
-   */
-  y: number;
-
-  /**
-   * Width of the rectangle.
-   */
-  width: number;
-
-  /**
-   * Height of the rectangle.
-   */
-  height: number;
-}
-
-/**
  * All shape classes must implement this interface.
  */
 export interface Indexable {
@@ -930,5 +911,13 @@ export interface NodeGeometry {
    */
   height: number;
 }
+
+/**
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ * END OF QUAD TREE CLASS & HELPERS
+ * *****************************************************************************************************
+ * *****************************************************************************************************
+ */
 
 // HiddenRangeEnded
