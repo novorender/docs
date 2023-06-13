@@ -24,10 +24,13 @@
     "lint": "eslint src/ demo-snippets/ --max-warnings=0"
   },
   "dependencies": {
-    "@cmfcmf/docusaurus-search-local": "0.11.0",
     "@docusaurus/core": "2.3.1",
     "@docusaurus/preset-classic": "2.3.1",
     "@docusaurus/theme-live-codeblock": "2.3.1",
+    "@novorender/data-js-api": "0.2.25",
+    "@novorender/measure-api": "0.0.143",
+    "@novorender/webgl-api": "0.4.59",
+    "@cmfcmf/docusaurus-search-local": "0.11.0",
     "@fortawesome/fontawesome-svg-core": "6.3.0",
     "@fortawesome/free-solid-svg-icons": "6.3.0",
     "@fortawesome/react-fontawesome": "0.2.0",
@@ -46,9 +49,6 @@
   "devDependencies": {
     "@docusaurus/eslint-plugin": "^2.3.1",
     "@docusaurus/module-type-aliases": "2.3.1",
-    "@novorender/data-js-api": "0.2.25",
-    "@novorender/measure-api": "0.0.123",
-    "@novorender/webgl-api": "0.4.24",
     "@tsconfig/docusaurus": "1.0.6",
     "@tsconfig/node16": "1.0.3",
     "@types/puppeteer": "5.4.6",
