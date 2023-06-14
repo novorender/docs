@@ -285,9 +285,9 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     previousArea = area;
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)), view.camera.rotation);
 
-    // console.log('minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)) ', minimap.toWorld(glMatrix.vec2.fromValues(area.x + 300 * 1.5, area.y)));
+    console.log('minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)) ', minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)));
 
-    animate();
+    // animate();
 
     let elements = quadTree.retrieve(previousArea, currentLevel);
     // filter-out unnecessary quads that are out of bounds of canvas
@@ -434,7 +434,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   }
 }
 
-// HiddenRangeStarted
 // function showErrorDetails(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null, error: string) {
 //   ctx!.font = "18px Arial";
 //   ctx!.fillStyle = "red";
@@ -1043,4 +1042,3 @@ async function downloadMinimap(scene: SceneData, glMatrix: typeof GlMatrix): Pro
  * *****************************************************************************************************
  */
 
-// HiddenRangeEnded
