@@ -199,8 +199,8 @@ function drawAngle(ctx: CanvasRenderingContext2D, camera: CameraSettings, part: 
       const textX = anglePoint[0] + dir[0] * 25;
       const textY = anglePoint[1] + dir[1] * 25;
       ctx.translate(textX, textY);
-      ctx.strokeText(part.text, 0, 0);
-      ctx.fillText(part.text, 0, 0);
+      ctx.strokeText(part.text as string, 0, 0);
+      ctx.fillText(part.text as string, 0, 0);
       ctx.resetTransform();
     }
     return true;
