@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
+import { useLocation } from '@docusaurus/router';
 import Layout from "@theme/Layout";
 import Spinner from "@site/src/components/misc/spinner";
 import Link from "@docusaurus/Link";
@@ -9,6 +10,11 @@ import Head from "@docusaurus/Head";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
+const enum API_VERSIONS {
+  V1 = "V1",
+  V2 = "V2"
+};
+
 export default function DataRestAPI(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   const {
@@ -16,9 +22,10 @@ export default function DataRestAPI(): JSX.Element {
   } = siteConfig;
   const [isMD, setIsMD] = useState<boolean>(); // use to switch API layout on < MD devices
   const [currentDefinition, setCurrentDefinition] = useState<{
-    label: "V1" | "V2";
+    label: API_VERSIONS;
     definition: string;
-  }>({ label: "V1", definition: swaggerJSON_V1 as string }); // use to switch API layout on < MD devices
+  }>({ label: API_VERSIONS.V1, definition: swaggerJSON_V1 as string }); // use to switch API layout on < MD devices
+  const { search, hash } = useLocation();
 
   useEffect(() => {
     setIsMD(innerWidth <= 996);
@@ -26,6 +33,11 @@ export default function DataRestAPI(): JSX.Element {
     const ele: HTMLDivElement = document.querySelector("div.main-wrapper");
 
     let observer: MutationObserver;
+
+    const { id } = parseQueryParams(search || hash);
+
+    const specVersionToShow = id?.toUpperCase() === API_VERSIONS.V2 ? API_VERSIONS.V2 : API_VERSIONS.V1;
+    changeSpecVersion(specVersionToShow);
 
     if (ele) {
       ele.classList.add("data-rest-api-wrapper");
@@ -48,6 +60,35 @@ export default function DataRestAPI(): JSX.Element {
       }
     };
   }, []);
+
+  const changeSpecVersion = (id: API_VERSIONS): void => {
+    setCurrentDefinition({
+      label: id,
+      definition: id === API_VERSIONS.V1 ? swaggerJSON_V1 as string : swaggerJSON_V2 as string,
+    });
+
+    if (history.pushState) {
+      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?id=${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
+  };
+
+  const parseQueryParams = (url: string): {
+    [key: string]: string;
+  } => {
+    const queryParams = {};
+    const regex = /[?&]([^=#]+)=([^&#]*)/g;
+    let match;
+
+    while ((match = regex.exec(url))) {
+      const paramName = decodeURIComponent(match[1]);
+      const paramValue = decodeURIComponent(match[2]);
+      queryParams[paramName] = paramValue;
+    }
+
+    return queryParams;
+  };
+
 
   return (
     <BrowserOnly
@@ -82,26 +123,10 @@ export default function DataRestAPI(): JSX.Element {
                   {currentDefinition.label} <FontAwesomeIcon icon={faChevronDown} />
                 </button>
                 <ul className="dropdown__menu">
-                  <li
-                    onClick={() => {
-                      setCurrentDefinition({
-                        label: "V1",
-                        definition: swaggerJSON_V1 as string,
-                      });
-                    }}
-                    className="dropdown__link"
-                  >
+                  <li onClick={() => { changeSpecVersion(API_VERSIONS.V1); }} className="dropdown__link">
                     Data API V1
                   </li>
-                  <li
-                    onClick={() => {
-                      setCurrentDefinition({
-                        label: "V2",
-                        definition: swaggerJSON_V2 as string,
-                      });
-                    }}
-                    className="dropdown__link"
-                  >
+                  <li onClick={() => { changeSpecVersion(API_VERSIONS.V2); }} className="dropdown__link">
                     Data API V2
                   </li>
                 </ul>
