@@ -21,6 +21,13 @@ Only scene related endpoints are covered by the NPM package, so for user / authe
 ### Username / Password
 
 <PlaygroundComponent {...tutorials.loadingScenes.private_scene} />
+<br />
+
+:::note
+
+Above demo retrieves access token using <code>POST [/api/user/login](/data-rest-api/#/operations/Login)</code> endpoint which is part of legacy authentication APIs, also known as the [V1 REST API](/data-rest-api). We advise transitioning to the new V2 REST API, which incorporates OAuth 2.0 for authorization.
+
+:::
 
 ### Active Directory
 
@@ -35,3 +42,9 @@ To get started authenticating with Active Directory we recommend you use [MSAL](
 ```
 
 Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of <code>POST [/api/user/login](/data-rest-api/#/operations/Login)</code>.
+
+:::note
+
+The above documentation regarding Active Directory is only applicable when utilizing the legacy authentication APIs, also known as the [V1 REST API](/data-rest-api).
+
+:::
