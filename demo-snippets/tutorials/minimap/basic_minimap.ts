@@ -5,7 +5,6 @@ import * as DataJsApi from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
 import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene, SearchPattern, HierarcicalObjectReference } from "@novorender/webgl-api";
 import type { SceneData } from "@novorender/data-js-api";
-import type { DrawPart, DrawProduct } from "@novorender/measure-api";
 import type { vec2, ReadonlyVec3, vec3, quat } from "gl-matrix";
 
 export interface IParams {
@@ -33,11 +32,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     serviceUrl: DATA_API_SERVICE_URL,
   });
 
-  // Initialize measureApi instance
-  const _measureApi = await measureApi.createMeasureAPI();
-
   // load a public scene
-  const pdfScene = (await dataApi.loadScene("4f50d89ea8cd493ea3bc16f504ad5a1f")) as SceneData;
+  const sceneData = (await dataApi.loadScene("fa20cb75e20e42b789c8e0f18ef5cc6f")) as SceneData;
 
   // render config, adjust however you want
   const renderSettings: RecursivePartial<RenderSettings> = {
@@ -52,168 +48,43 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   };
 
   // create webgl api, view and load scene and set cameraController.
-  const view = await initView(webglApi, canvas, pdfScene, renderSettings);
+  const view = await initView(webglApi, canvas, sceneData, renderSettings);
 
-  let animationFrameId = -1;
-
-  let prevCamPos: vec3;
-  let prevCamRot: quat;
-
-  function animate() {
-    // Run every frame to check if the camera has changed
-    if (
-      !prevCamRot ||
-      !glMatrix.quat.exactEquals(prevCamRot, view.camera.rotation) ||
-      !prevCamPos ||
-      !glMatrix.vec3.exactEquals(prevCamPos, view.camera.position)
-    ) {
-      prevCamRot = glMatrix.quat.clone(view.camera.rotation);
-      prevCamPos = glMatrix.vec3.clone(view.camera.position);
-      if (minimap && ctx) {
-        //Update minimap info based on camera position. Returns true if it changed the pdf to another floor
-        minimap.update(view.camera.position as vec3);
-        const img = new Image();
-        img.onload = function () {
-          if (ctx && minimap) {
-            //Redraw the image for te minimap
-            // ctx.clearRect(0, 0, width / 2, height);
-
-            //ctx.drawImage(img, 450, 200, img.width * 0.7, img.height * 0.7, 0, 0, width, height);
-            // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
-
-            //Gets the camera position in minimap space
-            const minimapPos = minimap.toMinimap(view.camera.position as vec3);
-            minimapPos[0] -= 300 * 1.5;
-            //minimapPos[1] -= 200;
-            //Gets a cone of the camera direction in minimap space, point[0] is the camera position
-            const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
-
-            const ctx = canvas.getContext("2d");
-
-            ctx!.strokeStyle = "green";
-            for (let i = 1; i < dirPath.length; ++i) {
-              ctx!.beginPath();
-              ctx!.lineWidth = 3;
-              ctx!.moveTo(dirPath[0][0] - 300 * 1.5, dirPath[0][1]);
-              ctx!.lineTo(dirPath[i][0] - 300 * 1.5, dirPath[i][1]);
-              ctx!.stroke();
-            }
-            ctx!.fillStyle = "green";
-            ctx!.beginPath();
-            ctx!.ellipse(minimapPos[0], minimapPos[1], 5, 5, 0, 0, Math.PI * 2);
-            ctx!.fill();
-          }
-        };
-        // img.src = minimap.getMinimapImage();
-      }
-    }
-
-    animationFrameId = requestAnimationFrame(() => animate());
-  }
 
   const previewCanvasContext2D = previewCanvas.getContext("2d");
   let preview: string | undefined;
   let minimap: MinimapHelper;
-  if (pdfScene && !(pdfScene as any).error) {
-    minimap = await downloadMinimap(pdfScene, glMatrix);
-    console.log('minimap ==> ', minimap);
-
+  if (sceneData && !(sceneData as any).error) {
+    minimap = await downloadMinimap(sceneData, glMatrix);
     preview = minimap.getMinimapImage();
-
-    console.log("preview image ", preview);
-
     try {
       const img = await loadImage(preview);
-      minimap.pixelWidth = canvas.width; // Set canvas width
-      minimap.pixelHeight = canvas.height; // Set canvas height in minimap helper
+      minimap.pixelWidth = img.width; // Set canvas width
+      minimap.pixelHeight = img.height; // Set canvas height in minimap helper
       if (previewCanvasContext2D) {
         previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
       }
     } catch (error) {
-      console.error('Failed to load the preview image ', error);
+      console.error("Failed to load the preview image ", error);
     }
-
   }
 
-  // if (preview) {
-  // image to draw on PDF view (right side).
-  // const img = new Image();
-
-  // img.onload = () => {
-  //   // Calculate the scaling factor for the image
-  //   var scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
-
-  //   // Calculate the new dimensions for the image
-  //   var scaledWidth = img.width * scale;
-  //   var scaledHeight = img.height * scale;
-
-  //   // Calculate the position to center the image within the previewCanvas
-  //   var offsetX = (previewCanvas.width - scaledWidth) / 2;
-  //   var offsetY = (previewCanvas.height - scaledHeight) / 2;
-
-  //   if (previewCanvasContext2D) {
-  //     previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
-  //   }
-  // };
-  // img.src = preview as string;
-
-  // try {
-  //   const initialImage = await loadImage(preview);
-  //   minimap.pixelHeight = img.height * 1.5; //Set canvas height in minimap helper
-  //   minimap.pixelWidth = img.width * 1.5; //Set canvas w
-  //   if (previewCanvasContext2D) {
-  //     previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to load the preview image ', error);
-  // }
-  // } else {
-  // just to show error details on previewCanvas, if preview failed to load
-  // showErrorDetails(previewCanvas, previewCanvasContext2D, (pdfScene as any).error);
-  // }
-
-  /** vars for 3D view click listener */
-  const context2D = canvas2D.getContext("2d");
   let currentOutput: RenderOutput;
-  let selectEntity: 1 | 2 = 1;
-  let posA: ReadonlyVec3 | undefined;
-  let posB: ReadonlyVec3 | undefined;
-  let draw: MeasureApi.DrawProduct | undefined;
-  /** END */
 
   // 3D view click listener
-  // canvas.onclick = async (e: MouseEvent) => {
-  //   if (currentOutput) {
-  //     const pickInfo = await currentOutput.pick(e.offsetX, e.offsetY);
-  //     if (pickInfo) {
-  //       if (selectEntity === 1) {
-  //         posA = pickInfo.position;
-  //         selectEntity = 2;
-  //       } else {
-  //         posB = pickInfo.position;
-  //         selectEntity = 1;
-  //       }
-  //       if (posA && posB) {
-  //         draw = _measureApi.getDrawObjectFromPoints(view, [posA, posB], false, false);
-  //       } else if (posA) {
-  //         draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
-  //       }
-  //       await drawProduct(context2D, draw, 3, canvas2D);
-  //     }
-  //   }
-  // };
+  previewCanvas.onclick = async (e: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    let centerX = e.clientX - rect.left;
+    let centerY = e.clientY - rect.top;
 
-  /** vars for PDF view (right-side) click listener */
-  let pdfPosA: vec2 | undefined;
-  let pdfPosB: vec2 | undefined;
-  let imgHeight: number;
-  let imgWidth: number;
-  let previewCanvasWidth: number;
-  let previewCanvasHeight: number;
-  let updatedPdfPosA: vec2 | null;
-  let updatedPdfPosB: vec2 | null;
-  let selectingA = true;
-  /** END */
+    if (previousArea) {
+      const previousAreaMinX = previousArea.x;
+      const previousAreaMinY = previousArea.y;
+      centerX = previousAreaMinX + centerX / currentLevel;
+      centerY = previousAreaMinY + centerY / currentLevel;
+    }
+    view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(centerX, centerY)), view.camera.rotation);
+  };
 
   // create tree
   const quadTree = new Quadtree({
@@ -222,18 +93,17 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     height: previewCanvas.height + previewCanvas.height / 2,
     x: 0,
     y: 0,
-    Id: 'root',
+    Id: "root",
   });
 
   // split tree
   quadTree.split();
 
-  console.log('quadTree ', quadTree);
-
   let wheelDelta = 1,
     level: number,
     currentLevel = 1,
-    previousArea: Rectangle | undefined;
+    previousArea: Rectangle | undefined,
+    elements: Quadtree[] | undefined;
 
   previewCanvas.onwheel = async (e) => {
     e.preventDefault();
@@ -242,7 +112,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     wheelDelta = Math.min(Math.max(1, wheelDelta), 5);
     currentLevel = Math.ceil(wheelDelta);
 
-    if (currentLevel === 1) { // reset the quadtree
+    if (currentLevel === 1) {
+      // reset the quadtree
       level = 1;
       try {
         const initialImage = await loadImage(preview as string);
@@ -251,9 +122,10 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
           previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
         }
       } catch (error) {
-        console.error('Failed to load the preview image ', error);
+        console.error("Failed to load the preview image ", error);
       }
       previousArea = undefined;
+      elements = undefined;
       return;
     }
     if (level === currentLevel) {
@@ -283,15 +155,14 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     });
 
     previousArea = area;
-    view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)), view.camera.rotation);
+    elements = quadTree.retrieve(previousArea, currentLevel);
+    await drawAndStitchOnCanvas(elements, previousArea);
+  };
 
-    console.log('minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)) ', minimap.toWorld(glMatrix.vec2.fromValues(area.x, area.y)));
-
-    // animate();
-
-    let elements = quadTree.retrieve(previousArea, currentLevel);
+  // draws one or more image tiles on canvas
+  const drawAndStitchOnCanvas = async (elements: Quadtree[], area: Rectangle) => {
     // filter-out unnecessary quads that are out of bounds of canvas
-    const outOfBoundsQuads = ['11', '13', '22', '23', '31', '32', '33'];
+    const outOfBoundsQuads = ["11", "13", "22", "23", "31", "32", "33"];
     elements = elements.filter((e) => {
       for (const quad of outOfBoundsQuads) {
         if (e.Id.startsWith(quad)) {
@@ -305,40 +176,25 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     console.log(`elements for level ${currentLevel} ==> `, elements);
 
-    previewCanvasContext2D!.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    previewCanvasContext2D?.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
     // Loop through the found nodes and draw images based on node on the canvas
     for (let i = 0; i < elements.length; i++) {
       const node = elements[i];
 
-      let nodeBoundsWidth = node.bounds.width;
-      let nodeBoundsHeight = node.bounds.height;
-
-      // // divide initial levels bounds width/height
-      // // because the actual tree is bigger than
-      // // the canvas size
-      // if (node.level === 1) {
-      //   switch (node.Id) {
-      //     case '1':
-      //       nodeBoundsWidth = nodeBoundsWidth / 2;
-      //       break;
-      //     case '2':
-      //       nodeBoundsHeight = nodeBoundsHeight / 2;
-      //       break;
-      //     case '3':
-      //       nodeBoundsWidth = nodeBoundsWidth / 2;
-      //       nodeBoundsHeight = nodeBoundsHeight / 2;
-      //       break;
-      //   }
-      // }
+      const nodeBoundsWidth = node.bounds.width;
+      const nodeBoundsHeight = node.bounds.height;
 
       try {
         const loadedImage = await loadImage(preview as string, node.Id);
+
         const boundsWRatio = loadedImage.naturalWidth / nodeBoundsWidth;
         const boundsHRatio = loadedImage.naturalHeight / nodeBoundsHeight;
+
         const cutLeft = Math.max(0, area.x - node.bounds.x);
         const cutRight = Math.max(0, node.bounds.x + node.bounds.width - (area.x + area.width));
         const cutX = cutLeft + cutRight;
+
         const cutTop = Math.max(0, area.y - node.bounds.y);
         const cutBot = Math.max(0, node.bounds.y + node.bounds.height - (area.y + area.height));
         const cutY = cutTop + cutBot;
@@ -346,29 +202,78 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         const zoom = currentLevel;
         const x = (Math.max(node.bounds.x, area.x) - area.x) * zoom;
         const y = (Math.max(node.bounds.y, area.y) - area.y) * zoom;
+        const sx = cutLeft * boundsWRatio;
+        const sy = cutTop * boundsHRatio;
 
-        let sx = cutLeft * boundsWRatio;
-        let sy = cutTop * boundsHRatio;
         const sWidth = loadedImage.naturalWidth - sx - cutRight * boundsWRatio;
         const sHeight = loadedImage.naturalHeight - sy - cutBot * boundsHRatio;
         const dWidth = (node.bounds.width - cutX) * zoom;
         const dHeight = (node.bounds.height - cutY) * zoom;
 
-        previewCanvasContext2D!.drawImage(
-          loadedImage,
-          sx,
-          sy,
-          sWidth,
-          sHeight,
-          x,
-          y,
-          dWidth,
-          dHeight
-        );
+        previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth, dHeight);
       } catch (err) {
-        console.error('Something went wrong', err);
+        console.error("Something went wrong", err);
       }
     }
+  };
+
+  let prevCamPos: vec3;
+  let prevCamRot: quat;
+
+  function animate() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const ctx = previewCanvas.getContext("2d")!;
+
+    // Run every frame to check if the camera has changed
+    if (!prevCamRot || !glMatrix.quat.equals(prevCamRot, view.camera.rotation) || !prevCamPos || !glMatrix.vec3.equals(prevCamPos, view.camera.position)) {
+
+      prevCamRot = glMatrix.quat.clone(view.camera.rotation);
+      prevCamPos = glMatrix.vec3.clone(view.camera.position);
+      if (minimap) {
+        // Update minimap info based on camera position. Returns true if it changed the pdf to another floor
+        minimap.update(view.camera.position as vec3);
+
+        if (elements?.length && currentLevel !== 1) {
+          drawAndStitchOnCanvas(elements, previousArea as Rectangle).then(() => {
+            drawLine(ctx);
+          });
+        } else {
+          const imgUrl = minimap.getMinimapImage();
+          loadImage(imgUrl).then((img) => {
+            // Redraw the image for te minimap
+            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
+            ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+            drawLine(ctx);
+          });
+        }
+      }
+    }
+
+    // animationFrameId = requestAnimationFrame(() => animate());
+  }
+
+  const drawLine = (ctx: CanvasRenderingContext2D) => {
+    //Gets the camera position in minimap space
+    const minimapPos = minimap.toMinimap(view.camera.position as vec3);
+    minimapPos[0] -= 660;
+    //minimapPos[1] -= 200;
+
+    //Gets a cone of the camera direction in minimap space, point[0] is the camera position
+    const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
+
+    ctx.strokeStyle = "green";
+    for (let i = 1; i < dirPath.length; ++i) {
+      ctx.beginPath();
+      ctx.lineWidth = 3;
+      ctx.moveTo(dirPath[0][0] - 660, dirPath[0][1]);
+      ctx.lineTo(dirPath[i][0] - 660, dirPath[i][1]);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "green";
+    ctx.beginPath();
+    ctx.ellipse(minimapPos[0], minimapPos[1], 5, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
   };
 
   // Create a bitmap context to display render output
@@ -378,39 +283,32 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   runResizeObserver(view, canvas);
 
   // resizeObserver for preview canvas (right-side) to re-draw images/arc or update size on pane resizes.
-  new ResizeObserver((entries) => {
-    for (const { contentRect } of entries) {
-      const scaledWidth = contentRect.width / previewCanvasWidth;
-      const scaledHeight = contentRect.height / previewCanvasHeight;
-      if (pdfPosA) {
-        updatedPdfPosA = glMatrix.vec2.fromValues(scaledWidth * pdfPosA[0], scaledHeight * pdfPosA[1]);
-      }
-      if (pdfPosB) {
-        updatedPdfPosB = glMatrix.vec2.fromValues(scaledWidth * pdfPosB[0], scaledHeight * pdfPosB[1]);
-      }
-      if (preview && previewCanvasContext2D) {
-
-        loadImage(preview)
-          .then(img => {
-            if (previewCanvasContext2D && preview) {
-              previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
-              // Redraw the image to the preview canvas
-              previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
-
-              if (updatedPdfPosA) {
-                drawArc(previewCanvasContext2D, updatedPdfPosA[0], updatedPdfPosA[1], "green");
-              }
-              if (updatedPdfPosB) {
-                drawArc(previewCanvasContext2D, updatedPdfPosB[0], updatedPdfPosB[1], "blue");
-              }
-            }
-          })
-          .catch(err => console.log('Failed to load the preview image ', err));
-      }
-    }
-  }).observe(previewCanvas);
+  // new ResizeObserver((entries) => {
+  //   for (const { contentRect } of entries) {
+  //     const scaledWidth = contentRect.width / previewCanvasWidth;
+  //     const scaledHeight = contentRect.height / previewCanvasHeight;
+  //     if (pdfPosA) {
+  //       updatedPdfPosA = glMatrix.vec2.fromValues(scaledWidth * pdfPosA[0], scaledHeight * pdfPosA[1]);
+  //     }
+  //     if (pdfPosB) {
+  //       updatedPdfPosB = glMatrix.vec2.fromValues(scaledWidth * pdfPosB[0], scaledHeight * pdfPosB[1]);
+  //     }
+  //     if (preview && previewCanvasContext2D) {
+  //       loadImage(preview)
+  //         .then((img) => {
+  //           if (previewCanvasContext2D && preview) {
+  //             previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
+  //             // Redraw the image to the preview canvas
+  //             previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
+  //           }
+  //         })
+  //         .catch((err) => console.log("Failed to load the preview image ", err));
+  //     }
+  //   }
+  // }).observe(previewCanvas);
 
   // render loop
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     // Render frame
     currentOutput = await view.render();
@@ -424,12 +322,9 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         image.close();
       }
     }
-    if (posA && posB) {
-      draw = _measureApi.getDrawObjectFromPoints(view, [posA, posB], false, false);
-    } else if (posA) {
-      draw = _measureApi.getDrawObjectFromPoints(view, [posA], false, false);
-    }
-    await drawProduct(context2D, draw, 3, canvas2D);
+
+    animate();
+
     (currentOutput as any).dispose();
   }
 }
@@ -442,29 +337,23 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 //   ctx!.fillText(`Error: ${error}`, canvas.width / 2, canvas.height / 1.8);
 // }
 
-async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, pdfScene: SceneData, renderSettings: RecursivePartial<RenderSettings>): Promise<View> {
+async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sceneData: SceneData, renderSettings: RecursivePartial<RenderSettings>): Promise<View> {
   // Destructure relevant properties into variables
-  const { settings, camera: cameraParams } = pdfScene;
+  const { url, db, settings, camera: cameraParams } = sceneData;
 
   // initialize the webgl api
   const api = webglApi.createAPI();
 
   // Load scene
-  const scene = await api.loadScene(WebglApi.WellKnownSceneUrls.condos);
+  const scene = await api.loadScene(url, db);
 
   // Create a view with the scene's saved settings
   const view = await api.createView(settings, canvas);
 
   view.applySettings(renderSettings);
 
-  // set up camera controller
-  // const orthoController = api.createCameraController({ kind: "flight" }, canvas);
-  // (orthoController as any).init([750, 18, -180], [0, 0, 0], view.camera);
-  // (orthoController.params as OrthoControllerParams).referenceCoordSys = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 728, 7, -230, 1];
-  // (orthoController.params as OrthoControllerParams).fieldOfView = 35;
-  // view.camera.controller = orthoController;
   // Create a camera controller with the saved parameters with ortho as fallback
-  const camera = cameraParams ?? ({ kind: "ortho" } as any);
+  const camera = cameraParams ?? ({ kind: "flight" } as any);
   view.camera.controller = api.createCameraController(camera, canvas);
 
   // Assign the scene to the view
@@ -484,58 +373,6 @@ async function runResizeObserver(view: View, canvas: HTMLCanvasElement): Promise
       });
     }
   }).observe(canvas);
-}
-
-// Below are utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
-interface ColorSettings {
-  lineColor?: string | CanvasGradient;
-  fillColor?: string;
-  pointColor?: string | { start: string; middle: string; end: string; };
-  outlineColor?: string;
-  complexCylinder?: boolean;
-}
-
-function drawProduct(context2D: CanvasRenderingContext2D | null, product: DrawProduct | undefined, pixelWidth: number, canvas2D: HTMLCanvasElement): void {
-  if (product) {
-    if (context2D) {
-      context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-      for (const obj of (product as DrawProduct).objects) {
-        obj.parts.forEach((part) => {
-          drawPart(context2D, part, pixelWidth);
-        });
-      }
-    }
-  }
-}
-
-function drawPart(ctx: CanvasRenderingContext2D, part: DrawPart, pixelWidth: number): void {
-  if (part.vertices2D) {
-    ctx.lineWidth = pixelWidth;
-    drawPoints(ctx, part);
-  }
-}
-
-function drawPoints(ctx: CanvasRenderingContext2D, part: DrawPart): void {
-  const colorSettings: Array<ColorSettings> = [
-    { fillColor: "green", outlineColor: "green", lineColor: "green" },
-    { fillColor: "blue", outlineColor: "blue", lineColor: "blue" },
-  ];
-
-  if (part.vertices2D) {
-    for (let i = 0; i < part.vertices2D.length; ++i) {
-      drawArc(ctx, part.vertices2D[i][0], part.vertices2D[i][1], colorSettings[i].fillColor as string);
-    }
-  }
-}
-
-function drawArc(ctx: CanvasRenderingContext2D, x: number, y: number, fillStyle: string): void {
-  ctx.fillStyle = fillStyle;
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "black";
-  ctx.beginPath();
-  ctx.arc(x, y, 5, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.stroke();
 }
 
 // Function to load an image
@@ -659,9 +496,8 @@ export class Quadtree {
     ];
     let _id;
     for (let i = 0; i < 4; i++) {
-
-      if (this.Id === 'root' && level === 0) {
-        _id = 'root';
+      if (this.Id === "root" && level === 0) {
+        _id = "root";
       } else if (level === 1) {
         _id = i.toString();
       } else {
@@ -702,9 +538,7 @@ export class Quadtree {
     //if we have subnodes, retrieve their objects
     if (this.nodes.length && this.level < testLevel) {
       for (let i = 0; i < indexes.length; i++) {
-        returnObjects = returnObjects.concat(
-          this.nodes[indexes[i]].retrieve(obj, testLevel)
-        );
+        returnObjects = returnObjects.concat(this.nodes[indexes[i]].retrieve(obj, testLevel));
       }
     } else {
       returnObjects.push(this);
@@ -726,8 +560,7 @@ export class Quadtree {
  * });
  * ```
  */
-export class Rectangle
-  implements NodeGeometry, Indexable {
+export class Rectangle implements NodeGeometry, Indexable {
   /**
    * X start of the rectangle (top left).
    */
@@ -761,12 +594,9 @@ export class Rectangle
    * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
    */
   qtIndex(node: NodeGeometry): number[] {
-
     const indexes: number[] = [];
-    let boundsCenterX, boundsCenterY;
-
-    boundsCenterX = node.x + node.width / 2;
-    boundsCenterY = node.y + node.height / 2;
+    const boundsCenterX = node.x + node.width / 2;
+    const boundsCenterY = node.y + node.height / 2;
 
     const startIsNorth = this.y < boundsCenterY,
       startIsWest = this.x < boundsCenterX,
@@ -872,8 +702,6 @@ export interface NodeGeometry {
  * *****************************************************************************************************
  */
 
-
-
 /**
  * *****************************************************************************************************
  * *****************************************************************************************************
@@ -971,9 +799,7 @@ export class MinimapHelper {
   }
 }
 
-
 async function downloadMinimap(scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
-
   const minimaps: MinimapInfo[] = [];
 
   // perform a db search to get the metadata
@@ -1041,4 +867,3 @@ async function downloadMinimap(scene: SceneData, glMatrix: typeof GlMatrix): Pro
  * *****************************************************************************************************
  * *****************************************************************************************************
  */
-
