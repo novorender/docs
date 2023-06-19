@@ -50,7 +50,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   // create webgl api, view and load scene and set cameraController.
   const view = await initView(webglApi, canvas, sceneData, renderSettings);
 
-
   const previewCanvasContext2D = previewCanvas.getContext("2d");
   let preview: string | undefined;
   let minimap: MinimapHelper;
@@ -59,8 +58,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     preview = minimap.getMinimapImage();
     try {
       const img = await loadImage(preview);
-      minimap.pixelWidth = img.width; // Set canvas width
-      minimap.pixelHeight = img.height; // Set canvas height in minimap helper
+      minimap.pixelWidth = previewCanvas.width; // Set canvas width
+      minimap.pixelHeight = previewCanvas.height; // Set canvas height in minimap helper
       if (previewCanvasContext2D) {
         previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
       }
@@ -71,24 +70,34 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
   let currentOutput: RenderOutput;
 
-  // 3D view click listener
+  let previousAreaMinX: number;
+  let previousAreaMinY: number;
+
+  // PDF view click listener
   previewCanvas.onclick = async (e: MouseEvent) => {
-    const rect = canvas.getBoundingClientRect();
+    // Get the position of the click relative to the canvas
+    const rect = previewCanvas.getBoundingClientRect();
     let centerX = e.clientX - rect.left;
     let centerY = e.clientY - rect.top;
 
+    console.log("previous x=", centerX, "previous y=", centerY);
+
+
     if (previousArea) {
-      const previousAreaMinX = previousArea.x;
-      const previousAreaMinY = previousArea.y;
+      previousAreaMinX = previousArea.x;
+      previousAreaMinY = previousArea.y;
       centerX = previousAreaMinX + centerX / currentLevel;
       centerY = previousAreaMinY + centerY / currentLevel;
     }
+
+    console.log("previousArea ==> ", previousArea);
+    console.log("new x=", centerX, "new y=", centerY);
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(centerX, centerY)), view.camera.rotation);
   };
 
   // create tree
   const quadTree = new Quadtree({
-    // tree width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
+    // tree's width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
     width: previewCanvas.width + previewCanvas.width / 2,
     height: previewCanvas.height + previewCanvas.height / 2,
     x: 0,
@@ -103,8 +112,10 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     level: number,
     currentLevel = 1,
     previousArea: Rectangle | undefined,
-    elements: Quadtree[] | undefined;
+    elements: Quadtree[] | undefined,
+    zoomedImage: string | undefined;
 
+  // PDF view wheel event
   previewCanvas.onwheel = async (e) => {
     e.preventDefault();
 
@@ -126,6 +137,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
       }
       previousArea = undefined;
       elements = undefined;
+      zoomedImage = undefined;
       return;
     }
     if (level === currentLevel) {
@@ -215,6 +227,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         console.error("Something went wrong", err);
       }
     }
+
+    zoomedImage = previewCanvas.toDataURL();
   };
 
   let prevCamPos: vec3;
@@ -226,6 +240,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     // Run every frame to check if the camera has changed
     if (!prevCamRot || !glMatrix.quat.equals(prevCamRot, view.camera.rotation) || !prevCamPos || !glMatrix.vec3.equals(prevCamPos, view.camera.position)) {
+      console.log("CAMERA HAS CHANGED!!!");
 
       prevCamRot = glMatrix.quat.clone(view.camera.rotation);
       prevCamPos = glMatrix.vec3.clone(view.camera.position);
@@ -233,20 +248,21 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         // Update minimap info based on camera position. Returns true if it changed the pdf to another floor
         minimap.update(view.camera.position as vec3);
 
-        if (elements?.length && currentLevel !== 1) {
-          drawAndStitchOnCanvas(elements, previousArea as Rectangle).then(() => {
-            drawLine(ctx);
-          });
+        let imgUrl: string;
+
+        if (elements?.length && currentLevel !== 1 && zoomedImage) {
+          imgUrl = zoomedImage;
         } else {
-          const imgUrl = minimap.getMinimapImage();
-          loadImage(imgUrl).then((img) => {
-            // Redraw the image for te minimap
-            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-            // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
-            ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-            drawLine(ctx);
-          });
+          imgUrl = minimap.getMinimapImage();
         }
+
+        loadImage(imgUrl).then((img) => {
+          // Redraw the image for te minimap
+          ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+          // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
+          ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+          drawLine(ctx);
+        });
       }
     }
 
@@ -256,8 +272,13 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   const drawLine = (ctx: CanvasRenderingContext2D) => {
     //Gets the camera position in minimap space
     const minimapPos = minimap.toMinimap(view.camera.position as vec3);
-    minimapPos[0] -= 660;
-    //minimapPos[1] -= 200;
+    // if (previousArea) {
+    //   minimapPos[0] += previousArea.width / 2;
+
+    //   minimapPos[1] += previousArea.height / 2;
+    // }
+
+    // console.log('minimpa pos ', minimapPos);
 
     //Gets a cone of the camera direction in minimap space, point[0] is the camera position
     const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
@@ -266,8 +287,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     for (let i = 1; i < dirPath.length; ++i) {
       ctx.beginPath();
       ctx.lineWidth = 3;
-      ctx.moveTo(dirPath[0][0] - 660, dirPath[0][1]);
-      ctx.lineTo(dirPath[i][0] - 660, dirPath[i][1]);
+      ctx.moveTo(dirPath[0][0], dirPath[0][1]);
+      ctx.lineTo(dirPath[i][0], dirPath[i][1]);
       ctx.stroke();
     }
     ctx.fillStyle = "green";
@@ -379,6 +400,7 @@ async function runResizeObserver(view: View, canvas: HTMLCanvasElement): Promise
 function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = id ? url.replace(/(\.jpeg)/, `_${id}$1`) : url;
@@ -736,6 +758,9 @@ export class MinimapHelper {
     const diff = this.glMatrix.vec3.sub(this.glMatrix.vec3.create(), worldPos, curInfo.corner);
     const diffX = this.glMatrix.vec3.dot(diff, curInfo.dirX);
     const diffY = this.glMatrix.vec3.dot(diff, curInfo.dirY);
+
+    // console.log("diffY ", diffY);
+
     const x = (diffX / curInfo.dx) * this.pixelWidth;
     const y = this.pixelHeight - (diffY / curInfo.dy) * this.pixelHeight;
     return this.glMatrix.vec2.fromValues(x, y);
