@@ -79,19 +79,12 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     const rect = previewCanvas.getBoundingClientRect();
     let centerX = e.clientX - rect.left;
     let centerY = e.clientY - rect.top;
-
-    console.log("previous x=", centerX, "previous y=", centerY);
-
-
     if (previousArea) {
       previousAreaMinX = previousArea.x;
       previousAreaMinY = previousArea.y;
       centerX = previousAreaMinX + centerX / currentLevel;
       centerY = previousAreaMinY + centerY / currentLevel;
     }
-
-    console.log("previousArea ==> ", previousArea);
-    console.log("new x=", centerX, "new y=", centerY);
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(centerX, centerY)), view.camera.rotation);
   };
 
@@ -124,7 +117,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     currentLevel = Math.ceil(wheelDelta);
 
     if (currentLevel === 1) {
-      // reset the quadtree
+      // reset the zoom
       level = 1;
       try {
         const initialImage = await loadImage(preview as string);
@@ -272,16 +265,19 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   const drawLine = (ctx: CanvasRenderingContext2D) => {
     //Gets the camera position in minimap space
     const minimapPos = minimap.toMinimap(view.camera.position as vec3);
-    // if (previousArea) {
-    //   minimapPos[0] += previousArea.width / 2;
-
-    //   minimapPos[1] += previousArea.height / 2;
-    // }
-
-    // console.log('minimpa pos ', minimapPos);
 
     //Gets a cone of the camera direction in minimap space, point[0] is the camera position
     const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
+
+    if (previousArea) {
+      const newX = previousArea.x * currentLevel;
+      const newY = previousArea.y * currentLevel;
+
+      minimapPos[0] = minimapPos[0] * currentLevel - newX;
+      minimapPos[1] = minimapPos[1] * currentLevel - newY;
+      dirPath[0][0] = dirPath[0][0] * currentLevel - newX;
+      dirPath[0][1] = dirPath[0][1] * currentLevel - newY;
+    }
 
     ctx.strokeStyle = "green";
     for (let i = 1; i < dirPath.length; ++i) {
