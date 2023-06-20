@@ -56,36 +56,36 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   if (sceneData && !(sceneData as any).error) {
     minimap = await downloadMinimap(sceneData, glMatrix);
     preview = minimap.getMinimapImage();
-    try {
-      const img = await loadImage(preview);
-      minimap.pixelWidth = previewCanvas.width; // Set canvas width
-      minimap.pixelHeight = previewCanvas.height; // Set canvas height in minimap helper
-      if (previewCanvasContext2D) {
-        previewCanvasContext2D.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-      }
-    } catch (error) {
-      console.error("Failed to load the preview image ", error);
-    }
+    minimap.pixelWidth = previewCanvas.width; // Set canvas width
+    minimap.pixelHeight = previewCanvas.height; // Set canvas height in minimap helper
+    // try {
+    //   const img = await loadImage(preview);
+    // if (previewCanvasContext2D) {
+    //   previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+    // }
+    // } catch (error) {
+    //   console.error("Failed to load the preview image ", error);
+    // }
   }
 
   let currentOutput: RenderOutput;
-
-  let previousAreaMinX: number;
-  let previousAreaMinY: number;
 
   // PDF view click listener
   previewCanvas.onclick = async (e: MouseEvent) => {
     // Get the position of the click relative to the canvas
     const rect = previewCanvas.getBoundingClientRect();
-    let centerX = e.clientX - rect.left;
-    let centerY = e.clientY - rect.top;
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    console.log("PDF view--> X=", x, "Y=", y);
+
     if (previousArea) {
-      previousAreaMinX = previousArea.x;
-      previousAreaMinY = previousArea.y;
-      centerX = previousAreaMinX + centerX / currentLevel;
-      centerY = previousAreaMinY + centerY / currentLevel;
+      x = previousArea.x + x / currentLevel;
+      y = previousArea.y + y / currentLevel;
     }
-    view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(centerX, centerY)), view.camera.rotation);
+
+    console.log("Move to ", minimap.toWorld(glMatrix.vec2.fromValues(x, y)));
+    view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
   };
 
   // create tree
@@ -250,6 +250,17 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         }
 
         loadImage(imgUrl).then((img) => {
+          // // Calculate the scaling factor for the image
+          // const scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
+
+          // // Calculate the new dimensions for the image
+          // const scaledWidth = img.width * scale;
+          // const scaledHeight = img.height * scale;
+          
+          // // Calculate the position to center the image within the previewCanvas
+          // const offsetX = (previewCanvas.width - scaledWidth) / 2;
+          // const offsetY = (previewCanvas.height - scaledHeight) / 2;
+
           // Redraw the image for te minimap
           ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
           // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
@@ -755,8 +766,6 @@ export class MinimapHelper {
     const diffX = this.glMatrix.vec3.dot(diff, curInfo.dirX);
     const diffY = this.glMatrix.vec3.dot(diff, curInfo.dirY);
 
-    // console.log("diffY ", diffY);
-
     const x = (diffX / curInfo.dx) * this.pixelWidth;
     const y = this.pixelHeight - (diffY / curInfo.dy) * this.pixelHeight;
     return this.glMatrix.vec2.fromValues(x, y);
@@ -767,7 +776,7 @@ export class MinimapHelper {
     const diffX = minimapPos[0] / this.pixelWidth;
     const diffY = 1 - minimapPos[1] / this.pixelHeight;
     const pos = this.glMatrix.vec3.clone(curInfo.corner);
-    pos[1] += 0.75;
+    pos[1] += 10;
     this.glMatrix.vec3.scaleAndAdd(pos, pos, curInfo.dirX, curInfo.dx * diffX);
     this.glMatrix.vec3.scaleAndAdd(pos, pos, curInfo.dirY, curInfo.dy * diffY);
     return pos;
