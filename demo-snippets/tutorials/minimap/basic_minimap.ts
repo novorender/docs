@@ -54,7 +54,22 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   let preview: string | undefined;
   let minimap: MinimapHelper;
   if (sceneData && !(sceneData as any).error) {
-    minimap = await downloadMinimap(sceneData, glMatrix);
+    minimap = await downloadMinimap(
+      {
+        // tree's width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
+        width: previewCanvas.width + previewCanvas.width / 2,
+        height: previewCanvas.height + previewCanvas.height / 2,
+        x: 0,
+        y: 0,
+        Id: "root",
+      },
+      sceneData,
+      glMatrix
+    );
+
+    // split the quadtree
+    minimap.split();
+
     preview = minimap.getMinimapImage();
     minimap.pixelWidth = previewCanvas.width; // Set canvas width
     minimap.pixelHeight = previewCanvas.height; // Set canvas height in minimap helper
@@ -88,24 +103,11 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
   };
 
-  // create tree
-  const quadTree = new Quadtree({
-    // tree's width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
-    width: previewCanvas.width + previewCanvas.width / 2,
-    height: previewCanvas.height + previewCanvas.height / 2,
-    x: 0,
-    y: 0,
-    Id: "root",
-  });
-
-  // split tree
-  quadTree.split();
-
   let wheelDelta = 1,
     level: number,
     currentLevel = 1,
-    previousArea: Rectangle | undefined,
-    elements: Quadtree[] | undefined,
+    previousArea: NodeGeometry | undefined,
+    elements: MinimapHelper[] | undefined,
     zoomedImage: string | undefined;
 
   // PDF view wheel event
@@ -152,20 +154,20 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
       centerY = previousAreaMinY + centerY / currentLevel;
     }
 
-    const area = new Rectangle({
+    const area: NodeGeometry = {
       x: Math.max(0, centerX - width / 2),
       y: Math.max(0, centerY - height / 2),
       width: width,
       height: height,
-    });
+    };
 
     previousArea = area;
-    elements = quadTree.retrieve(previousArea, currentLevel);
+    elements = minimap.retrieve(previousArea, currentLevel);
     await drawAndStitchOnCanvas(elements, previousArea);
   };
 
   // draws one or more image tiles on canvas
-  const drawAndStitchOnCanvas = async (elements: Quadtree[], area: Rectangle) => {
+  const drawAndStitchOnCanvas = async (elements: MinimapHelper[], area: NodeGeometry) => {
     // filter-out unnecessary quads that are out of bounds of canvas
     const outOfBoundsQuads = ["11", "13", "22", "23", "31", "32", "33"];
     elements = elements.filter((e) => {
@@ -256,7 +258,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
           // // Calculate the new dimensions for the image
           // const scaledWidth = img.width * scale;
           // const scaledHeight = img.height * scale;
-          
+
           // // Calculate the position to center the image within the previewCanvas
           // const offsetX = (previewCanvas.width - scaledWidth) / 2;
           // const offsetY = (previewCanvas.height - scaledHeight) / 2;
@@ -417,25 +419,79 @@ function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
 /**
  * *****************************************************************************************************
  * *****************************************************************************************************
- * QUAD TREE CLASS & HELPERS
  * *****************************************************************************************************
  * *****************************************************************************************************
  */
 
 /**
- * Class representing a Quadtree node.
- *
- * @example
- * ```typescript
- * const tree = new Quadtree({
- *   width: 100,
- *   height: 100,
- *   x: 0,           // optional, default:  0
- *   y: 0,           // optional, default:  0
- * });
- * ```
+ * Quadtree Constructor Properties
  */
-export class Quadtree {
+export interface QuadtreeProps {
+  /**
+   * Width of the node.
+   */
+  width: number;
+
+  /**
+   * Height of the node.
+   */
+  height: number;
+
+  /**
+   * X Offset of the node.
+   * @defaultValue `0`
+   */
+  x?: number;
+
+  /**
+   * Y Offset of the node.
+   * @defaultValue `0`
+   */
+  y?: number;
+
+  Id: string;
+}
+
+/**
+ * Interface for geometry of a Quadtree node
+ */
+export interface NodeGeometry {
+  /**
+   * X position of the node
+   */
+  x: number;
+
+  /**
+   * Y position of the node
+   */
+  y: number;
+
+  /**
+   * Width of the node
+   */
+  width: number;
+
+  /**
+   * Height of the node
+   */
+  height: number;
+}
+
+interface MinimapInfo {
+  aspect: number;
+  elevation: number;
+  image: string;
+  corner: vec3;
+  dx: number;
+  dy: number;
+  dirX: vec3;
+  dirY: vec3;
+}
+
+/**
+ * Class representing a MinimapHelper that also contains methods and helpers for Quadtree.
+ */
+export class MinimapHelper {
   /**
    * The numeric boundaries of this node.
    * @readonly
@@ -454,25 +510,34 @@ export class Quadtree {
    * @defaultValue `[]`
    * @readonly
    */
-  nodes: Quadtree[];
+  nodes: MinimapHelper[];
 
   Id: string;
 
+  pixelWidth = 0;
+  pixelHeight = 0;
+  currentIndex = 0;
+
+  glMatrix!: typeof GlMatrix;
+
   /**
-   * Quadtree Constructor
-   * @param props - bounds and properties of the node
+   * Minimap Constructor
+   * @param minimaps - minimap info
+   * @param glMatrix - glMatrix dependency
+   * @param quadTreeProps - bounds and properties of the node
    * @param level - depth level (internal use only, required for subnodes)
    */
-  constructor(props: QuadtreeProps, level = 0) {
+  constructor(quadTreeProps: QuadtreeProps, level: number, readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
     this.bounds = {
-      x: props.x || 0,
-      y: props.y || 0,
-      width: props.width,
-      height: props.height,
+      x: quadTreeProps.x || 0,
+      y: quadTreeProps.y || 0,
+      width: quadTreeProps.width,
+      height: quadTreeProps.height,
     };
-    this.level = level;
+    this.level = level || 0;
     this.nodes = [];
-    this.Id = props.Id;
+    this.Id = quadTreeProps.Id;
+    this.glMatrix = glMatrix;
   }
 
   /**
@@ -486,20 +551,51 @@ export class Quadtree {
    * console.log(indexes); // [1]
    * ```
    *
+   * Determine which quadrant this rectangle belongs to.
    * @param obj - object to be checked
    * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
    */
-  getIndex(obj: Rectangle | Indexable): number[] {
-    return obj.qtIndex(this.bounds);
+  getIndex(obj: NodeGeometry): number[] {
+    /**
+     * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
+     */
+    const indexes: number[] = [];
+    const boundsCenterX = this.bounds.x + this.bounds.width / 2;
+    const boundsCenterY = this.bounds.y + this.bounds.height / 2;
+
+    const startIsNorth = obj.y < boundsCenterY,
+      startIsWest = obj.x < boundsCenterX,
+      endIsEast = obj.x + obj.width > boundsCenterX,
+      endIsSouth = obj.y + obj.height > boundsCenterY;
+
+    //top-left quad
+    if (startIsWest && startIsNorth) {
+      indexes.push(0);
+    }
+
+    //top-right quad
+    if (startIsNorth && endIsEast) {
+      indexes.push(1);
+    }
+
+    //bottom-left quad
+    if (startIsWest && endIsSouth) {
+      indexes.push(2);
+    }
+
+    //bottom-right quad
+    if (endIsEast && endIsSouth) {
+      indexes.push(3);
+    }
+
+    return indexes;
   }
 
   /**
    * Split the node into 4 subnodes.
-   * @internal
-   *
    * @example
    * ```typescript
-   * const tree = new Quadtree({ width: 100, height: 100 });
+   * const tree = new MinimapHelper({ width: 100, height: 100 });
    * tree.split();
    * console.log(tree); // now tree has four subnodes
    * ```
@@ -533,7 +629,7 @@ export class Quadtree {
         _id = this.Id + i.toString();
       }
 
-      this.nodes[i] = new Quadtree(
+      this.nodes[i] = new MinimapHelper(
         {
           x: coords[i].x,
           y: coords[i].y,
@@ -541,7 +637,9 @@ export class Quadtree {
           height,
           Id: _id,
         },
-        level
+        level,
+        this.minimaps,
+        this.glMatrix
       );
 
       this.nodes[i].split();
@@ -559,10 +657,10 @@ export class Quadtree {
    * @param obj - geometry to be checked
    * @returns Array containing all detected objects.
    */
-  retrieve(obj: Rectangle | Indexable, testLevel: number): Quadtree[] {
+  retrieve(obj: NodeGeometry, testLevel: number): MinimapHelper[] {
     const indexes = this.getIndex(obj);
 
-    let returnObjects: Quadtree[] = [];
+    let returnObjects: MinimapHelper[] = [];
 
     //if we have subnodes, retrieve their objects
     if (this.nodes.length && this.level < testLevel) {
@@ -574,192 +672,7 @@ export class Quadtree {
     }
     return returnObjects;
   }
-}
 
-/**
- * Class representing a Rectangle
- *
- * @example
- * ```typescript
- * const rectangle = new Rectangle({
- *   x: 10,
- *   y: 20,
- *   width: 30,
- *   height: 40,
- * });
- * ```
- */
-export class Rectangle implements NodeGeometry, Indexable {
-  /**
-   * X start of the rectangle (top left).
-   */
-  x: number;
-
-  /**
-   * Y start of the rectangle (top left).
-   */
-  y: number;
-
-  /**
-   * Width of the rectangle.
-   */
-  width: number;
-
-  /**
-   * Height of the rectangle.
-   */
-  height: number;
-
-  constructor(props: NodeGeometry) {
-    this.x = props.x;
-    this.y = props.y;
-    this.width = props.width;
-    this.height = props.height;
-  }
-
-  /**
-   * Determine which quadrant this rectangle belongs to.
-   * @param node - Quadtree node to be checked
-   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
-   */
-  qtIndex(node: NodeGeometry): number[] {
-    const indexes: number[] = [];
-    const boundsCenterX = node.x + node.width / 2;
-    const boundsCenterY = node.y + node.height / 2;
-
-    const startIsNorth = this.y < boundsCenterY,
-      startIsWest = this.x < boundsCenterX,
-      endIsEast = this.x + this.width > boundsCenterX,
-      endIsSouth = this.y + this.height > boundsCenterY;
-
-    //top-left quad
-    if (startIsWest && startIsNorth) {
-      indexes.push(0);
-    }
-
-    //top-right quad
-    if (startIsNorth && endIsEast) {
-      indexes.push(1);
-    }
-
-    //bottom-left quad
-    if (startIsWest && endIsSouth) {
-      indexes.push(2);
-    }
-
-    //bottom-right quad
-    if (endIsEast && endIsSouth) {
-      indexes.push(3);
-    }
-
-    return indexes;
-  }
-}
-
-/**
- * Quadtree Constructor Properties
- */
-export interface QuadtreeProps {
-  /**
-   * Width of the node.
-   */
-  width: number;
-
-  /**
-   * Height of the node.
-   */
-  height: number;
-
-  /**
-   * X Offset of the node.
-   * @defaultValue `0`
-   */
-  x?: number;
-
-  /**
-   * Y Offset of the node.
-   * @defaultValue `0`
-   */
-  y?: number;
-
-  Id: string;
-}
-
-/**
- * All shape classes must implement this interface.
- */
-export interface Indexable {
-  /**
-   * This method is called on all objects that are inserted into or retrieved from the Quadtree.
-   * It must determine which quadrant an object belongs to.
-   * @param node - Quadtree node to be checked
-   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
-   */
-  qtIndex(node: NodeGeometry): number[];
-}
-
-/**
- * Interface for geometry of a Quadtree node
- */
-export interface NodeGeometry {
-  /**
-   * X position of the node
-   */
-  x: number;
-
-  /**
-   * Y position of the node
-   */
-  y: number;
-
-  /**
-   * Width of the node
-   */
-  width: number;
-
-  /**
-   * Height of the node
-   */
-  height: number;
-}
-
-/**
- * *****************************************************************************************************
- * *****************************************************************************************************
- * END OF QUAD TREE CLASS & HELPERS
- * *****************************************************************************************************
- * *****************************************************************************************************
- */
-
-/**
- * *****************************************************************************************************
- * *****************************************************************************************************
- * MINIMAP CLASS & HELPERS
- * *****************************************************************************************************
- * *****************************************************************************************************
- */
-
-interface MinimapInfo {
-  aspect: number;
-  elevation: number;
-  image: string;
-  corner: vec3;
-  dx: number;
-  dy: number;
-  dirX: vec3;
-  dirY: vec3;
-}
-
-export class MinimapHelper {
-  pixelWidth = 0;
-  pixelHeight = 0;
-  currentIndex = 0;
-
-  glMatrix: typeof GlMatrix;
-
-  constructor(readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
-    this.glMatrix = glMatrix;
-  }
   toMinimap(worldPos: vec3): vec2 {
     const curInfo = this.getCurrentInfo();
     const diff = this.glMatrix.vec3.sub(this.glMatrix.vec3.create(), worldPos, curInfo.corner);
@@ -829,7 +742,7 @@ export class MinimapHelper {
   }
 }
 
-async function downloadMinimap(scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
+async function downloadMinimap(quadTreeProps: QuadtreeProps, scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
   const minimaps: MinimapInfo[] = [];
 
   // perform a db search to get the metadata
@@ -887,7 +800,7 @@ async function downloadMinimap(scene: SceneData, glMatrix: typeof GlMatrix): Pro
   });
 
   minimaps.sort((a, b) => a.elevation - b.elevation);
-  return new MinimapHelper(minimaps, glMatrix);
+  return new MinimapHelper(quadTreeProps, 0, minimaps, glMatrix);
 }
 
 /**
