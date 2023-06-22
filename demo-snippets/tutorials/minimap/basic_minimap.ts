@@ -86,18 +86,24 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   let currentOutput: RenderOutput;
 
   // PDF view click listener
-  previewCanvas.onclick = async (e: MouseEvent) => {
+  previewCanvas.onclick = (e: MouseEvent) => {
     // Get the position of the click relative to the canvas
     const rect = previewCanvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
 
-    console.log("PDF view--> X=", x, "Y=", y);
+    console.log("previous-area ", previousArea);
+
+    console.log("Initial coords X=", x, "Y=", y);
 
     if (previousArea) {
       x = previousArea.x + x / currentLevel;
+      x -= 15;
       y = previousArea.y + y / currentLevel;
+      y += 50;
     }
+
+    console.log("Transformed coords X=", x, "Y=", y);
 
     console.log("Move to ", minimap.toWorld(glMatrix.vec2.fromValues(x, y)));
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
@@ -120,7 +126,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     if (currentLevel === 1) {
       // reset the zoom
-      level = 1;
+      level = currentLevel;
       try {
         const initialImage = await loadImage(preview as string);
         if (previewCanvasContext2D) {
@@ -283,8 +289,8 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
 
     if (previousArea) {
-      const newX = previousArea.x * currentLevel;
-      const newY = previousArea.y * currentLevel;
+      const newX = (previousArea.x - 15) * currentLevel;
+      const newY = (previousArea.y + 50) * currentLevel;
 
       minimapPos[0] = minimapPos[0] * currentLevel - newX;
       minimapPos[1] = minimapPos[1] * currentLevel - newY;
