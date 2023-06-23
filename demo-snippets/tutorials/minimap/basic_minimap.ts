@@ -389,8 +389,10 @@ async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sc
   view.applySettings(renderSettings);
 
   // Create a camera controller with the saved parameters with ortho as fallback
-  const camera = cameraParams ?? ({ kind: "flight" } as any);
-  view.camera.controller = api.createCameraController(camera, canvas);
+  let camera: WebglApi.CameraControllerParams = cameraParams ?? { kind: "flight" };
+  console.log('camera ', camera);
+  camera = { ...camera, ...{ yaw: 0, pitch: -90 } };
+  view.camera.controller = api.createCameraController(camera as WebglApi.FlightControllerParams, canvas);
 
   // Assign the scene to the view
   view.scene = scene;
