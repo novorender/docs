@@ -223,7 +223,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         const dWidth = (node.bounds.width - cutX) * zoom;
         const dHeight = (node.bounds.height - cutY) * zoom;
 
-        previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth, dHeight);
+        previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth + 1, dHeight + 1); // +1 for pixel overlap to avoid grid like lines
       } catch (err) {
         console.error("Something went wrong", err);
       }
