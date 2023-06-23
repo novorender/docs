@@ -289,13 +289,13 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
 
     if (previousArea) {
-      const newX = (previousArea.x - 15) * currentLevel;
-      const newY = (previousArea.y + 50) * currentLevel;
+      const newX = previousArea.x - 15;
+      const newY = previousArea.y + 50;
 
-      minimapPos[0] = minimapPos[0] * currentLevel - newX;
-      minimapPos[1] = minimapPos[1] * currentLevel - newY;
-      dirPath[0][0] = dirPath[0][0] * currentLevel - newX;
-      dirPath[0][1] = dirPath[0][1] * currentLevel - newY;
+      minimapPos[0] = (minimapPos[0] - newX) * currentLevel;
+      minimapPos[1] = (minimapPos[1] - newY) * currentLevel;
+      dirPath[0][0] = (dirPath[0][0] - newX) * currentLevel;
+      dirPath[0][1] = (dirPath[0][1] - newY) * currentLevel;
     }
 
     ctx.strokeStyle = "green";
