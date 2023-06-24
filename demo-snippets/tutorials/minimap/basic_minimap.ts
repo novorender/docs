@@ -3,9 +3,9 @@ import * as WebglApi from "@novorender/webgl-api";
 import * as MeasureApi from "@novorender/measure-api";
 import * as DataJsApi from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";
-import type { API, RecursivePartial, RenderSettings, RenderOutput, View, OrthoControllerParams, Scene, SearchPattern, HierarcicalObjectReference } from "@novorender/webgl-api";
+import type { RecursivePartial, RenderSettings, RenderOutput, View } from "@novorender/webgl-api";
 import type { SceneData } from "@novorender/data-js-api";
-import type { vec2, ReadonlyVec3, vec3, quat } from "gl-matrix";
+import type { vec2, vec3, quat } from "gl-matrix";
 
 export interface IParams {
   webglApi: typeof WebglApi;
@@ -18,9 +18,9 @@ export interface IParams {
 }
 
 // we export this function to our react component which will then execute it once the demo started running.
-// export function showTip() {
-//   return openAlert("Choose 2 points from the 3D view (on the left) and 2 points from the PDF view (on the right), both in the identical locations, to show the computations.");
-// }
+export function showTip() {
+  return openAlert("Clicking any position on the minimap (right-side) will navigate the camera to the same position on the 3D view (left-side), you can also zoom in/out on the minimap using mouse wheel or touchpad.");
+}
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 
 // HiddenRangeEnded
@@ -73,14 +73,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     preview = minimap.getMinimapImage();
     minimap.pixelWidth = previewCanvas.width; // Set canvas width
     minimap.pixelHeight = previewCanvas.height; // Set canvas height in minimap helper
-    // try {
-    //   const img = await loadImage(preview);
-    // if (previewCanvasContext2D) {
-    //   previewCanvasContext2D.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
-    // }
-    // } catch (error) {
-    //   console.error("Failed to load the preview image ", error);
-    // }
   }
 
   let currentOutput: RenderOutput;
@@ -258,17 +250,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         }
 
         loadImage(imgUrl).then((img) => {
-          // // Calculate the scaling factor for the image
-          // const scale = Math.min(previewCanvas.width / img.width, previewCanvas.height / img.height);
-
-          // // Calculate the new dimensions for the image
-          // const scaledWidth = img.width * scale;
-          // const scaledHeight = img.height * scale;
-
-          // // Calculate the position to center the image within the previewCanvas
-          // const offsetX = (previewCanvas.width - scaledWidth) / 2;
-          // const offsetY = (previewCanvas.height - scaledHeight) / 2;
-
           // Redraw the image for te minimap
           ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
           // ctx.drawImage(img, 300, 0, img.width, img.height, 0, 0, img.width * 1.5, img.height * 1.5);
@@ -277,8 +258,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         });
       }
     }
-
-    // animationFrameId = requestAnimationFrame(() => animate());
   }
 
   const drawLine = (ctx: CanvasRenderingContext2D) => {
@@ -318,31 +297,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   // runs resizeObserver for main canvas (3D view), just to update width/height.
   runResizeObserver(view, canvas);
 
-  // resizeObserver for preview canvas (right-side) to re-draw images/arc or update size on pane resizes.
-  // new ResizeObserver((entries) => {
-  //   for (const { contentRect } of entries) {
-  //     const scaledWidth = contentRect.width / previewCanvasWidth;
-  //     const scaledHeight = contentRect.height / previewCanvasHeight;
-  //     if (pdfPosA) {
-  //       updatedPdfPosA = glMatrix.vec2.fromValues(scaledWidth * pdfPosA[0], scaledHeight * pdfPosA[1]);
-  //     }
-  //     if (pdfPosB) {
-  //       updatedPdfPosB = glMatrix.vec2.fromValues(scaledWidth * pdfPosB[0], scaledHeight * pdfPosB[1]);
-  //     }
-  //     if (preview && previewCanvasContext2D) {
-  //       loadImage(preview)
-  //         .then((img) => {
-  //           if (previewCanvasContext2D && preview) {
-  //             previewCanvasContext2D.clearRect(0, 0, contentRect.width, contentRect.height);
-  //             // Redraw the image to the preview canvas
-  //             previewCanvasContext2D.drawImage(img, 0, 0, contentRect.width, contentRect.height);
-  //           }
-  //         })
-  //         .catch((err) => console.log("Failed to load the preview image ", err));
-  //     }
-  //   }
-  // }).observe(previewCanvas);
-
   // render loop
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -365,14 +319,6 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   }
 }
 
-// function showErrorDetails(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null, error: string) {
-//   ctx!.font = "18px Arial";
-//   ctx!.fillStyle = "red";
-//   ctx!.textAlign = "center";
-//   ctx!.fillText(`Failed to load the PDF Preview.`, canvas.width / 2, canvas.height / 2);
-//   ctx!.fillText(`Error: ${error}`, canvas.width / 2, canvas.height / 1.8);
-// }
-
 async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sceneData: SceneData, renderSettings: RecursivePartial<RenderSettings>): Promise<View> {
   // Destructure relevant properties into variables
   const { url, db, settings, camera: cameraParams } = sceneData;
@@ -390,7 +336,6 @@ async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sc
 
   // Create a camera controller with the saved parameters with ortho as fallback
   let camera: WebglApi.CameraControllerParams = cameraParams ?? { kind: "flight" };
-  console.log('camera ', camera);
   camera = { ...camera, ...{ yaw: 0, pitch: -90 } };
   view.camera.controller = api.createCameraController(camera as WebglApi.FlightControllerParams, canvas);
 
@@ -427,6 +372,7 @@ function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
 /**
  * *****************************************************************************************************
  * *****************************************************************************************************
+ * MINIMAP CLASS & HELPERS
  * *****************************************************************************************************
  * *****************************************************************************************************
  */

@@ -1,0 +1,22 @@
+---
+title: "Using tiled images as minimap"
+description: "Tutorial for using image tiles as minimap"
+keywords: ["novorender api docs", "webgl api", "quadtree", "minimap", "image tiles"]
+---
+
+import { tutorials } from "@site/demo-snippets/index";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import Link from "@docusaurus/Link";
+
+## Introduction
+
+In this tutorial, we will learn to create a minimap in a canvas using image tiles. The code is written in TypeScript and will also demonstrate how to achieve zoom on minimap by loading and rendering image tiles at different zoom levels using quadtree data structure, we will also learn to sync the camera movements between minimap and 3D view using [novorender's webgl-api](./getting_started.mdx).
+
+:::note before we begin
+This tutorial assumes that you have a basic understating of [HTML 5 Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [novorender's webgl-api](./getting_started.mdx) (including [loading scenes](./loading_scenes.mdx)), and finally, a basic knowledge of [Quadtree data structure](https://en.wikipedia.org/wiki/Quadtree).<br /> It is recommend to get a quick grasp of these concepts before moving forward.
+:::
+
+:::info
+In the demo code you'll notice that we use the <a href="http://glmatrix.net/" target="_blank" rel="noopener noreferrer">gl-matrix</a> library for linear algebra (vector and matrix math). 3D vectors are defined as <code>vec3</code> types, which equates to a array of <code>length=3</code>. If all you wish to do is to pass in parameters or read values, you may treat these types a regular array of numbers, i.e. you don't need the gl-matrix library itself for this. If you do wish to perform some linear algebra yourself, however, we recommend you do add it to your own code as well. Just make sure you use same major version as us (^3.3.0).
+:::
