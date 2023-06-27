@@ -54,21 +54,13 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
   let preview: string | undefined;
   let minimap: MinimapHelper;
   if (sceneData && !(sceneData as any).error) {
-    minimap = await downloadMinimap(
-      {
-        // tree's width/height will be 50% bigger than the actual canvas size because we need to exclude some quads that are out of bounds (11, 13, 22, 23, 31, 32, 33)
-        width: previewCanvas.width + previewCanvas.width / 2,
-        height: previewCanvas.height + previewCanvas.height / 2,
-        x: 0,
-        y: 0,
-        Id: "root",
-      },
-      sceneData,
-      glMatrix
-    );
+    minimap = await downloadMinimap(previewCanvas.width, previewCanvas.height, sceneData, glMatrix);
 
     // split the quadtree
-    minimap.split();
+    console.log(previewCanvas.width);
+    console.log(previewCanvas.height);
+
+    console.log(minimap);
 
     preview = minimap.getMinimapImage();
     minimap.pixelWidth = previewCanvas.width; // Set canvas width
@@ -84,28 +76,30 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
 
-    console.log("previous-area ", previousArea);
+    //console.log("previous-area ", previousArea);
 
-    console.log("Initial coords X=", x, "Y=", y);
+    //console.log("Initial coords X=", x, "Y=", y);
+    console.log(x, y);
+    //console.log(currentLevel);
+    //console.log(previousArea);
 
-    if (previousArea) {
-      x = previousArea.x + x / currentLevel;
-      x -= 15;
-      y = previousArea.y + y / currentLevel;
-      y += 50;
+    if (currentArea) {
+      const canvasScaleX = currentArea.width / previewCanvas.width;
+      const canvasScaleY = currentArea.height / previewCanvas.height;
+      x = currentArea.x + (x * canvasScaleX) / currentLevel;
+      y = currentArea.y + (y * canvasScaleY) / currentLevel;
     }
-
     console.log("Transformed coords X=", x, "Y=", y);
 
-    console.log("Move to ", minimap.toWorld(glMatrix.vec2.fromValues(x, y)));
+    //console.log("Move to ", minimap.toWorld(glMatrix.vec2.fromValues(x, y)));
     view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
   };
 
   let wheelDelta = 1,
     level: number,
     currentLevel = 1,
-    previousArea: NodeGeometry | undefined,
-    elements: MinimapHelper[] | undefined,
+    currentArea: NodeGeometry | undefined,
+    elements: QuadNode[] | undefined,
     zoomedImage: string | undefined;
 
   // PDF view wheel event
@@ -128,13 +122,16 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
       } catch (error) {
         console.error("Failed to load the preview image ", error);
       }
-      previousArea = undefined;
+      currentArea = undefined;
       elements = undefined;
       zoomedImage = undefined;
       return;
     }
     if (level === currentLevel) {
       return;
+    }
+    if (level === 2) {
+      level++;
     }
     level = currentLevel;
 
@@ -145,12 +142,14 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     const width = previewCanvas.width / currentLevel;
     const height = previewCanvas.height / currentLevel;
-    if (previousArea) {
-      const previousAreaMinX = previousArea.x;
-      const previousAreaMinY = previousArea.y;
+    if (currentArea) {
+      const previousAreaMinX = currentArea.x;
+      const previousAreaMinY = currentArea.y;
       centerX = previousAreaMinX + centerX / currentLevel;
       centerY = previousAreaMinY + centerY / currentLevel;
     }
+
+    console.log(centerX, centerY);
 
     const area: NodeGeometry = {
       x: Math.max(0, centerX - width / 2),
@@ -158,32 +157,66 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
       width: width,
       height: height,
     };
+    console.log(area);
 
-    previousArea = area;
-    elements = minimap.retrieve(previousArea, currentLevel);
-    await drawAndStitchOnCanvas(elements, previousArea);
+    currentArea = area;
+    elements = minimap.retrieve(currentArea, currentLevel);
+    await drawAndStitchOnCanvas(elements, currentArea);
   };
 
   // draws one or more image tiles on canvas
-  const drawAndStitchOnCanvas = async (elements: MinimapHelper[], area: NodeGeometry) => {
-    // filter-out unnecessary quads that are out of bounds of canvas
-    const outOfBoundsQuads = ["11", "13", "22", "23", "31", "32", "33"];
-    elements = elements.filter((e) => {
-      for (const quad of outOfBoundsQuads) {
-        if (e.Id.startsWith(quad)) {
-          return false;
-        }
-      }
-      return true;
-    });
-
+  const drawAndStitchOnCanvas = async (elements: QuadNode[], area: NodeGeometry) => {
     // elements.sort((a, b) => a.bounds.y - b.bounds.y);
 
-    console.log(`elements for level ${currentLevel} ==> `, elements);
+    //console.log(`elements for level ${currentLevel} ==> `, elements);
 
     previewCanvasContext2D?.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
+    // {
+    //   const loadedImage = await loadImage(preview as string, "00");
+    //   previewCanvasContext2D?.drawImage(
+    //     loadedImage,
+    //     0,
+    //     0,
+    //     loadedImage.naturalWidth,
+    //     loadedImage.naturalHeight,
+    //   ); // +1 for pixel overlap to avoid grid like lines
+    // }
+
+    // {
+    //   const loadedImage = await loadImage(preview as string, "02");
+    //   previewCanvasContext2D?.drawImage(
+    //     loadedImage,
+    //     0,
+    //     loadedImage.naturalHeight,
+    //     loadedImage.naturalWidth,
+    //     loadedImage.naturalHeight,
+    //   ); // +1 for pixel overlap to avoid grid like lines
+    // }
+
+    // {
+    //   const loadedImage = await loadImage(preview as string, "01");
+    //   previewCanvasContext2D?.drawImage(
+    //     loadedImage,
+    //     loadedImage.naturalWidth,
+    //     0,
+    //     loadedImage.naturalWidth,
+    //     loadedImage.naturalHeight,
+    //   ); // +1 for pixel overlap to avoid grid like lines
+    // }
+    // {
+    //   const loadedImage = await loadImage(preview as string, "10");
+    //   previewCanvasContext2D?.drawImage(
+    //     loadedImage,
+    //     loadedImage.naturalWidth * 2,
+    //     0,
+    //     loadedImage.naturalWidth,
+    //     loadedImage.naturalHeight,
+    //   ); // +1 for pixel overlap to avoid grid like lines
+    // }
+
     // Loop through the found nodes and draw images based on node on the canvas
+    console.log(elements);
     for (let i = 0; i < elements.length; i++) {
       const node = elements[i];
 
@@ -215,6 +248,14 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
         const dWidth = (node.bounds.width - cutX) * zoom;
         const dHeight = (node.bounds.height - cutY) * zoom;
 
+        // previewCanvasContext2D?.drawImage(
+        //   loadedImage,
+        //   0,
+        //   0,
+        //   loadedImage.naturalWidth,
+        //   loadedImage.naturalHeight,
+        // ); // +1 for pixel overlap to avoid grid like lines
+
         previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth + 1, dHeight + 1); // +1 for pixel overlap to avoid grid like lines
       } catch (err) {
         console.error("Something went wrong", err);
@@ -233,7 +274,7 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
     // Run every frame to check if the camera has changed
     if (!prevCamRot || !glMatrix.quat.equals(prevCamRot, view.camera.rotation) || !prevCamPos || !glMatrix.vec3.equals(prevCamPos, view.camera.position)) {
-      console.log("CAMERA HAS CHANGED!!!");
+      //console.log("CAMERA HAS CHANGED!!!");
 
       prevCamRot = glMatrix.quat.clone(view.camera.rotation);
       prevCamPos = glMatrix.vec3.clone(view.camera.position);
@@ -265,18 +306,15 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
     const minimapPos = minimap.toMinimap(view.camera.position as vec3);
 
     //Gets a cone of the camera direction in minimap space, point[0] is the camera position
-    const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat);
-
-    if (previousArea) {
-      const newX = previousArea.x - 15;
-      const newY = previousArea.y + 50;
-
-      minimapPos[0] = (minimapPos[0] - newX) * currentLevel;
-      minimapPos[1] = (minimapPos[1] - newY) * currentLevel;
-      dirPath[0][0] = (dirPath[0][0] - newX) * currentLevel;
-      dirPath[0][1] = (dirPath[0][1] - newY) * currentLevel;
+    const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat, 5 / currentLevel);
+    if (currentArea) {
+      minimapPos[0] = (minimapPos[0] - currentArea.x) * currentLevel;
+      minimapPos[1] = (minimapPos[1] - currentArea.y) * currentLevel;
+      for (let i = 0; i < 3; ++i) {
+        dirPath[i][0] = (dirPath[i][0] - currentArea.x) * currentLevel;
+        dirPath[i][1] = (dirPath[i][1] - currentArea.y) * currentLevel;
+      }
     }
-
     ctx.strokeStyle = "green";
     for (let i = 1; i < dirPath.length; ++i) {
       ctx.beginPath();
@@ -321,7 +359,12 @@ export async function main({ webglApi, measureApi, dataJsApi, glMatrix, canvas, 
 
 async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sceneData: SceneData, renderSettings: RecursivePartial<RenderSettings>): Promise<View> {
   // Destructure relevant properties into variables
-  const { url, db, settings, camera: cameraParams } = sceneData;
+  const {
+    url,
+    db,
+    settings: { display, ...settings },
+    camera: cameraParams,
+  } = sceneData;
 
   // initialize the webgl api
   const api = webglApi.createAPI();
@@ -335,7 +378,9 @@ async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sc
   view.applySettings(renderSettings);
 
   // Create a camera controller with the saved parameters with ortho as fallback
-  let camera: WebglApi.CameraControllerParams = cameraParams ?? { kind: "flight" };
+  let camera: WebglApi.CameraControllerParams = cameraParams ?? {
+    kind: "flight",
+  };
   camera = { ...camera, ...{ yaw: 0, pitch: -90 } };
   view.camera.controller = api.createCameraController(camera as WebglApi.FlightControllerParams, canvas);
 
@@ -378,35 +423,6 @@ function loadImage(url: string, id?: string): Promise<HTMLImageElement> {
  */
 
 /**
- * Quadtree Constructor Properties
- */
-export interface QuadtreeProps {
-  /**
-   * Width of the node.
-   */
-  width: number;
-
-  /**
-   * Height of the node.
-   */
-  height: number;
-
-  /**
-   * X Offset of the node.
-   * @defaultValue `0`
-   */
-  x?: number;
-
-  /**
-   * Y Offset of the node.
-   * @defaultValue `0`
-   */
-  y?: number;
-
-  Id: string;
-}
-
-/**
  * Interface for geometry of a Quadtree node
  */
 export interface NodeGeometry {
@@ -442,10 +458,7 @@ interface MinimapInfo {
   dirY: vec3;
 }
 
-/**
- * Class representing a MinimapHelper that also contains methods and helpers for Quadtree.
- */
-export class MinimapHelper {
+class QuadNode {
   /**
    * The numeric boundaries of this node.
    * @readonly
@@ -459,40 +472,11 @@ export class MinimapHelper {
    */
   level: number;
 
-  /**
-   * Subnodes of this node
-   * @defaultValue `[]`
-   * @readonly
-   */
-  nodes: MinimapHelper[];
-
   Id: string;
 
-  pixelWidth = 0;
-  pixelHeight = 0;
-  currentIndex = 0;
+  empty = false;
 
-  glMatrix!: typeof GlMatrix;
-
-  /**
-   * Minimap Constructor
-   * @param minimaps - minimap info
-   * @param glMatrix - glMatrix dependency
-   * @param quadTreeProps - bounds and properties of the node
-   * @param level - depth level (internal use only, required for subnodes)
-   */
-  constructor(quadTreeProps: QuadtreeProps, level: number, readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
-    this.bounds = {
-      x: quadTreeProps.x || 0,
-      y: quadTreeProps.y || 0,
-      width: quadTreeProps.width,
-      height: quadTreeProps.height,
-    };
-    this.level = level || 0;
-    this.nodes = [];
-    this.Id = quadTreeProps.Id;
-    this.glMatrix = glMatrix;
-  }
+  nodes: QuadNode[];
 
   /**
    * Get the quadrant (subnode indexes) an object belongs to.
@@ -545,6 +529,18 @@ export class MinimapHelper {
     return indexes;
   }
 
+  constructor(bounds: { x: number; y: number; width: number; height: number; Id: string }, level: number) {
+    this.bounds = {
+      x: bounds.x || 0,
+      y: bounds.y || 0,
+      width: bounds.width,
+      height: bounds.height,
+    };
+    this.level = level || 0;
+    this.nodes = [];
+    this.Id = bounds.Id;
+  }
+
   /**
    * Split the node into 4 subnodes.
    * @example
@@ -554,16 +550,20 @@ export class MinimapHelper {
    * console.log(tree); // now tree has four subnodes
    * ```
    */
-  split(): void {
+  split(splitWidth: number, splitHeight: number): void {
     const level = this.level + 1;
+    const { bounds } = this;
 
-    const width = this.bounds.width / 2,
-      height = this.bounds.height / 2,
-      x = this.bounds.x,
-      y = this.bounds.y;
-
+    const width = splitWidth / 2,
+      height = splitHeight / 2,
+      x = bounds.x,
+      y = bounds.y;
     // max 5 levels
     if (level > 5) {
+      return;
+    }
+    if (bounds.width <= width || bounds.height <= height) {
+      this.empty = true;
       return;
     }
 
@@ -574,29 +574,31 @@ export class MinimapHelper {
       { x: x + width, y: y + height },
     ];
     let _id;
-    for (let i = 0; i < 4; i++) {
-      if (this.Id === "root" && level === 0) {
-        _id = "root";
-      } else if (level === 1) {
-        _id = i.toString();
-      } else {
-        _id = this.Id + i.toString();
+    {
+      for (let i = 0; i < coords.length; i++) {
+        if (level === 0) {
+          _id = "root";
+        }
+        if (level === 1) {
+          _id = i.toString();
+        } else {
+          _id = this.Id + i.toString();
+        }
+        const childWidth = Math.min(width, bounds.width - (coords[i].x - bounds.x));
+        const childHeight = Math.min(height, bounds.height - (coords[i].y - bounds.y));
+        this.nodes[i] = new QuadNode(
+          {
+            x: coords[i].x,
+            y: coords[i].y,
+            height: childHeight,
+            width: childWidth,
+            Id: _id,
+          },
+          level
+        );
+
+        this.nodes[i].split(width, height);
       }
-
-      this.nodes[i] = new MinimapHelper(
-        {
-          x: coords[i].x,
-          y: coords[i].y,
-          width,
-          height,
-          Id: _id,
-        },
-        level,
-        this.minimaps,
-        this.glMatrix
-      );
-
-      this.nodes[i].split();
     }
   }
 
@@ -611,20 +613,59 @@ export class MinimapHelper {
    * @param obj - geometry to be checked
    * @returns Array containing all detected objects.
    */
-  retrieve(obj: NodeGeometry, testLevel: number): MinimapHelper[] {
+  retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
     const indexes = this.getIndex(obj);
 
-    let returnObjects: MinimapHelper[] = [];
+    let returnObjects: QuadNode[] = [];
 
     //if we have subnodes, retrieve their objects
     if (this.nodes.length && this.level < testLevel) {
       for (let i = 0; i < indexes.length; i++) {
-        returnObjects = returnObjects.concat(this.nodes[indexes[i]].retrieve(obj, testLevel));
+        if (!this.nodes[indexes[i]].empty) {
+          returnObjects = returnObjects.concat(this.nodes[indexes[i]].retrieve(obj, testLevel));
+        }
       }
     } else {
       returnObjects.push(this);
     }
     return returnObjects;
+  }
+}
+
+/**
+ * Class representing a MinimapHelper that also contains methods and helpers for Quadtree.
+ */
+export class MinimapHelper {
+  /**
+   * Subnodes of this node
+   * @defaultValue `[]`
+   * @readonly
+   */
+  quadTree: QuadNode;
+
+  pixelWidth = 0;
+  pixelHeight = 0;
+  currentIndex = 0;
+
+  glMatrix!: typeof GlMatrix;
+
+  /**
+   * Minimap Constructor
+   * @param minimaps - minimap info
+   * @param glMatrix - glMatrix dependency
+   * @param quadTreeProps - bounds and properties of the node
+   * @param level - depth level (internal use only, required for subnodes)
+   */
+  constructor(width: number, height: number, readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
+    this.pixelWidth = width;
+    this.pixelHeight = height;
+    this.glMatrix = glMatrix;
+    this.quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, 1);
+    this.quadTree.split(width * 0.66 * 2, height * 0.66 * 2);
+  }
+
+  retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
+    return this.quadTree.retrieve(obj, testLevel);
   }
 
   toMinimap(worldPos: vec3): vec2 {
@@ -649,18 +690,18 @@ export class MinimapHelper {
     return pos;
   }
 
-  directionPoints(worldPos: vec3, rot: quat): vec2[] {
+  directionPoints(worldPos: vec3, rot: quat, length: number): vec2[] {
     const path: vec2[] = [];
     path.push(this.toMinimap(worldPos));
     const rotA = this.glMatrix.quat.rotateY(this.glMatrix.quat.create(), rot, Math.PI / 8);
     const dirZ = this.glMatrix.vec3.fromValues(0, 0, -1);
     const dirA = this.glMatrix.vec3.transformQuat(this.glMatrix.vec3.create(), dirZ, rotA);
-    const posA = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirA, 10);
+    const posA = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirA, length);
     path.push(this.toMinimap(posA));
 
     const rotB = this.glMatrix.quat.rotateY(this.glMatrix.quat.create(), rot, -Math.PI / 8);
     const dirB = this.glMatrix.vec3.transformQuat(this.glMatrix.vec3.create(), dirZ, rotB);
-    const posB = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirB, 10);
+    const posB = this.glMatrix.vec3.scaleAndAdd(this.glMatrix.vec3.create(), worldPos, dirB, length);
     path.push(this.toMinimap(posB));
 
     return path;
@@ -696,7 +737,7 @@ export class MinimapHelper {
   }
 }
 
-async function downloadMinimap(quadTreeProps: QuadtreeProps, scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
+async function downloadMinimap(width: number, height: number, scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
   const minimaps: MinimapInfo[] = [];
 
   // perform a db search to get the metadata
@@ -754,7 +795,7 @@ async function downloadMinimap(quadTreeProps: QuadtreeProps, scene: SceneData, g
   });
 
   minimaps.sort((a, b) => a.elevation - b.elevation);
-  return new MinimapHelper(quadTreeProps, 0, minimaps, glMatrix);
+  return new MinimapHelper(width, height, minimaps, glMatrix);
 }
 
 /**
