@@ -11,17 +11,21 @@ import Link from "@docusaurus/Link";
 
 ## Introduction
 
-In this tutorial, we will learn to create a minimap in a canvas using image tiles. The code is written in TypeScript and will also demonstrate how to achieve zoom on minimap by loading and rendering image tiles at different zoom levels using quadtree data structure, we will also learn to sync the camera movements between minimap and 3D view using [novorender's webgl-api](./getting_started.mdx).
+In this tutorial, we will learn to create a minimap using tiled images. The code is written in TypeScript and will also demonstrate how to achieve zoom on minimap by loading and rendering image tiles at different zoom levels using quadtree data structure, we will also learn to sync the camera movements between minimap and 3D space using [novorender's webgl-api](./getting_started.mdx).
 
 :::note before we begin
 This tutorial assumes that you have a basic understating of [HTML 5 Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [novorender's webgl-api](./getting_started.mdx) (including [loading scenes](./loading_scenes.mdx) and [searching](./searching)), and finally, a basic knowledge of [Quadtree data structure](https://en.wikipedia.org/wiki/Quadtree).<br /> It is recommend to get a quick grasp of these concepts before moving forward.
 :::
+
+---
 
 ## Structure
 We will use two HTML canvas elements: one for the 3D model, and the other will be used to show the minimap. In the demo code, they're referred to as `canvas` and `previewCanvas`.
 :::info
 In some places you'll notice that we use the <a href="http://glmatrix.net/" target="_blank" rel="noopener noreferrer">gl-matrix</a> library for linear algebra (vector and matrix math). 3D vectors are defined as <code>vec3</code> types, which equates to a array of <code>length=3</code>. If all you wish to do is to pass in parameters or read values, you may treat these types a regular array of numbers, i.e. you don't need the gl-matrix library itself for this. If you do wish to perform some linear algebra yourself, however, we recommend you do add it to your own code as well. Just make sure you use same major version as us (^3.3.0).
 :::
+
+---
 
 ## Loading and displaying the scene
 Let's start by loading a public scene using [Data JS API](/docs/data-js-api)
@@ -50,7 +54,7 @@ const renderSettings: RecursivePartial<RenderSettings> = {
 };
 ```
 
-Next, we'll create a function that will be responsible for creating the view and the camera controller for the 3D view:
+Next, we'll create a function that will create the [view](/docs/webgl-api/interfaces/NovoRender.View) and a [camera controller](/docs/webgl-api/interfaces/NovoRender.CameraController) for the 3D space:
 ```typescript
 async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sceneData: SceneData, renderSettings: RecursivePartial<RenderSettings>): Promise<View> {
   // Destructure relevant properties into variables
@@ -78,7 +82,7 @@ async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sc
   return view;
 }
 ```
-this function will be called after loading the scene.
+this function will be invoked after loading the scene.
 
 Finally, run the render loop to display the output:
 ```typescript
@@ -100,9 +104,11 @@ while (true) {
     }
   }
   currentOutput.dispose();
-  }
+}
 ```
 That is all the code that's necessary for loading a scene.
+
+---
 
 ## Loading and displaying the preview image
 PDF documents uploaded to Novorender will have a preview property that can be used to display the PDF as an image. This image can be found by using database search and getting the metadata.
@@ -141,6 +147,8 @@ img.src = image;
 ```
 Now that we have completed the initial steps, we will now proceed to implementing the core logic of the minimap.
 
+---
+
 ## Quadtree
 When dealing with large images or PDF previews, loading the entire high-quality image at once and then zooming can be resource-intensive and slow. Quadtree provides an effective solution by breaking down the image into smaller tiles, enabling efficient storage and retrieval. Each tile represents a specific region of the image, allowing us to load only the required portions based on the user's viewport and zoom level.
 
@@ -152,7 +160,7 @@ The image for each tile can be fetched by its quadkey. For instance, if we wante
 
 ### Creating Quadtree
 Let's start by creating a class named `QuadNode`. This class will define some methods for creating (see the `split()` method) and searching (`retrieve()`) the quads within the quadtree.
-Below is the implementation that we'll use in the demo.
+Below is the implementation that we'll use in the demo:
 ```typescript
 class QuadNode {
   /**
@@ -311,13 +319,13 @@ class QuadNode {
 ### Usage example
 The `QuadNode` class can be used to create a quadtree using the following example:
 ```typescript
-  const width = 800; // width of the root Quad.
-  const height = 600; // height of the root Quad.
-  const level = 1; // root level
-  const quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, level);
+const width = 800; // width of the root Quad.
+const height = 600; // height of the root Quad.
+const level = 1; // root level
+const quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, level);
 
-  // Split the nodes into 4 subnodes/quads until reaching max levels of 5.
-  quadTree.split(splitWidth, splitHeight);
+// Split the nodes into 4 subnodes/quads until reaching max levels of 5.
+quadTree.split(splitWidth, splitHeight);
 ```
 
 ### Zooming in/out on canvas using quadtree
@@ -325,125 +333,128 @@ Now that we know how to create a quadtree, we can now move forward to implement 
 Below code shows how to use `onwheel` event listener to zoom in/out on canvas using mouse wheel or touchpad:
 
 ```typescript
-  previewCanvas.onwheel = async (e) => {
-    e.preventDefault();
+previewCanvas.onwheel = async (e) => {
+  e.preventDefault();
+  
+  wheelDelta += e.deltaY * -0.01;
+  wheelDelta = Math.min(Math.max(1, wheelDelta), 5);
+  currentLevel = Math.ceil(wheelDelta);
 
-    wheelDelta += e.deltaY * -0.01;
-    wheelDelta = Math.min(Math.max(1, wheelDelta), 5);
-    currentLevel = Math.ceil(wheelDelta);
-
-    if (currentLevel === 1) {
-      // reset the zoom
-      level = currentLevel;
-      try {
-        const initialImage = await loadImage(preview as string);
-        if (previewCanvasContext2D) {
-          previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-          previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
-        }
-      } catch (error) {
-        console.error("Failed to load the preview image ", error);
-      }
-      currentArea = undefined;
-      elements = undefined;
-      zoomedImage = undefined;
-      return;
-    }
-    if (level === currentLevel) {
-      return;
-    }
-    if (level === 2) {
-      level++;
-    }
+  if (currentLevel === 1) {
+    // reset the zoom
     level = currentLevel;
-
-    // Get the position of the click relative to the canvas
-    const rect = previewCanvas.getBoundingClientRect();
-    let centerX = e.clientX - rect.left;
-    let centerY = e.clientY - rect.top;
-
-    const width = previewCanvas.width / currentLevel;
-    const height = previewCanvas.height / currentLevel;
-    if (currentArea) {
-      const previousAreaMinX = currentArea.x;
-      const previousAreaMinY = currentArea.y;
-      centerX = previousAreaMinX + centerX / currentLevel;
-      centerY = previousAreaMinY + centerY / currentLevel;
+    try {
+      const initialImage = await loadImage(preview as string);
+      if (previewCanvasContext2D) {
+        previewCanvasContext2D.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        previewCanvasContext2D.drawImage(initialImage, 0, 0, previewCanvas.width, previewCanvas.height);
+      }
+    } catch (error) {
+      console.error("Failed to load the preview image ", error);
     }
+    currentArea = undefined;
+    elements = undefined;
+    zoomedImage = undefined;
+    return;
+  }
+  if (level === currentLevel) {
+    return;
+  }
+  if (level === 2) {
+    level++;
+  }
 
-    const area: NodeGeometry = {
-      x: Math.max(0, centerX - width / 2),
-      y: Math.max(0, centerY - height / 2),
-      width: width,
-      height: height,
-    };
+  level = currentLevel;
 
-    currentArea = area;
-    elements = quadTree.retrieve(currentArea, currentLevel);
-    // draw and stitch the found images on canvas
-    await drawAndStitchOnCanvas(elements, currentArea);
+  // Get the position of the click relative to the canvas
+  const rect = previewCanvas.getBoundingClientRect();
+  let centerX = e.clientX - rect.left;
+  let centerY = e.clientY - rect.top;
+  const width = previewCanvas.width / currentLevel;
+  const height = previewCanvas.height / currentLevel;
+
+  if (currentArea) {
+    const previousAreaMinX = currentArea.x;
+    const previousAreaMinY = currentArea.y;
+    centerX = previousAreaMinX + centerX / currentLevel;
+    centerY = previousAreaMinY + centerY / currentLevel;
+  }
+
+  const area: NodeGeometry = {
+    x: Math.max(0, centerX - width / 2),
+    y: Math.max(0, centerY - height / 2),
+    width: width,
+    height: height,
   };
+
+  currentArea = area;
+  elements = quadTree.retrieve(currentArea, currentLevel);
+
+  // draw and stitch the found images on canvas
+  await drawAndStitchOnCanvas(elements, currentArea);
+};
 ```
 #### Breakdown of above code
 We start by creating a rectangle to retrieve the quads that intersect with it:
 ```typescript
- const area: NodeGeometry = {
-  x: Math.max(0, centerX - width / 2),
-  y: Math.max(0, centerY - height / 2),
-  width: width,
-  height: height,
+const area: NodeGeometry = {
+      x: Math.max(0, centerX - width / 2),
+      y: Math.max(0, centerY - height / 2),
+      width: width,
+      height: height,
 };
 ```
 Then we call `retrieve()` method of `MinimapHelper` to search for all the quads that intersect with the rectangle created above:
 ```typescript
-  elements = quadTree.retrieve(previousArea, currentLevel);
+elements = quadTree.retrieve(previousArea, currentLevel);
 ```
 And finally call `drawAndStitchOnCanvas()` on found elements to load the image tiles and stitch them together on the minimap (`previewCanvas`):
  ```typescript
-  const drawAndStitchOnCanvas = async (elements: QuadNode[], area: NodeGeometry) => {
+const drawAndStitchOnCanvas = async (elements: QuadNode[], area: NodeGeometry) => {
+  // clear the canvas
+  previewCanvasContext2D?.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  // Loop through the found nodes and draw images based on node on the canvas
+  for (let i = 0; i < elements.length; i++) {
+    const node = elements[i];
+    const nodeBoundsWidth = node.bounds.width;
+    const nodeBoundsHeight = node.bounds.height;
+    try {
+      const loadedImage = await loadImage(preview as string, node.Id);
 
-    // clear the canvas
-    previewCanvasContext2D?.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      const boundsWRatio = loadedImage.naturalWidth / nodeBoundsWidth;
+      const boundsHRatio = loadedImage.naturalHeight / nodeBoundsHeight;
 
-    // Loop through the found nodes and draw images based on node on the canvas
-    for (let i = 0; i < elements.length; i++) {
-      const node = elements[i];
+      const cutLeft = Math.max(0, area.x - node.bounds.x);
+      const cutRight = Math.max(0, node.bounds.x + node.bounds.width - (area.x + area.width));
+      const cutX = cutLeft + cutRight;
 
-      const nodeBoundsWidth = node.bounds.width;
-      const nodeBoundsHeight = node.bounds.height;
+      const cutTop = Math.max(0, area.y - node.bounds.y);
+      const cutBot = Math.max(0, node.bounds.y + node.bounds.height - (area.y + area.height));
+      const cutY = cutTop + cutBot;
 
-      try {
-        const loadedImage = await loadImage(preview as string, node.Id);
+      const zoom = currentLevel;
 
-        const boundsWRatio = loadedImage.naturalWidth / nodeBoundsWidth;
-        const boundsHRatio = loadedImage.naturalHeight / nodeBoundsHeight;
+      const x = (Math.max(node.bounds.x, area.x) - area.x) * zoom;
+      const y = (Math.max(node.bounds.y, area.y) - area.y) * zoom;
 
-        const cutLeft = Math.max(0, area.x - node.bounds.x);
-        const cutRight = Math.max(0, node.bounds.x + node.bounds.width - (area.x + area.width));
-        const cutX = cutLeft + cutRight;
+      const sx = cutLeft * boundsWRatio;
+      const sy = cutTop * boundsHRatio;
 
-        const cutTop = Math.max(0, area.y - node.bounds.y);
-        const cutBot = Math.max(0, node.bounds.y + node.bounds.height - (area.y + area.height));
-        const cutY = cutTop + cutBot;
+      const sWidth = loadedImage.naturalWidth - sx - cutRight * boundsWRatio;
+      const sHeight = loadedImage.naturalHeight - sy - cutBot * boundsHRatio;
 
-        const zoom = currentLevel;
-        const x = (Math.max(node.bounds.x, area.x) - area.x) * zoom;
-        const y = (Math.max(node.bounds.y, area.y) - area.y) * zoom;
-        const sx = cutLeft * boundsWRatio;
-        const sy = cutTop * boundsHRatio;
+      const dWidth = (node.bounds.width - cutX) * zoom;
+      const dHeight = (node.bounds.height - cutY) * zoom;
 
-        const sWidth = loadedImage.naturalWidth - sx - cutRight * boundsWRatio;
-        const sHeight = loadedImage.naturalHeight - sy - cutBot * boundsHRatio;
-        const dWidth = (node.bounds.width - cutX) * zoom;
-        const dHeight = (node.bounds.height - cutY) * zoom;
-
-        previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth + 1, dHeight + 1); // +1 for pixel overlap to avoid grid like lines
-      } catch (err) {
-        console.error("Something went wrong", err);
-      }
+      previewCanvasContext2D?.drawImage(loadedImage, sx, sy, sWidth, sHeight, x, y, dWidth + 1, dHeight + 1); // +1 for pixel overlap to avoid grid like lines
+    } catch (err) {
+      console.error("Something went wrong", err);
     }
-  };
+  }
+};
  ```
+
+ ---
 
 ## Minimap
 In this section, we will learn how to download and create the minimap.
@@ -617,7 +628,7 @@ In addition to obtaining the corner information, the function above also downloa
 :::
 
 ### Usage example
-Invoking the above method, `downloadMinimap()`, will provide us with a new instance of the `MinimapHelper` class. This instance will contain our quadtree, as well as other useful methods for interacting with both the minimap and the 3D space. The example below demonstrates the usage of the `downloadMinimap` function.
+Invoking the above method, `downloadMinimap()`, will provide us with a new instance of the `MinimapHelper` class. This instance will contain our quadtree, as well as other useful methods for interacting with both the minimap and the 3D space. The example below demonstrates the usage of the `downloadMinimap` function:
 
 ```typescript
 let preview: string | undefined;
@@ -637,88 +648,85 @@ In this section we'll implement a mechanism to update the camera position on 3D 
 Let's start by adding a `click` listener on the minimap (`previewCanvas`) that will move the camera on the 3D space to the same position as the minimap:
 
 ```typescript
- previewCanvas.onclick = (e: MouseEvent) => {
-    // Get the position of the click relative to the canvas
-    const rect = previewCanvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
+previewCanvas.onclick = (e: MouseEvent) => {
+   // Get the position of the click relative to the canvas
+   const rect = previewCanvas.getBoundingClientRect();
+   let x = e.clientX - rect.left;
+   let y = e.clientY - rect.top;
 
-    // `currenArea` will have a value if the previewCanvas is zoomed in
-    if (currentArea) {
-      const canvasScaleX = currentArea.width / previewCanvas.width;
-      const canvasScaleY = currentArea.height / previewCanvas.height;
-      x = currentArea.x + (x * canvasScaleX) / currentLevel;
-      y = currentArea.y + (y * canvasScaleY) / currentLevel;
-    }
+   // `currenArea` will have a value if the previewCanvas is zoomed in
+   if (currentArea) {
+     const canvasScaleX = currentArea.width / previewCanvas.width;
+     const canvasScaleY = currentArea.height / previewCanvas.height;
+     x = currentArea.x + (x * canvasScaleX) / currentLevel;
+     y = currentArea.y + (y * canvasScaleY) / currentLevel;
+   }
 
-    // this will move the camera on 3D space to same position as minimap
-    view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
-  };
+   // this will move the camera on 3D space to same position as minimap
+   view.camera.controller.moveTo(minimap.toWorld(glMatrix.vec2.fromValues(x, y)), view.camera.rotation);
+ };
 ```
 The next step is to draw two direction vectors on the minimap. These vectors will point to the click positions (`x` and `y`) obtained from the click listener mentioned above.
 The function below handles drawing and animating the direction vectors. We need to run this function on every frame change to detect the camera change, which is why you'll notice it being called within the render loop in demo.
 ```typescript
-  function animate() {
-    const ctx = previewCanvas.getContext("2d")!;
-
-    // Run every frame to check if the camera has changed
-    if (!prevCamRot || !glMatrix.quat.equals(prevCamRot, view.camera.rotation) || !prevCamPos || !glMatrix.vec3.equals(prevCamPos, view.camera.position)) {
-      prevCamRot = glMatrix.quat.clone(view.camera.rotation);
-      prevCamPos = glMatrix.vec3.clone(view.camera.position);
-      if (minimap) {
-        // Update minimap info based on camera position. Returns true if it changed the pdf to another floor
-        minimap.update(view.camera.position as vec3);
-
-        let imgUrl: string;
-
-        if (elements?.length && currentLevel !== 1 && zoomedImage) {
-          imgUrl = zoomedImage;
-        } else {
-          imgUrl = minimap.getMinimapImage();
-        }
-
-        loadImage(imgUrl).then((img) => {
-          // Redraw the image for te minimap
-          ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-          ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
-
-          // draw and animate directions vectors
-          drawVectors(ctx);
-        });
+function animate() {
+  const ctx = previewCanvas.getContext("2d")!;
+  // Run every frame to check if the camera has changed
+  if (!prevCamRot || !glMatrix.quat.equals(prevCamRot, view.camera.rotation) || !prevCamPos || !glMatrix.vec3.equals(prevCamPos, view.camera.position)) {
+    prevCamRot = glMatrix.quat.clone(view.camera.rotation);
+    prevCamPos = glMatrix.vec3.clone(view.camera.position);
+    if (minimap) {
+      // Update minimap info based on camera position. Returns true if it changed the pdf to another floor
+      minimap.update(view.camera.position as vec3);
+      let imgUrl: string;
+      if (elements?.length && currentLevel !== 1 && zoomedImage) {
+        imgUrl = zoomedImage;
+      } else {
+        imgUrl = minimap.getMinimapImage();
       }
+      loadImage(imgUrl).then((img) => {
+        // Redraw the image for te minimap
+        ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        ctx.drawImage(img, 0, 0, previewCanvas.width, previewCanvas.height);
+        // draw and animate directions vectors
+        drawVectors(ctx);
+      });
     }
   }
+}
 
 // handles the drawing and animating of direction vectors
-    const drawVectors = (ctx: CanvasRenderingContext2D) => {
-    //Gets the camera position in minimap space
-    const minimapPos = minimap.toMinimap(view.camera.position as vec3);
+const drawVectors = (ctx: CanvasRenderingContext2D) => {
+  //Gets the camera position in minimap space
+  const minimapPos = minimap.toMinimap(view.camera.position as vec3);
 
-    //Gets a cone of the camera direction in minimap space, point[0] is the camera position
-    const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat, 5 / currentLevel);
-    if (currentArea) {
-      minimapPos[0] = (minimapPos[0] - currentArea.x) * currentLevel;
-      minimapPos[1] = (minimapPos[1] - currentArea.y) * currentLevel;
-      for (let i = 0; i < 3; ++i) {
-        dirPath[i][0] = (dirPath[i][0] - currentArea.x) * currentLevel;
-        dirPath[i][1] = (dirPath[i][1] - currentArea.y) * currentLevel;
-      }
+  //Gets a cone of the camera direction in minimap space, point[0] is the camera position
+  const dirPath = minimap.directionPoints(view.camera.position as vec3, view.camera.rotation as quat, 5 / currentLevel);
+  if (currentArea) {
+    minimapPos[0] = (minimapPos[0] - currentArea.x) * currentLevel;
+    minimapPos[1] = (minimapPos[1] - currentArea.y) * currentLevel;
+    for (let i = 0; i < 3; ++i) {
+      dirPath[i][0] = (dirPath[i][0] - currentArea.x) * currentLevel;
+      dirPath[i][1] = (dirPath[i][1] - currentArea.y) * currentLevel;
     }
-    ctx.strokeStyle = "green";
-    for (let i = 1; i < dirPath.length; ++i) {
-      ctx.beginPath();
-      ctx.lineWidth = 3;
-      ctx.moveTo(dirPath[0][0], dirPath[0][1]);
-      ctx.lineTo(dirPath[i][0], dirPath[i][1]);
-      ctx.stroke();
-    }
-    ctx.fillStyle = "green";
+  }
+  ctx.strokeStyle = "green";
+  for (let i = 1; i < dirPath.length; ++i) {
     ctx.beginPath();
-    ctx.ellipse(minimapPos[0], minimapPos[1], 5, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-  };
+    ctx.lineWidth = 3;
+    ctx.moveTo(dirPath[0][0], dirPath[0][1]);
+    ctx.lineTo(dirPath[i][0], dirPath[i][1]);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "green";
+  ctx.beginPath();
+  ctx.ellipse(minimapPos[0], minimapPos[1], 5, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+};
 ```
 Clicking on the mininmap now should draw 2 direction vectors pointing towards the click position.
+
+---
 
 ## Putting all the pieces together
 The following demo combines all the code we previously discussed to create a quadtree, minimap, and synchronize camera movements between both views.
