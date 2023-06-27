@@ -362,7 +362,7 @@ async function initView(webglApi: typeof WebglApi, canvas: HTMLCanvasElement, sc
   const {
     url,
     db,
-    settings: { display, ...settings },
+    settings: { ...settings },
     camera: cameraParams,
   } = sceneData;
 
