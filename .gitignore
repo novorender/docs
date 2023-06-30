@@ -22,7 +22,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
 docusaurus-theme-github-codeblock-main
 
 scene-screenshot-gen/index.js
