@@ -255,9 +255,9 @@ const config = {
     require.resolve("@cmfcmf/docusaurus-search-local"),
   ],
   customFields: {
-    swaggerUI: `${baseAPI}/swagger`,
-    swaggerJSON_V1: `${baseAPI}/swagger/v1/swagger.json`,
-    swaggerJSON_V2: `${baseAPI}/swagger/v2/swagger.json`,
+    swaggerUI: `https://data-v2.novorender.com/swagger`,
+    swaggerJSON_V1: `https://data-v2.novorender.com/swagger/v1/swagger.json`,
+    swaggerJSON_V2: `https://data-v2.novorender.com/swagger/v2/swagger.json`,
   },
 };
 
