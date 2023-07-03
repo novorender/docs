@@ -184,6 +184,7 @@ class QuadNode {
 
   /**
    * Get the quadrant (subnode indexes) an object belongs to.
+   *
    * Determine which quadrant this rectangle belongs to.
    * @param obj - object to be checked
    * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
@@ -201,22 +202,22 @@ class QuadNode {
       endIsEast = obj.x + obj.width > boundsCenterX,
       endIsSouth = obj.y + obj.height > boundsCenterY;
 
-    //top-left quad
+    // top-left quad
     if (startIsWest && startIsNorth) {
       indexes.push(0);
     }
 
-    //top-right quad
+    // top-right quad
     if (startIsNorth && endIsEast) {
       indexes.push(1);
     }
 
-    //bottom-left quad
+    // bottom-left quad
     if (startIsWest && endIsSouth) {
       indexes.push(2);
     }
 
-    //bottom-right quad
+    // bottom-right quad
     if (endIsEast && endIsSouth) {
       indexes.push(3);
     }
@@ -247,12 +248,9 @@ class QuadNode {
       height = splitHeight / 2,
       x = bounds.x,
       y = bounds.y;
+
     // max 5 levels
-    if (level > 5) {
-      return;
-    }
-    if (bounds.width <= width || bounds.height <= height) {
-      this.empty = true;
+    if (level > 6) {
       return;
     }
 
@@ -286,7 +284,11 @@ class QuadNode {
           level
         );
 
-        this.nodes[i].split(width, height);
+        if (childWidth <= 0 || childHeight <= 0) {
+          this.nodes[i].empty = true;
+        } else {
+          this.nodes[i].split(width, height);
+        }
       }
     }
   }
@@ -294,6 +296,7 @@ class QuadNode {
   /**
    * Return all objects that could collide with the given geometry.
    * @param obj - geometry to be checked
+   * @param testLevel - level to be checked
    * @returns Array containing all detected objects.
    */
   retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
@@ -463,6 +466,9 @@ In this section, we will learn how to download and create the minimap.
 Let's initialize a class called `MinimapHelper`. This class contains useful methods for interacting between the PDF preview (`toMinimap()`) and the 3D Space (`toWorld()`), you'll see their actual usage in the demo provided at the end of this tutorial.
 
 ```typescript
+/**
+ * Class representing a MinimapHelper that also contains an instance of `QuadNode` class.
+ */
 export class MinimapHelper {
   /**
    * Subnodes of this node
@@ -475,17 +481,31 @@ export class MinimapHelper {
   pixelHeight = 0;
   currentIndex = 0;
 
+  glMatrix!: typeof GlMatrix;
+
   /**
    * Minimap Constructor
    * @param minimaps - minimap info
+   * @param glMatrix - glMatrix dependency
    * @param quadTreeProps - bounds and properties of the node
    * @param level - depth level (internal use only, required for subnodes)
    */
-  constructor(width: number, height: number, readonly minimaps: MinimapInfo[]) {
+  constructor(width: number, height: number, readonly minimaps: MinimapInfo[], glMatrix: typeof GlMatrix) {
     this.pixelWidth = width;
     this.pixelHeight = height;
+    this.glMatrix = glMatrix;
     this.quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, 1);
-    this.quadTree.split(width * 0.66 * 2, height * 0.66 * 2);
+  }
+
+  async split() {
+    const heightSplit = 0.9; // static value until the tile aspect is fixed
+    const widthSplit = 0.7; // static value until the tile aspect is fixed
+
+    this.quadTree.split(this.pixelWidth * widthSplit * 2, this.pixelHeight * heightSplit * 2);
+  }
+
+  retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
+    return this.quadTree.retrieve(obj, testLevel);
   }
 
   toMinimap(worldPos: vec3): vec2 {
@@ -620,7 +640,13 @@ async function downloadMinimap(width: number, height: number, scene: SceneData, 
   });
 
   minimaps.sort((a, b) => a.elevation - b.elevation);
-  return new MinimapHelper(width, height, minimaps, glMatrix);
+  
+  const minimap = new MinimapHelper(width, height, minimaps, glMatrix);
+
+  // split the quadtree
+  await minimap.split();
+
+  return minimap;
 }
 ```
 :::note
