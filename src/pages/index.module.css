@@ -28,6 +28,7 @@
   text-align: left;
   font-size: 5vw;
   line-height: 1;
+  z-index: 999;
 }
 
 .headerSubTagLine {
@@ -35,6 +36,7 @@
   text-align: left;
   max-width: 750px;
   color: var(--landing-header-sub-tagline-color);
+  z-index: 999;
 }
 
 .headerButtonMain {

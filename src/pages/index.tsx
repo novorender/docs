@@ -53,7 +53,7 @@ function HomepageHeader() {
           in the cloud
         </h1>
         <p className={styles.headerSubTagLine}>
-          Welcome to Novorender's documentation landing page! Here you will find the most up to date tutorials and reference documentation on our various APIs and products. The information is mostly aim at professional developers who are proficient with the programming platform
+          Welcome to Novorender&apos;s documentation landing page! Here you will find the most up to date tutorials and reference documentation on our various APIs and products. The information is mostly aim at professional developers who are proficient with the programming platform
           (web/typescript) and also are familiar with basic 3D math, such as vectors and matrices.
         </p>
         <div className={styles.buttons}>
