@@ -97,7 +97,7 @@ export const CodeExamplesTip = () => (
       </div>
     </div>
     <div style={{ display: "flex", justifyContent: "center" }}>
-      {["vite", "webpack", "local_esm"].map((i) => (
+      {["vite", "webpack", "webpack_typescript", "local_esm"].map((i) => (
         <Link to={`https://github.com/novorender/novorender-examples/tree/master/${i}`} key={i} style={{ margin: 5 }}>
           <img src={require(`../../static/img/${i}.png`).default} style={{ width: 100, borderRadius: 5 }} />
         </Link>
