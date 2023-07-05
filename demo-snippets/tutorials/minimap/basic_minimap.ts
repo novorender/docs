@@ -132,9 +132,19 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas, previewCanva
       centerY = previousAreaMinY + centerY / currentLevel;
     }
 
+    const right = previewCanvas.width - (centerX + width / 2)
+    const bot = previewCanvas.height - (centerY + height / 2)
+    let x = centerX - width / 2;
+    if (right < 0) {
+      x += right;
+    }
+    let y = centerY - height / 2;
+    if (bot < 0) {
+      y += bot;
+    }
     const area: NodeGeometry = {
-      x: Math.max(0, centerX - width / 2),
-      y: Math.max(0, centerY - height / 2),
+      x: Math.max(0, x),
+      y: Math.max(0, y),
       width: width,
       height: height,
     };
@@ -396,48 +406,6 @@ class QuadNode {
 
   nodes: QuadNode[];
 
-  /**
-   * Get the quadrant (subnode indexes) an object belongs to.
-   *
-   * Determine which quadrant this rectangle belongs to.
-   * @param obj - object to be checked
-   * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right).
-   */
-  getIndex(obj: NodeGeometry): number[] {
-    /**
-     * @returns Array containing indexes of intersecting subnodes (0-3 = top-right, top-left, bottom-left, bottom-right)
-     */
-    const indexes: number[] = [];
-    const boundsCenterX = this.bounds.x + this.bounds.width / 2;
-    const boundsCenterY = this.bounds.y + this.bounds.height / 2;
-
-    const startIsNorth = obj.y < boundsCenterY,
-      startIsWest = obj.x < boundsCenterX,
-      endIsEast = obj.x + obj.width > boundsCenterX,
-      endIsSouth = obj.y + obj.height > boundsCenterY;
-
-    // top-left quad
-    if (startIsWest && startIsNorth) {
-      indexes.push(0);
-    }
-
-    // top-right quad
-    if (startIsNorth && endIsEast) {
-      indexes.push(1);
-    }
-
-    // bottom-left quad
-    if (startIsWest && endIsSouth) {
-      indexes.push(2);
-    }
-
-    // bottom-right quad
-    if (endIsEast && endIsSouth) {
-      indexes.push(3);
-    }
-
-    return indexes;
-  }
 
   constructor(bounds: { x: number; y: number; width: number; height: number; Id: string }, level: number) {
     this.bounds = {
@@ -506,6 +474,20 @@ class QuadNode {
       }
     }
   }
+  
+  overlaps(obj: NodeGeometry): boolean {
+    const { bounds } = this;
+    const maxBoundX = bounds.x + bounds.width;
+    const maxBoundY = bounds.y + bounds.height;
+    const maxObjX = obj.x + obj.width;
+    const maxObjY = obj.y + obj.height;
+    const insideX = (obj.x >= bounds.x && obj.x <= maxBoundX) || (maxObjX >= maxBoundX && obj.x <= maxBoundX) || (maxObjX >= bounds.x && maxObjX < maxBoundX);
+    const insideY = (obj.y >= bounds.y && obj.y <= maxBoundY) || (maxObjY >= maxBoundY && obj.y <= maxBoundY) || (maxObjY >= bounds.y && maxObjY < maxBoundY);
+    if (insideX && insideY) {
+      return true;
+    }
+    return false;
+  }
 
   /**
    * Return all objects that could collide with the given geometry.
@@ -514,15 +496,16 @@ class QuadNode {
    * @returns Array containing all detected objects.
    */
   retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
-    const indexes = this.getIndex(obj);
 
     let returnObjects: QuadNode[] = [];
-
     //if we have subnodes, retrieve their objects
     if (this.nodes.length && this.level < testLevel) {
-      for (let i = 0; i < indexes.length; i++) {
-        if (!this.nodes[indexes[i]].empty) {
-          returnObjects = returnObjects.concat(this.nodes[indexes[i]].retrieve(obj, testLevel));
+      for (let i = 0; i < this.nodes.length; i++) {
+        const node = this.nodes[i];
+        if (!node.empty && node.overlaps(obj)) {
+          returnObjects = returnObjects.concat(
+            node.retrieve(obj, testLevel)
+          );
         }
       }
     } else {
