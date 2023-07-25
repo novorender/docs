@@ -482,9 +482,16 @@ export class MinimapHelper {
     this.quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, 1);
   }
 
-  async split() {
-    const heightSplit = 0.9; // static value until the tile aspect is fixed
-    const widthSplit = 0.7; // static value until the tile aspect is fixed
+  async split(topLevelWidth: number, topLevelHeight: number) {
+    const numImagesWidth = topLevelWidth / 256;
+    const cw = Math.ceil(Math.log(numImagesWidth) / Math.log(2));
+    const widthSplitBy = Math.pow(2, cw) / 2;
+    const widthSplit = widthSplitBy / numImagesWidth;
+
+    const numImagesHeight = topLevelHeight / 256;
+    const ch = Math.ceil(Math.log(numImagesHeight) / Math.log(2));
+    const heightSplitBy = Math.pow(2, ch) / 2;
+    const heightSplit = heightSplitBy / numImagesHeight;
 
     this.quadTree.split(this.pixelWidth * widthSplit * 2, this.pixelHeight * heightSplit * 2);
   }
@@ -564,7 +571,7 @@ export class MinimapHelper {
 ```
 The `MinimapHelper` class also creates a new instance of the `QuadNode` in the constructor. Therefore, when we create a new instance of `MinimapHelper`, it will contain our quadtree, which can be accessed using the `quadTree` property.
 ### Downloading the minimap
-After initializing the class mentioned above, we will proceed to create a function responsible for downloading the minimap. It should be noted that this function includes a DB search to obtain information about the "corners", which is necessary for the `MinimapHelper` class we created earlier. Info about "corners" is utilized for the transformation between image space and 3D space.
+After initializing the class mentioned above, we will proceed to create a function responsible for downloading the minimap. It should be noted that this function includes a DB search to obtain information about the "Corners" and "Size" of Quadtree, which is necessary for the `MinimapHelper` class we created earlier. "Corners" info is utilized for the transformation between image space and 3D space and the "Size" property is used to correctly split the Quadtree.
 
 ```typescript
 async function downloadMinimap(width: number, height: number, scene: SceneData, glMatrix: typeof GlMatrix): Promise<MinimapHelper> {
@@ -588,31 +595,51 @@ async function downloadMinimap(width: number, height: number, scene: SceneData, 
   let aspect = 0;
   let elevation = 0;
   let image = "";
+  let topLevelWidth = 0;
+  let topLevelHeight = 0;
+
   for (const prop of data.properties) {
-    if (prop[0] === "Novorender/Document/Corners") {
-      const points = prop[1].split("]");
-      const c1 = points[0].replaceAll("[", "").split(",");
-      const c2 = points[1].replaceAll("[", "").split(",");
-      const c3 = points[2].replaceAll("[", "").split(",");
-      const a = glMatrix.vec3.fromValues(Number(c1[0]), Number(c1[1]), Number(c1[2]));
-      const b = glMatrix.vec3.fromValues(Number(c2[1]), Number(c2[2]), Number(c2[3]));
-      const c = glMatrix.vec3.fromValues(Number(c3[1]), Number(c3[2]), Number(c3[3]));
-      glMatrix.vec3.sub(dirX, b, a);
-      dx = glMatrix.vec3.len(dirX);
-      glMatrix.vec3.normalize(dirX, dirX);
-      glMatrix.vec3.sub(dirY, c, b);
-      dy = glMatrix.vec3.len(dirY);
-      glMatrix.vec3.normalize(dirY, dirY);
-      corner = glMatrix.vec3.clone(a);
-      elevation = a[1];
-      aspect = dx / dy;
-    } else if (prop[0] === "Novorender/Document/Preview") {
-      const url = new URL((scene as any).url);
-      url.pathname += prop[1];
-      // This is the PDF image URL
-      image = url.toString();
+    switch (prop[0]) {
+      // get the corners
+      case "Novorender/Document/Corners": {
+        const points = prop[1].split("]");
+        const c1 = points[0].replaceAll("[", "").split(",");
+        const c2 = points[1].replaceAll("[", "").split(",");
+        const c3 = points[2].replaceAll("[", "").split(",");
+        const a = glMatrix.vec3.fromValues(Number(c1[0]), Number(c1[1]), Number(c1[2]));
+        const b = glMatrix.vec3.fromValues(Number(c2[1]), Number(c2[2]), Number(c2[3]));
+        const c = glMatrix.vec3.fromValues(Number(c3[1]), Number(c3[2]), Number(c3[3]));
+        glMatrix.vec3.sub(dirX, b, a);
+        dx = glMatrix.vec3.len(dirX);
+        glMatrix.vec3.normalize(dirX, dirX);
+        glMatrix.vec3.sub(dirY, c, b);
+        dy = glMatrix.vec3.len(dirY);
+        glMatrix.vec3.normalize(dirY, dirY);
+        corner = glMatrix.vec3.clone(a);
+        elevation = a[1];
+        aspect = dx / dy;
+        break;
+      }
+
+      // get the image preview
+      case "Novorender/Document/Preview": {
+        const url = new URL((scene as SceneData).url);
+        url.pathname += prop[1];
+        // This is the PDF image URL
+        image = url.toString();
+        break;
+      }
+
+      // get the top-level dimensions of quadtree
+      case "Novorender/Document/Size": {
+        const sizes = prop[1].split(",");
+        topLevelWidth = Number(sizes[0]);
+        topLevelHeight = Number(sizes[1]);
+        break;
+      }
     }
   }
+
   minimaps.push({
     aspect,
     image,

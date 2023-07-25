@@ -132,8 +132,8 @@ export async function main({ webglApi, dataJsApi, glMatrix, canvas, previewCanva
       centerY = previousAreaMinY + centerY / currentLevel;
     }
 
-    const right = previewCanvas.width - (centerX + width / 2)
-    const bot = previewCanvas.height - (centerY + height / 2)
+    const right = previewCanvas.width - (centerX + width / 2);
+    const bot = previewCanvas.height - (centerY + height / 2);
     let x = centerX - width / 2;
     if (right < 0) {
       x += right;
@@ -406,7 +406,6 @@ class QuadNode {
 
   nodes: QuadNode[];
 
-
   constructor(bounds: { x: number; y: number; width: number; height: number; Id: string }, level: number) {
     this.bounds = {
       x: bounds.x || 0,
@@ -474,7 +473,7 @@ class QuadNode {
       }
     }
   }
-  
+
   overlaps(obj: NodeGeometry): boolean {
     const { bounds } = this;
     const maxBoundX = bounds.x + bounds.width;
@@ -496,16 +495,13 @@ class QuadNode {
    * @returns Array containing all detected objects.
    */
   retrieve(obj: NodeGeometry, testLevel: number): QuadNode[] {
-
     let returnObjects: QuadNode[] = [];
     //if we have subnodes, retrieve their objects
     if (this.nodes.length && this.level < testLevel) {
       for (let i = 0; i < this.nodes.length; i++) {
         const node = this.nodes[i];
         if (!node.empty && node.overlaps(obj)) {
-          returnObjects = returnObjects.concat(
-            node.retrieve(obj, testLevel)
-          );
+          returnObjects = returnObjects.concat(node.retrieve(obj, testLevel));
         }
       }
     } else {
@@ -546,51 +542,16 @@ export class MinimapHelper {
     this.quadTree = new QuadNode({ x: 0, y: 0, width, height, Id: "" }, 1);
   }
 
-  async split() {
-    /**
-     * Commented code below is used to calculate the first split size
-     * Due to a bug, our tiled images are stretched so we'll be using hardcoded values below for now. Should work once the aspect is correct on Quad 1 and 3
-     * @todo re-enable once the aspect is fixed from the API
-     */
+  async split(topLevelWidth: number, topLevelHeight: number) {
+    const numImagesWidth = topLevelWidth / 256;
+    const cw = Math.ceil(Math.log(numImagesWidth) / Math.log(2));
+    const widthSplitBy = Math.pow(2, cw) / 2;
+    const widthSplit = widthSplitBy / numImagesWidth;
 
-    // const preview = this.getMinimapImage();
-    // const _00 = await loadImage(preview as string, "00");
-    // let levelHeight = _00.naturalHeight;
-    // let quadHeight = _00.naturalHeight;
-    // let levelWidth = _00.naturalWidth;
-    // let quadWidth = _00.naturalWidth;
-
-    // const loadAndAdd = async (id: string, height: boolean, width: boolean, first: boolean) => {
-    //   const img = await loadImage(preview as string, id).catch(() => {
-    //     console.log(id);
-    //     return undefined;
-    //   });
-    //   if (img) {
-    //     if (height) {
-    //       levelHeight += img.height;
-    //       if (first) {
-    //         quadHeight += img.width;
-    //       }
-    //     }
-    //     if (width) {
-    //       levelWidth += img.height;
-    //       if (first) {
-    //         quadWidth += img.width;
-    //       }
-    //     }
-    //   }
-    // };
-
-    // await loadAndAdd("01", false, true, true);
-    // await loadAndAdd("10", false, true, false);
-    // await loadAndAdd("11", false, true, false);
-    // await loadAndAdd("02", true, false, true);
-    // await loadAndAdd("20", true, false, false);
-    // await loadAndAdd("22", true, false, false);
-
-    const heightSplit = 0.9; // static value until the tile aspect is fixed
-    const widthSplit = 0.7; // static value until the tile aspect is fixed
-
+    const numImagesHeight = topLevelHeight / 256;
+    const ch = Math.ceil(Math.log(numImagesHeight) / Math.log(2));
+    const heightSplitBy = Math.pow(2, ch) / 2;
+    const heightSplit = heightSplitBy / numImagesHeight;
     this.quadTree.split(this.pixelWidth * widthSplit * 2, this.pixelHeight * heightSplit * 2);
   }
 
@@ -688,29 +649,47 @@ async function downloadMinimap(width: number, height: number, scene: SceneData, 
   let aspect = 0;
   let elevation = 0;
   let image = "";
+  let topLevelWidth = 0;
+  let topLevelHeight = 0;
   for (const prop of data.properties) {
-    if (prop[0] === "Novorender/Document/Corners") {
-      const points = prop[1].split("]");
-      const c1 = points[0].replaceAll("[", "").split(",");
-      const c2 = points[1].replaceAll("[", "").split(",");
-      const c3 = points[2].replaceAll("[", "").split(",");
-      const a = glMatrix.vec3.fromValues(Number(c1[0]), Number(c1[1]), Number(c1[2]));
-      const b = glMatrix.vec3.fromValues(Number(c2[1]), Number(c2[2]), Number(c2[3]));
-      const c = glMatrix.vec3.fromValues(Number(c3[1]), Number(c3[2]), Number(c3[3]));
-      glMatrix.vec3.sub(dirX, b, a);
-      dx = glMatrix.vec3.len(dirX);
-      glMatrix.vec3.normalize(dirX, dirX);
-      glMatrix.vec3.sub(dirY, c, b);
-      dy = glMatrix.vec3.len(dirY);
-      glMatrix.vec3.normalize(dirY, dirY);
-      corner = glMatrix.vec3.clone(a);
-      elevation = a[1];
-      aspect = dx / dy;
-    } else if (prop[0] === "Novorender/Document/Preview") {
-      const url = new URL((scene as any).url);
-      url.pathname += prop[1];
-      // This is the PDF image URL
-      image = url.toString();
+    switch (prop[0]) {
+      // get the corners
+      case "Novorender/Document/Corners": {
+        const points = prop[1].split("]");
+        const c1 = points[0].replaceAll("[", "").split(",");
+        const c2 = points[1].replaceAll("[", "").split(",");
+        const c3 = points[2].replaceAll("[", "").split(",");
+        const a = glMatrix.vec3.fromValues(Number(c1[0]), Number(c1[1]), Number(c1[2]));
+        const b = glMatrix.vec3.fromValues(Number(c2[1]), Number(c2[2]), Number(c2[3]));
+        const c = glMatrix.vec3.fromValues(Number(c3[1]), Number(c3[2]), Number(c3[3]));
+        glMatrix.vec3.sub(dirX, b, a);
+        dx = glMatrix.vec3.len(dirX);
+        glMatrix.vec3.normalize(dirX, dirX);
+        glMatrix.vec3.sub(dirY, c, b);
+        dy = glMatrix.vec3.len(dirY);
+        glMatrix.vec3.normalize(dirY, dirY);
+        corner = glMatrix.vec3.clone(a);
+        elevation = a[1];
+        aspect = dx / dy;
+        break;
+      }
+
+      // get the image preview
+      case "Novorender/Document/Preview": {
+        const url = new URL((scene as SceneData).url);
+        url.pathname += prop[1];
+        // This is the PDF image URL
+        image = url.toString();
+        break;
+      }
+
+      // get the top-level dimensions of quadtree
+      case "Novorender/Document/Size": {
+        const sizes = prop[1].split(",");
+        topLevelWidth = Number(sizes[0]);
+        topLevelHeight = Number(sizes[1]);
+        break;
+      }
     }
   }
   minimaps.push({
@@ -729,7 +708,7 @@ async function downloadMinimap(width: number, height: number, scene: SceneData, 
   const minimap = new MinimapHelper(width, height, minimaps, glMatrix);
 
   // split the quadtree
-  await minimap.split();
+  await minimap.split(topLevelWidth, topLevelHeight);
 
   return minimap;
 }
