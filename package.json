@@ -20,6 +20,7 @@
     "gen:demo-screenshots": "tsc -p scene-screenshot-gen/tsconfig.json && node scene-screenshot-gen/index.js",
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
     "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
+    "prepare": "husky install",
     "lint": "eslint src/ demo-snippets/ --max-warnings=0"
   },
   "dependencies": {
