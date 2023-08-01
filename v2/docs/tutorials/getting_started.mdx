@@ -1,0 +1,223 @@
+---
+title: "Getting started"
+sidebar_position: 1
+description: "Setting up instructions for the various Novorender packages."
+keywords: ["novorender api docs", "webgl api", "measure api", "data js api", "getting started"]
+---
+
+import { tutorials } from "@site/demo-snippets/index";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import Link from "@docusaurus/Link";
+
+## Installation
+
+All our APIs are available on NPM and can be installed with your preferred JS package manager.  
+To get started with Novorender and load a demo scene you will only need our [webgl-api](https://www.npmjs.com/package/@novorender/webgl-api) package.
+
+<Tabs groupId="package-managers-choice">
+  <TabItem value="npm" label="NPM" default>
+
+```bash
+npm install @novorender/webgl-api@next @novorender/data-js-api @novorender/measure-api
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="Yarn">
+
+```bash
+yarn add @novorender/webgl-api@next @novorender/data-js-api @novorender/measure-api
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Bundlers
+
+The webgl and measure APIs depend on workers which are not bundled and should be hosted as static files on your server.  
+The recommended approach is to copy them over to a static folder (often called public) after installation, which can be done with the `dependencies` or `postinstall` lifecycle scripts depending on your package manager.
+
+```js title="scripts/copy-novorender-workers.js"
+const fs = require("fs");
+
+const options = {
+  force: true, // overwrite files
+  recursive: true,
+};
+
+fs.cpSync("node_modules/@novorender/webgl-api", "public/novorender/webgl-api", options);
+fs.cpSync("node_modules/@novorender/measure-api", "public/novorender/measure-api", options);
+```
+
+<Tabs groupId="package-managers-choice">
+  <TabItem value="npm" label="NPM" default>
+
+```json title="package.json"
+{
+  // ...,
+  "scripts": {
+    //  ...,
+    "dependencies": "node ./scripts/copy-novorender-workers.js"
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="Yarn">
+
+```json title="package.json"
+{
+  // ...,
+  "scripts": {
+    //  ...,
+    "postinstall": "node ./scripts/copy-novorender-workers.js"
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+export const CodeExamplesTip = () => (
+  <div
+    style={{
+      border: "1px solid var(--ifm-color-primary)",
+      margin: "20px 0",
+      padding: 10,
+      borderRadius: "var(--ifm-code-border-radius)",
+    }}
+  >
+    <div style={{ display: "flex" }}>
+      <div style={{ fontSize: 38 }}>💡</div>
+      <div>
+        <p style={{ fontSize: 24, margin: 0 }}>Looking for more examples?</p>
+        <p style={{ fontSize: 12 }}>Check out these sample projects that utilise some of the common module bundlers.</p>
+      </div>
+    </div>
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      {["vite", "webpack", "webpack_typescript", "local_esm"].map((i) => (
+        <Link to={`https://github.com/novorender/novorender-examples/tree/master/${i}`} key={i} style={{ margin: 5 }}>
+          <img src={require(`../../static/img/${i}.png`).default} style={{ width: 100, borderRadius: 5 }} />
+        </Link>
+      ))}
+    </div>
+  </div>
+);
+
+<CodeExamplesTip />
+
+---
+
+## Basic usage
+
+```html title="index.html"
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novorender demo</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      canvas {
+        outline: 0;
+        touch-action: none;
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
+```
+
+```typescript title="src/main.ts"
+import { API, createAPI, WellKnownSceneUrls } from "@novorender/webgl-api";
+
+const api = createAPI({
+  // Path to where the files previously copied from node_modules are hosted
+  scriptBaseUrl: `${window.location.origin}/novorender/webgl-api/`,
+});
+const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
+main(api, canvas);
+
+async function main(api: API, canvas: HTMLCanvasElement) {
+  // create a view
+  const view = await api.createView(
+    { background: { color: [0, 0, 0, 0] } }, // transparent
+    canvas
+  );
+
+  // provide a camera controller
+  view.camera.controller = api.createCameraController({ kind: "turntable" });
+
+  // load the Condos demo scene
+  view.scene = await api.loadScene(WellKnownSceneUrls.condos);
+
+  // create a bitmap context to display render output
+  const ctx = canvas.getContext("bitmaprenderer");
+
+  // main render loop
+  while (true) {
+    // handle canvas resizes
+    const { clientWidth, clientHeight } = canvas;
+    view.applySettings({
+      display: { width: clientWidth, height: clientHeight },
+    });
+
+    // render frame
+    const output = await view.render();
+    {
+      // finalize output image
+      const image = await output.getImage();
+      if (image) {
+        // display in canvas
+        ctx?.transferFromImageBitmap(image);
+        image.close();
+      }
+    }
+  }
+}
+```
+
+---
+
+## Demo
+
+Only the function `main()` is included in the live editors.  
+Try changing the [background color](../webgl-api/interfaces/NovoRender.RenderSettings#background) on line 18 or the [camera controller](../webgl-api/interfaces/NovoRender.API#createcameracontroller) on line 23 in the example below.
+
+<PlaygroundComponent {...tutorials.gettingStarted.basic_condos_1} />
+
+export const PlaygroundTip = () => (
+  <div
+    style={{
+      border: "1px solid var(--ifm-color-primary)",
+      margin: "20px 0",
+      padding: 10,
+      borderRadius: "var(--ifm-code-border-radius)",
+    }}
+  >
+    <div style={{ display: "flex" }}>
+      <div style={{ fontSize: 38 }}>💡</div>
+      <div>
+        <p style={{ fontSize: 24, margin: 0 }}>Need more demonstrations?</p>
+        <p style={{ fontSize: 12 }}>The Playground page contains 20+ demos covering various aspects of different Novorender packages.</p>
+      </div>
+    </div>
+    <Link to="/playground" className="button button--primary" style={{ display: "block", margin: "0 auto", maxWidth: 300 }}>
+      Go to Playground
+    </Link>
+  </div>
+);
+
+<PlaygroundTip />

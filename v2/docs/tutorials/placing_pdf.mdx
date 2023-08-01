@@ -1,0 +1,163 @@
+---
+title: "Utility to place PDF correctly on a 3D asset"
+description: "Use two reference points on both the model and the PDF to place and scale the PDF in 3D space"
+keywords: ["novorender api docs", "webgl api", "measure api", "data js api", "placing pdf"]
+---
+
+import { tutorials } from "@site/demo-snippets/index";
+
+Normally PDF drawing are not scaled to the 3D geometry, correctly placing and scaling the PDF to fit the 3D geometry
+by manipulaing scale, rotation and translations can be difficult. This tutorial will show how we can use the Novorender framework
+to help place the PDF correctly. The tutorial is using a floorplan for a building as an example.
+
+:::note
+This tutorial is using database search multiple times, For more information on how to search and loading SceneData, see [Searching](./searching) first.
+:::
+
+### Fetch and draw PDF preview
+
+PDF documents uploaded to Novorender will have a preview property that can be used to display the PDF as an image.
+This image can be found by using database search and getting the metadata.
+
+```typescript
+const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as SceneData;
+if (pdfScene.db) {
+  //Search for preview Property
+  const iterator = pdfScene.db.search(
+    {
+      searchPattern: [{ property: "Novorender/Document/Preview", exact: true }],
+    },
+    undefined
+  );
+  const iteratorResult = await iterator.next();
+  const data = await iteratorResult.value.loadMetaData();
+  for (const prop of data.properties) {
+    if (prop[0] === "Novorender/Document/Preview") {
+      const url = new URL((scene as any).url);
+      url.pathname += prop[1];
+      // This is the PDF image URL
+      return url.toString();
+    }
+  }
+}
+return undefined;
+
+for (let i = 0; i < 5; i++) {
+  const iteratorResult = await iterator.next();
+
+  if (iteratorResult.done) {
+    break;
+  }
+
+  // Because we have set the search option "full: true"
+  // .loadMetadata() will not result in any more requests being made
+  // Try flipping it to false and see the difference in the network request log
+  const objectWithMetadata = await iteratorResult.value.loadMetaData();
+  searchResult.push(objectWithMetadata);
+}
+```
+
+The image can be drawn on a 2d canvas
+
+```typescript
+const img = new Image();
+img.onload = function () {
+  if (context) {
+    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+  }
+};
+img.src = previewImage;
+```
+
+:::note
+This tutorial is written without scaling or moving the image, if scaling and translations are used then these needs to be reveresed in
+calculation section below
+:::
+
+### Fetch elevation from storey info
+
+Storey elevations are normally stored in IFC files so this can be used to find the PDF elevation,
+if not then manual input or other metadata is needed, the SceneData for this will need to be from the 3D model asset.
+
+```typescript
+const iterator = scene.search(
+  {
+    searchPattern: [
+      { property: "IfcClass", value: "IfcBuildingStorey", exact: true },
+    ],
+  },
+  undefined
+);
+...
+      if (prop[0] === "Novorender/Elevation") {
+        return Number(prop[1]);
+      }
+...
+```
+
+### Calculate rotation, scale and position
+
+:::note
+The PDF is scaled to fit one meter on the Y axis
+:::
+
+For these calculations we rely on two selected points from the PDF in pixels, that match two points on the 3D model.
+To get the points from the PDF simply use the x and y position on the canvas, for points in the 3D model a top down
+orthographic camera can be used with the pick() functionality on the webgl view. Elevation can be used to set a clipping plane,
+for information on how to clip the model see [Clipping Volumes](./clipping_volumes), and for more information on
+picking and drawing on top of a novorender model see [Draw measure object](./drawing2D).
+
+:::note
+To move the model coordinates to 2D Y must be discarded, Z will be flipped and used instead,
+Elevation will be used to put it into 3D pace again
+:::
+
+```typescript
+const modelPosA = vec2.fromValues(pickPositionA[0], pickPositionA[2] * -1);
+const modelPosB = vec2.fromValues(pickPositionB[0], pickPositionB[2] * -1);
+//Invert Y axis on the pixel positions on the pdf image
+const pixelPosA = vec2.fromValues(pdfPosA[0], imgHeight.current - pdfPosA[1]);
+const pixelPosB = vec2.fromValues(pdfPosB[0], imgHeight.current - pdfPosB[1]);
+const pixelLength = vec2.dist(pixelPosA, pixelPosB);
+const modelLength = vec2.dist(modelPosA, modelPosB);
+const modelDir = vec2.sub(vec2.create(), modelPosB, modelPosA);
+vec2.normalize(modelDir, modelDir);
+const pixDir = vec2.sub(vec2.create(), pixelPosB, pixelPosA);
+vec2.normalize(pixDir, pixDir);
+const scale = modelLength / pixelLength;
+
+const radAroundZ = Math.acos(vec2.dot(modelDir, pixDir)) * -1;
+const degreesAroundZ = (angleAroundZRad / Math.PI) * 180;
+const pdfToWorldScale = imgHeight.current * scale;
+const translation = vec2.sub(vec2.create(), modelPos[0], vec2.fromValues(pixelPosA[0] * scale * Math.cos(radAroundZ), pixelPosA[1] * scale * Math.sin(radAroundZ)));
+```
+
+### Placing a preview of PDF in scene and update
+
+Dynamic object will be used to place a preview of the PDF in model space, for more information on how dynamic objects are used
+see [Dynamic Objects](./dynamic_objects). The dynamic model data can be found using the data api. Values found in the previous
+section will be used to set scale, translation and rotation.
+
+```typescript
+const resource = await this.dataApi.getResource("bad260f94a5340b9b767ea2756392be4");
+const url = new URL(resource.gltf);
+const asset = await this.api.loadAsset(url);
+const instance = this.view.scene.createDynamicObject(asset);
+instance.scale = vec3.fromValues(pdfToWorldScale, pdfToWorldScale, 1);
+instance.visible = true;
+
+// Rotate back to y as height
+const rotation = quat.fromValues(-0.70710677, 0, 0, 0.70710677);
+instance.position = vec3.transformQuat(vec3.create(), vec3.fromValues(translation[0], translation[1], 161.9), rotation);
+
+// Rotate around Z to match
+instance.rotation = quat.multiply(rotation, rotation, quat.fromEuler(quat.create(), 0, 0, degreesAroundZ));
+```
+
+When it looks good this asset can be added to the scene.
+
+### Demo
+
+Below example shows how to create a 2d view of the model and the PDF. placing two matching points on each will calculate the translation scale and roatation needed to place the pdf properly in model space
+
+<PlaygroundComponent {...tutorials.PDFPlacement.pdf_placement}></PlaygroundComponent>

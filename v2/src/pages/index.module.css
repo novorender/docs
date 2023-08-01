@@ -1,0 +1,168 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.headerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 250px;
+  margin-top: 30px;
+}
+
+.headerBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  align-items: flex-start;
+  height: calc(100vh - 60px);
+}
+
+.headerTagLine {
+  background: linear-gradient(90deg, #12c2e9 0%, #c471ed 50%, var(--ifm-color-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  max-width: 780px;
+  text-align: left;
+  font-size: 5vw;
+  line-height: 1;
+  z-index: 999;
+}
+
+.headerSubTagLine {
+  font-size: 1rem;
+  text-align: left;
+  max-width: 780px;
+  color: var(--landing-header-sub-tagline-color);
+  z-index: 999;
+}
+
+.headerButtonMain {
+  color: white;
+  background: linear-gradient(93deg, #12c2e9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
+  border-radius: 8px;
+  transition: 0.2s ease-in-out;
+  padding: 15px 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+  margin: 1em 0;
+  z-index: 99;
+}
+
+.headerButtonMain:hover {
+  border-radius: 30px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+}
+
+.headerWaves {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
+
+.wavesInverted {
+  width: 100%;
+  height: 75px;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  height: 200px;
+  width: 200px;
+}
+
+@media screen and (max-width: 599px) {
+  .headerContainer {
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .headerTagLine {
+    text-align: center;
+    font-size: 10vw;
+  }
+
+  .headerSubTagLine {
+    text-align: center;
+  }
+
+  .wavesInverted {
+    width: unset;
+    height: 200px;
+  }
+
+  .headerWaves {
+    width: unset;
+    height: 400px;
+  }
+
+  .featuresContainer {
+    overflow: hidden;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 959px) {
+  .headerContainer {
+    margin-left: 100px;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .headerTagLine {
+    font-size: 8vw;
+  }
+
+  .headerSubTagLine {
+    padding-right: 25px;
+  }
+
+  .wavesInverted {
+    width: unset;
+    height: 150px;
+  }
+
+  .headerWaves {
+    width: unset;
+    height: 300px;
+  }
+
+  .featuresContainer {
+    overflow: hidden;
+  }
+}
+
+@media screen and (min-width: 960px) and (max-width: 1279px) {
+  .headerContainer {
+    margin-left: 100px;
+    justify-content: center;
+  }
+
+  .headerTagLine {
+    font-size: 7vw;
+  }
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1919px) {
+  .headerContainer {
+    justify-content: center;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
