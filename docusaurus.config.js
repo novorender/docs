@@ -96,7 +96,7 @@ const config = {
             label: "Stable",
             items: [
               { to: "/", label: "Stable (current)" },
-              { href: "/v2", label: "V2", prependBaseUrlToHref: true },
+              { type: "html", value: `<a class="dropdown__link" href="#" onClick="window.location.href = window.location.origin + '/v2'">V2 🚧</a>` },
             ],
           },
           {
