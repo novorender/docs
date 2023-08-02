@@ -212,6 +212,7 @@ const config = {
         tsconfig: "ts/tsconfig.json",
         readme: require.resolve("./README.md"),
         disableSources: false,
+        excludeInternal: true,
         // sourceLinkTemplate: "https://github.com/novorender/ts/{path}?at={gitRevision}#line={line}",
         frontmatter: {
           description: "A Web API for scalable 3D rendering in the cloud.",
