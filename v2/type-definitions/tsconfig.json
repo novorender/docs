@@ -2,6 +2,6 @@
     "compilerOptions": {
         "baseUrl": "./",
         "skipLibCheck": true
-    },
+        },
     "exclude": ["../!(/types)"]
 }

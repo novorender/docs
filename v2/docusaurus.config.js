@@ -18,8 +18,8 @@ const config = {
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
-  organizationName: "novorender", // Usually your GitHub org/user name.
-  projectName: "novorender-api-docs", // Usually your repo name.
+  organizationName: "novorender",
+  projectName: "novorender-api-docs",
   themes: ["@docusaurus/theme-live-codeblock"],
   presets: [
     [
@@ -64,26 +64,31 @@ const config = {
             position: "left",
             label: "Docs",
           },
-          {
-            to: "docs/webgl-api",
-            position: "left",
-            label: "WebGL API",
-          },
-          {
-            to: "docs/data-js-api",
-            position: "left",
-            label: "Data JS API",
-          },
-          {
-            to: "docs/measure-api",
-            position: "left",
-            label: "Measure API",
-          },
-          {
-            to: "/data-rest-api/",
-            position: "left",
-            label: "Data Rest API",
-          },
+          // {
+          //   to: "docs/category/documentation",
+          //   position: "left",
+          //   label: "Docs",
+          // },
+          // {
+          //   to: "docs/webgl-api",
+          //   position: "left",
+          //   label: "WebGL API",
+          // },
+          // {
+          //   to: "docs/data-js-api",
+          //   position: "left",
+          //   label: "Data JS API",
+          // },
+          // {
+          //   to: "docs/measure-api",
+          //   position: "left",
+          //   label: "Measure API",
+          // },
+          // {
+          //   to: "/data-rest-api/",
+          //   position: "left",
+          //   label: "Data Rest API",
+          // },
           {
             to: "/playground/",
             position: "left",
@@ -101,27 +106,27 @@ const config = {
       footer: {
         style: "dark",
         links: [
-          {
-            title: "Docs",
-            items: [
-              {
-                label: "WebGL API",
-                to: "/docs/webgl-api",
-              },
-              {
-                label: "Data JS API",
-                to: "/docs/data-js-api",
-              },
-              {
-                label: "Measure API",
-                to: "/docs/measure-api/",
-              },
-              {
-                label: "Data Rest API",
-                to: "/data-rest-api/",
-              },
-            ],
-          },
+          // {
+          //   title: "Docs",
+          //   items: [
+          //     {
+          //       label: "WebGL API",
+          //       to: "/docs/webgl-api",
+          //     },
+          //     {
+          //       label: "Data JS API",
+          //       to: "/docs/data-js-api",
+          //     },
+          //     {
+          //       label: "Measure API",
+          //       to: "/docs/measure-api/",
+          //     },
+          //     {
+          //       label: "Data Rest API",
+          //       to: "/data-rest-api/",
+          //     },
+          //   ],
+          // },
           {
             title: "Community",
             items: [
@@ -193,72 +198,79 @@ const config = {
         disableSwitch: false,
         defaultMode: "dark",
       },
-      announcementBar: {
-        id: "wip_info",
-        content: "ℹ️ The Novorender documentation site is in active development, so expect frequent updates and new content!",
-        backgroundColor: "#303846",
-        textColor: "#fff",
-      },
     }),
   plugins: [
     webpackPlugin,
     [
       "docusaurus-plugin-typedoc",
-
-      // Plugin / TypeDoc options
       {
-        id: "webgl-api",
-        entryPoints: ["type-definitions/webgl-api.ts"],
+        // id: "web_app",
+        entryPoints: ["ts/web_app/index.ts"],
+        // entryPointStrategy: "packages",
         logLevel: "Error",
-        out: "webgl-api",
-        tsconfig: "type-definitions/tsconfig.json",
-        readme: require.resolve("@novorender/webgl-api/README.md"),
-        disableSources: true,
+        out: "web_app",
+        tsconfig: "ts/tsconfig.json",
+        readme: require.resolve("./README.md"),
+        disableSources: false,
+        // sourceLinkTemplate: "https://github.com/novorender/ts/{path}?at={gitRevision}#line={line}",
         frontmatter: {
           description: "A Web API for scalable 3D rendering in the cloud.",
-          title: "WebGL API",
+          title: "web_app",
         },
       },
-    ],
-    [
-      "docusaurus-plugin-typedoc",
-      {
-        id: "data-js-api",
-        entryPoints: ["type-definitions/data-js-api.ts"],
-        logLevel: "Error",
-        out: "data-js-api",
-        tsconfig: "type-definitions/tsconfig.json",
-        readme: require.resolve("@novorender/data-js-api/README.md"),
-        disableSources: true,
-        frontmatter: {
-          description: "A Data JS API for managing scalable Novorender 3D rendering in the cloud.",
-          title: "Data JS API",
-        },
-      },
-    ],
-    [
-      "docusaurus-plugin-typedoc",
-      {
-        id: "measure-api",
-        entryPoints: ["type-definitions/measure-api.ts"],
-        logLevel: "Error",
-        out: "measure-api",
-        tsconfig: "type-definitions/tsconfig.json",
-        readme: require.resolve("@novorender/measure-api/README.md"),
-        disableSources: true,
-        frontmatter: {
-          description: "for detailed measuring show distances, differences, elevations and more.",
-          title: "Measure API",
-        },
-      },
+      //   {
+      //     id: "webgl-api",c
+      //     entryPoints: ["type-definitions/webgl-api.ts"],
+      //     logLevel: "Error",
+      //     out: "webgl-api",
+      //     tsconfig: "type-definitions/tsconfig.json",
+      //     readme: require.resolve("@novorender/webgl-api/README.md"),
+      //     disableSources: true,
+      //     frontmatter: {
+      //       description: "A Web API for scalable 3D rendering in the cloud.",
+      //       title: "WebGL API",
+      //     },
+      //   },
+      // ],
+      // [
+      //   "docusaurus-plugin-typedoc",
+      //   {
+      //     id: "data-js-api",
+      //     entryPoints: ["type-definitions/data-js-api.ts"],
+      //     logLevel: "Error",
+      //     out: "data-js-api",
+      //     tsconfig: "type-definitions/tsconfig.json",
+      //     readme: require.resolve("@novorender/data-js-api/README.md"),
+      //     disableSources: true,
+      //     frontmatter: {
+      //       description: "A Data JS API for managing scalable Novorender 3D rendering in the cloud.",
+      //       title: "Data JS API",
+      //     },
+      //   },
+      // ],
+      // [
+      //   "docusaurus-plugin-typedoc",
+      //   {
+      //     id: "measure-api",
+      //     entryPoints: ["type-definitions/measure-api.ts"],
+      //     logLevel: "Error",
+      //     out: "measure-api",
+      //     tsconfig: "type-definitions/tsconfig.json",
+      //     readme: require.resolve("@novorender/measure-api/README.md"),
+      //     disableSources: true,
+      //     frontmatter: {
+      //       description: "for detailed measuring show distances, differences, elevations and more.",
+      //       title: "Measure API",
+      //     },
+      //   },
     ],
     require.resolve("@cmfcmf/docusaurus-search-local"),
   ],
-  customFields: {
-    swaggerUI: `https://data-v2.novorender.com/swagger`,
-    swaggerJSON_V1: `https://data-v2.novorender.com/swagger/v1/swagger.json`,
-    swaggerJSON_V2: `https://data-v2.novorender.com/swagger/v2/swagger.json`,
-  },
+  // customFields: {
+  //   swaggerUI: `https://data-v2.novorender.com/swagger`,
+  //   swaggerJSON_V1: `https://data-v2.novorender.com/swagger/v1/swagger.json`,
+  //   swaggerJSON_V2: `https://data-v2.novorender.com/swagger/v2/swagger.json`,
+  // },
 };
 
 module.exports = config;

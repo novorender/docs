@@ -44,7 +44,9 @@ function HomepageHeader() {
   return (
     <header className={`hero ${styles.headerBanner}`}>
       <div className={`${styles.headerContainer} container`}>
-        <div style={{}}></div>
+        <h2>WIP Documentation for web_app aka v2 API</h2>
+
+        {/* <div style={{}}></div>
         <h1 className={`hero__title ${styles.headerTagLine}`}>
           A scalable
           <br />
@@ -60,9 +62,9 @@ function HomepageHeader() {
           <Link className={styles.headerButtonMain} to="/docs/tutorials/getting_started">
             Get Started
           </Link>
-        </div>
+        </div> */}
       </div>
-      <Waves className={styles.headerWaves} />
+      {/* <Waves className={styles.headerWaves} /> */}
     </header>
   );
 }
@@ -92,7 +94,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
       <HomepageHeader />
-      <main className={styles.featuresContainer}>
+      {/* <main className={styles.featuresContainer}>
         <WavesInverted className={styles.wavesInverted} />
         <section className={styles.features}>
           <div
@@ -161,7 +163,7 @@ export default function Home(): JSX.Element {
             </div>
           </div>
         </section>
-      </main>
+      </main> */}
     </Layout>
   );
 }
