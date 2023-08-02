@@ -91,6 +91,15 @@ const config = {
           },
           // { to: '/blog', label: 'Blog', position: 'left' },
           {
+            type: "dropdown",
+            position: "right",
+            label: "Stable",
+            items: [
+              { to: "/", label: "Stable (current)" },
+              { href: "/v2", label: "V2", prependBaseUrlToHref: true },
+            ],
+          },
+          {
             href: baseGithub,
             className: "header-github-link",
             position: "right",
