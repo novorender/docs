@@ -210,7 +210,7 @@ const config = {
         logLevel: "Error",
         out: "web_app",
         tsconfig: "ts/tsconfig.json",
-        readme: require.resolve("./README.md"),
+        readme: require.resolve("./ts/web_app/README.md"),
         disableSources: false,
         excludeInternal: true,
         // sourceLinkTemplate: "https://github.com/novorender/ts/{path}?at={gitRevision}#line={line}",
