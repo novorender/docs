@@ -1,10 +1,12 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
-import styles from "./index.module.css";
+import { useColorMode } from '@docusaurus/theme-common';
+// import styles from "./index.module.css";
 import Waves from "@site/static/img/waves.svg";
 import WavesInverted from "@site/static/img/waves_inverted.svg";
 import CardWaves from "@site/static/img/card_waves.svg";
+import("./index.css");
 
 type FeatureItem = {
   title: string;
@@ -41,9 +43,12 @@ const FeatureList: FeatureItem[] = [
 ];
 
 function HomepageHeader() {
+
+  const { colorMode } = useColorMode()
+
   return (
-    <header className={`hero ${styles.headerBanner}`}>
-      <div className={`${styles.headerContainer} container`}>
+    <header className={`hero headerBanner glitch-wrapper ${colorMode === "light" && "dark-bg"}`}>
+      <div className={`headerContainer container glitch`}>
         <h2>WIP Documentation for web_app aka v2 API</h2>
 
         {/* <div style={{}}></div>
