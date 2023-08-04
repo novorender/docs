@@ -1,6 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+const { execSync } = require("child_process");
 const { webpackPlugin } = require("./src/plugins");
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
@@ -213,6 +214,9 @@ const config = {
         readme: require.resolve("./ts/web_app/README.md"),
         disableSources: false,
         excludeInternal: true,
+        gitRevision: (() => {
+          return execSync("cd ts && git rev-parse HEAD").toString().trim();
+        })(),
         // sourceLinkTemplate: "https://github.com/novorender/ts/{path}?at={gitRevision}#line={line}",
         frontmatter: {
           description: "A Web API for scalable 3D rendering in the cloud.",
