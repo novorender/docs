@@ -204,27 +204,38 @@ const config = {
     webpackPlugin,
     [
       "docusaurus-plugin-typedoc",
+      /** @type {import('docusaurus-plugin-typedoc').PluginOptions} */
       {
-        // id: "web_app",
+        id: "web_app",
+        sidebar: {
+          readmeLabel: "Introduction",
+          indexLabel: "Index",
+          autoConfiguration: true,
+        },
+        frontmatterGlobals: {
+          description: "A Web API for scalable 3D rendering in the cloud.",
+          custom_edit_url: "",
+        },
+        /** TypeDoc Options */
         entryPoints: ["ts/web_app/index.ts"],
-        // entryPointStrategy: "packages",
-        logLevel: "Error",
         out: "web_app",
+        logLevel: "Error",
         tsconfig: "ts/tsconfig.json",
-        readme: require.resolve("./ts/web_app/README.md"),
+        readme: "ts/web_app/README.md",
         disableSources: false,
         excludeInternal: true,
+        excludePrivate: true,
+        hideGenerator: true,
+        navigation: {
+          includeCategories: true,
+          includeGroups: true,
+        },
         gitRevision: (() => {
           return execSync("cd ts && git rev-parse HEAD").toString().trim();
         })(),
-        // sourceLinkTemplate: "https://github.com/novorender/ts/{path}?at={gitRevision}#line={line}",
-        frontmatter: {
-          description: "A Web API for scalable 3D rendering in the cloud.",
-          title: "web_app",
-        },
       },
       //   {
-      //     id: "webgl-api",c
+      //     id: "webgl-api",
       //     entryPoints: ["type-definitions/webgl-api.ts"],
       //     logLevel: "Error",
       //     out: "webgl-api",
