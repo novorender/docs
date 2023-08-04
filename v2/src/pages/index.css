@@ -17,6 +17,7 @@
   position: relative;
   overflow: hidden;
   align-items: flex-start;
+  margin-top: -60px;
   height: 100vh;
   background-size: cover;
   background-position: center center;

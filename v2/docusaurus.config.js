@@ -59,6 +59,7 @@ const config = {
           src: "img/novorender_logo_RGB_2021.png",
           srcDark: "img/novorender_logo_RGB_2021_white.png",
         },
+        hideOnScroll: true,
         items: [
           {
             to: "docs/category/documentation",

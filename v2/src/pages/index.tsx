@@ -44,11 +44,11 @@ const FeatureList: FeatureItem[] = [
 
 function HomepageHeader() {
 
-  const { colorMode } = useColorMode()
+  const { colorMode } = useColorMode();
 
   return (
-    <header className={`hero headerBanner glitch-wrapper ${colorMode === "light" && "dark-bg"}`}>
-      <div className={`headerContainer container glitch`}>
+    <header className={`hero headerBanner ${colorMode === "light" && "dark-bg"}`}>
+      <div className={`headerContainer container`}>
         <h2>WIP Documentation for web_app aka v2 API</h2>
 
         {/* <div style={{}}></div>
@@ -96,6 +96,19 @@ function Feature({ title, description, Svg }: FeatureItem) {
 }
 
 export default function Home(): JSX.Element {
+
+  React.useEffect(() => {
+    const navbar: HTMLElement = document.querySelector(".navbar");
+    try {
+      navbar.classList.add("transparent");
+    } catch (error) {
+      console.warn("Couldn't add transparent class to navbar");
+    }
+    return () => {
+      navbar.classList.remove("transparent");
+    };
+  }, []);
+
   return (
     <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
       <HomepageHeader />
