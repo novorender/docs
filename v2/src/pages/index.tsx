@@ -98,15 +98,24 @@ function Feature({ title, description, Svg }: FeatureItem) {
 export default function Home(): JSX.Element {
 
   React.useEffect(() => {
+
     const navbar: HTMLElement = document.querySelector(".navbar");
-    try {
-      navbar.classList.add("transparent");
-    } catch (error) {
-      console.warn("Couldn't add transparent class to navbar");
-    }
+
+    const observer = new MutationObserver((mutationList, observer) => {
+      for (const mutation of mutationList) {
+        if (mutation.type === "attributes" && !navbar.classList.contains("transparent")) {
+          navbar.classList.add("transparent");
+        }
+      }
+    });
+
+    observer.observe(navbar, { attributes: true });
+
     return () => {
       navbar.classList.remove("transparent");
+      observer.disconnect();
     };
+
   }, []);
 
   return (
