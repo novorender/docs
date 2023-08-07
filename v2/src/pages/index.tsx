@@ -1,11 +1,7 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import Link from "@docusaurus/Link";
+import { useLocation } from "@docusaurus/router";
 import { useColorMode } from '@docusaurus/theme-common';
-// import styles from "./index.module.css";
-import Waves from "@site/static/img/waves.svg";
-import WavesInverted from "@site/static/img/waves_inverted.svg";
-import CardWaves from "@site/static/img/card_waves.svg";
 import("./index.css");
 
 type FeatureItem = {
@@ -74,28 +70,30 @@ function HomepageHeader() {
   );
 }
 
-function Feature({ title, description, Svg }: FeatureItem) {
-  return (
-    <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
-      <CardWaves style={{ position: "absolute", bottom: 0 }} />
-      <div className="card__header">
-        <Svg
-          style={{
-            width: 50,
-            color: "var(--ifm-color-primary)",
-            marginBottom: 15,
-          }}
-        />
-        <h3>{title}</h3>
-      </div>
-      <div className="card__body" style={{ marginBottom: 15 }}>
-        <p>{description}</p>
-      </div>
-    </div>
-  );
-}
+// function Feature({ title, description, Svg }: FeatureItem) {
+//   return (
+//     <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
+//       <CardWaves style={{ position: "absolute", bottom: 0 }} />
+//       <div className="card__header">
+//         <Svg
+//           style={{
+//             width: 50,
+//             color: "var(--ifm-color-primary)",
+//             marginBottom: 15,
+//           }}
+//         />
+//         <h3>{title}</h3>
+//       </div>
+//       <div className="card__body" style={{ marginBottom: 15 }}>
+//         <p>{description}</p>
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function Home(): JSX.Element {
+
+  const location = useLocation();
 
   React.useEffect(() => {
 
@@ -117,6 +115,13 @@ export default function Home(): JSX.Element {
     };
 
   }, []);
+
+  React.useEffect(() => {
+    const navbar: HTMLElement = document.querySelector(".navbar");
+    if ((location.pathname === "/v2/" || location.pathname === "/v2") && !navbar.classList.contains("transparent")) {
+      navbar.classList.add("transparent");
+    }
+  }, [location]);
 
   return (
     <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
