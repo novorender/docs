@@ -2,7 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 const { execSync } = require("child_process");
-const { webpackPlugin } = require("./src/plugins");
+const { webpackPlugin } = require("./webpack.plugin");
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
