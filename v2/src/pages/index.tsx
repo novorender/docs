@@ -45,10 +45,12 @@ function HomepageHeader() {
   return (
     <header className={`hero headerBanner ${colorMode === "light" && "dark-bg"}`}>
       <div className={`headerContainer container`}>
-        <h1 className="fancy fade-in-top">Your Gateway to<br />Effortless 3D Management<br />and Innovation.</h1>
+        <h1 className="title-heading fade-in-top">Your Gateway to<br />Effortless 3D Management<br />and Innovation.</h1>
 
-        <div>
-          <button className="button-85" role="button">Get Started!</button>
+        <div className="action-btn-container fade-in-fwd">
+          <button className="button-get-started pulse">Get Started!</button>
+          <p>or</p>
+          <button className="button button--outline button--secondary">Learn more</button>
         </div>
 
         {/* <div style={{}}></div>
