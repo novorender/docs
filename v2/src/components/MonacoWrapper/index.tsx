@@ -31,7 +31,7 @@ import DataJsApiDTS from "!!raw-loader!@site/node_modules/@novorender/data-js-ap
 // @ts-expect-error
 import MeasureApiDTS from "!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts";
 // @ts-expect-error
-import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/api/types/index.d.ts";
+import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/api/types/@novorender/api.d.ts";
 // @ts-expect-error
 import GlMatrixDTS from "!!raw-loader!@site/node_modules/gl-matrix/index.d.ts";
 import * as MeasureAPI from "@novorender/measure-api";
@@ -301,11 +301,11 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
       const libUri = "index.d.ts";
 
-      const dtss = `declare module "@novorender/api" {
-        ${WebAppDTS}
-      }`;
+      // const dtss = `declare module "@novorender/api" {
+      //   <reference path="@novorender/api/types/index.d.ts" />
+      // }`;
 
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + dtss, libUri);
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + WebAppDTS, libUri);
 
       // monaco.languages.typescript.typescriptDefaults.addExtraLib(WebAppDTS);
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -330,7 +330,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
       // When resolving definitions and references, the editor will try to use created models.
       // Creating a model for the library allows "peek definition/references" commands to work with the library.
       if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
-        monaco.editor.createModel(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + dtss, "typescript", monaco.Uri.parse(libUri));
+        monaco.editor.createModel(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + WebAppDTS, "typescript", monaco.Uri.parse(libUri));
       }
     }
   }, [monaco]);

@@ -29,18 +29,3 @@ export async function main({ dataJsApi, canvas, web_app }: IParams) {
   await view.run();
   view.dispose();
 }
-
-// export async function loadScene(dataApi: DataJsApi.API, id: string): Promise<any> {
-//   const res = await dataApi.loadScene(id);
-//   const camera = undefined;
-
-//   if ("error" in res) {
-//     throw res;
-//   }
-
-//   const { ..._cfg } = res;
-//   const cfg = _cfg;
-
-//   return [cfg, camera];
-// }
-

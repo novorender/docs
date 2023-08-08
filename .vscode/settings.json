@@ -22,4 +22,5 @@
         "stackblitz",
         "webgl"
     ],
+    "files.associations": { "*.json": "jsonc" }
 }

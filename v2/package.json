@@ -21,7 +21,9 @@
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
     "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
     "lint": "eslint src/ demo-snippets/ --max-warnings=0",
-    "clone-api-repo": "git clone -b main --single-branch https://github.com/novorender/ts ts --depth 1"
+    "clone-api-repo": "git clone -b main --single-branch https://github.com/novorender/ts ts --depth 1",
+    "postinstall": "npm run merge-decl-files",
+    "merge-decl-files": "dts-bundle --name @novorender/api --main ./node_modules/@novorender/api/types/index.d.ts"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "1.1.0",
@@ -50,6 +52,7 @@
   "devDependencies": {
     "@docusaurus/eslint-plugin": "2.4.1",
     "@docusaurus/module-type-aliases": "2.4.1",
+    "dts-bundle": "^0.7.3",
     "@tsconfig/docusaurus": "1.0.6",
     "@tsconfig/node16": "1.0.3",
     "@types/puppeteer": "5.4.6",
