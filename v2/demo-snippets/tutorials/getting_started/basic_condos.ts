@@ -17,7 +17,7 @@ export interface IParams {
 }
 
 // HiddenRangeEnded
-export async function main({ dataJsApi, canvas, web_app }: IParams) {
+export async function main({ web_app, canvas }: IParams) {
   const gpuTier = 2; // laptop with reasonably new/powerful GPU.
   const deviceProfile = web_app.getDeviceProfile(gpuTier);
 
