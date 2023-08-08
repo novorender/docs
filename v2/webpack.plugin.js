@@ -33,6 +33,10 @@ const webpackPlugin = (context, options) => {
                 from: "node_modules/@novorender/measure-api/build/nurbs-XCWNWOSP.wasm",
                 to: config.mode === "development" ? "[name][ext]" : "assets/js/[name][ext]",
               },
+              {
+                from: "node_modules/@novorender/api/public/*",
+                to: "[name][ext]",
+              },
             ],
           }),
         ],
@@ -57,6 +61,10 @@ const webpackPlugin = (context, options) => {
               generator: {
                 filename: "[hash]",
               },
+            },
+            {
+              test: /\/node_modules\/@novorender\/api\//,
+              use: path.resolve(__dirname, "lib_fix_loader.js"),
             },
           ],
         },

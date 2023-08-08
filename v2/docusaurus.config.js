@@ -222,7 +222,7 @@ const config = {
         out: "web_app",
         logLevel: "Error",
         tsconfig: "ts/tsconfig.json",
-        readme: "ts/web_app/README.md",
+        readme: "ts/README.md",
         disableSources: false,
         excludeInternal: true,
         excludePrivate: true,

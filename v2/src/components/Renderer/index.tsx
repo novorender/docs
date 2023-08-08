@@ -5,7 +5,6 @@ import { Allotment } from "allotment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as dataJsApi from "@novorender/data-js-api";
 import * as glMatrix from "gl-matrix";
-import * as web_app from "@novorender/web_app";
 import Spinner from "../misc/spinner";
 
 /** Icons */
@@ -14,6 +13,7 @@ import { faReceipt, faCircleChevronDown } from "@fortawesome/free-solid-svg-icon
 
 /** Types */
 // import type { API } from "@novorender/webgl-api";
+import * as WebApp from "@novorender/api";
 import * as NovoRender from "@novorender/webgl-api";
 import * as MeasureAPI from "@novorender/measure-api";
 import type { IEditorConfig } from "@site/demo-snippets/misc";
@@ -22,6 +22,7 @@ import type { IEditorConfig } from "@site/demo-snippets/misc";
 interface Props {
   main: (params: object) => Promise<void>;
   webglApi: typeof NovoRender;
+  web_app: typeof WebApp;
   measureApi: typeof MeasureAPI;
   panesHeight: number;
   panesWidth: number;
@@ -33,7 +34,7 @@ interface Props {
   onMessagesAndAlert: (m: string) => void;
 }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
+export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, web_app, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
   const canvasWrapper = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const canvas2D = useRef<HTMLCanvasElement>(null);

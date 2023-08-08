@@ -31,7 +31,7 @@ import DataJsApiDTS from "!!raw-loader!@site/node_modules/@novorender/data-js-ap
 // @ts-expect-error
 import MeasureApiDTS from "!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts";
 // @ts-expect-error
-import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/web_app/index.d.ts";
+import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/api/types/index.d.ts";
 // @ts-expect-error
 import GlMatrixDTS from "!!raw-loader!@site/node_modules/gl-matrix/index.d.ts";
 import * as MeasureAPI from "@novorender/measure-api";
@@ -42,6 +42,17 @@ import * as GlMatrix from "gl-matrix";
 import type { API } from "@novorender/webgl-api";
 import type { IDempProps } from "@site/demo-snippets/misc";
 /** Types END */
+
+// loader.init().then((monaco) => {
+//   monaco.editor.defineTheme('myTheme', {
+//     base: 'vs',
+//     inherit: true,
+//     rules: [],
+//     colors: {
+//       'editor.background': '#0b131a',
+//     },
+//   });
+// });
 
 export interface IParams {
   webglAPI: API;
@@ -106,6 +117,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
   const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null);
   const [api, setApiInstance] = useState<any>(); // Create API
+  const [webApp, setWebAppApiInstance] = useState<any>(); // Create API
   const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
   const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
@@ -232,8 +244,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
       // import dynamically for SSR
       const api = await import("@novorender/webgl-api");
       const measureApi = await import("@novorender/measure-api");
+      const webApp = await import("@novorender/api");
 
       setApiInstance(api);
+      setWebAppApiInstance(webApp);
       setMeasureApiInstance(measureApi);
 
       const apiInstance = api.createAPI();
@@ -287,7 +301,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
       const libUri = "index.d.ts";
 
-      const dtss = `declare module "@novorender/web_app" {
+      const dtss = `declare module "@novorender/api" {
         ${WebAppDTS}
       }`;
 
@@ -586,6 +600,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                   <Renderer
                     canvasWrapperRef={setCanvasWrapperRef}
                     webglApi={api}
+                    web_app={webApp}
                     measureApi={measureApiInstance}
                     main={main}
                     isDoingActivity={setIsActivity}
