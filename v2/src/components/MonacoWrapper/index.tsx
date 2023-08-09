@@ -133,6 +133,8 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [hasMainChanged, setHasMainChanged] = useState(false);
   const [fontSize, setFontSize] = useState<number>();
 
+  const dts_files = [WebglDTS, MeasureApiDTS, GlMatrixDTS, DataJsApiDTS, WebAppDTS];
+
   useEffect(() => {
     console.log("playgroundConfig ", editorConfig);
 
@@ -166,7 +168,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
    * @param transpiledOutput string that contains config
    * @returns RenderConfig
    */
-  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: () => void; showTip?: () => void }> => {
+  const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: () => void; showTip?: () => void; }> => {
     const encodedJs = encodeURIComponent(transpiledOutput);
     const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
     const { main, showTip } = await import(/* webpackIgnore: true */ dataUri);
@@ -276,38 +278,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   useEffect(() => {
     if (monaco) {
+
       // Add additional d.ts files to the JavaScript language service and change.
-      // Also change the default compilation options.
-      // The sample below shows how a class Facts is declared and introduced
-      // to the system and how the compiler is told to use ES6 (target=2).
+      dts_files.forEach(dts => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
 
-      // validation settings
-      // monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-      //   noSemanticValidation: true,
-      //   noSyntaxValidation: false
-      // });
-
-      // compiler options
-      //   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      //     // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      //     // allowSyntheticDefaultImports: true,
-      //     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      //     module: monaco.languages.typescript.ModuleKind.ESNext,
-      //     allowNonTsExtensions: true,
-      //     // baseUrl: '.',
-      //     // paths: { "@/*": ['node_modules/*'] },
-      //     target: monaco.languages.typescript.ScriptTarget.Latest
-      //   });
-
-      const libUri = "index.d.ts";
-
-      // const dtss = `declare module "@novorender/api" {
-      //   <reference path="@novorender/api/types/index.d.ts" />
-      // }`;
-
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + WebAppDTS, libUri);
-
-      // monaco.languages.typescript.typescriptDefaults.addExtraLib(WebAppDTS);
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `/**
              * @description opens an alert that displays provided content
@@ -322,16 +296,9 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
             declare function openInfoPane(content: object | string | any, title?: string): void;`
       );
 
-      // monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      //    GlMatrixDTS,
-      //     'file:///node_modules/gl-matrix/index.d.ts'
-      // );
-
       // When resolving definitions and references, the editor will try to use created models.
       // Creating a model for the library allows "peek definition/references" commands to work with the library.
-      if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
-        monaco.editor.createModel(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS + WebAppDTS, "typescript", monaco.Uri.parse(libUri));
-      }
+      monaco.editor.createModel("");
     }
   }, [monaco]);
 
