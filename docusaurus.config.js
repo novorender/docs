@@ -194,8 +194,8 @@ const config = {
         defaultMode: "dark",
       },
       announcementBar: {
-        id: "wip_info",
-        content: "ℹ️ The Novorender documentation site is in active development, so expect frequent updates and new content!",
+        id: "new_api_announcement_banner",
+        content: `🎉 Exciting news! The all-new Web API is officially up and running. Dive into the <a target="_blank" rel="noopener noreferrer" href="/blog/webgl-web-api-v2">announcement post</a> to learn more about its incredible features. 🥳`,
         backgroundColor: "#303846",
         textColor: "#fff",
       },

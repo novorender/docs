@@ -143,6 +143,16 @@
     no-repeat;
 }
 
+div[class^='announcementBar_'] {
+opacity: 1;
+background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #253746 5px ), repeating-linear-gradient( #d61e5c55, var(--ifm-color-primary-darkest) );
+}
+
+/* hide announcement bar on blog */
+html.blog-wrapper div[class*="announcementBar"] {
+  display: none;
+}
+
 @media screen and (max-width: 599px) {
   .aa-DetachedSearchButton {
     border-radius: 100% !important;
