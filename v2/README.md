@@ -1,1 +1,1 @@
-WIP Documentation for web_app aka v2 api
+WIP Documentation for Web API aka v2 api

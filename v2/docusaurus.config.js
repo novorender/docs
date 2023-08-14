@@ -207,7 +207,7 @@ const config = {
       "docusaurus-plugin-typedoc",
       /** @type {import('docusaurus-plugin-typedoc').PluginOptions} */
       {
-        id: "web_app",
+        id: "web_api",
         sidebar: {
           readmeLabel: "Introduction",
           indexLabel: "Index",
@@ -219,7 +219,7 @@ const config = {
         },
         /** TypeDoc Options */
         entryPoints: ["ts/web_app/index.ts"],
-        out: "web_app",
+        out: "web_api",
         logLevel: "Error",
         tsconfig: "ts/tsconfig.json",
         readme: "ts/README.md",
