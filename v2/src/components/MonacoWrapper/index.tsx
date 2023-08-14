@@ -59,8 +59,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
   const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
   const [isActivity, setIsActivity] = useState<boolean>(false);
-  const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
-  const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null);
   const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
   const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
@@ -73,19 +71,23 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [hasMainChanged, setHasMainChanged] = useState(false);
   const [fontSize, setFontSize] = useState<number>();
   const hostRef = useRef<IDemoHost<any>>(null);
+  const canvasWrapper = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const canvas2D = useRef<HTMLCanvasElement>(null);
+  const previewCanvas = useRef<HTMLCanvasElement>(null);
 
   const dts_files = [WebAppDTS, GlMatrixDTS];
 
   useEffect(() => {
     (async () => {
-      if (canvasRef) {
-        const context = await createDemoContext(canvasRef);
+      if (canvas.current && canvas2D.current, previewCanvas.current) {
+        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
         const host = new hostCtor(context);
         hostRef.current = host;
         await host.run();
       }
     })();
-  }, [canvasRef]);
+  }, [canvas, canvas2D, previewCanvas]);
 
   useEffect(() => {
     (async () => {
@@ -346,7 +348,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   function downloadCanvasAsImage(): void {
     let link = document.createElement("a");
     link.download = `${demoName}.png`;
-    link.href = canvasRef.toDataURL();
+    link.href = canvas.current.toDataURL();
     link.click();
     link.remove();
   }
@@ -362,7 +364,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   // toggle canvas fullscreen mode
   function toggleCanvasFullscreenMode(): void {
-    canvasWrapperRef.requestFullscreen().catch((e) => {
+    canvasWrapper.current.requestFullscreen().catch((e) => {
       console.log("Failed to request fullscreen => ", e);
       alert("Failed to expand canvas");
     });
@@ -493,8 +495,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                 </div>
                 {true ? (
                   <Renderer
-                    canvasWrapperRef={setCanvasWrapperRef}
-                    canvasRef={setCanvasRef}
+                    canvasWrapperRef={canvasWrapper}
+                    canvasRef={canvas}
+                    canvas2DRef={canvas2D}
+                    previewCanvasRef={previewCanvas}
                     panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
                     panesWidth={rendererPaneWidth}
                     editorConfig={editorConfig}
@@ -566,7 +570,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                 </button>
 
                 {/* Download image */}
-                <button onClick={downloadCanvasAsImage} disabled={!canvasRef} className="clean-btn navbar__item" title="Download current view as image">
+                <button onClick={downloadCanvasAsImage} disabled={!canvas.current} className="clean-btn navbar__item" title="Download current view as image">
                   <FontAwesomeIcon icon={faDownload} className="fa-icon size-14" />
                 </button>
 

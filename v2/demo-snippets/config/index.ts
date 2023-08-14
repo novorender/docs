@@ -3,9 +3,6 @@ import { Core3DImports, DeviceProfile, RenderStateChanges, getDeviceProfile, Cor
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
 
-export interface IDemoContext<T = any> {
-  readonly canvas: HTMLCanvasElement;
-}
 export interface IModule {
   main(): RenderStateChanges;
 }
@@ -18,8 +15,13 @@ export interface IDemoHost<T> {
   exit(): void;
 }
 
+interface ICanvas {
+  primaryCanvas: HTMLCanvasElement;
+  canvas2D?: HTMLCanvasElement;
+  previewCanvas?: HTMLCanvasElement;
+}
 export interface IDemoContext<T = any> {
-  readonly canvas: HTMLCanvasElement;
+  readonly canvasElements: ICanvas;
   readonly deviceProfile: DeviceProfile;
   readonly imports: Core3DImports;
 }
@@ -33,11 +35,11 @@ if (typeof window !== "undefined") {
   coreImportsPromise = downloadImports(coreImportsMap);
 }
 
-export async function createDemoContext(canvas: HTMLCanvasElement, importsPromise: Promise<Core3DImports> = coreImportsPromise): Promise<IDemoContext> {
+export async function createDemoContext(canvasElements: ICanvas, importsPromise: Promise<Core3DImports> = coreImportsPromise): Promise<IDemoContext> {
   const gpuTier = 2; // laptop with reasonably new/powerful GPU.
   const deviceProfile = getDeviceProfile(gpuTier);
   const imports = await importsPromise;
-  return { canvas, deviceProfile, imports };
+  return { canvasElements, deviceProfile, imports };
 }
 
 export interface IDempProps {

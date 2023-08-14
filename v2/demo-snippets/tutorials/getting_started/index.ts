@@ -19,7 +19,11 @@ class RenderStateDemoHost implements IDemoHost<IModule> {
   constructor(readonly context: IDemoContext) {}
 
   async run(): Promise<void> {
-    const { canvas, deviceProfile, imports } = this.context;
+    const {
+      canvasElements: { primaryCanvas: canvas },
+      deviceProfile,
+      imports,
+    } = this.context;
     const view = new View(canvas, deviceProfile, imports);
     const envs = await view.availableEnvironments("https://api.novorender.com/assets/env/index.json");
     const env = envs[0];

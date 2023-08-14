@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import CodeBlock from "@theme/CodeBlock";
 import { Allotment } from "allotment";
@@ -18,15 +18,13 @@ interface Props {
   panesWidth: number;
   editorConfig: IEditorConfig;
   splitPaneDirectionVertical: boolean;
-  canvasRef(a: HTMLCanvasElement): void;
-  canvasWrapperRef(a: HTMLDivElement): void;
+  canvasRef: MutableRefObject<HTMLCanvasElement>;
+  canvas2DRef: MutableRefObject<HTMLCanvasElement>;
+  previewCanvasRef: MutableRefObject<HTMLCanvasElement>;
+  canvasWrapperRef: MutableRefObject<HTMLDivElement>;
 }
 
-export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
-  const canvasWrapper = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const canvas2D = useRef<HTMLCanvasElement>(null);
-  const previewCanvas = useRef<HTMLCanvasElement>(null);
+export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
   const [canvasDimensions, setCanvasDimensions] = useState<{
     width: number;
     height: number;
@@ -40,11 +38,9 @@ export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, pan
 
   useEffect(() => {
 
-    canvasRef(canvas.current);
-    canvasWrapperRef(canvasWrapper.current);
 
     const resizeObserver = new ResizeObserver((entries) => {
-      if (canvas.current) {
+      if (canvasRef.current) {
         for (const entry of entries) {
           setCanvasDimensions({
             width: entry.contentRect.width,
@@ -54,7 +50,7 @@ export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, pan
       }
     });
 
-    resizeObserver.observe(canvas.current);
+    resizeObserver.observe(canvasRef.current);
 
     window["openInfoPane"] = (content: object | string | any, title?: string) => {
       setInfoPaneContent({ content, title });
@@ -65,14 +61,14 @@ export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, pan
      * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
      * not sure if this can cause any interference with API's internal events.
      */
-    canvas.current.addEventListener("wheel", wheelEventListener, {
+    canvasRef.current.addEventListener("wheel", wheelEventListener, {
       passive: false,
     });
 
 
     return () => {
       document.removeEventListener("fullscreenchange", fullScreenEventListener, false);
-      canvas?.current?.removeEventListener("wheel", wheelEventListener, false);
+      canvasRef?.current?.removeEventListener("wheel", wheelEventListener, false);
     };
   }, []);
 
@@ -86,14 +82,14 @@ export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, pan
   return (
     <BrowserOnly>
       {() => (
-        <div ref={canvasWrapper} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
+        <div ref={canvasWrapperRef} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
           <Allotment vertical={!splitPaneDirectionVertical} onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
             <Allotment.Pane>
               <RenderSpinner />
-              <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
+              <canvas ref={canvasRef} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
               {editorConfig?.canvas2D && (
                 <canvas
-                  ref={canvas2D}
+                  ref={canvas2DRef}
                   width={canvasDimensions.width}
                   height={canvasDimensions.height}
                   style={{
@@ -109,7 +105,7 @@ export default function Renderer({ canvasRef, canvasWrapperRef, panesHeight, pan
             </Allotment.Pane>
             <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
               <RenderSpinner />
-              <canvas ref={previewCanvas} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
+              <canvas ref={previewCanvasRef} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
             </Allotment.Pane>
           </Allotment>
           <InfoBox content={infoPaneContent.content} title={infoPaneContent.title} />
