@@ -12,7 +12,7 @@ import { View } from "@novorender/api";
  * be in the demo
  * @notes host class must implement `IDemoHost<IModule>`
  */
-export class RenderStateDemoHost implements IDemoHost<IModule> {
+class RenderStateDemoHost implements IDemoHost<IModule> {
   private _module: IModule | undefined;
   private _view: View | undefined;
 
@@ -57,6 +57,6 @@ export class RenderStateDemoHost implements IDemoHost<IModule> {
 }
 
 export const gettingStarted = {
-  ...demo("getting_started", "basic_condos", basic, RenderStateDemoHost, { clickToRun: true }, "A basic demonstration of the WebGL Web API."),
-  ...demo("getting_started", "spheres", spheres, RenderStateDemoHost, { clickToRun: true }, "Dynamic Spheres."),
+  ...demo("getting_started", "basic_condos", basic, RenderStateDemoHost, {}, "A basic demonstration of the WebGL Web API."),
+  ...demo("getting_started", "spheres", spheres, RenderStateDemoHost, {}, "Dynamic Spheres."),
 };
