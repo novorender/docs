@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import CodeBlock from "@theme/CodeBlock";
 import { Allotment } from "allotment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import * as dataJsApi from "@novorender/data-js-api";
-import * as glMatrix from "gl-matrix";
 import Spinner from "../misc/spinner";
 
 /** Icons */
@@ -12,50 +10,37 @@ import { faReceipt, faCircleChevronDown } from "@fortawesome/free-solid-svg-icon
 /** Icons end */
 
 /** Types */
-// import type { API } from "@novorender/webgl-api";
-import * as WebApp from "@novorender/api";
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import type { IEditorConfig } from "@site/demo-snippets/misc";
+import type { IEditorConfig } from "@site/demo-snippets/config";
 /** Types END */
 
 interface Props {
-  main: (params: object) => Promise<void>;
-  webglApi: typeof NovoRender;
-  web_app: typeof WebApp;
-  measureApi: typeof MeasureAPI;
   panesHeight: number;
   panesWidth: number;
   editorConfig: IEditorConfig;
   splitPaneDirectionVertical: boolean;
-  isDoingActivity: (a: boolean) => void;
-  canvasRef: (a: HTMLCanvasElement) => void;
-  canvasWrapperRef: (a: HTMLDivElement) => void;
-  onMessagesAndAlert: (m: string) => void;
+  canvasRef: MutableRefObject<HTMLCanvasElement>;
+  canvas2DRef: MutableRefObject<HTMLCanvasElement>;
+  previewCanvasRef: MutableRefObject<HTMLCanvasElement>;
+  canvasWrapperRef: MutableRefObject<HTMLDivElement>;
 }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, web_app, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
-  const canvasWrapper = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const canvas2D = useRef<HTMLCanvasElement>(null);
-  const previewCanvas = useRef<HTMLCanvasElement>(null);
+export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
   const [canvasDimensions, setCanvasDimensions] = useState<{
     width: number;
     height: number;
   }>({ width: 0, height: 0 });
-  // const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
   const [infoPaneContent, setInfoPaneContent] = useState<{
     content: string | object | any;
     title?: string;
   }>({ content: "" });
   const [previewCanvasWidth, setPreviewCanvasWidth] = useState<number>(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
   useEffect(() => {
+
+
     const resizeObserver = new ResizeObserver((entries) => {
-      if (canvas.current) {
-        console.log("canvas ", canvas.current);
+      if (canvasRef.current) {
         for (const entry of entries) {
           setCanvasDimensions({
             width: entry.contentRect.width,
@@ -65,7 +50,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
       }
     });
 
-    resizeObserver.observe(canvas.current);
+    resizeObserver.observe(canvasRef.current);
 
     window["openInfoPane"] = (content: object | string | any, title?: string) => {
       setInfoPaneContent({ content, title });
@@ -76,37 +61,16 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
      * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
      * not sure if this can cause any interference with API's internal events.
      */
-    canvas.current.addEventListener("wheel", wheelEventListener, {
+    canvasRef.current.addEventListener("wheel", wheelEventListener, {
       passive: false,
     });
+
+
     return () => {
       document.removeEventListener("fullscreenchange", fullScreenEventListener, false);
-      canvas?.current?.removeEventListener("wheel", wheelEventListener, false);
+      canvasRef?.current?.removeEventListener("wheel", wheelEventListener, false);
     };
   }, []);
-
-  useEffect(() => {
-    console.log("main from renderer", main);
-    // console.log('api from renderer', apiInstance);
-    canvasRef(canvas.current);
-    canvasWrapperRef(canvasWrapper.current);
-    (async () => {
-      try {
-        await main({
-          webglApi,
-          measureApi,
-          dataJsApi,
-          glMatrix,
-          canvas: canvas.current,
-          canvas2D: canvas2D.current,
-          previewCanvas: previewCanvas.current,
-          web_app: web_app
-        });
-      } catch (err) {
-        console.log("something got caught ", err);
-      }
-    })();
-  }, [main]);
 
   const fullScreenEventListener = () => setIsFullScreen(!!document.fullscreenElement);
   const wheelEventListener = (e: MouseEvent) => {
@@ -118,14 +82,14 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
   return (
     <BrowserOnly>
       {() => (
-        <div ref={canvasWrapper} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
+        <div ref={canvasWrapperRef} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
           <Allotment vertical={!splitPaneDirectionVertical} onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
             <Allotment.Pane>
               <RenderSpinner />
-              <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
+              <canvas ref={canvasRef} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
               {editorConfig?.canvas2D && (
                 <canvas
-                  ref={canvas2D}
+                  ref={canvas2DRef}
                   width={canvasDimensions.width}
                   height={canvasDimensions.height}
                   style={{
@@ -141,7 +105,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
             </Allotment.Pane>
             <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
               <RenderSpinner />
-              <canvas ref={previewCanvas} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
+              <canvas ref={previewCanvasRef} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
             </Allotment.Pane>
           </Allotment>
           <InfoBox content={infoPaneContent.content} title={infoPaneContent.title} />

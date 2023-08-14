@@ -3,7 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import Admonition from "@theme/Admonition";
 import { tutorials } from "@site/demo-snippets/index";
-import type { IDempProps } from "../../../demo-snippets/misc";
+import type { IDempProps } from "@site/demo-snippets/config";
 
 export default function Playground(): JSX.Element {
   const [tutorialsList, setTutorialsList] = useState<Array<{ dirName: string; demos: IDempProps[] }>>([]);
@@ -12,7 +12,7 @@ export default function Playground(): JSX.Element {
     const tutsList = [
       ...Object.keys(tutorials).map((k) => {
         const values = Object.values(tutorials[k] as IDempProps);
-        return { dirName: values[0].dirName, demos: [...values] };
+        return { dirName: values[0]?.dirName, demos: [...values] };
       }),
     ];
 
@@ -38,7 +38,7 @@ export default function Playground(): JSX.Element {
                   alt={t.demoName}
                   title={t.demoName}
                   onError={(e) => {
-                    e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.jpg`).default;
+                    e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
                     e.currentTarget.alt = "demo preview image not found";
                     e.currentTarget.title = "demo preview image not found";
                   }}

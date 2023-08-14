@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 import { useLocation } from "@docusaurus/router";
 import PlaygroundComponent from "@site/src/components/PlaygroundComponent";
 import { tutorials } from "@site/demo-snippets/index";
-import type { IDempProps } from "../../../../demo-snippets/misc";
+import type { IDempProps } from "@site/demo-snippets/config";
 
 export default function Playground(): JSX.Element {
   const [currentDemo, setCurrentDemo] = useState<IDempProps>();

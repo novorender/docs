@@ -9,18 +9,17 @@ import "./index.styles.css";
 /** CSS END */
 
 /** Types */
-import type { IDempProps } from "@site/demo-snippets/misc";
+import type { IDempProps } from "@site/demo-snippets/config";
 /** Types END */
 
-export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName }: IDempProps): JSX.Element {
+export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, hostCtor }: IDempProps): JSX.Element {
   const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
   const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
   const { colorMode } = useColorMode();
 
   useEffect(() => {
     if (!demoName) {
-      console.error("Prop `demoName` is required and must be unique");
-      return;
+      throw new Error("Prop `demoName` is required and must be unique");
     }
 
     return () => {
@@ -47,10 +46,10 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                 editorConfig.mode === "inline"
                   ? { border: "2px solid #d5275d33", padding: 5 }
                   : {
-                      height: "calc(100vh - 60px)",
-                      overflow: "hidden",
-                      paddingTop: 2,
-                    }
+                    height: "calc(100vh - 60px)",
+                    overflow: "hidden",
+                    paddingTop: 2,
+                  }
               }
             >
               {editorConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ? (
@@ -60,11 +59,11 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   </button>
                   {previewImageUrl && (
                     <>
-                      <img src={`/assets/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
+                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
                       <img
                         src={previewImageUrl}
                         onError={(e) => {
-                          e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.jpg`).default;
+                          e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
                         }}
                         style={{
                           width: "100%",
@@ -77,7 +76,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   )}
                 </div>
               ) : (
-                <MonacoWrapper code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName}></MonacoWrapper>
+                  <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName}></MonacoWrapper>
               )}
             </div>
           )}

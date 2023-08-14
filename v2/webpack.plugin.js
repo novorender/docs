@@ -62,10 +62,6 @@ const webpackPlugin = (context, options) => {
                 filename: "[hash]",
               },
             },
-            {
-              test: /\/node_modules\/@novorender\/api\//,
-              use: path.resolve(__dirname, "lib_fix_loader.js"),
-            },
           ],
         },
         devServer: {

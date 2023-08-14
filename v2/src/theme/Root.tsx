@@ -1,6 +1,8 @@
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import React, { useEffect, useState } from "react";
 import { PlaygroundContext } from "./context";
+import Head from "@docusaurus/Head";
+import * as glMatrix from "gl-matrix";
 
 if (ExecutionEnvironment.canUseDOM) {
   window["runtime_process_env"] = {
@@ -22,7 +24,7 @@ export default function Root({ children }) {
     const password = "demopassword";
 
     // POST to the dataserver service's /user/login endpoint
-    const res: { token: string } = await fetch("https://data.novorender.com/api/user/login", {
+    const res: { token: string; } = await fetch("https://data.novorender.com/api/user/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -38,7 +40,13 @@ export default function Root({ children }) {
   }
 
   useEffect(() => {
+
     (async () => {
+      /** web app API to be used in the playground/editor */
+      const novorender = await import("@novorender/api");
+      window["__novorender__"] = novorender;
+      window["__glMatrix__"] = glMatrix;
+
       const message = `Unable to obtain access token; some demos requiring an access token may not function; please reload the application to try again.`;
       try {
         const accessToken = await login();
@@ -77,7 +85,20 @@ export default function Root({ children }) {
       ele.append(content);
       document.body.appendChild(ele);
     };
+
+
   }, []);
 
-  return <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>;
+  const importMap = () => `{"imports": { "@novorender/api": "/v2/api_proxy.js", "gl-matrix": "/v2/gl_matrix_proxy.js" }}`;
+
+  return (
+    <>
+      <Head>
+        <script type="importmap">
+          {importMap()}
+        </script>
+      </Head>
+      <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>
+    </>
+  );
 }
