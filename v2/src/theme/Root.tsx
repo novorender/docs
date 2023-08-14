@@ -2,6 +2,7 @@ import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import React, { useEffect, useState } from "react";
 import { PlaygroundContext } from "./context";
 import Head from "@docusaurus/Head";
+import * as glMatrix from "gl-matrix";
 
 if (ExecutionEnvironment.canUseDOM) {
   window["runtime_process_env"] = {
@@ -44,6 +45,7 @@ export default function Root({ children }) {
       /** web app API to be used in the playground/editor */
       const novorender = await import("@novorender/api");
       window["__novorender__"] = novorender;
+      window["__glMatrix__"] = glMatrix;
 
       const message = `Unable to obtain access token; some demos requiring an access token may not function; please reload the application to try again.`;
       try {
@@ -87,7 +89,7 @@ export default function Root({ children }) {
 
   }, []);
 
-  const importMap = () => `{"imports": { "@novorender/api": "/v2/api_proxy.js"}}`;
+  const importMap = () => `{"imports": { "@novorender/api": "/v2/api_proxy.js", "gl-matrix": "/v2/gl_matrix_proxy.js" }}`;
 
   return (
     <>
