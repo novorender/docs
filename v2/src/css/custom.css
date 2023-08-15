@@ -175,7 +175,7 @@
   height: 24px !important;
 }
 
-.aa-DetachedSearchButtonPlaceholder {
+.aa-DetachedSearchButtonPlaceholder, .aa-DetachedSearchButtonQuery {
 display: none;
   visibility: hidden;
 }
