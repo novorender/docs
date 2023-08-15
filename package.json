@@ -21,7 +21,9 @@
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
     "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
     "prepare": "husky install",
-    "lint": "eslint src/ demo-snippets/ --max-warnings=0"
+    "lint": "eslint src/ demo-snippets/ --max-warnings=0",
+    "gen-api-docs": "docusaurus gen-api-docs all",
+    "clean-api-docs": "docusaurus clean-api-docs all"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "1.1.0",
@@ -41,8 +43,8 @@
     "clsx": "1.2.1",
     "monaco-editor": "0.40.0",
     "raw-loader": "4.0.2",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "18.0.0",
+    "react-dom": "18.0.0",
     "react-tiny-popover": "7.2.4",
     "react-transition-group": "4.4.5"
   },
@@ -58,6 +60,8 @@
     "buffer": "6.0.3",
     "copy-webpack-plugin": "11.0.0",
     "css-minimizer-webpack-plugin": "4.1.0",
+    "docusaurus-plugin-openapi-docs": "2.0.0-beta.3",
+    "docusaurus-theme-openapi-docs": "2.0.0-beta.3",
     "docusaurus-plugin-typedoc": "0.19.2",
     "eslint": "^8.35.0",
     "eslint-config-prettier": "^8.7.0",

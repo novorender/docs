@@ -66,6 +66,19 @@ const sidebars = {
       ],
     },
   ],
+  restApi: [
+    {
+      type: "category",
+      label: "Data Rest API",
+      link: {
+        type: "generated-index",
+        title: "Data Rest API",
+        description: "Novorender Data REST API Docs",
+        slug: "/category/data-rest-api",
+      },
+      items: require("./docs/rest-api/sidebar.js"),
+    },
+  ],
 };
 
 module.exports = sidebars;

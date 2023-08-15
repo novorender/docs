@@ -20,7 +20,7 @@ const config = {
   favicon: "img/favicon.ico",
   organizationName: "novorender", // Usually your GitHub org/user name.
   projectName: "novorender-api-docs", // Usually your repo name.
-  themes: ["@docusaurus/theme-live-codeblock"],
+  themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
   presets: [
     [
       "classic",
@@ -30,6 +30,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: `${baseGithub}/docs/edit/main`,
           showLastUpdateTime: true,
+          docItemComponent: "@theme/ApiItem",
         },
         blog: {
           showReadingTime: true,
@@ -249,6 +250,33 @@ const config = {
         frontmatter: {
           description: "for detailed measuring show distances, differences, elevations and more.",
           title: "Measure API",
+        },
+      },
+    ],
+    [
+      "docusaurus-plugin-openapi-docs",
+      {
+        id: "apiDocs",
+        docsPluginId: "classic",
+        config: {
+          rest_api_versioned: {
+            specPath: "https://data-v2.novorender.com/swagger/v1/swagger.json",
+            outputDir: "docs/rest-api",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+            },
+            version: "1.0",
+            label: "V1",
+            baseUrl: "/rest-api/swagger-rest-api-yaml",
+            versions: {
+              "2.0": {
+                specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
+                outputDir: "docs/rest-api/2.0",
+                label: "V2",
+                baseUrl: "/rest-api/2.0/swagger-rest-api-yaml",
+              },
+            },
+          },
         },
       },
     ],
