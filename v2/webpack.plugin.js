@@ -6,6 +6,15 @@ const webpackPlugin = (context, options) => {
   return {
     name: "webpack-plugin",
     configureWebpack(config) {
+
+      config.module.rules.forEach((rule) => {
+        rule.resourceQuery = { not: [/raw/] };
+      });
+      config.module.rules.push({
+        resourceQuery: /raw/,
+        type: "asset/source",
+      });
+
       return {
         plugins: [
           new DefinePlugin({
@@ -53,17 +62,7 @@ const webpackPlugin = (context, options) => {
             "@novorender/measure-api": "@novorender/measure-api/build/main.js",
           },
         },
-        module: {
-          rules: [
-            {
-              resourceQuery: /raw/,
-              type: "asset/source",
-              generator: {
-                filename: "[hash]",
-              },
-            },
-          ],
-        },
+        module: {},
         devServer: {
           headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
