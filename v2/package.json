@@ -39,7 +39,6 @@
     "@novorender/data-js-api": "0.2.25",
     "@novorender/measure-api": "0.0.143",
     "@novorender/webgl-api": "0.4.59",
-    "@stoplight/elements": "7.7.18",
     "allotment": "1.19.2",
     "clsx": "1.2.1",
     "monaco-editor": "0.40.0",
