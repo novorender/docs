@@ -11,6 +11,9 @@
 
 // @ts-check
 
+const { versionSelector, versionCrumb } = require("docusaurus-plugin-openapi-docs/lib/sidebars/utils");
+const restApiVersions = require("./docs/rest-api/versions.json");
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -66,17 +69,52 @@ const sidebars = {
       ],
     },
   ],
-  restApi: [
+  "restApi-1.0": [
+    {
+      type: "html",
+      defaultStyle: true,
+      value: versionSelector(restApiVersions),
+      className: "version-button",
+    },
+    {
+      type: "html",
+      defaultStyle: true,
+      value: versionCrumb(`V1`), // The version label you wish to display
+    },
     {
       type: "category",
       label: "Data Rest API",
       link: {
         type: "generated-index",
-        title: "Data Rest API",
+        title: "Data Rest API - V1",
         description: "Novorender Data REST API Docs",
-        slug: "/category/data-rest-api",
+        slug: "/category/data-rest-api-v1",
       },
       items: require("./docs/rest-api/sidebar.js"),
+    },
+  ],
+  "restApi-2.0": [
+    {
+      type: "html",
+      defaultStyle: true,
+      value: versionSelector(restApiVersions),
+      className: "version-button",
+    },
+    {
+      type: "html",
+      defaultStyle: true,
+      value: versionCrumb(`V2`), // The version label you wish to display
+    },
+    {
+      type: "category",
+      label: "Data Rest API",
+      link: {
+        type: "generated-index",
+        title: "Data Rest API - V2",
+        description: "Novorender Data REST API Docs",
+        slug: "/category/data-rest-api-v2",
+      },
+      items: require("./docs/rest-api/2.0/sidebar.js"),
     },
   ],
 };

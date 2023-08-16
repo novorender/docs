@@ -264,16 +264,17 @@ const config = {
             outputDir: "docs/rest-api",
             sidebarOptions: {
               groupPathsBy: "tag",
+              categoryLinkSource: "tag",
             },
             version: "1.0",
             label: "V1",
-            baseUrl: "/rest-api/swagger-rest-api-yaml",
+            baseUrl: "/docs/category/data-rest-api-v1",
             versions: {
               "2.0": {
                 specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
                 outputDir: "docs/rest-api/2.0",
                 label: "V2",
-                baseUrl: "/rest-api/2.0/swagger-rest-api-yaml",
+                baseUrl: "/docs/category/data-rest-api-v2",
               },
             },
           },
