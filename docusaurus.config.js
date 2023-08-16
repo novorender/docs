@@ -18,9 +18,8 @@ const config = {
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
-  organizationName: "novorender", // Usually your GitHub org/user name.
-  projectName: "novorender-api-docs", // Usually your repo name.
-  themes: ["@docusaurus/theme-live-codeblock"],
+  organizationName: "novorender",
+  projectName: "novorender-api-docs",
   presets: [
     [
       "classic",
@@ -30,6 +29,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: `${baseGithub}/docs/edit/main`,
           showLastUpdateTime: true,
+          docItemComponent: "@theme/ApiItem",
         },
         blog: {
           showReadingTime: true,
@@ -80,7 +80,7 @@ const config = {
             label: "Measure API",
           },
           {
-            to: "/data-rest-api/",
+            to: "docs/category/data-rest-api-v1",
             position: "left",
             label: "Data Rest API",
           },
@@ -118,7 +118,7 @@ const config = {
               },
               {
                 label: "Data Rest API",
-                to: "/data-rest-api/",
+                to: "docs/category/data-rest-api-v1",
               },
             ],
           },
@@ -252,8 +252,37 @@ const config = {
         },
       },
     ],
+    [
+      "docusaurus-plugin-openapi-docs",
+      {
+        id: "apiDocs",
+        docsPluginId: "classic",
+        config: {
+          rest_api_versioned: {
+            specPath: "https://data-v2.novorender.com/swagger/v1/swagger.json",
+            outputDir: "docs/rest-api",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+              categoryLinkSource: "tag",
+            },
+            version: "1.0",
+            label: "V1",
+            baseUrl: "/docs/category/data-rest-api-v1",
+            versions: {
+              "2.0": {
+                specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
+                outputDir: "docs/rest-api/2.0",
+                label: "V2",
+                baseUrl: "/docs/category/data-rest-api-v2",
+              },
+            },
+          },
+        },
+      },
+    ],
     require.resolve("@cmfcmf/docusaurus-search-local"),
   ],
+  themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
   customFields: {
     swaggerUI: `https://data-v2.novorender.com/swagger`,
     swaggerJSON_V1: `https://data-v2.novorender.com/swagger/v1/swagger.json`,
