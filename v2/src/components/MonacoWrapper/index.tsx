@@ -29,6 +29,8 @@ import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCop
 import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/api/types/@novorender/api.d.ts";
 // @ts-expect-error
 import GlMatrixDTS from "!!raw-loader!@site/node_modules/gl-matrix/index.d.ts";
+// @ts-expect-error
+import DataJsApiDTS from "!!raw-loader!@site/node_modules/@novorender/data-js-api/index.d.ts";
 
 const editorOptions: editor.IEditorConstructionOptions = {
   minimap: { enabled: false },
@@ -76,7 +78,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const canvas2D = useRef<HTMLCanvasElement>(null);
   const previewCanvas = useRef<HTMLCanvasElement>(null);
 
-  const dts_files = [WebAppDTS, GlMatrixDTS];
+  const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
 
   useEffect(() => {
     (async () => {

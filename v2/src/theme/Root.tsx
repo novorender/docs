@@ -42,9 +42,11 @@ export default function Root({ children }) {
   useEffect(() => {
 
     (async () => {
-      /** web app API to be used in the playground/editor */
+      /** APIs to be used in the playground/editor */
       const novorender = await import("@novorender/api");
+      const dataApi = await import("@novorender/data-js-api");
       window["__novorender__"] = novorender;
+      window["__dataApi__"] = dataApi;
       window["__glMatrix__"] = glMatrix;
 
       const message = `Unable to obtain access token; some demos requiring an access token may not function; please reload the application to try again.`;
@@ -89,7 +91,7 @@ export default function Root({ children }) {
 
   }, []);
 
-  const importMap = () => `{"imports": { "@novorender/api": "/v2/api_proxy.js", "gl-matrix": "/v2/gl_matrix_proxy.js" }}`;
+  const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/v2/api_proxy.js", "gl-matrix": "/v2/gl_matrix_proxy.js", "@novorender/data-js-api": "/v2/data_api_proxy.js" } });
 
   return (
     <>
