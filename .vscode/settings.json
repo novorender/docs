@@ -10,9 +10,11 @@
         "gltf",
         "halfspace",
         "halfspaces",
+        "importmap",
         "linestrip",
         "measurescene",
         "MSAL",
+        "Naviswork",
         "Novorender",
         "Novoweb",
         "objectgroups",
@@ -22,4 +24,5 @@
         "stackblitz",
         "webgl"
     ],
+    "files.associations": { "*.json": "jsonc" }
 }
