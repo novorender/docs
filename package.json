@@ -7,7 +7,7 @@
   },
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
+    "start": "npm run re-gen && docusaurus start",
     "build": "npm run validate-snippets && npm run re-gen && docusaurus build && cd v2/ && npm ci && npm run build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
