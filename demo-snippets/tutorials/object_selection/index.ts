@@ -1,4 +1,4 @@
-import pick from "!!./pick.ts?raw";
+import pick from "./pick.ts?raw";
 import { demo } from "../../misc";
 
 export const objectSelection = {

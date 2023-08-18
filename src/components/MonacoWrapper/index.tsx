@@ -24,14 +24,11 @@ import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
 import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faCode, faSlash, faGear } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
-// @ts-expect-error
-import WebglDTS from "!!raw-loader!@site/node_modules/@novorender/webgl-api/index.d.ts";
-// @ts-expect-error
-import DataJsApiDTS from "!!raw-loader!@site/node_modules/@novorender/data-js-api/index.d.ts";
-// @ts-expect-error
-import MeasureApiDTS from "!!raw-loader!@site/node_modules/@novorender/measure-api/index.d.ts";
-// @ts-expect-error
-import GlMatrixDTS from "!!raw-loader!@site/node_modules/gl-matrix/index.d.ts";
+import WebglDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
+import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
+import MeasureApiDTS from "@site/node_modules/@novorender/measure-api/index.d.ts?raw";
+import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
+
 import * as MeasureAPI from "@novorender/measure-api";
 import * as DataJsAPI from "@novorender/data-js-api";
 import * as GlMatrix from "gl-matrix";

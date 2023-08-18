@@ -1,7 +1,7 @@
-import searchByPath from "!!./search_by_path.ts?raw";
-import fluffySearch from "!!./fluffy_search.ts?raw";
-import exactSearch from "!!./exact_search.ts?raw";
-import exactSearchExcludingResult from "!!./exact_search_excluding_result.ts?raw";
+import searchByPath from "./search_by_path.ts?raw";
+import fluffySearch from "./fluffy_search.ts?raw";
+import exactSearch from "./exact_search.ts?raw";
+import exactSearchExcludingResult from "./exact_search_excluding_result.ts?raw";
 
 import { demo } from "../../misc";
 

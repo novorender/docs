@@ -1,4 +1,4 @@
-import dynamicObject from "!!./dynamic_object.ts?raw";
+import dynamicObject from "./dynamic_object.ts?raw";
 import { demo } from "../../misc";
 
 export const dynamicObjects = {

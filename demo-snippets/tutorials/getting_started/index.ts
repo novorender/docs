@@ -1,6 +1,6 @@
-import basicCube from "!!./basic_cube.ts?raw";
-import basicCondos from "!!./basic_condos.ts?raw";
-import basicCondos1 from "!!./basic_condos_1.ts?raw";
+import basicCube from "./basic_cube.ts?raw";
+import basicCondos from "./basic_condos.ts?raw";
+import basicCondos1 from "./basic_condos_1.ts?raw";
 
 import { demo } from "../../misc";
 

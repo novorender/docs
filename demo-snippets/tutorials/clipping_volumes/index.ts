@@ -1,11 +1,11 @@
-import single from "!!./single.ts?raw";
-import offset from "!!./offset.ts?raw";
-import flipped from "!!./flipped.ts?raw";
-import rotated from "!!./rotated.ts?raw";
-import dual from "!!./dual.ts?raw";
-import slab from "!!./slab.ts?raw";
-import slab_inv from "!!./slab_inv.ts?raw";
-import box from "!!./box.ts?raw";
+import single from "./single.ts?raw";
+import offset from "./offset.ts?raw";
+import flipped from "./flipped.ts?raw";
+import rotated from "./rotated.ts?raw";
+import dual from "./dual.ts?raw";
+import slab from "./slab.ts?raw";
+import slab_inv from "./slab_inv.ts?raw";
+import box from "./box.ts?raw";
 import { demo } from "../../misc";
 
 export const clippingVolumes = {

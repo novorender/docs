@@ -1,4 +1,4 @@
-import pdfPlacement from "!!./pdf_placement.ts?raw";
+import pdfPlacement from "./pdf_placement.ts?raw";
 
 import { demo } from "../../misc";
 

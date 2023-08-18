@@ -1,4 +1,4 @@
-import floors from "!!./floors.ts?raw";
+import floors from "./floors.ts?raw";
 import { demo } from "../../misc";
 
 export const objectGroups = {

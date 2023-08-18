@@ -1,4 +1,4 @@
-import parametricMeasure from "!!./parametric_measure.ts?raw";
+import parametricMeasure from "./parametric_measure.ts?raw";
 import { demo } from "../../misc";
 
 export const measure = {

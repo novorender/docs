@@ -1,6 +1,6 @@
-import fromPick from "!!./metadata_from_pick.ts?raw";
-import fromSearch from "!!./metadata_from_search.ts?raw";
-import flyTo from "!!./fly_to.ts?raw";
+import fromPick from "./metadata_from_pick.ts?raw";
+import fromSearch from "./metadata_from_search.ts?raw";
+import flyTo from "./fly_to.ts?raw";
 import { demo } from "../../misc";
 
 export const objectMetadata = {

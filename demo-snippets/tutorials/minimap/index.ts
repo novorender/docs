@@ -1,4 +1,4 @@
-import basicMinimap from "!!./basic_minimap.ts?raw";
+import basicMinimap from "./basic_minimap.ts?raw";
 import { demo } from "../../misc";
 
 export const minimap = {

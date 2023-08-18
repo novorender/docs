@@ -25,12 +25,9 @@ import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
 import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
-// @ts-expect-error
-import WebAppDTS from "!!raw-loader!@site/node_modules/@novorender/api/types/@novorender/api.d.ts";
-// @ts-expect-error
-import GlMatrixDTS from "!!raw-loader!@site/node_modules/gl-matrix/index.d.ts";
-// @ts-expect-error
-import DataJsApiDTS from "!!raw-loader!@site/node_modules/@novorender/data-js-api/index.d.ts";
+import WebAppDTS from "@site/node_modules/@novorender/api/types/@novorender/api.d.ts?raw";
+import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
+import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
   minimap: { enabled: false },
