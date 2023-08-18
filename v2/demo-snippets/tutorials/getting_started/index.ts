@@ -3,7 +3,7 @@ import spheres from "./spheres.ts?raw";
 import basic from "./basic.ts?raw";
 
 import { IDemoContext, IDemoHost, IModule, demo } from "../../config";
-import { View } from "@novorender/api";
+import { RenderStateChanges, View } from "@novorender/api";
 
 /**
  * Add any boilerplate code here in this class that will work
@@ -12,8 +12,8 @@ import { View } from "@novorender/api";
  * be in the demo
  * @notes host class must implement `IDemoHost<IModule>`
  */
-class RenderStateDemoHost implements IDemoHost<IModule> {
-  private _module: IModule | undefined;
+class RenderStateDemoHost implements IDemoHost<IModule<RenderStateChanges>> {
+  private _module: IModule<RenderStateChanges> | undefined;
   private _view: View | undefined;
 
   constructor(readonly context: IDemoContext) {}
@@ -50,7 +50,7 @@ class RenderStateDemoHost implements IDemoHost<IModule> {
     view.dispose();
   }
 
-  updateModule(module: IModule): string | undefined {
+  updateModule(module: IModule<RenderStateChanges>): string | undefined {
     this._module = module;
     return "test";
   }

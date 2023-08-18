@@ -3,8 +3,8 @@ import { Core3DImports, DeviceProfile, RenderStateChanges, getDeviceProfile, Cor
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
 
-export interface IModule {
-  main(): RenderStateChanges;
+export interface IModule<T, U = void> {
+  main(props: U): T;
 }
 export interface DemoHostCtor<T> {
   new (context: IDemoContext): IDemoHost<T>;
