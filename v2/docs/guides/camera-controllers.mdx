@@ -4,6 +4,9 @@ description: "How to use and configure camera controllers."
 keywords: ["novorender api docs", "webgl api", "clipping volumes"]
 ---
 
+import { snippets } from "@site/demo-snippets/index";
+import { CodeLink } from "@site/src/components/CodeLink";
+
 Before we dive into camera controllers, let's examine what they control exactly.
 The camera orientation and projection used for rendering is described in the render state as a 3D vector and quaternion.
 
@@ -18,20 +21,20 @@ view.modifyRenderState({ camera: { kind, position, rotation, fov } });
 If you're using the `Core3D` module only, this would be how you control the camera.
 
 For anything beyond trivial cases, manually setting the camera can be a daunting task, however.
-To help with this, the `View` class introduces camera controllers.
-With the exception of the `NullController`, these will overwrite the camera related render state on every frame, so setting it directly like in the example above won't work.
+To help with this, the <CodeLink type="class" name="View"/> class introduces camera controllers.
+With the exception of the <CodeLink type="class" name="NullController"/>``, these will overwrite the camera related render state on every frame, so setting it directly like in the example above won't work.
 Instead you need to pick one of the existing controller types and configure it to your preferences.
 
 ## Active controller
 
-A view comes with a preset selection of camera controllers, all listed in the `View.controllers` property.
+A view comes with a preset selection of camera controllers, all listed in the <CodeLink type="class" name="View.controllers"/> property.
 Only one of them can be active as a time, however, defined in the 'view.activeController' property.
 
 ```typescript
 const { activeController } = view;
 ```
 
-You can change the active controller using the `View.switchCameraController` method.
+You can change the active controller using the <CodeLink type="class" name="View.switchCameraController"/> method.
 
 ```typescript
 const flightController = await view.switchCameraController("flight");
@@ -41,7 +44,7 @@ This function also attempts to reconcile the different types of states contained
 
 ## Common controller functionality
 
-All controllers inherit the `BaseController` type, which contains common functions and properties.
+All controllers inherit the <CodeLink type="class" name="BaseController"/> type, which contains common functions and properties.
 An example of this is the `serialize` and `init` functions that can be used to persist controller state as JSON.
 
 ```typescript
@@ -52,14 +55,15 @@ activeController.init(controllerState);
 ## Type assertions and guards
 
 For type specific functions and properties, you'll need to narrow down the type.
-`View.switchCameraController` returns the specific type you requested.
 
-If all you have available is `View.activeController`, you could downcast to the specific subtype, but this is potentially unsafe and not checked at runtime.
+<CodeLink type="class" name="View.switchCameraController" /> returns the specific type you requested.
+
+If all you have available is <CodeLink type="class" name="View.activeController"/>, you could downcast to the specific subtype, but this is potentially unsafe and not checked at runtime.
 Instead we provide typescript type assertions and type guard helper functions to assist you.
 
 By default, the view comes with an orbit camera controller.
 This controller works well for examples and simple use cases, so we'll keep using it for a while.
-We can assert that `View.activeController` is in fact an orbit controller.
+We can assert that <CodeLink type="class" name="View.activeController"/> is in fact an orbit controller.
 
 ```typescript
 const { activeController } = view;
@@ -81,7 +85,7 @@ if (OrbitController.is(activeController)) {
 }
 ```
 
-If you don't care what controller is current active but just want to access a specific kind, you can always get it via the `view.controllers` property.
+If you don't care what controller is current active but just want to access a specific kind, you can always get it via the <CodeLink type="class" name="View.controllers"/> property.
 
 ```typescript
 const { orbit } = view.controllers;
@@ -126,21 +130,20 @@ One reason for this is to contrain the orientation to have zero roll angle, whic
 All controllers support the notion of zoom to and fly to.
 Both of them support an animated motion from the current position to the desired target.
 
-`zoomTo` brings a bounding sphere into view in a sort of "zoom to fit" manner.
-This is useful for displaying an object or area with a known bounding sphere.
+<CodeLink type="class" name="BaseController.zoomTo" /> brings a bounding sphere into view in a sort of "zoom to fit" manner. This is useful for displaying an object or area with a known bounding sphere.
 
-`flyTo` moves the camera to the desired position, and optionally rotation.
+<CodeLink type="class" name="BaseController.flyTo" /> moves the camera to the desired position, and optionally rotation.
 
 ## Other kinds of camera controllers
 
-`FlightController` is more flexible than orbit and lets you move freely around in a first person, hovering flight manner.
+The <CodeLink type="class" name="FlightController"/> is more flexible than orbit and lets you move freely around in a first person, hovering flight manner.
 There are some variations of this controller for varying input preferences.
 
-`PanoramaController` has a fixed position, letting you rotate only, typically to view a panoramic image.
+The <CodeLink type="class" name="PanoramaController"/> has a fixed position, letting you rotate only, typically to view a panoramic image.
 
-`OrthoController` uses orthographic projection, which often is used to view content in a 2D projection style.
+The <CodeLink type="class" name="OrthoController"/> uses orthographic projection, which often is used to view content in a 2D projection style.
 
-`NullController` a completely passive camera controller that will not modify/overwrite any camera render state.
+The <CodeLink type="class" name="NullController"/> is a completely passive camera controller that will not modify/overwrite any camera render state.
 This can be useful for manually setting such state.
 
 ## Custom controllers
@@ -157,7 +160,7 @@ function myCameraControllers(input: ControllerInput, pick: PickContext) {
 }
 ```
 
-This must then be passed on to the `View` constructor.
+This must then be passed on to the <CodeLink type="class" name="View.new"/> constructor.
 
 ```typescript
 const view = new View(canvas, deviceProfile, imports, myCameraControllers);
