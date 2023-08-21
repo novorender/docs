@@ -40,4 +40,4 @@ export const {
   modifyRenderState,
   packageVersion,
   rotationFromDirection
-  } = window["__novorender__"];
+} = window["__novorender__"];
