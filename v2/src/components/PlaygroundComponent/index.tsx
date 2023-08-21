@@ -9,7 +9,7 @@ import "./index.styles.css";
 /** CSS END */
 
 /** Types */
-import type { IDempProps } from "@site/demo-snippets/config";
+import type { IDempProps } from "@site/demo-snippets/demo";
 /** Types END */
 
 export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, hostCtor }: IDempProps): JSX.Element {

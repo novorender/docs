@@ -10,7 +10,7 @@ import { faReceipt, faCircleChevronDown } from "@fortawesome/free-solid-svg-icon
 /** Icons end */
 
 /** Types */
-import type { IEditorConfig } from "@site/demo-snippets/config";
+import type { IEditorConfig } from "@site/demo-snippets/demo";
 /** Types END */
 
 interface Props {
