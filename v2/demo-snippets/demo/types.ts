@@ -49,7 +49,7 @@ export interface IDempProps {
   demoName: string;
   /** editor config */
   editorConfig: IEditorConfig;
-  /** Github edit URL, should be relative path e.g. `demo-snippets/tutorials/clipping_volumes/box.ts` */
+  /** Github edit URL, should be relative path e.g. `demo-snippets/guides/clipping_volumes/box.ts` */
   editUrl: string;
   /** Code that needs to be in the editor */
   code: string;

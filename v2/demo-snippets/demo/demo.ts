@@ -14,7 +14,7 @@ export function demo<T extends string>(dirName: string, demoName: T, code: strin
       },
       hostCtor,
       code,
-      editUrl: `demo-snippets/tutorials/${dirName}/${demoName}.ts`,
+      editUrl: `demo-snippets/guides/${dirName}/${demoName}.ts`,
       previewImageUrl: `/assets/demo-screenshots/${demoName}.png`,
       description: desc || "No Description Available",
     } as const,
