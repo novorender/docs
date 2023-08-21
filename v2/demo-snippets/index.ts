@@ -1,3 +1,3 @@
-import * as tutorials from "./tutorials";
+import * as guides from "./guides";
 
-export { tutorials };
+export { guides };
