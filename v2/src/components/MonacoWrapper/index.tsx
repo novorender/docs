@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
 import { useColorMode } from "@docusaurus/theme-common";
@@ -47,6 +48,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
   const { colorMode } = useColorMode();
+  const themeURL = useBaseUrl("/assets/monaco-theme-oceanic-next.json");
   const history = useHistory();
   const editorInstance = useRef(null);
   const textAreaInstance = useRef<HTMLTextAreaElement>(null);
@@ -237,6 +239,14 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   }, [monaco]);
 
   function handleEditorWillMount(monaco) {
+
+    fetch(themeURL)
+      .then(data => data.json())
+      .then(data => {
+        monaco.editor.defineTheme('oceanic-next', data);
+        monaco.editor.setTheme('oceanic-next');
+      });
+
     configureFontSize();
   }
 
