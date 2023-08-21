@@ -1,0 +1,170 @@
+---
+title: "Camera controllers"
+description: "How to use and configure camera controllers."
+keywords: ["novorender api docs", "webgl api", "clipping volumes"]
+---
+
+Before we dive into camera controllers, let's examine what they control exactly.
+The camera orientation and projection used for rendering is described in the render state as a 3D vector and quaternion.
+
+```typescript
+const position = [0, 0, 0];
+const rotation = [0, 0, 0, 1];
+const kind = "pinhole"; // perspective projection
+const fov = 60; // field of view in degrees
+view.modifyRenderState({ camera: { kind, position, rotation, fov } });
+```
+
+If you're using the `Core3D` module only, this would be how you control the camera.
+
+For anything beyond trivial cases, manually setting the camera can be a daunting task, however.
+To help with this, the `View` class introduces camera controllers.
+With the exception of the `NullController`, these will overwrite the camera related render state on every frame, so setting it directly like in the example above won't work.
+Instead you need to pick one of the existing controller types and configure it to your preferences.
+
+## Active controller
+
+A view comes with a preset selection of camera controllers, all listed in the `View.controllers` property.
+Only one of them can be active as a time, however, defined in the 'view.activeController' property.
+
+```typescript
+const { activeController } = view;
+```
+
+You can change the active controller using the `View.switchCameraController` method.
+
+```typescript
+const flightController = await view.switchCameraController("flight");
+```
+
+This function also attempts to reconcile the different types of states contained in each type of controller to provide a reasonable transition.
+
+## Common controller functionality
+
+All controllers inherit the `BaseController` type, which contains common functions and properties.
+An example of this is the `serialize` and `init` functions that can be used to persist controller state as JSON.
+
+```typescript
+const controllerState = activeController.serialize();
+activeController.init(controllerState);
+```
+
+## Type assertions and guards
+
+For type specific functions and properties, you'll need to narrow down the type.
+`View.switchCameraController` returns the specific type you requested.
+
+If all you have available is `View.activeController`, you could downcast to the specific subtype, but this is potentially unsafe and not checked at runtime.
+Instead we provide typescript type assertions and type guard helper functions to assist you.
+
+By default, the view comes with an orbit camera controller.
+This controller works well for examples and simple use cases, so we'll keep using it for a while.
+We can assert that `View.activeController` is in fact an orbit controller.
+
+```typescript
+const { activeController } = view;
+OrbitController.assert(activeController);
+// activeController is OrbitController from now on.
+```
+
+Also, it tells typescript that `activeController` is an orbit controller, allowing us to access the members of this class instead of the common base class.
+
+:::info
+If the active controller is any other type, the assertion throws an exception.
+:::
+
+If you're not sure what type the controller is, you could use type guards to check
+
+```typescript
+if (OrbitController.is(activeController)) {
+  // activeController is OrbitController in this scope
+}
+```
+
+If you don't care what controller is current active but just want to access a specific kind, you can always get it via the `view.controllers` property.
+
+```typescript
+const { orbit } = view.controllers;
+```
+
+## Parameters
+
+Each controller type has its own set of parameters.
+Having asserted the active controller is indeed an orbit controller, let's double the default rotational speed to give us a more responive rotation!
+
+```typescript
+const { activeController } = view;
+OrbitController.assert(activeController);
+activeController.updateParams({ rotationalVelocity: 2 });
+```
+
+## Properties
+
+Controllers have several properties that you can get and set.
+We could, e.g., halve the field of view and double the distance for a dolly zoom-like effect.
+
+```typescript
+activeController.fov /= 2;
+activeController.distance *= 2;
+```
+
+Unlike the other controllers, the orbit controller doesn't have an intrinsic position that you can set directly.
+It is instead computed from the `pivot` point, `distance` and `yaw` + `pitch` angles.
+Hence, moving the pivot point will also move the camera position indirectly.
+
+```typescript
+let [x, y, z] = activeController.pivot;
+x += 1; // Move one meter to the right.
+activeController.pivot = [x, y, z];
+```
+
+The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
+One reason for this is to contrain the orientation to have zero roll angle, which is often confusing and rarely useful.
+
+## Zoom to and fly to
+
+All controllers support the notion of zoom to and fly to.
+Both of them support an animated motion from the current position to the desired target.
+
+`zoomTo` brings a bounding sphere into view in a sort of "zoom to fit" manner.
+This is useful for displaying an object or area with a known bounding sphere.
+
+`flyTo` moves the camera to the desired position, and optionally rotation.
+
+## Other kinds of camera controllers
+
+`FlightController` is more flexible than orbit and lets you move freely around in a first person, hovering flight manner.
+There are some variations of this controller for varying input preferences.
+
+`PanoramaController` has a fixed position, letting you rotate only, typically to view a panoramic image.
+
+`OrthoController` uses orthographic projection, which often is used to view content in a 2D projection style.
+
+`NullController` a completely passive camera controller that will not modify/overwrite any camera render state.
+This can be useful for manually setting such state.
+
+## Custom controllers
+
+In case the built-in controllers don't fit your need, you can also make your own.
+To do this you'll need to make a new controller factory function.
+
+```typescript
+function myCameraControllers(input: ControllerInput, pick: PickContext) {
+  return {
+    ...builtinControllers(input, pick),
+    mine: new MyController(input, pick),
+  } as const;
+}
+```
+
+This must then be passed on to the `View` constructor.
+
+```typescript
+const view = new View(canvas, deviceProfile, imports, myCameraControllers);
+const myController = view.controllers.mine;
+```
+
+The first controller in the list is initially active.
+
+Your camera controller must inherit from `BaseController` and implement the abstract methods.
+More details of how this works is covered in a separate tutorial: [Custom Camera Controller](custom-camera-controller.md).
