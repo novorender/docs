@@ -21,7 +21,8 @@
     "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
     "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
     "lint": "eslint src/ demo-snippets/ --max-warnings=0",
-    "clone-api-repo": "git clone -b main --single-branch https://github.com/novorender/ts ts --depth 1",
+    "del-api-repo-clone": "rm -rf ts",
+    "clone-api-repo": "npm run del-api-repo-clone && git clone -b main --single-branch https://github.com/novorender/ts ts --depth 1",
     "postinstall": "node scripts/extract-exports.js && npm run merge-decl-files && npm run clone-api-repo",
     "merge-decl-files": "dts-bundle --name @novorender/api --main ./node_modules/@novorender/api/types/index.d.ts"
   },
