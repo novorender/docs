@@ -1,5 +1,5 @@
-import { demo } from "demo";
-import { RenderStateDemoHost } from "hosts";
+import { demo } from "../../demo";
+import { RenderStateDemoHost } from "../../hosts";
 /** Here goes code demo code that you can see in the playground */
 import spheres from "./spheres.ts?raw";
 import basic from "./basic.ts?raw";

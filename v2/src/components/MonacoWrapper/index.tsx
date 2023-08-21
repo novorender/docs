@@ -12,7 +12,7 @@ import { Allotment } from "allotment";
 import { Popover } from "react-tiny-popover";
 import Renderer from "@site/src/components/Renderer";
 import Spinner from "@site/src/components/misc/spinner";
-import { IDemoHost, type IDempProps, createDemoContext } from "@site/demo-snippets/config";
+import { IDemoHost, type IDempProps, createDemoContext } from "@site/demo-snippets/demo";
 const { devDependencies } = require("../../../package.json");
 
 /** CSS */
