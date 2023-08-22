@@ -3,23 +3,24 @@ import { Core3DImports, DeviceProfile, RenderStateChanges, getDeviceProfile, Cor
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
 
-export interface IModule<T, U = void> {
-  main(props: U): T;
+export interface IModule<R = void, P extends any[] = []> {
+  main(...props: P): R;
 }
 export interface DemoHostCtor<T> {
   new (context: IDemoContext): IDemoHost<T>;
 }
 export interface IDemoHost<T> {
   run(): Promise<void>;
-  updateModule(module: T): string | undefined; // return potential error from validation
+  updateModule(module: T): string | void; // return potential error from validation
   exit(): void;
 }
 
-interface ICanvas {
-  primaryCanvas: HTMLCanvasElement;
-  canvas2D?: HTMLCanvasElement;
-  previewCanvas?: HTMLCanvasElement;
+export interface ICanvas {
+  readonly primaryCanvas: HTMLCanvasElement;
+  readonly canvas2D?: HTMLCanvasElement;
+  readonly previewCanvas?: HTMLCanvasElement;
 }
+
 export interface IDemoContext<T = any> {
   readonly canvasElements: ICanvas;
   readonly deviceProfile: DeviceProfile;

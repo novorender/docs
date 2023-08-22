@@ -11,19 +11,23 @@ Before we dive into camera controllers, let's examine what they control exactly.
 The camera orientation and projection used for rendering is described in the render state as a 3D vector and quaternion.
 
 ```typescript
-const position = [0, 0, 0];
+const position = [0, 0, 10];
 const rotation = [0, 0, 0, 1];
 const kind = "pinhole"; // perspective projection
 const fov = 60; // field of view in degrees
-view.modifyRenderState({ camera: { kind, position, rotation, fov } });
+view.modifyRenderState({
+  camera: { kind, position, rotation, fov },
+});
 ```
 
 If you're using the `Core3D` module only, this would be how you control the camera.
 
-For anything beyond trivial cases, manually setting the camera can be a daunting task, however.
+For anything beyond trivial cases, however, manually setting the camera state can be a daunting task.
 To help with this, the <CodeLink type="class" name="View"/> class introduces camera controllers.
-With the exception of the <CodeLink type="class" name="NullController"/>``, these will overwrite the camera related render state on every frame, so setting it directly like in the example above won't work.
-Instead you need to pick one of the existing controller types and configure it to your preferences.
+These will overwrite the camera related render state on every frame, so setting it directly like in the example above usually won't work.
+For the sake of understanding, we select the inert <CodeLink type="class" name="NullController"/> so we can play around with the camera state ourselves.
+
+<PlaygroundComponent {...snippets.gettingStarted["Camera state"]} />
 
 ## Active controller
 
@@ -102,6 +106,8 @@ OrbitController.assert(activeController);
 activeController.updateParams({ rotationalVelocity: 2 });
 ```
 
+<PlaygroundComponent {...snippets.gettingStarted["Controller params"]} />
+
 ## Properties
 
 Controllers have several properties that you can get and set.
@@ -124,6 +130,8 @@ activeController.pivot = [x, y, z];
 
 The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
 One reason for this is to contrain the orientation to have zero roll angle, which is often confusing and rarely useful.
+
+<PlaygroundComponent {...snippets.gettingStarted["Controller properties"]} />
 
 ## Zoom to and fly to
 
@@ -169,5 +177,5 @@ const myController = view.controllers.mine;
 
 The first controller in the list is initially active.
 
-Your camera controller must inherit from `BaseController` and implement the abstract methods.
-More details of how this works is covered in a separate tutorial: [Custom Camera Controller](custom-camera-controller.md).
+Your camera controller must inherit from `BaseController` and at the very least implement the abstract methods.
+More details of how this works is covered in a separate guide: [Custom Camera Controller](custom-camera-controller.md).

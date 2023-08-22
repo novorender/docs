@@ -1,11 +1,11 @@
 import { IDemoContext, IDemoHost, IModule } from "../demo";
-import { RenderStateChanges, View } from "@novorender/api";
+import { View, OrbitController } from "@novorender/api";
 
-type Args = [View];
-type Ret = RenderStateChanges | undefined;
+type Args = [controller: OrbitController];
+type Ret = void;
 type Module = IModule<Ret, Args>;
 
-export class ViewDemoHost implements IDemoHost<Module> {
+export class ControllerDemoHost implements IDemoHost<Module> {
   private _module: Module | undefined;
   private _view: View | undefined;
 
@@ -18,19 +18,20 @@ export class ViewDemoHost implements IDemoHost<Module> {
       imports,
     } = this.context;
     const view = new View(canvas, deviceProfile, imports);
+    view.modifyRenderState({ grid: { enabled: true } });
+    const { activeController } = view;
+    // activeController["changed"]();
+    OrbitController.assert(activeController);
 
     this._view = view;
 
-    let prev_module: typeof this._module | undefined;
+    let prev_module: Module | undefined;
 
-    view.animate = async () => {
+    view.animate = () => {
       try {
         if (prev_module !== this._module) {
           prev_module = this._module;
-          const stateChanges = await prev_module?.main(view);
-          if (stateChanges) {
-            view.modifyRenderState(stateChanges);
-          }
+          prev_module?.main(activeController);
         }
       } catch (error) {
         console.log("error while running module ", error);
