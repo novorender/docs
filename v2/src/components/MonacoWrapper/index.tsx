@@ -26,7 +26,7 @@ import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
 import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
-import WebAppDTS from "@site/node_modules/@novorender/api/types/@novorender/api.d.ts?raw";
+import WebAppDTS from "@site/static/api/types/@novorender/api.d.ts?raw";
 import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
 import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
