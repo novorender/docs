@@ -48,11 +48,11 @@ export class RenderStateDemoHost implements IDemoHost<Module> {
     // TODO: verify module shape first
     const stateChanges = module.main();
     if (this._view) {
-      // const errors = this._view.validateRenderState(stateChanges);
-      // if (errors.length > 0) {
-      //     const errorText = errors.map(e => e?.message ?? e.toString()).join("\n");
-      //     return errorText;
-      // }
+      const errors = this._view.validateRenderState(stateChanges);
+      if (errors.length > 0) {
+        const errorText = errors.map((e) => e?.message ?? e.toString()).join("\n");
+        return errorText;
+      }
     }
     this._module = module;
   }

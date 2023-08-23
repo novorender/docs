@@ -4,7 +4,7 @@ export function main(): RenderStateChanges {
   return {
     grid: {
       enabled: true,
-      distance: -1, // distance must be a positive number
+      distance: -100, // distance must be a positive number
     },
   };
 }

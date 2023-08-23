@@ -184,19 +184,35 @@ declare module '@novorender/api/web_app/view' {
                 * @deprecated Use {@link run} `abortSignal` instead.
                 */
             exit(): void;
-            /** Accumulate render state changes without validation.
+            /** Accumulate render state changes.
                 * @param changes The changes to apply to the current view render state.
                 * @remarks
-                * This function is useful to batch up multiple render state changes without the overhead of validation.
-                * These changes will be applied and validated in a single call to the {@link modifyRenderState} function just prior to rendering each frame.
+                * These changes will be applied and a single call to the {@link modifyRenderState} function just prior to rendering each frame.
                 */
             modifyRenderState(changes: RenderStateChanges): void;
+            /**
+                * Validate render state changes made since last rendered frame.
+                * @param changes The render state changes to validate, or undefined to validate changes applied via {@link View.modifyRenderState} since last rendered frame.
+                * @returns An array of validation errors, if any.
+                * @see {@link View.modifyRenderState}
+                * @remarks
+                * Validation is useful for catching potential bugs and problems early.
+                * It should not be performed in production code, however, since it is non-trivial in terms of performance, particularly on large sets of dynamic objects.
+                */
+            validateRenderState(changes?: RenderStateChanges): readonly Error[];
             /**
                 * Override this in a derived class to modify render state just prior to rendering.
                 * @param time The frame render timestamp in millisecond.
                 * @virtual
                 */
             animate?(time: number): void;
+            /**
+                * Override this in a derived class to handle render state validation.
+                * @param newState The new render state about to be rendered
+                * @param changes The changes that went into the new render state.
+                * @virtual
+                */
+            validate?(newState: RenderState, changes: RenderStateChanges): void;
             /**
                 * Override this in a derived class for custom rendering of e.g. 2D content, such as text and lines etc.
                 * @param isIdleFrame Was the camera moving or not.
@@ -431,6 +447,7 @@ declare module '@novorender/api/core3d/state' {
     export * from "@novorender/api/core3d/state/scene";
     export * from "@novorender/api/core3d/state/default";
     export * from "@novorender/api/core3d/state/modify";
+    export * from "@novorender/api/core3d/state/validate";
     /**
         * An object describing the what to be rendered and how by {@link RenderContext.render}.
         * @remarks
@@ -703,11 +720,11 @@ declare module '@novorender/api/core3d/state' {
     export interface RenderStateColorGradient<T extends RGB | RGBA> {
             /**A set of knots defining a non-uniform linear spline curve.
                 * @remarks
-                * Nodes must be sorted in ascending order of elevation!
+                * Nodes must be sorted in ascending order of position!
                 * At least two nodes are required for any sort of gradient.
-                * Nodes do not have to be uniformly distributed elevation-wise.
-                * To create a discontinuity in the gradient, two adjacent nodes with identical elevation, but different colors may be used.
-                * Any elevation outside the min/max range defined by this list will be clamped to the color of the nearest node (min or max), i.e., no extrapolation will occur.
+                * Nodes do not have to be uniformly distributed position-wise.
+                * To create a discontinuity in the gradient, two adjacent nodes with identical position, but different colors may be used.
+                * Any position outside the min/max range defined by this list will be clamped to the color of the nearest node (min or max), i.e., no extrapolation will occur.
                 */
             readonly knots: readonly RenderStateColorGradientKnot<T>[];
     }
@@ -2739,6 +2756,7 @@ declare module '@novorender/api/core3d/state/modify' {
         * Making unnecessary copies of unchanged sub objects will reduce render/update performance.
         *
         * This function also performs some basic validation of the new state changes, at a slight performance cost.
+        * If validation fails, it will throw an error of `Error` objects, one per problem.
         * To mitigate this overhead, accumulating all the changes for a frame into a single object may be beneficial.
         * The {@link mergeRecursive} function may be useful in for this.
         * @category Render State
@@ -2753,6 +2771,20 @@ declare module '@novorender/api/core3d/state/modify' {
         * This function is similar to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign | Object.assign}, only recursive.
         */
     export function mergeRecursive(original: any, changes: any): any;
+}
+
+declare module '@novorender/api/core3d/state/validate' {
+    import type { RenderState, RenderStateChanges } from "@novorender/api/core3d/state";
+    /**
+      * Validate render state changes.
+      * @param newState The new render state to validate.
+      * @param changes The changes that was applied to the baseline state to produce this state.
+      * @returns Array of validation errors, if any.
+      * @remarks
+      * This function performs some basic validation of the state changes, focusing on value ranges and states that would generate run-time exceptions.
+      * @category Render State
+      */
+    export function validateRenderState(newState: RenderState, changes: RenderStateChanges): readonly Error[];
 }
 
 declare module '@novorender/api/webgl2' {

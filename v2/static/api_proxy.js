@@ -42,5 +42,6 @@ export const {
   mergeRecursive,
   modifyRenderState,
   packageVersion,
-  rotationFromDirection
+  rotationFromDirection,
+  validateRenderState
 } = window["__novorender__"];
