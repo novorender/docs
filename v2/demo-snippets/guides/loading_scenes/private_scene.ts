@@ -1,35 +1,7 @@
-// HiddenRangeStarted
 import * as dataJsApi from "@novorender/data-js-api";
-import { type FlightControllerParams, type RenderStateChanges, type View } from "@novorender/api";
+import { type RenderStateChanges, type View } from "@novorender/api";
 import { type ReadonlyVec3, quat } from "gl-matrix";
 
-/**
- *  helper function to flip the coordinate system
- */
-function flip(v: ReadonlyVec3): ReadonlyVec3 {
-  const flipped: [number, number, number] = [v[0], -v[2], v[1]];
-  return flipped;
-}
-
-/**
- *  helper function to flip the coordinate system
- */
-function flipGLtoCadQuat(b: quat) {
-  let ax = 0.7071067811865475,
-    aw = 0.7071067811865475;
-  let bx = b[0],
-    by = b[1],
-    bz = b[2],
-    bw = b[3];
-
-  // prettier-ignore
-  return quat.fromValues(
-        ax * bw + aw * bx,
-        aw * by + - ax * bz,
-        aw * bz + ax * by,
-        aw * bw - ax * bx);
-}
-// HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 export async function main(view: View): Promise<RenderStateChanges | undefined> {
   // For the demo we have simplified the login flow to always run the login call
@@ -92,5 +64,32 @@ async function login(): Promise<string> {
     });
 
   return res.token;
+}
+
+/**
+ *  helper function to flip the coordinate system
+ */
+function flip(v: ReadonlyVec3): ReadonlyVec3 {
+  const flipped: [number, number, number] = [v[0], -v[2], v[1]];
+  return flipped;
+}
+
+/**
+ *  helper function to flip the coordinate system
+ */
+function flipGLtoCadQuat(b: quat) {
+  let ax = 0.7071067811865475,
+    aw = 0.7071067811865475;
+  let bx = b[0],
+    by = b[1],
+    bz = b[2],
+    bw = b[3];
+
+  // prettier-ignore
+  return quat.fromValues(
+        ax * bw + aw * bx,
+        aw * by + - ax * bz,
+        aw * bz + ax * by,
+        aw * bw - ax * bx);
 }
 // HiddenRangeEnded

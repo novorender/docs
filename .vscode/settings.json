@@ -5,6 +5,7 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 4,
     "cSpell.words": [
+        "Barebone",
         "clsx",
         "drawkind",
         "gltf",
@@ -22,6 +23,7 @@
         "origo",
         "Quadtree",
         "stackblitz",
+        "tonemapping",
         "webgl"
     ],
     "files.associations": { "*.json": "jsonc" }

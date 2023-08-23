@@ -1,16 +1,7 @@
-// HiddenRangeStarted
 import * as dataJsApi from "@novorender/data-js-api";
-import { type FlightControllerParams, type RenderStateChanges, type View } from "@novorender/api";
+import { type RenderStateChanges, type View } from "@novorender/api";
 import { type ReadonlyVec3 } from "gl-matrix";
 
-/**
- *  helper function to flip the coordinate system
- */
-function flip(v: ReadonlyVec3): ReadonlyVec3 {
-  const flipped: [number, number, number] = [v[0], -v[2], v[1]];
-  return flipped;
-}
-// HiddenRangeEnded
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 export async function main(view: View): Promise<RenderStateChanges | undefined> {
   // Initialize the data API with the Novorender data server service
@@ -45,3 +36,12 @@ export async function main(view: View): Promise<RenderStateChanges | undefined> 
     console.log("Error while loading scene from URL ", error);
   }
 }
+// HiddenRangeStarted
+/**
+ *  helper function to flip the coordinate system
+ */
+function flip(v: ReadonlyVec3): ReadonlyVec3 {
+  const flipped: [number, number, number] = [v[0], -v[2], v[1]];
+  return flipped;
+}
+// HiddenRangeEnded
