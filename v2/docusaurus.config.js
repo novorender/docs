@@ -21,7 +21,8 @@ const config = {
   favicon: "img/favicon.ico",
   organizationName: "novorender",
   projectName: "novorender-api-docs",
-  themes: ["@docusaurus/theme-live-codeblock"],
+  markdown: { mermaid: true },
+  themes: ["@docusaurus/theme-live-codeblock", "@docusaurus/theme-mermaid"],
   presets: [
     [
       "classic",
