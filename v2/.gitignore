@@ -31,3 +31,5 @@ demo-snippets/**/*.js
 src/shared/*.js
 
 /ts
+
+static/web_api.d.ts
