@@ -1,0 +1,169 @@
+---
+title: "Render state"
+sidebar_position: 1
+description: "Setting up instructions for the various Novorender packages."
+keywords: ["novorender api docs", "render state"]
+---
+
+import { snippets } from "@site/demo-snippets/index";
+import { CodeLink } from "@site/src/components/CodeLink";
+
+In this guide we will dive more into <CodeLink type="interface" name="RenderState"/> and how to modify it.
+
+## Image description
+
+One way to think of render state is as instruction on how to produce a certain output image.
+The same render state should produce the same image.
+Being a vanilla javascript object, render state is also serializable.
+This should allow you to reproduce the exact same image on another computer or another time.
+It can also be useful for unit testing, since mocking and validating state objects are a lot easier than images.
+
+## Context
+
+The render state does not live in a vacuum, however.
+It has to be rendered on a physical device, whose browser, GPU and drivers might deviate slightly in how pixels are rendered.
+Different versions of our API may also interpret it differently, again producing differences.
+Also, the render state does not specify the full geometry of your scene.
+Sometimes it merely points to where geometry can be streamed from.
+The process of downloading/streaming will happen over time, producing several frames of progressive refinement with varying level of detail.
+The final quality of the image is also constrained by the limitations of your device, described in <CodeLink type="interface" name="DeviceProfile"/>.
+
+## Immutability
+
+A common problem in javascript (and programming in general) is understanding how state should be modified.
+Let's consider a hypothetical example:
+
+```typescript
+interface Object3D {
+   vec3 position;
+   quat rotation;
+   ...
+}
+```
+
+How do we change the position of this object in a way that will actually be rendered as expected?
+[three.js](https://threejs.org/) is a good example of how this is far from obvious.
+
+Option 1: In-place mutation
+
+```typescript
+vec3.copy(obj.position, [x, y, z]);
+```
+
+Option 2: Property mutation
+
+```typescript
+obj.position = [x, y, z];
+```
+
+Option 3: [Read-copy-update](https://en.wikipedia.org/wiki/Read-copy-update)
+
+```typescript
+obj = { ...obj, position: [x, y, z] };
+```
+
+In the first two options, it's not obvious to the rendering engine that something has changed, much less what has changed.
+Quite often this results in additional method calls to notify the engine that recomputation are required.
+
+```typescript
+obj.updateWorldMatrix();
+```
+
+Using typescript's `readonly` keyword to enforce immutability on the hypothetical example, it becomes obvious that only option 3 is possible, since the other two produces compile time errors.
+
+```typescript
+interface Object3D {
+   readonly ReadonlyVec3 position;
+   readonly ReadonlyQuat rotation;
+   ...
+}
+```
+
+Option 3 also happens to be the one that makes it easy for the engine to detect that this object has indeed changed and needs to be reevaluated.
+
+```typescript
+// lurking deep inside the 3D engine somewhere...
+if (prevObj !== newObj) {
+  // update internal and GPU state.
+}
+```
+
+Yes, copying is slower than mutation, but that cost is easily recovered by the efficieny of basic reference comparisons to detect changes.
+Not to mention the simplicity of understanding, use, implementation and a host of other benefits.
+
+## How to modify render state.
+
+Now that we've hammered down the why, let's see how render state should be changed.
+Each view has a copy of the render state of the previously rendered frame <CodeLink type="class" name="View.prevRenderState"/>.
+To save energy and battery life, it will not re-render unless the state changes.
+Under the hood, we tell it to re-render by assigning a brand new render state object.
+
+However, there's no need to copy sub state that hasn't changed.
+In fact, doing so would force the update of internal state unnecessarily, which can be a costly affair.
+So, for the sake of efficient and correctness, it's important that we reuse all the sub objects that hasn't changed!
+This is a common paradigm in [functional programming](https://en.wikipedia.org/wiki/Functional_programming) languages, such as Haskell and Elm.
+Unfortunately, javascript is not particularly functional language, so we end up with something like this:
+
+```typescript
+const newState = {
+  ...prevState, // preserve all the state sub-objects that we're not changing.
+  background: {
+    ...background, // preserve other background state.
+    color: [0, 0, 0.1, 1], // introduce changes as new objects/copies.
+  },
+};
+```
+
+(See MDN for more details on the ... [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)!)
+
+To simplicity matters and help encourage correct update of render state, we made the <CodeLink type="class" name="View.modifyRenderState"/> function.
+
+```typescript
+view.modifyRenderState({ background: { color: [0, 0, 0.1, 1] } });
+```
+
+This function will recursively traverse the `changes` argument, which is a _partial_ render state object, and apply to the new render state.
+You can also combine several changes into a single call.
+
+```typescript
+// multiple changes in single call.
+view.modifyRenderState({
+  background: { color: [0, 0, 0.1, 1] },
+  tonemapping: { exposure: 1 },
+});
+```
+
+> modifyRenderState() does not instantly trigger a re-render and can safely be called multiple times.
+
+## Detecting changes
+
+As part of diagnostics or exploring, you can look for changes by comparing <CodeLink type="class" name="View.renderState"/> and <CodeLink type="class" name="View.prevRenderState"/>.
+
+```typescript
+const { renderState, prevRenderState } = view;
+const hasBackgroundChanged = renderState.background !== prevRenderState?.background;
+const hasBackgroundColorChanged = renderState.background.color !== prevRenderState?.background?.color;
+const hasBackgroundColorRedChanged = renderState.background.color[0] !== prevRenderState?.background?.color?.[0];
+```
+
+Due to the way changes trickle up to the parent object, `hasBackgroundChanged` will be true of any of the background state has changed, including color.
+
+## Validating render state.
+
+For performance reasons, render state validation is normally not performed before rendering.
+You can perform validation explicitly, however.
+
+```typescript
+// ...apply state changes above
+const errors = view.validateRenderState();
+for (const error of errors) {
+  console.warn(error);
+}
+```
+
+This validation will only check state changes since the last rendered frame.
+It only perform basic range checks and values that could result in a run-time exception, such as making sure expected integers are indeed integers.
+
+Some examples will do validation and report back validation errors:
+
+<PlaygroundComponent {...snippets.gettingStarted["Render state validation"]} />
