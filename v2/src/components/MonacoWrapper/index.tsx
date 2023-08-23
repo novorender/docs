@@ -76,6 +76,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const canvas = useRef<HTMLCanvasElement>(null);
   const canvas2D = useRef<HTMLCanvasElement>(null);
   const previewCanvas = useRef<HTMLCanvasElement>(null);
+  const allotmentRef = useRef(null);
 
   const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
 
@@ -263,6 +264,11 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
     // hide hidden ranges upon init
     toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
+
+    if (editorConfig.mode === "inline") {
+      const contentHeight = Math.min(420, editor.getContentHeight());
+      allotmentRef.current.resize([contentHeight]);
+    }
 
     const model = editor.getModel();
     // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
@@ -469,6 +475,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
           >
             {force_rerender_allotment && (
               <Allotment
+                ref={allotmentRef}
                 vertical={splitPaneDirectionVertical}
                 onChange={(e: Array<number>) => {
                   if (e?.length > 1) {
