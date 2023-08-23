@@ -8,46 +8,79 @@ keywords: ["novorender api docs", "getting started"]
 import { snippets } from "@site/demo-snippets/index";
 import { CodeLink } from "@site/src/components/CodeLink";
 
+The novorender API consist of several modules.
+
+```mermaid
+graph TD;
+    A[Web App]-->B[Core3D Module]
+    A-->C[Measure Module]
+    A-->D[Data Module]
+```
+
+In this guide we will focus on the `web_app` module with emphasis on rendering.
+For details on how to consume and bundle the API into your own app, please consult the web_app [README](/docs/web_api/)!
+
 ## Live examples
 
 A picture says more than a thousand words and a demo more than a thousand pictures.
-This is why we include plenty of interactive examples that you navigate in real time and also edit the code live to see what happens.
-To keep each example short and to the point, they all run in some sort of context where things like a view has already been created and simply being passed as a parameter.
-Since we're not actually running a build system, your import options are limited to our API and related apis, such as `gl-matrix`.
-While you can insert any code you like and experiment quite a lot, the purpose of examples are merely to do minor tweaks, like changing values or changing different parameters.
+This is why we include plenty of interactive examples.
 
-> Take care not to change the module shape, i.e. don't change the exported function names or parameters!
+Click the "run demo" button below to activate the example!
+Once active, you should be able to navigate the 3D view by moving the cursor with the left mouse button pressed to rotate, or mouse wheel to zoom in/out.
 
-This example shows a minialistic implementation to get anything on screen.
-There's not much there, but you can actually do quite a bit within the scope of this particular example.
-We'll dive into that later.
+<PlaygroundComponent {...snippets.gettingStarted["Basic App"]} />
 
-<PlaygroundComponent {...snippets.gettingStarted["Basic"]} />
+The above example shows a minialistic implementation to get anything on screen.
+It demonstrates the key concept of rendering:
 
-## Example scopes
+- Create a render view.
+- Modify the render state.
+- Run the render loop.
+- Cleanup.
+
+## Live code editing
 
 Most examples will have a more limited scope where the view is already created and some state set.
-These examples will typically take other parameters.
+This is to keep the code short and focus on the subject at hand, but also for performance and user experience reasons.
 The example below takes no parameter and simply returns changes to the <CodeLink type="interface" name="RenderState"/>, which describes what the rendering should look like.
+The context in which is runs applies those changes to the view's render state before rendering.
 
-Try changing the the values in the example below!
+Click to activate and then try changing the the values in the code in the example below!
 
-<PlaygroundComponent {...snippets.gettingStarted["Render State"]} />
-
-We limit the scope of many examples to keep the code short and focus on the subject at hand.
-Also, every time you make a code change, the example code is re-executed, with a tear-down and initialization phase.
-Recreating certain resources, like background environment, view and scenes can take time and be resource intensive.
-Hence, they are best kept outside where they only need be created once.
+<PlaygroundComponent {...snippets.gettingStarted["Render State Edit"]} />
 
 We use Microsoft's [Monaco editor](https://microsoft.github.io/monaco-editor/), which is quite powerful and helpful for editing typescript code.
 Try hovering your mouse over some of the properties and see how the documentation pops up!
 Also notice how auto completion makes it easy to add new code.
 
-> Pro tip: Trying use `ctrl+space' to prompt the editor to make suggestions related to where the cursor is placed!
+> Pro tip: Use `ctrl+space' to prompt the editor to make suggestions related to where the cursor is placed!
+
+## Errors
+
+Like any programming, live editing has several possibilities for errors.
+Red squigglies will appear under code that typescript don't understand.
+If you change the module signature, i.e., change the function name(s) or parameters, the example won't work.
+Run time errors may also break the example.
+Some examples will attempt further validation of e.g. render state and report values that are out of range or invalid combinations of values.
+All the errors mentioned above will prevent the 3D view from running.
+
+Other sources of errors that won't be reported is render state or other parameters set to values that are technically valid, but non-sensical.
+An example of this would be to set the exposure to -100, which would produce essentially a black image, or camera parameters where nothing is visible.
+Also, you might create render state that results in too much memory consumption and will crash your browser, or take too long to render and time out.
+
+In 3D, the possibilities of shooting yourself in the foot are near infinite.
+This is just a fact of life.
+All we can do is try to nudge you towards the [pit of success](https://blog.codinghorror.com/falling-into-the-pit-of-success/).
+
+> Think of examples as a sandbox to tinker with working code. Avoid excessive hacking!
+
+## Reference documentation
+
+Guides can only get you started. For more detailed information, please consult the [reference documentation](/docs/web_api/API/).
 
 ## Full examples
 
-For full, buildable demo projects, please visit our example repo at [github](https://github.com/novorender/novorender-examples)!
+For complete, buildable demo projects, please visit our example repo at [github](https://github.com/novorender/novorender-examples)!
 
 export const PlaygroundTip = () => (
   <div

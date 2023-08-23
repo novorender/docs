@@ -4,4 +4,5 @@ export async function main(canvas: HTMLCanvasElement, deviceProfile: DeviceProfi
   const view = new View(canvas, deviceProfile, imports);
   view.modifyRenderState({ grid: { enabled: true } });
   await view.run(signal);
+  view.dispose();
 }
