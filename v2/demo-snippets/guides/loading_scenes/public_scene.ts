@@ -28,7 +28,7 @@ export async function main(view: View): Promise<RenderStateChanges | undefined> 
     // need to append temp path for now
     webgl2Bin.pathname += "webgl2_bin/";
     // Destructure relevant camera properties
-    const { position, fieldOfView: fov } = camera as unknown as FlightControllerParams;
+    const { position, fieldOfView: fov } = camera as any;
     // load the scene using URL gotten from `sceneData`
     await view.loadSceneFromURL(webgl2Bin);
     // Assign a camera controller
