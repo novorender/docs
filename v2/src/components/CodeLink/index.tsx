@@ -1,9 +1,10 @@
 import React from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import Link from "@docusaurus/Link";
 
 export type TypeString = "class" | "interface" | "type" | "function" | "enum" | "variable";
 
-export const CodeLink = ({ type, name }: { readonly type: TypeString; readonly name: string }) => {
+export default function CodeLink({ type, name }: { readonly type: TypeString; readonly name: string; }): JSX.Element {
   let path = "???";
   let [typeName, ...propNames] = name.split(".");
   propNames = propNames.map((n) => "#" + (n == "new" ? "new-view" : n.toLowerCase()));
@@ -30,8 +31,8 @@ export const CodeLink = ({ type, name }: { readonly type: TypeString; readonly n
   }
   const url = useBaseUrl(`docs/web_api/${path}`);
   return (
-    <a href={url}>
+    <Link to={url}>
       <code>{name}</code>
-    </a>
+    </Link>
   );
 };
