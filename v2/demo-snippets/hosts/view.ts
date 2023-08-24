@@ -2,7 +2,7 @@ import { IDemoContext, IDemoHost, IModule } from "../demo";
 import { RenderStateChanges, View } from "@novorender/api";
 
 type Args = [View];
-type Ret = RenderStateChanges | undefined;
+type Ret = void;
 type Module = IModule<Ret, Args>;
 
 export class ViewDemoHost implements IDemoHost<Module> {
@@ -27,10 +27,7 @@ export class ViewDemoHost implements IDemoHost<Module> {
       try {
         if (prev_module !== this._module) {
           prev_module = this._module;
-          const stateChanges = await prev_module?.main(view);
-          if (stateChanges) {
-            view.modifyRenderState(stateChanges);
-          }
+          await prev_module?.main(view);
         }
       } catch (error) {
         console.log("error while running module ", error);

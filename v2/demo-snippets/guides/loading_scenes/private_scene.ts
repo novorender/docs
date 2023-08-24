@@ -1,9 +1,9 @@
 import * as dataJsApi from "@novorender/data-js-api";
-import { type RenderStateChanges, type View } from "@novorender/api";
+import { type View } from "@novorender/api";
 import { type ReadonlyVec3, quat } from "gl-matrix";
 
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
-export async function main(view: View): Promise<RenderStateChanges | undefined> {
+export async function main(view: View): Promise<void> {
   // For the demo we have simplified the login flow to always run the login call
   const accessToken = await login();
   // Initialize the data API with the Novorender data server service
@@ -31,14 +31,6 @@ export async function main(view: View): Promise<RenderStateChanges | undefined> 
     await view.loadSceneFromURL(webgl2Bin);
     // Assign a camera controller
     await view.switchCameraController(camera?.kind as any, { position: flip(position as ReadonlyVec3), fov, rotation: flipGLtoCadQuat([1, 0, 0, 0]) });
-
-    const renderState: RenderStateChanges = {
-      grid: {
-        enabled: true,
-      },
-    };
-
-    return renderState;
   } catch (error) {
     console.log("Error while loading scene from URL ", error);
   }
