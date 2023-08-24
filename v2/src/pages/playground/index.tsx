@@ -59,7 +59,7 @@ export default function Playground(): JSX.Element {
             </small>
           </div>
           <div className="card__footer">
-            <Link to={`/playground/run?id=${key}___${t.demoName}`} className="button button--primary button--block">
+            <Link to={`/playground/run?id=${key}___${t.fileName}`} className="button button--primary button--block">
               Run
             </Link>
           </div>

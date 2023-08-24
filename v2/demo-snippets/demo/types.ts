@@ -46,6 +46,8 @@ export async function createDemoContext(canvasElements: ICanvas, importsPromise:
 export interface IDempProps {
   /** Directory that contains this demo, e.g. `getting_started/condos.ts`, `getting_started` is the dirName here */
   dirName: string;
+  /** Name of the file that contains the demo snippet code */
+  fileName: string;
   /** A friendly name for the demo (must be unique) */
   demoName: string;
   /** editor config */
