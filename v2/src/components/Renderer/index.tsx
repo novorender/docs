@@ -25,10 +25,10 @@ interface Props {
 }
 
 export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
-  const [canvasDimensions, setCanvasDimensions] = useState<{
-    width: number;
-    height: number;
-  }>({ width: 0, height: 0 });
+  // const [canvasDimensions, setCanvasDimensions] = useState<{
+  //   width: number;
+  //   height: number;
+  // }>({ width: 0, height: 0 });
   const [infoPaneContent, setInfoPaneContent] = useState<{
     content: string | object | any;
     title?: string;
@@ -39,18 +39,18 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
   useEffect(() => {
 
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      if (canvasRef.current) {
-        for (const entry of entries) {
-          setCanvasDimensions({
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
-          });
-        }
-      }
-    });
+    // const resizeObserver = new ResizeObserver((entries) => {
+    //   if (canvasRef.current) {
+    //     for (const entry of entries) {
+    //       setCanvasDimensions({
+    //         width: entry.contentRect.width,
+    //         height: entry.contentRect.height,
+    //       });
+    //     }
+    //   }
+    // });
 
-    resizeObserver.observe(canvasRef.current);
+    // resizeObserver.observe(canvasRef.current);
 
     window["openInfoPane"] = (content: object | string | any, title?: string) => {
       setInfoPaneContent({ content, title });
@@ -86,12 +86,12 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
           <Allotment vertical={!splitPaneDirectionVertical} onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
             <Allotment.Pane>
               <RenderSpinner />
-              <canvas ref={canvasRef} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
+              <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }}></canvas>
               {editorConfig?.canvas2D && (
                 <canvas
                   ref={canvas2DRef}
-                  width={canvasDimensions.width}
-                  height={canvasDimensions.height}
+                  // width={canvasDimensions.width}
+                  // height={canvasDimensions.height}
                   style={{
                     pointerEvents: "none",
                     width: "100%",
