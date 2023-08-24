@@ -81,14 +81,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
 
   useEffect(() => {
-    (async () => {
-      if (canvas.current && canvas2D.current, previewCanvas.current) {
-        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
-        const host = new hostCtor(context);
-        hostRef.current = host;
-        await host.run();
-      }
-    })();
+    (async () => await runDemo())();
   }, [canvas, canvas2D, previewCanvas]);
 
   useEffect(() => {
@@ -252,8 +245,18 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     }
   }, [monaco]);
 
-  function handleEditorWillMount(monaco) {
+  async function runDemo() {
+    (async () => {
+      if (canvas.current && canvas2D.current, previewCanvas.current) {
+        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
+        const host = new hostCtor(context);
+        hostRef.current = host;
+        await host.run();
+      }
+    })();
+  }
 
+  function handleEditorWillMount(monaco) {
     fetch(themeURL)
       .then(data => data.json())
       .then(data => {
@@ -383,10 +386,14 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   // change split pane mode to vertical or horizontal
   function changeSplitPaneRotation(): void {
+    hostRef.current.exit();
+    hostRef.current = null;
     set_force_rerender_allotment(false); // hide the allotment component
     setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
-    setTimeout(() => {
+    setTimeout(async () => {
       set_force_rerender_allotment(true); // render the allotment component again
+      await runDemo();
+      setCodeOutput(codeOutput + " ");
     }, 50);
   }
 
