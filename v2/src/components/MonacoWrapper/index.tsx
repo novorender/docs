@@ -207,6 +207,19 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   useEffect(() => {
     if (monaco) {
 
+      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+        ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+        strict: false,
+        noImplicitAny: false,
+        noImplicitThis: false,
+        strictNullChecks: false,
+        strictFunctionTypes: false,
+        strictPropertyInitialization: false,
+        noUnusedLocals: false,
+        noUnusedParameters: false,
+        noEmitOnError: true
+      });
+
       // Add additional d.ts files to the JavaScript language service.
       dts_files.forEach(dts => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
