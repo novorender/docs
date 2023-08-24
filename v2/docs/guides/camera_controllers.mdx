@@ -97,7 +97,7 @@ const { orbit } = view.controllers;
 ## Parameters
 
 Each controller type has its own set of parameters.
-Having asserted the active controller is indeed an orbit controller, let's double the default rotational speed to give us a more responive rotation!
+Having asserted the active controller is indeed an orbit controller, let's double the default rotational speed to give us a more responsive rotation!
 
 ```typescript
 const { activeController } = view;
@@ -128,7 +128,7 @@ activeController.pivot = [x, y, z];
 ```
 
 The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
-One reason for this is to contrain the orientation to have zero roll angle, which is often confusing and rarely useful.
+One reason for this is to contain the orientation to have zero roll angle, which is often confusing and rarely useful.
 
 <PlaygroundComponent {...snippets.gettingStarted.controllerProperties} />
 
