@@ -77,6 +77,8 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const canvas2D = useRef<HTMLCanvasElement>(null);
   const previewCanvas = useRef<HTMLCanvasElement>(null);
   const allotmentRef = useRef(null);
+  const demoEditUrlEndpoint = useBaseUrl(editUrl);
+  const demoEditUrl = new URL(siteConfig.presets[0][1]["docs"].editUrl + demoEditUrlEndpoint).toString();
 
   const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
 
@@ -616,7 +618,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                 </button>
 
                 {/* Edit snippet */}
-                <a href={`${siteConfig.presets[0][1]["docs"].editUrl}${editUrl ? "/" + editUrl : "/demo-snippets/" + demoName + "/render-settings.ts"}`} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
+                <a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
                   <FontAwesomeIcon icon={faPenToSquare} className="fa-icon size-14" />
                 </a>
               </div>
