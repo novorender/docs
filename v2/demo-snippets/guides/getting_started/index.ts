@@ -12,7 +12,7 @@ import controllerProperties from "./controllerProperties.ts?raw";
 const dirName = "getting_started";
 
 export const gettingStarted = {
-  ...demo(dirName, "basic", "Basic app", basic, BareboneDemoHost, {}, "A minimal example."),
+  ...demo(dirName, "basic", "Basic app", basic, BareboneDemoHost, { contentHeight: 150 }, "A minimal example."),
   ...demo(dirName, "renderState", "Render state edit", renderState, RenderStateDemoHost, {}, "Render state editing example."),
   ...demo(dirName, "validation", "Render state validation", validation, RenderStateDemoHost, {}, "Render state validation example."),
   ...demo(dirName, "spheres", "Spheres", spheres, RenderStateDemoHost, {}, "Dynamic Spheres example."),

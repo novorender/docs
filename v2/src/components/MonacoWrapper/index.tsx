@@ -284,7 +284,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
 
     if (editorConfig.mode === "inline") {
-      const contentHeight = Math.min(420, editor.getContentHeight());
+      const contentHeight = Math.min(420, editorConfig.contentHeight ?? editor.getContentHeight());
       allotmentRef.current.resize([contentHeight]);
     }
 
