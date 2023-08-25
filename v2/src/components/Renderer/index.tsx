@@ -22,9 +22,10 @@ interface Props {
   canvas2DRef: MutableRefObject<HTMLCanvasElement>;
   previewCanvasRef: MutableRefObject<HTMLCanvasElement>;
   canvasWrapperRef: MutableRefObject<HTMLDivElement>;
+  validationErrors: readonly Error[];
 }
 
-export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
+export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical, validationErrors }: Props): JSX.Element {
   // const [canvasDimensions, setCanvasDimensions] = useState<{
   //   width: number;
   //   height: number;
@@ -87,6 +88,7 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
             <Allotment.Pane>
               <RenderSpinner />
               <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }}></canvas>
+              {validationErrors?.length && <CustomErrorOverlay validationErrors={validationErrors} />}
               {editorConfig?.canvas2D && (
                 <canvas
                   ref={canvas2DRef}
@@ -186,3 +188,58 @@ export const RenderSpinner = () => (
     }}
   />
 );
+
+const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly Error[]; }) => {
+
+  function DisplayError({ error }: { error: Error; }) {
+    const errorMessage = error?.message || 'No error message available';
+    const stackTrace = error?.stack || 'No stack trace available';
+    return (
+      <>
+        <p><strong>Error Message:</strong> {errorMessage}</p>
+        <p><strong>Stack Trace:</strong></p>
+        <pre>{stackTrace}</pre>
+      </>
+    );
+  }
+
+  return (<div style={{
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    inset: 0,
+    fontSize: "large",
+    padding: "2rem 2rem 4rem",
+    lineHeight: 1.2,
+    whiteSpace: "pre-wrap",
+    overflow: "auto",
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    color: "white",
+
+  }}>
+    <div
+      style={{
+        backgroundColor: "rgba(206, 17, 38, 0.1)",
+        color: "rgb(252, 207, 207)",
+        padding: "1rem 1rem 1.5rem",
+
+      }}
+    >
+      <div style={{
+        color: "rgb(232, 59, 70)",
+        fontSize: "1.2em",
+        marginBottom: "1rem",
+        fontFamily: "sans-serif",
+      }}>ERROR(S)</div>
+      <div style={{
+        lineHeight: 1.5,
+        fontSize: "1rem",
+        fontFamily: "Menlo, Consolas, monospace",
+      }}>
+        {validationErrors.map((e) => <DisplayError error={e} />)}
+      </div>
+    </div>
+  </div>);
+};

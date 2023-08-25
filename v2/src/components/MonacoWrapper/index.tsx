@@ -71,6 +71,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
   const [hasMainChanged, setHasMainChanged] = useState(false);
   const [fontSize, setFontSize] = useState<number>();
+  const [validationErrors, setValidationErrors] = useState<readonly Error[]>();
   const hostRef = useRef<IDemoHost<any>>(null);
   const canvasWrapper = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -94,10 +95,9 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
           const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
           const module = await import(/* webpackIgnore: true */ dataUri);
 
-          const errorMsg = hostRef.current.updateModule(module);
-          if (errorMsg) {
-            console.warn("test ==> ", errorMsg);
-          }
+          const errors = hostRef.current.updateModule(module);
+          console.log("validation errors ==> ", errors);
+          setValidationErrors(errors as Error[])
 
           setIsActivity(false);
 
@@ -541,6 +541,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                     panesWidth={rendererPaneWidth}
                     editorConfig={editorConfig}
                     splitPaneDirectionVertical={splitPaneDirectionVertical}
+                    validationErrors={validationErrors}
                   />
                 ) : (
                   <div

@@ -11,7 +11,7 @@ export interface DemoHostCtor<T> {
 }
 export interface IDemoHost<T> {
   run(): Promise<void>;
-  updateModule(module: T): string | void; // return potential error from validation
+  updateModule(module: T): readonly Error[] | void;
   exit(): void;
 }
 
