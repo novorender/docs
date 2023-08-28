@@ -68,6 +68,8 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                         style={{
                           width: "100%",
                           position: "absolute",
+                          maxHeight: 400,
+                          overflow: "hidden",
                           display: "block",
                           bottom: 42,
                         }}
