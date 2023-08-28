@@ -68,6 +68,11 @@ const webpackPlugin = (context, options) => {
             "Cross-Origin-Opener-Policy": "same-origin",
             "Cross-Origin-Embedder-Policy": "require-corp",
           },
+          client: {
+            overlay: {
+              runtimeErrors: false,
+            },
+          },
         },
       };
     },
