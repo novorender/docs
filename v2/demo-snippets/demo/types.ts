@@ -77,7 +77,7 @@ export interface IEditorConfig {
   cursorPosition?: IPosition;
   /** Scroll vertically as necessary and reveal a line close to the top of the viewport (https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IEditor.html#revealLineNearTop) */
   revealLine?: number;
-  /** Editor content height in pixels - NOTE: this must be < 420, 420 is the max size of content in editor, after this you get scroll */
+  /** Editor content height in pixels - NOTE: this must be < 260, 260 is the max size of content in inline-editor, after this you get scroll */
   contentHeight?: number;
 }
 

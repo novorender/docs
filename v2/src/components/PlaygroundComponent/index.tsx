@@ -59,7 +59,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   </button>
                   {previewImageUrl && (
                     <>
-                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
+                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
                       <img
                         src={previewImageUrl}
                         onError={(e) => {
@@ -71,7 +71,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                           maxHeight: 400,
                           overflow: "hidden",
                           display: "block",
-                          bottom: 42,
+                          bottom: 40,
                         }}
                       />
                     </>

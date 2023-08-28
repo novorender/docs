@@ -62,8 +62,8 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   const [isActivity, setIsActivity] = useState<boolean>(false);
   const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-  const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
-  const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+  const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+  const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
   const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
   const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
   const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
@@ -284,7 +284,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
 
     if (editorConfig.mode === "inline") {
-      const contentHeight = Math.min(420, editorConfig.contentHeight ?? editor.getContentHeight());
+      const contentHeight = Math.min(260, editorConfig.contentHeight ?? editor.getContentHeight());
       allotmentRef.current.resize([contentHeight]);
     }
 
