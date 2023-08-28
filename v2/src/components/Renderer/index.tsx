@@ -193,12 +193,9 @@ const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly E
 
   function DisplayError({ error }: { error: Error; }) {
     const errorMessage = error?.message || 'No error message available';
-    const stackTrace = error?.stack || 'No stack trace available';
     return (
       <>
         <p><strong>Error Message:</strong> {errorMessage}</p>
-        <p><strong>Stack Trace:</strong></p>
-        <pre>{stackTrace}</pre>
       </>
     );
   }
@@ -238,7 +235,7 @@ const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly E
         fontSize: "1rem",
         fontFamily: "Menlo, Consolas, monospace",
       }}>
-        {validationErrors.map((e) => <DisplayError error={e} />)}
+        {validationErrors.map((e, i) => <DisplayError key={i} error={e} />)}
       </div>
     </div>
   </div>);
