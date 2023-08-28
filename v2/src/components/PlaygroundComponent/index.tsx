@@ -12,7 +12,7 @@ import "./index.styles.css";
 import type { IDempProps } from "@site/demo-snippets/demo";
 /** Types END */
 
-export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, hostCtor }: IDempProps): JSX.Element {
+export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, fileName, hostCtor }: IDempProps): JSX.Element {
   const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
   const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
   const { colorMode } = useColorMode();
@@ -76,7 +76,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   )}
                 </div>
               ) : (
-                  <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName}></MonacoWrapper>
+                  <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
               )}
             </div>
           )}

@@ -44,7 +44,7 @@ const editorOptions: editor.IEditorConstructionOptions = {
   lineNumbers: "off",
 };
 
-export default function MonacoWrapper({ code, demoName, dirName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
+export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
   const { colorMode } = useColorMode();
@@ -380,7 +380,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   // download the contents of current canvas as image
   function downloadCanvasAsImage(): void {
     let link = document.createElement("a");
-    link.download = `${demoName}.png`;
+    link.download = `${fileName}.png`;
     link.href = canvas.current.toDataURL();
     link.click();
     link.remove();
