@@ -5,7 +5,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
 import { useColorMode } from "@docusaurus/theme-common";
 import { useHistory } from "@docusaurus/router";
-import { MarkerSeverity, editor } from "monaco-editor";
+import { editor } from "monaco-editor";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Admonition from "@theme/Admonition";
@@ -50,6 +50,14 @@ enum EditorStatus {
   WORKING = 2,
   ERRORS = 3,
   WARNINGS = 4
+}
+
+/** Copied from Monaco source code to fix SSR build */
+enum MarkerSeverity {
+  Hint = 1,
+  Info = 2,
+  Warning = 4,
+  Error = 8
 }
 
 export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
