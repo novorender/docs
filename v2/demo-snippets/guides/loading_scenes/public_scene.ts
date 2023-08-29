@@ -16,8 +16,6 @@ export async function main(view: View): Promise<void> {
     // Destructure relevant properties into variables
     const { url, camera } = sceneData as dataJsApi.SceneData;
     const webgl2Bin = new URL(url);
-    // need to append temp path for now
-    webgl2Bin.pathname += "webgl2_bin/";
     // Destructure relevant camera properties
     const { position, fieldOfView: fov } = camera as any;
     // load the scene using URL gotten from `sceneData`

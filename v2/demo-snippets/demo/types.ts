@@ -1,4 +1,4 @@
-import { Core3DImports, DeviceProfile, RenderStateChanges, getDeviceProfile, Core3DImportMap, downloadImports } from "@novorender/api";
+import { DeviceProfile, getDeviceProfile, View, ViewImports, ViewImportmap } from "@novorender/api";
 // @ts-expect-error
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
@@ -24,19 +24,19 @@ export interface ICanvas {
 export interface IDemoContext<T = any> {
   readonly canvasElements: ICanvas;
   readonly deviceProfile: DeviceProfile;
-  readonly imports: Core3DImports;
+  readonly imports: ViewImports;
 }
 
 /** Core imports, you can provide your own to `createDemoContext` if want */
-export let coreImportsPromise: Promise<Core3DImports>;
+export let coreImportsPromise: Promise<ViewImports>;
 // for fixing docusaurus build
 if (typeof window !== "undefined") {
   const baseUrl = new URL(".", window.location.origin + "/v2/");
-  const coreImportsMap: Core3DImportMap = { baseUrl, shaders };
-  coreImportsPromise = downloadImports(coreImportsMap);
+  const coreImportsMap: ViewImportmap = { baseUrl, shaders };
+  coreImportsPromise = View.downloadImports(coreImportsMap);
 }
 
-export async function createDemoContext(canvasElements: ICanvas, importsPromise: Promise<Core3DImports> = coreImportsPromise): Promise<IDemoContext> {
+export async function createDemoContext(canvasElements: ICanvas, importsPromise: Promise<ViewImports> = coreImportsPromise): Promise<IDemoContext> {
   const gpuTier = 2; // laptop with reasonably new/powerful GPU.
   const deviceProfile = getDeviceProfile(gpuTier);
   const imports = await importsPromise;
