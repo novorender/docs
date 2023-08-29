@@ -109,7 +109,11 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
           setModuleInternalValidationErrors([...((errors || []) as Error[])]);
 
-          setEditorStatus(EditorStatus.OKAY);
+          if (errors && errors.length) {
+            setEditorStatus(EditorStatus.ERRORS);
+          } else {
+            setEditorStatus(EditorStatus.OKAY);
+          }
 
         } catch (error) {
           setEditorStatus(EditorStatus.ERRORS);
