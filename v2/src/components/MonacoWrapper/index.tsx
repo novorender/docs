@@ -5,7 +5,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
 import { useColorMode } from "@docusaurus/theme-common";
 import { useHistory } from "@docusaurus/router";
-import { editor } from "monaco-editor";
+import { MarkerSeverity, editor } from "monaco-editor";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Admonition from "@theme/Admonition";
@@ -23,7 +23,7 @@ import "allotment/dist/style.css";
 
 /** Icons */
 import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
-import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear, faCircleExclamation, faCheck, faSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
 import WebAppDTS from "@site/static/web_api.d.ts?raw";
@@ -44,6 +44,14 @@ const editorOptions: editor.IEditorConstructionOptions = {
   lineNumbers: "off",
 };
 
+enum EditorStatus {
+  INITIAL = 0,
+  OKAY = 1,
+  WORKING = 2,
+  ERRORS = 3,
+  WARNINGS = 4
+}
+
 export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
@@ -55,11 +63,10 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   const editorFooterInstance = useRef<HTMLElement>();
   const editorNavbarInstance = useRef<HTMLElement>();
   const [codeOutput, setCodeOutput] = useState<string>(null);
-  const [codeError, setCodeError] = useState(null);
   const [initialCode, setInitialCode] = useState<string>(null);
   const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
   const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
-  const [isActivity, setIsActivity] = useState<boolean>(false);
+  const [editorStatus, setEditorStatus] = useState<EditorStatus>(EditorStatus.INITIAL);
   const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
   const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
@@ -71,7 +78,9 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
   const [hasMainChanged, setHasMainChanged] = useState(false);
   const [fontSize, setFontSize] = useState<number>();
-  const [validationErrors, setValidationErrors] = useState<readonly Error[]>();
+  const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
+  const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
+  const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
   const hostRef = useRef<IDemoHost<any>>(null);
   const canvasWrapper = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -97,12 +106,13 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
           const errors = hostRef.current.updateModule(module);
           console.log("validation errors ==> ", errors);
-          setValidationErrors(errors as Error[])
 
-          setIsActivity(false);
+          setModuleInternalValidationErrors([...((errors || []) as Error[])]);
+
+          setEditorStatus(EditorStatus.OKAY);
 
         } catch (error) {
-          setIsActivity(false);
+          setEditorStatus(EditorStatus.ERRORS);
           console.warn("something bad happened ", error);
         }
       }
@@ -138,7 +148,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   };
 
   const codeChangeHandler = async (tsCode: string) => {
-    setIsActivity(true); // toggle spinner.
+    setEditorStatus(EditorStatus.WORKING); // toggle spinner.
     setTsCodeForClipboard(tsCode); // for clipboard copy
     const output = await returnTranspiledOutput(editorInstance.current, monaco);
 
@@ -146,7 +156,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     // been changed.
     if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
       console.log("[INFO]: Code hasn't been changed, returning.");
-      setIsActivity(false); // toggle spinner.
+      setEditorStatus(EditorStatus.OKAY); // toggle spinner.
       return false;
     }
 
@@ -277,7 +287,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   }
 
   async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
-    setIsActivity(true); // toggle spinner
+    setEditorStatus(EditorStatus.WORKING); // toggle spinner
     editorInstance.current = editor;
 
     // hide hidden ranges upon init
@@ -338,7 +348,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     //   }
     // }
 
-    setIsActivity(false); // toggle spinner
+    setEditorStatus(EditorStatus.OKAY); // toggle spinner
   }
 
   // toggle hidden areas in the editor
@@ -360,15 +370,16 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     setIsHiddenAreasShowing(show);
   }
 
-  function handleEditorValidation(markers) {
-    console.log("markers ", markers);
-    if (markers.length && markers[0].severity > 1) {
-      console.log("diags ", markers[0]);
-      const diagnostic = markers[0];
-      setCodeError(diagnostic);
-    } else {
-      setCodeError(null);
-    }
+  function handleEditorValidation(markers: editor.IMarker[]) {
+    console.warn("markers ", markers);
+    const errorMarkers: Error[] = [];
+    markers.forEach(marker => {
+      if (marker.severity === MarkerSeverity.Error) {
+        errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
+      }
+    });
+    if (errorMarkers.length) { setEditorStatus(EditorStatus.ERRORS); }
+    setGeneralSyntaxErrors(errorMarkers);
   }
 
   // copy the current code output to clipboard
@@ -438,7 +449,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                   </button>
                 </Popover>
                 {demoName}
-                {isActivity && <Spinner />}
+                <StatusIndicator status={editorStatus} />
               </div>
 
               <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
@@ -523,13 +534,13 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                     beforeMount={handleEditorWillMount}
                     onValidate={handleEditorValidation}
                   />
-                  {codeError && (
+                  {/* {codeError && (
                     <div className="editor-error-alert">
                       <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
                         <p>{codeError.message}</p>
                       </Admonition>
                     </div>
-                  )}
+                  )} */}
                 </div>
                 {true ? (
                   <Renderer
@@ -541,7 +552,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                     panesWidth={rendererPaneWidth}
                     editorConfig={editorConfig}
                     splitPaneDirectionVertical={splitPaneDirectionVertical}
-                    validationErrors={validationErrors}
+                    validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
                   />
                 ) : (
                   <div
@@ -630,3 +641,24 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     </BrowserOnly>
   );
 }
+
+const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
+  return (
+    <div style={{ marginLeft: 6 }}>
+      {
+        (() => {
+          switch (status) {
+            case EditorStatus.WORKING:
+              return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
+            case EditorStatus.ERRORS:
+              return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
+            case EditorStatus.OKAY:
+              return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
+            default:
+              return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
+          }
+        })()
+      }
+    </div>
+  );
+};
