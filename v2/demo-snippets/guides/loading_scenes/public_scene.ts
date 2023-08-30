@@ -15,11 +15,10 @@ export async function main(view: View): Promise<void> {
     const sceneData = await dataApi.loadScene("95a89d20dd084d9486e383e131242c4c");
     // Destructure relevant properties into variables
     const { url, camera } = sceneData as dataJsApi.SceneData;
-    const webgl2Bin = new URL(url);
     // Destructure relevant camera properties
     const { position, fieldOfView: fov } = camera as any;
     // load the scene using URL gotten from `sceneData`
-    await view.loadSceneFromURL(webgl2Bin);
+    await view.loadSceneFromURL(new URL(url));
     // Assign a camera controller
     await view.switchCameraController(camera?.kind as any, { position: flip(position as ReadonlyVec3), fov });
   } catch (error) {
