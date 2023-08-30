@@ -1,0 +1,97 @@
+---
+title: "Object Selection"
+description: "Highlighting sets of objects using the web api."
+keywords: ["novorender api docs", "web api", "object selection"]
+---
+
+import { snippets } from "@site/demo-snippets/index";
+
+NovoRender's Web API lets you highlight sets of objects.
+This could be used to visualize current object selection, or groups of objects, for instance the results of data queries.
+
+### Object Identity
+
+All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as <code>[ObjectId](/docs/web_api/Interfaces/interface.PickSample#objectid)</code>.
+
+One way of obtaining such an id is using the <code>[pick()](/docs/web_api/Classes/class.View#pick)</code> function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
+
+```typescript
+const result = await view.pick(x, y);
+if (result) {
+  const { objectId } = result;
+}
+```
+
+### Object highlighting
+
+To highlight the picked object, we must create a highlight group.
+Highlighting works by performing a linear transform of the red, green, blue and alpha (opacity) channels.
+For now, we'll simply make the selected object lime green.
+
+```typescript
+const limeGreen = createColorSetHighlight([0, 1, 0]);
+const renderStateHighlightGroups = {
+  // Reset existing highlights (if any)
+  defaultAction: createNeutralHighlight(),
+  // Set selected object to use highlight
+  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
+};
+```
+
+To make our selected objects stand out even further, we can use <code>[createHSLATransformHighlight](/docs/web_api/Functions/function.createHSLATransformHighlight)</code> to make all other objects less colorful by halving their color saturation:
+
+```typescript
+const renderStateHighlightGroups = {
+  // apply saturation to all other objects
+  defaultAction: createHSLATransformHighlight({ saturation: 0.5 }),
+  // Set selected object to use highlight
+  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
+};
+```
+
+or even better, apply an opacity by using <code>[createTransparentHighlight](/docs/web_api/Functions/function.createTransparentHighlight)</code> with a value of `0.5`:
+
+```typescript
+const renderStateHighlightGroups = {
+  // apply opacity to all other objects
+  defaultAction: createTransparentHighlight(0.5),
+  // Set selected object to use highlight
+  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
+};
+```
+
+or if you want other objects to remain intact, use <code>[createNeutralHighlight](/docs/web_api/Functions/function.createNeutralHighlight)</code> function:
+
+```typescript
+const renderStateHighlightGroups = {
+  defaultAction: createNeutralHighlight(),
+  // Set selected object to use highlight
+  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
+};
+```
+
+property <code>[defaultaction](/docs/web_api/Interfaces/interface.RenderStateHighlightGroups#defaultaction)</code> also accepts two predefined string values: `hide` and `filer`:
+
+- <code>
+    <b>"hide"</b>
+  </code> will hide the objects within the group more effectively than using alpha/opacity = 0, while still retaining them in memory for quick re-rendering.
+- <code>
+    <b>"filter"</b>
+  </code> will remove the objects from memory entirely, which helps improve rendering performance and memory usage. Unlike hidden group, changes to filtered groups will trigger a complete reload of the streamable scene.
+
+Don't forget to modify the render state after making changes:
+
+```typescript
+view.modifyRenderState({ highlights: renderStateHighlightGroups });
+```
+
+### Demo
+
+Click on objects to turn them green.
+
+<PlaygroundComponent {...snippets.objectSelection.pick}></PlaygroundComponent>
+<br />
+
+:::note
+Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
+:::
