@@ -21,7 +21,7 @@ export class ViewDemoHost implements IDemoHost<Module> {
 
     this._view = view;
 
-    let prev_module: typeof this._module | undefined;
+    let prev_module: Module | undefined;
 
     view.animate = async () => {
       try {
