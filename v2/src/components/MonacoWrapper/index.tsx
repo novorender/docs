@@ -112,7 +112,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
           const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
           const module = await import(/* webpackIgnore: true */ dataUri);
 
-          const errors = hostRef.current.updateModule(module);
+          const errors = await hostRef.current.updateModule(module);
           console.log("validation errors ==> ", errors);
 
           setModuleInternalValidationErrors([...((errors || []) as Error[])]);

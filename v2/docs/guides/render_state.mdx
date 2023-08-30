@@ -93,6 +93,7 @@ if (prevObj !== newObj) {
 ```
 
 Yes, copying is slower than mutation, but that cost is easily recovered by the efficiency of basic reference comparisons to detect changes.
+Immutable style of coding may feel a bit awkward and alien to you at first, but it signficantly reduces to potential for mistakes.
 Not to mention the simplicity of understanding, use, implementation and a host of other benefits.
 
 ## How to modify render state.
@@ -152,6 +153,9 @@ const hasBackgroundColorRedChanged = renderState.background.color[0] !== prevRen
 
 Due to the way immutable changes trickle up to the parent object, `hasBackgroundChanged` will be true for any changes to the background state has changed, including color.
 
+Note that the state is not actually updated until just prior to a frame being rendered.
+You can override or assign the <CodeLink type="class" name="View.render"/> method to inspect the actual state that just got rendered.
+
 ## Validating render state.
 
 For performance reasons, render state validation is normally not performed before rendering.
@@ -200,17 +204,17 @@ On a workstation, this is not a big problem, but anything that runs on a battery
 ## Tips and tricks
 
 Sadly, immutability is not the default in javascript/typescript.
-To help your team avoid accidental in-place mutation, you should use the typescript `readonly` keyword and `as const` whenever possible, preferably on both sides of array, like illustrated below.
+To help your team avoid accidental in-place mutation, you should use the typescript `readonly` keyword whenever possible, preferably on both sides of array, like illustrated below.
 
 ```typescript
 interface MyObject {
   readonly items: readonly number[];
 }
-
-const items = [1, 2, 3] as const;
 ```
 
-We strive to do this everywhere, except where the intention is explictly that of mutation, which is rare.
+We strive to do this everywhere, except where the intention is explictly that of mutation.
+
+You may find typescript [const assertions](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) useful for making members readonly implicitly.
 
 The new javascript [copying array methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#copying_methods_and_mutating_methods),
 such as `with()`, `toSpliced()` and `toSorted()` can be useful for manipulating arrays in a non-mutating way.
@@ -218,8 +222,3 @@ such as `with()`, `toSpliced()` and `toSorted()` can be useful for manipulating 
 The already mentioned spread operator `...` is also an invaluable tool to create modified copies in a safe and readable manner, both for arrays and objects.
 
 We've also exposed the <CodeLink type="function" name="mergeRecursive"/> function that we use to merge partial state changes internally.
-
-This style of coding may feel awkward and alien to you at first.
-Anyone who has used the popular [`tree.js`](https://threejs.org/) rendering engine will appreciate the consistency of immutable state and the absence of non-obvious `update()` methods.
-Yes, mutation is generally faster - when done right.
-But so is coding in machine code.

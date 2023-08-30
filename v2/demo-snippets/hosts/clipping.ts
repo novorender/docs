@@ -7,48 +7,45 @@ type Ret = RecursivePartial<RenderStateClipping> | undefined;
 type Module = IModule<Ret, Args>;
 
 export class ClippingDemoHost implements IDemoHost<Module> {
-  private _view: View | undefined;
-  private _center: ReadonlyVec3 = vec3.create();
+  private readonly view: View;
+  private readonly center = vec3.create();
 
-  constructor(readonly context: IDemoContext) {}
-
-  async run(): Promise<void> {
+  constructor(readonly context: IDemoContext) {
     const {
       canvasElements: { primaryCanvas: canvas },
       deviceProfile,
       imports,
     } = this.context;
-    const view = new View(canvas, deviceProfile, imports);
-    this._view = view;
+    this.view = new View(canvas, deviceProfile, imports);
+  }
+
+  async run(): Promise<void> {
+    const { view } = this;
     await this.loadScene("https://api.novorender.com/assets/scenes/18f56c98c1e748feb8369a6d32fde9ef/");
     await view.run();
     view.dispose();
   }
 
   async loadScene(url: string) {
-    const view = this._view!;
+    const { view } = this;
     const config = await view.loadSceneFromURL(new URL(url));
     // view.modifyRenderState({ scene: { url, config } });
     const { center, radius } = config.boundingSphere;
     view.activeController.autoFit(center, radius);
     const [cx, cy, cz] = config.center;
-    this._center = vec3.fromValues(cx, -cz, cy);
+    vec3.set(this.center, cx, -cz, cy);
   }
 
-  updateModule(module: Module): readonly Error[] | void {
+  updateModule(module: Module): readonly Error[] {
     // TODO: verify module shape first
-    const [cx, cy, cz] = this._center;
+    const [cx, cy, cz] = this.center;
     const stateChanges = module.main(cx, cy, cz);
-    if (this._view) {
-      const errors = this._view.validateRenderState({ clipping: stateChanges });
-      if (errors.length > 0) {
-        return errors;
-      }
-      this._view.modifyRenderState({ clipping: stateChanges });
-    }
+    const errors = this.view.validateRenderState({ clipping: stateChanges });
+    this.view.modifyRenderState({ clipping: stateChanges });
+    return errors;
   }
 
   exit(): void {
-    this._view?.exit();
+    this.view?.exit();
   }
 }

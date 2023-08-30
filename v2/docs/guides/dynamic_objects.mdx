@@ -1,0 +1,177 @@
+---
+title: "Dynamic Objects"
+description: "Add dynamic 3D objects into the view."
+keywords: ["novorender api docs", "webgl api", "gltf", "dynamic objects"]
+---
+
+import { snippets } from "@site/demo-snippets";
+
+While Novorender is mostly about streaming and rendering large, static 3D scenes, sometimes you may want to add smaller, dynamic 3D objects into the view.
+Dynamic objects are meant for small and lightweight objects, such as 3D widgets or avatars.
+
+## Loading from glTF
+
+One way to create dynamic object is to load them from a glTF file.
+Currently we support [glTF 2.0](https://www.khronos.org/gltf/) (.gltf/.glb).
+You can download these from any url, but we do provide a few gltf models on our server: https://api.novorender.com/assets/gltf/
+
+```typescript
+var objects = await downloadGLTF(url);
+view.modifyRenderState({ dynamic: { objects } });
+```
+
+The <CodeLink type="function" name="downloadGLTF"/> function returns an array of objects,
+one for each node in the [glTF node hierarchy](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#nodes-and-hierarchy).
+
+You may inspect and/or modify this state prior to rendering.
+
+:::info
+Please note that we don't currently support any glTF extensions. Nor do we support animations or skinning, among other things.
+We recommend verifying your files using https://github.khronos.org/glTF-Validator/ or similar before use.
+:::
+
+Let's try to download a binary gltf file (glb), which has all the textures and buffers included in a single file.
+
+<PlaygroundComponent {...snippets.dynamic.gltf}></PlaygroundComponent>
+
+### Procedural geometry
+
+The glTF loader is not magic.
+It returns render state that you can generate yourself in code.
+The dynamic object render state <CodeLink type="interface" name="RenderStateDynamicObject"/> is quite rich and complex, similar to that of glTF.
+Procedural geometry is intended for experienced 3D programmers.
+Thus, this guide will not delwe into the complexities of geometry and materials, but rather explain how to get started.
+For more detail, see the [glTF 2.0 specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) or [Learn OpenGL](https://learnopengl.com/).
+
+Let's create a triangle from scratch.
+To do so we need three vertices.
+Vertices are described by vertex attributes.
+For this demo we only need vertex positions.
+Positions can be described as an array of float triplets, each triplet describing the x, y and z coordinate of each vertex.
+
+```typescript
+const vertices = new Float32Array([
+  0,
+  1,
+  0, // xyz #0
+  -1,
+  0,
+  0, // xyz #1
+  1,
+  0,
+  0, // xyz #2
+]);
+```
+
+Next, we need to describe the geometry of our object.
+In this case, we have only one vertex attribute (positions), and are rendering triangles from 3 vertices, which gives 1 triangle only.
+
+```typescript
+const geometry: RenderStateDynamicGeometry = {
+  primitiveType: "TRIANGLES",
+  attributes: { position: { kind: "VEC3", buffer: vertices } },
+  indices: 3, // # vertices
+};
+```
+
+Our object also needs a materials.
+For simplicity, we're just making a basic unlit material with green color.
+
+```typescript
+const material: RenderStateDynamicMaterial = {
+  kind: "unlit",
+  baseColorFactor: [0, 1, 0, 1], // green, opaque
+};
+```
+
+A mesh consist of primitives, where each primitive has a geometry and a material.
+Since we only have one material, the mesh will have only one primitive.
+
+```typescript
+const mesh: RenderStateDynamicMesh = {
+  primitives: [{ geometry, material }],
+};
+```
+
+Finally, we can make our object.
+Each object has a mesh and a set of instances for that mesh.
+
+```typescript
+const triangleObject: RenderStateDynamicObject = {
+  mesh,
+  instances: [{ position: [0, 0, 0] }],
+};
+```
+
+This all may seem overly complex for a single triangle.
+The complexity is there to for good reason, allowing seasoned 3D programmers to take advantage of the GPU.
+Most of the time you will use some kind of library to generate geometry for you.
+
+The generated object needs to be inserted into the render state, just like we did with the glTF objects.
+
+```typescript
+view.modifyRenderState({ dynamic: { objects: [triangleObject] } });
+```
+
+So, let's see it all run.
+
+<PlaygroundComponent {...snippets.dynamic.triangle}></PlaygroundComponent>
+
+## Instances
+
+For this section we will use a simple helper function provided with the API to create a cube: <CodeLink type="function" name="createCubeObject"/>.
+It is intended for demo and tutorial purposes only.
+Feel free to inspect the source code linked in the reference documentation to see how it's implemented!
+
+Instancing is a GPU hardware feature that will render the same mesh multiple times with virtually no overhead.
+This becomes important when you want to draw hundreds, if not thousands of objects.
+Note that instances aren't free, just as triangles aren't free.
+
+```
+total_triangle_count = num_instances * instance_triangles
+```
+
+Most modern GPUs can handle millions of triangles with ease, however.
+Draw calls, not so much.
+Instances are drawn in a single batch operation without javascript or the CPU getting in the way.
+So if you have a simple object like this cube with 12 triangles each, you can easily have thousands of instances, or even tens or hundreds of thousands.
+Let's start easy with `10 x 10 x 10 = 1000` instances, which produces 12K triangles.
+
+<PlaygroundComponent {...snippets.dynamic.instances}></PlaygroundComponent>
+
+Try modifying the `dim` variable to increase/decrease # instances.
+Most PCs should be able to handle millions of triangles, so if you feel adventurous, change `dim` to `100`, which produces one million instances.
+12 million triangles may not render all that fast on less powerful GPUs, but it illustrates how the total triangle count, not the # instances is the main limitation.
+This becomes even more true if the object you are instancing have more triangles than a measly 12.
+
+Each instance may have an independent position, rotation and scale.
+Only position is mandatory.
+Omitting rotation and scale may reduce the cost of converting the javascript render state into a GPU state/buffer.
+
+:::info
+Changing dynamic objects render state that involves large arrays can be a costly affair and may cause frame rate stuttering.
+Once the state has been copied to the GPU and left unchanged, performance typically becomes GPU-bound for subsequent frames.
+:::
+
+## Scene graph and animation
+
+The instance matrices are all in world space.
+Why is there no scene graph, you may ask.
+The quick answer is performance and simplicity.
+The longer answer is that not everyone needs a scene graph.
+Nor is it obvious that a strict hierarchy is the best way to organize nodes.
+What if you have a physics engine, or some kind of constraint/inverse kinematics system?
+Ultimately, a scene graph is a mere convenience and trivial to implement yourself if you absolutely must have one.
+
+Nodes loaded from glTF will have their matrices converted into world space and made into a flat list.
+If you wish to animate things, you will have to do so yourself.
+In general, we discourage lenghty/constant animations.
+This is because whenever the render state changes, the frame has to be completely re-rendered, which costs energy.
+Also, progressive post effects and high-res rendering are often only applied after a small period of inaction.
+Short animation sequences of seconds or less are fine, however, and may help the user to better understand function and context.
+
+:::caution
+Animations will drain device batteries quickly. Use with moderation!
+:::
+
+(TODO: Make animation demo host and example?)
