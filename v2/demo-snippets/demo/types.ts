@@ -1,4 +1,4 @@
-import { DeviceProfile, getDeviceProfile, View, ViewImports, ViewImportmap } from "@novorender/api";
+import { DeviceProfile, getDeviceProfile, ViewImports, View, ViewImportmap } from "@novorender/api";
 // @ts-expect-error
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";

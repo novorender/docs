@@ -49,7 +49,7 @@ enum EditorStatus {
   OKAY = 1,
   WORKING = 2,
   ERRORS = 3,
-  WARNINGS = 4
+  WARNINGS = 4,
 }
 
 /** Copied from Monaco source code to fix SSR build */
@@ -57,7 +57,7 @@ enum MarkerSeverity {
   Hint = 1,
   Info = 2,
   Warning = 4,
-  Error = 8
+  Error = 8,
 }
 
 export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
@@ -122,14 +122,12 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
           } else {
             setEditorStatus(EditorStatus.OKAY);
           }
-
         } catch (error) {
           setEditorStatus(EditorStatus.ERRORS);
           console.warn("something bad happened ", error);
         }
       }
     })();
-
   }, [codeOutput]);
 
   useEffect(() => {
@@ -223,7 +221,6 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
   useEffect(() => {
     if (monaco) {
-
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
         strict: false,
@@ -234,11 +231,11 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         strictPropertyInitialization: false,
         noUnusedLocals: false,
         noUnusedParameters: false,
-        noEmitOnError: true
+        noEmitOnError: true,
       });
 
       // Add additional d.ts files to the JavaScript language service.
-      dts_files.forEach(dts => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
+      dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `/**
              * @description opens an alert that displays provided content
@@ -271,7 +268,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
   async function runDemo() {
     (async () => {
-      if (canvas.current && canvas2D.current, previewCanvas.current) {
+      if ((canvas.current && canvas2D.current, previewCanvas.current)) {
         const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
         const host = new hostCtor(context);
         hostRef.current = host;
@@ -282,10 +279,10 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
   function handleEditorWillMount(monaco) {
     fetch(themeURL)
-      .then(data => data.json())
-      .then(data => {
-        monaco.editor.defineTheme('oceanic-next', data);
-        monaco.editor.setTheme('oceanic-next');
+      .then((data) => data.json())
+      .then((data) => {
+        monaco.editor.defineTheme("oceanic-next", data);
+        monaco.editor.setTheme("oceanic-next");
       });
 
     configureFontSize();
@@ -385,12 +382,14 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   function handleEditorValidation(markers: editor.IMarker[]) {
     console.warn("markers ", markers);
     const errorMarkers: Error[] = [];
-    markers.forEach(marker => {
+    markers.forEach((marker) => {
       if (marker.severity === MarkerSeverity.Error) {
         errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
       }
     });
-    if (errorMarkers.length) { setEditorStatus(EditorStatus.ERRORS); }
+    if (errorMarkers.length) {
+      setEditorStatus(EditorStatus.ERRORS);
+    }
     setGeneralSyntaxErrors(errorMarkers);
   }
 
@@ -654,23 +653,21 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   );
 }
 
-const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
+const StatusIndicator = ({ status }: { status: EditorStatus }) => {
   return (
     <div style={{ marginLeft: 6 }}>
-      {
-        (() => {
-          switch (status) {
-            case EditorStatus.WORKING:
-              return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
-            case EditorStatus.ERRORS:
-              return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
-            case EditorStatus.OKAY:
-              return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
-            default:
-              return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
-          }
-        })()
-      }
+      {(() => {
+        switch (status) {
+          case EditorStatus.WORKING:
+            return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
+          case EditorStatus.ERRORS:
+            return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
+          case EditorStatus.OKAY:
+            return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
+          default:
+            return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
+        }
+      })()}
     </div>
   );
 };

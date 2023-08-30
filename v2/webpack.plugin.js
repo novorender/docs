@@ -6,7 +6,6 @@ const webpackPlugin = (context, options) => {
   return {
     name: "webpack-plugin",
     configureWebpack(config) {
-
       config.module.rules.forEach((rule) => {
         rule.resourceQuery = { not: [/raw/] };
       });

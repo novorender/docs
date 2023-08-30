@@ -1,6 +1,5 @@
 import { DemoHostCtor, IEditorConfig, IDemo } from ".";
 
-
 /**
  * @param dirName name of the directory/folder in which the demo file is present
  * @param fileName name of the file that contains the demo snippet code

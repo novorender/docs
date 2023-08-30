@@ -46,10 +46,10 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                 editorConfig.mode === "inline"
                   ? { border: "2px solid #d5275d33", padding: 5 }
                   : {
-                    height: "calc(100vh - 60px)",
-                    overflow: "hidden",
-                    paddingTop: 2,
-                  }
+                      height: "calc(100vh - 60px)",
+                      overflow: "hidden",
+                      paddingTop: 2,
+                    }
               }
             >
               {editorConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ? (
@@ -78,7 +78,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   )}
                 </div>
               ) : (
-                  <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
+                <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
               )}
             </div>
           )}
