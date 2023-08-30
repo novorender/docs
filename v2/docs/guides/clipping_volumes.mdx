@@ -102,12 +102,36 @@ Let's define an axis aligned clipping box.
 
 ### Outlines
 
+You can also enable outline rendering, which will render lines where the geometry intersects a clipping plane.
+This feature is particularly useful for orthographic projections, where surfaces perpendicular to the camera would otherwise be invisible.
+
 <PlaygroundComponent {...snippets.clipping.outlines} />
 
-:::info
+Due to limitations in the WebGL2 api, outline rendering has a significant memory overhead.
+Every clipping plane you enable it on will also incur an extra performance cost.
 
-Using clipping volumes currently does not affect memory usage or significantly impact rendering performance.
-They simply work by excluding pixels that lie outside the volume at the very last stage of the rendering pipeline.
-Their intended use it as a visual aid, not as an optimization.
+Because of the performance and memory hit of the outline feature, not all devices will have it enabled.
+You can check if it is available in the view's <CodeLink type="class" name="View.deviceProfile"/> under <CodeLink type="interface" name="DeviceProfile.features"/>.
+
+:::warning
+
+Use outline feature with caution, particularly on weaker devices.
 
 :::
+
+### Visualization
+
+Finally, you can visualize clipping planes directly by setting <CodeLink type="interface" name="RenderStateClipping.draw"/> to true.
+By default, <CodeLink type="interface" name="RenderStateClippingPlane.color"/> is `undefined`, which will render nothing.
+To visualize a specific plane, you need to set this color to a an 4D RGBA vector/array.
+The alpha component lets you draw the planes transparently when less than 1.0.
+
+<PlaygroundComponent {...snippets.clipping.visualize} />
+
+Note that clipping planes are only drawn when the camera is on the positive side, i.e. "outside" the plane halfspace.
+Rotate the camera to see how the planes disappear when viewed from "inside".
+This means that if you have a box, only three of the six clipping planes will be rendered at any given camera position, allowing you to interact with them without interference.
+
+Visualization also allows you to interact with the planes just like any other pickable object.
+This could be useful for making a UI where users can push/pull the position of each plane interactively.
+For more detail on object picking, please see the [Object picking](object-picking.md) guide!
