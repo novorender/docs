@@ -38,8 +38,6 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
-
-
     // const resizeObserver = new ResizeObserver((entries) => {
     //   if (canvasRef.current) {
     //     for (const entry of entries) {
@@ -65,7 +63,6 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
     canvasRef.current.addEventListener("wheel", wheelEventListener, {
       passive: false,
     });
-
 
     return () => {
       document.removeEventListener("fullscreenchange", fullScreenEventListener, false);
@@ -117,7 +114,7 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
   );
 }
 
-export function InfoBox({ content, title }: { content: object | string | any; title?: string; }) {
+export function InfoBox({ content, title }: { content: object | string | any; title?: string }) {
   const [isCodeBlock, setIsCodeBlock] = useState(false);
 
   useEffect(() => {
@@ -189,57 +186,65 @@ export const RenderSpinner = () => (
   />
 );
 
-const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly Error[]; }) => {
-
-  function DisplayError({ error }: { error: Error; }) {
-    const errorMessage = error?.message || 'No error message available';
-    const stackTrace = error?.stack || 'No stack trace available';
+const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly Error[] }) => {
+  function DisplayError({ error }: { error: Error }) {
+    const errorMessage = error?.message || "No error message available";
     return (
       <>
-        <p><strong>Error Message:</strong> {errorMessage}</p>
-        <p><strong>Stack Trace:</strong></p>
-        <pre>{stackTrace}</pre>
+        <p>
+          <strong>Error Message:</strong> {errorMessage}
+        </p>
       </>
     );
   }
 
-  return (<div style={{
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    inset: 0,
-    fontSize: "large",
-    padding: "2rem 2rem 4rem",
-    lineHeight: 1.2,
-    whiteSpace: "pre-wrap",
-    overflow: "auto",
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
-    color: "white",
-
-  }}>
+  return (
     <div
       style={{
-        backgroundColor: "rgba(206, 17, 38, 0.1)",
-        color: "rgb(252, 207, 207)",
-        padding: "1rem 1rem 1.5rem",
-
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        inset: 0,
+        fontSize: "large",
+        padding: "2rem 2rem 4rem",
+        lineHeight: 1.2,
+        whiteSpace: "pre-wrap",
+        overflow: "auto",
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        color: "white",
       }}
     >
-      <div style={{
-        color: "rgb(232, 59, 70)",
-        fontSize: "1.2em",
-        marginBottom: "1rem",
-        fontFamily: "sans-serif",
-      }}>ERROR(S)</div>
-      <div style={{
-        lineHeight: 1.5,
-        fontSize: "1rem",
-        fontFamily: "Menlo, Consolas, monospace",
-      }}>
-        {validationErrors.map((e) => <DisplayError error={e} />)}
+      <div
+        style={{
+          backgroundColor: "rgba(206, 17, 38, 0.1)",
+          color: "rgb(252, 207, 207)",
+          padding: "1rem 1rem 1.5rem",
+        }}
+      >
+        <div
+          style={{
+            color: "rgb(232, 59, 70)",
+            fontSize: "1.2em",
+            marginBottom: "1rem",
+            fontFamily: "sans-serif",
+          }}
+        >
+          ERROR(S)
+        </div>
+        <div
+          style={{
+            lineHeight: 1.5,
+            fontSize: "1rem",
+            fontFamily: "Menlo, Consolas, monospace",
+          }}
+        >
+          {validationErrors.map((e, i) => (
+            <DisplayError key={i} error={e} />
+          ))}
+        </div>
       </div>
     </div>
-  </div>);
+  );
 };

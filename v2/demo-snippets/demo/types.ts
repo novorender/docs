@@ -1,4 +1,4 @@
-import { Core3DImports, DeviceProfile, getDeviceProfile, Core3DImportMap, ViewImports, View } from "@novorender/api";
+import { DeviceProfile, getDeviceProfile, ViewImports, View, ViewImportmap } from "@novorender/api";
 // @ts-expect-error
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
@@ -29,11 +29,10 @@ export interface IDemoContext<T = any> {
 
 /** Core imports, you can provide your own to `createDemoContext` if want */
 export let coreImportsPromise: Promise<ViewImports>;
-
 // for fixing docusaurus build
 if (typeof window !== "undefined") {
   const baseUrl = new URL(".", window.location.origin + "/v2/");
-  const coreImportsMap: Core3DImportMap = { baseUrl, shaders };
+  const coreImportsMap: ViewImportmap = { baseUrl, shaders };
   coreImportsPromise = View.downloadImports(coreImportsMap);
 }
 
@@ -78,7 +77,7 @@ export interface IEditorConfig {
   cursorPosition?: IPosition;
   /** Scroll vertically as necessary and reveal a line close to the top of the viewport (https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IEditor.html#revealLineNearTop) */
   revealLine?: number;
-  /** Editor content height in pixels - NOTE: this must be < 420, 420 is the max size of content in editor, after this you get scroll */
+  /** Editor content height in pixels - NOTE: this must be < 260, 260 is the max size of content in inline-editor, after this you get scroll */
   contentHeight?: number;
 }
 

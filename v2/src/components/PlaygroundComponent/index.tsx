@@ -12,7 +12,7 @@ import "./index.styles.css";
 import type { IDempProps } from "@site/demo-snippets/demo";
 /** Types END */
 
-export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, hostCtor }: IDempProps): JSX.Element {
+export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, fileName, hostCtor }: IDempProps): JSX.Element {
   const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
   const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
   const { colorMode } = useColorMode();
@@ -46,10 +46,10 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                 editorConfig.mode === "inline"
                   ? { border: "2px solid #d5275d33", padding: 5 }
                   : {
-                    height: "calc(100vh - 60px)",
-                    overflow: "hidden",
-                    paddingTop: 2,
-                  }
+                      height: "calc(100vh - 60px)",
+                      overflow: "hidden",
+                      paddingTop: 2,
+                    }
               }
             >
               {editorConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ? (
@@ -59,7 +59,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                   </button>
                   {previewImageUrl && (
                     <>
-                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
+                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
                       <img
                         src={previewImageUrl}
                         onError={(e) => {
@@ -68,15 +68,17 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                         style={{
                           width: "100%",
                           position: "absolute",
+                          maxHeight: 400,
+                          overflow: "hidden",
                           display: "block",
-                          bottom: 42,
+                          bottom: 40,
                         }}
                       />
                     </>
                   )}
                 </div>
               ) : (
-                  <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName}></MonacoWrapper>
+                <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
               )}
             </div>
           )}

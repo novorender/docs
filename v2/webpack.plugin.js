@@ -6,7 +6,6 @@ const webpackPlugin = (context, options) => {
   return {
     name: "webpack-plugin",
     configureWebpack(config) {
-
       config.module.rules.forEach((rule) => {
         rule.resourceQuery = { not: [/raw/] };
       });
@@ -67,6 +66,11 @@ const webpackPlugin = (context, options) => {
           headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
             "Cross-Origin-Embedder-Policy": "require-corp",
+          },
+          client: {
+            overlay: {
+              runtimeErrors: false,
+            },
           },
         },
       };

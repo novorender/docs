@@ -23,7 +23,7 @@ import "allotment/dist/style.css";
 
 /** Icons */
 import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
-import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear, faCircleExclamation, faCheck, faSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
 import WebAppDTS from "@site/static/web_api.d.ts?raw";
@@ -44,7 +44,23 @@ const editorOptions: editor.IEditorConstructionOptions = {
   lineNumbers: "off",
 };
 
-export default function MonacoWrapper({ code, demoName, dirName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
+enum EditorStatus {
+  INITIAL = 0,
+  OKAY = 1,
+  WORKING = 2,
+  ERRORS = 3,
+  WARNINGS = 4,
+}
+
+/** Copied from Monaco source code to fix SSR build */
+enum MarkerSeverity {
+  Hint = 1,
+  Info = 2,
+  Warning = 4,
+  Error = 8,
+}
+
+export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
   const monaco = useMonaco();
   const { siteConfig } = useDocusaurusContext();
   const { colorMode } = useColorMode();
@@ -55,15 +71,14 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const editorFooterInstance = useRef<HTMLElement>();
   const editorNavbarInstance = useRef<HTMLElement>();
   const [codeOutput, setCodeOutput] = useState<string>(null);
-  const [codeError, setCodeError] = useState(null);
   const [initialCode, setInitialCode] = useState<string>(null);
   const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
   const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
-  const [isActivity, setIsActivity] = useState<boolean>(false);
+  const [editorStatus, setEditorStatus] = useState<EditorStatus>(EditorStatus.INITIAL);
   const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
   const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-  const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
-  const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+  const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+  const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
   const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
   const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
   const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
@@ -71,7 +86,9 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
   const [hasMainChanged, setHasMainChanged] = useState(false);
   const [fontSize, setFontSize] = useState<number>();
-  const [validationErrors, setValidationErrors] = useState<readonly Error[]>();
+  const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
+  const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
+  const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
   const hostRef = useRef<IDemoHost<any>>(null);
   const canvasWrapper = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -97,17 +114,20 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
           const errors = hostRef.current.updateModule(module);
           console.log("validation errors ==> ", errors);
-          setValidationErrors(errors as Error[])
 
-          setIsActivity(false);
+          setModuleInternalValidationErrors([...((errors || []) as Error[])]);
 
+          if (errors && errors.length) {
+            setEditorStatus(EditorStatus.ERRORS);
+          } else {
+            setEditorStatus(EditorStatus.OKAY);
+          }
         } catch (error) {
-          setIsActivity(false);
+          setEditorStatus(EditorStatus.ERRORS);
           console.warn("something bad happened ", error);
         }
       }
     })();
-
   }, [codeOutput]);
 
   useEffect(() => {
@@ -138,7 +158,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   };
 
   const codeChangeHandler = async (tsCode: string) => {
-    setIsActivity(true); // toggle spinner.
+    setEditorStatus(EditorStatus.WORKING); // toggle spinner.
     setTsCodeForClipboard(tsCode); // for clipboard copy
     const output = await returnTranspiledOutput(editorInstance.current, monaco);
 
@@ -146,7 +166,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     // been changed.
     if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
       console.log("[INFO]: Code hasn't been changed, returning.");
-      setIsActivity(false); // toggle spinner.
+      setEditorStatus(EditorStatus.OKAY); // toggle spinner.
       return false;
     }
 
@@ -201,7 +221,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   useEffect(() => {
     if (monaco) {
-
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
         strict: false,
@@ -212,11 +231,11 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         strictPropertyInitialization: false,
         noUnusedLocals: false,
         noUnusedParameters: false,
-        noEmitOnError: true
+        noEmitOnError: true,
       });
 
       // Add additional d.ts files to the JavaScript language service.
-      dts_files.forEach(dts => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
+      dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `/**
              * @description opens an alert that displays provided content
@@ -249,7 +268,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   async function runDemo() {
     (async () => {
-      if (canvas.current && canvas2D.current, previewCanvas.current) {
+      if ((canvas.current && canvas2D.current, previewCanvas.current)) {
         const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
         const host = new hostCtor(context);
         hostRef.current = host;
@@ -260,10 +279,10 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
   function handleEditorWillMount(monaco) {
     fetch(themeURL)
-      .then(data => data.json())
-      .then(data => {
-        monaco.editor.defineTheme('oceanic-next', data);
-        monaco.editor.setTheme('oceanic-next');
+      .then((data) => data.json())
+      .then((data) => {
+        monaco.editor.defineTheme("oceanic-next", data);
+        monaco.editor.setTheme("oceanic-next");
       });
 
     configureFontSize();
@@ -277,14 +296,14 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   }
 
   async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
-    setIsActivity(true); // toggle spinner
+    setEditorStatus(EditorStatus.WORKING); // toggle spinner
     editorInstance.current = editor;
 
     // hide hidden ranges upon init
     toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
 
     if (editorConfig.mode === "inline") {
-      const contentHeight = Math.min(420, editorConfig.contentHeight ?? editor.getContentHeight());
+      const contentHeight = Math.min(260, editorConfig.contentHeight ?? editor.getContentHeight());
       allotmentRef.current.resize([contentHeight]);
     }
 
@@ -338,7 +357,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     //   }
     // }
 
-    setIsActivity(false); // toggle spinner
+    setEditorStatus(EditorStatus.OKAY); // toggle spinner
   }
 
   // toggle hidden areas in the editor
@@ -360,15 +379,18 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     setIsHiddenAreasShowing(show);
   }
 
-  function handleEditorValidation(markers) {
-    console.log("markers ", markers);
-    if (markers.length && markers[0].severity > 1) {
-      console.log("diags ", markers[0]);
-      const diagnostic = markers[0];
-      setCodeError(diagnostic);
-    } else {
-      setCodeError(null);
+  function handleEditorValidation(markers: editor.IMarker[]) {
+    console.warn("markers ", markers);
+    const errorMarkers: Error[] = [];
+    markers.forEach((marker) => {
+      if (marker.severity === MarkerSeverity.Error) {
+        errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
+      }
+    });
+    if (errorMarkers.length) {
+      setEditorStatus(EditorStatus.ERRORS);
     }
+    setGeneralSyntaxErrors(errorMarkers);
   }
 
   // copy the current code output to clipboard
@@ -380,7 +402,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
   // download the contents of current canvas as image
   function downloadCanvasAsImage(): void {
     let link = document.createElement("a");
-    link.download = `${demoName}.png`;
+    link.download = `${fileName}.png`;
     link.href = canvas.current.toDataURL();
     link.click();
     link.remove();
@@ -438,7 +460,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                   </button>
                 </Popover>
                 {demoName}
-                {isActivity && <Spinner />}
+                <StatusIndicator status={editorStatus} />
               </div>
 
               <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
@@ -523,13 +545,13 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                     beforeMount={handleEditorWillMount}
                     onValidate={handleEditorValidation}
                   />
-                  {codeError && (
+                  {/* {codeError && (
                     <div className="editor-error-alert">
                       <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
                         <p>{codeError.message}</p>
                       </Admonition>
                     </div>
-                  )}
+                  )} */}
                 </div>
                 {true ? (
                   <Renderer
@@ -541,7 +563,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                     panesWidth={rendererPaneWidth}
                     editorConfig={editorConfig}
                     splitPaneDirectionVertical={splitPaneDirectionVertical}
-                    validationErrors={validationErrors}
+                    validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
                   />
                 ) : (
                   <div
@@ -630,3 +652,22 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     </BrowserOnly>
   );
 }
+
+const StatusIndicator = ({ status }: { status: EditorStatus }) => {
+  return (
+    <div style={{ marginLeft: 6 }}>
+      {(() => {
+        switch (status) {
+          case EditorStatus.WORKING:
+            return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
+          case EditorStatus.ERRORS:
+            return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
+          case EditorStatus.OKAY:
+            return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
+          default:
+            return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
+        }
+      })()}
+    </div>
+  );
+};

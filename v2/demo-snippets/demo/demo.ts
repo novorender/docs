@@ -1,6 +1,5 @@
 import { DemoHostCtor, IEditorConfig, IDemo } from ".";
 
-
 /**
  * @param dirName name of the directory/folder in which the demo file is present
  * @param fileName name of the file that contains the demo snippet code
@@ -26,7 +25,7 @@ export function demo<T extends string>(dirName: string, fileName: string, demoNa
       hostCtor,
       code,
       editUrl: `demo-snippets/guides/${dirName}/${fileName}.ts`,
-      previewImageUrl: `/assets/demo-screenshots/${fileName}.png`,
+      previewImageUrl: `/v2/assets/demo-screenshots/${fileName}.png`,
       description: desc || "No Description Available",
     } as const,
   } as const;
