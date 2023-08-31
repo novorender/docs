@@ -22,15 +22,12 @@ export class RenderStateDemoHost implements IDemoHost<Module> {
     this._view.dispose();
   }
 
-  async updateModule(module: Module): Promise<readonly Error[]> {
+  async updateModule(module: Module) {
     // TODO: verify module shape first
     const stateChanges = await module.main();
     const errors = this._view.validateRenderState(stateChanges);
-    if (errors.length == 0) {
-      console.log(stateChanges);
-      this._view.modifyRenderState(stateChanges);
-    }
-    return errors;
+    this.context.reportErrors(errors);
+    this._view.modifyRenderState(stateChanges);
   }
 
   exit(): void {

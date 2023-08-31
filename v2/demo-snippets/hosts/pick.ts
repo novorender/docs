@@ -30,14 +30,12 @@ export class PickDemoHost implements IDemoHost<Module> {
     view.activeController.autoFit(center, radius);
   }
 
-  updateModule(module: Module): readonly Error[] | void {
+  updateModule(module: Module) {
     // TODO: verify module shape first
     module.main(this.context.canvasElements.primaryCanvas, this._view as View, (stateChanges) => {
       if (this._view && stateChanges) {
         const errors = this._view.validateRenderState({ highlights: stateChanges });
-        if (errors.length > 0) {
-          return errors;
-        }
+        this.context.reportErrors(errors);
         this._view.modifyRenderState({ highlights: stateChanges });
       }
     });

@@ -34,6 +34,7 @@ export class ControllerDemoHost implements IDemoHost<Module> {
           prev_module?.main(activeController);
         }
       } catch (error) {
+        this.context.reportErrors([error as Error]);
         console.log("error while running module ", error);
       }
     };
