@@ -4,3 +4,4 @@ export * from "./clipping";
 export * from "./dynamic";
 export * from "./object_selection";
 export * from "./searching";
+export * from "./measure";
