@@ -6,14 +6,14 @@ keywords: ["novorender api docs", "web api", "object selection"]
 
 import { snippets } from "@site/demo-snippets/index";
 
-NovoRender's Web API lets you highlight sets of objects.
+Novorender's Web API lets you highlight sets of objects.
 This could be used to visualize current object selection, or groups of objects, for instance the results of data queries.
 
-### Object Identity
+## Object Identity
 
-All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as <code>[ObjectId](/docs/web_api/Interfaces/interface.PickSample#objectid)</code>.
+All the objects in a scene are enumerated and assigned a unique integer id/index, expressed as <CodeLink type="interface" name="PickSample.objectid"/>.
 
-One way of obtaining such an id is using the <code>[pick()](/docs/web_api/Classes/class.View#pick)</code> function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
+One way of obtaining such an id is using the <CodeLink type="class" name="View.pick"/> function, which lets you pick the frontmost object, if any, at the given x,y canvas coordinate.
 
 ```typescript
 const result = await view.pick(x, y);
@@ -22,76 +22,137 @@ if (result) {
 }
 ```
 
-### Object highlighting
-
-To highlight the picked object, we must create a highlight group.
-Highlighting works by performing a linear transform of the red, green, blue and alpha (opacity) channels.
-For now, we'll simply make the selected object lime green.
-
-```typescript
-const limeGreen = createColorSetHighlight([0, 1, 0]);
-const renderStateHighlightGroups = {
-  // Reset existing highlights (if any)
-  defaultAction: createNeutralHighlight(),
-  // Set selected object to use highlight
-  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
-};
-```
-
-To make our selected objects stand out even further, we can use <code>[createHSLATransformHighlight](/docs/web_api/Functions/function.createHSLATransformHighlight)</code> to make all other objects less colorful by halving their color saturation:
-
-```typescript
-const renderStateHighlightGroups = {
-  // apply saturation to all other objects
-  defaultAction: createHSLATransformHighlight({ saturation: 0.5 }),
-  // Set selected object to use highlight
-  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
-};
-```
-
-or even better, apply an opacity by using <code>[createTransparentHighlight](/docs/web_api/Functions/function.createTransparentHighlight)</code> with a value of `0.5`:
-
-```typescript
-const renderStateHighlightGroups = {
-  // apply opacity to all other objects
-  defaultAction: createTransparentHighlight(0.5),
-  // Set selected object to use highlight
-  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
-};
-```
-
-or if you want other objects to remain intact, use <code>[createNeutralHighlight](/docs/web_api/Functions/function.createNeutralHighlight)</code> function:
-
-```typescript
-const renderStateHighlightGroups = {
-  defaultAction: createNeutralHighlight(),
-  // Set selected object to use highlight
-  groups: [{ action: limeGreen, objectIds: [result.objectId] }],
-};
-```
-
-property <code>[defaultaction](/docs/web_api/Interfaces/interface.RenderStateHighlightGroups#defaultaction)</code> also accepts two predefined string values: `hide` and `filer`:
-
-- <code>
-    <b>"hide"</b>
-  </code> will hide the objects within the group more effectively than using alpha/opacity = 0, while still retaining them in memory for quick re-rendering.
-- <code>
-    <b>"filter"</b>
-  </code> will remove the objects from memory entirely, which helps improve rendering performance and memory usage. Unlike hidden group, changes to filtered groups will trigger a complete reload of the streamable scene.
-
-Don't forget to modify the render state after making changes:
-
-```typescript
-view.modifyRenderState({ highlights: renderStateHighlightGroups });
-```
-
-### Demo
-
-Click on objects to turn them green.
+Try clicking on the model to see what id the sub-object under the cursor has.
 
 <PlaygroundComponent {...snippets.objectSelection.pick}></PlaygroundComponent>
-<br />
+
+## Object highlighting
+
+Now that we've learned the object id, let's give the user better visual feedback.
+To highlight the picked object, we first must create a highlight object.
+For now, we'll simply go for lime green.
+
+```typescript
+const highlightLimeGreen = createColorSetHighlight([0, 1, 0]); // make highlighted objects lime green
+```
+
+This highlight is actually a 5x4 transformation matrix used to perform a linear transform of the red, green, blue and alpha (opacity) channels.
+See <CodeLink type="type" name="RGBATransform"/> for more details.
+While you can make this manually for full control, we've provided some helper functions for common transformations:
+
+- <CodeLink type="function" name="createNeutralHighlight" />: No change in color.
+- <CodeLink type="function" name="createColorSetHighlight" />: Replaces material color.
+- <CodeLink type="function" name="createTransparentHighlight" />: Replaces material opacity.
+- <CodeLink type="function" name="createRGBATransformHighlight" />: Modifies material color and opacity.
+- <CodeLink type="function" name="createHSLATransformHighlight" />: Modifies material color and opacity using hue, saturation and lightness.
+
+## Object highlight groups
+
+Quite often we want to highlight more than one object using the same color transformation.
+Enter highlight groups:
+
+```typescript
+const myHighlightGroup = {
+  action: highlightLimeGreen, // highlight action
+  objectIds: [objectId], // objects to highlight
+};
+```
+
+You can have several groups, up to 250, each with it's own action.
+
+```typescript
+const groups = [myHighlightGroup];
+```
+
+:::info
+If object ids overlap in two or more groups, the overlapping objects will be highlighted by the last group's action only!
+:::
+
+Now let's see what this looks like.
+We picked object 2 and 2221, which happens to be the ground and roof in this particular scene.
+Feel free to try any other number, or combinations of numbers.
+You can use the pick example above to find out what id objects have.
+
+<PlaygroundComponent {...snippets.objectSelection.color}></PlaygroundComponent>
+
+## Default action
+
+Quite often it can be useful to apply a highlight action to all the objects that are not in a highlight group.
+Let's try to make everything not in a group semi-transparent by default!
+
+```typescript
+return {
+  highlights: {
+    defaultAction: semiTransparent, // applies to all objects not in a group.
+  },
+};
+```
+
+<PlaygroundComponent {...snippets.objectSelection.defaultAction}></PlaygroundComponent>
+
+:::info
+By default, the `defaultAction` is set to <CodeLink type="function" name="createNeutralHighlight"/>, which will leave all colors unchanged.
+:::
+
+## Hide and filter
+
+In addition to a color/transparency transform, the highlight <CodeLink type="type" name="RenderStateGroupAction"/> also lets you hide or filter objects.
+While you can also effectively hide objects by making them 100% transparent, using the `hide` action is more efficient.
+`filter` will remove the objects from memory entirely, which can greatly improve rendering performance and reduce memory footprint if applied to the majority of objects.
+
+```typescript
+return {
+  highlights: {
+    defaultAction: "hide", // hide all objects not in a group.
+  },
+};
+```
 
 :::note
-Currently, there are a maximum of 256 highlight groups, the last one (#255) being reserved for objects that should not be rendered.
+Changing any of the groups using the `filter` action will force a reload of the scene, which can take some time.
+We recommend you use this action only for groups that are relatively static.
+:::
+
+## Advanced highlights
+
+It's rarely a good idea to simply replace the default material color as the chosen highlight color may clash with other materials.
+To avoid color clashes while retaining some of the original colors, you can apply the following techniques:
+
+### RGBA transform
+
+In this example we apply a blue'ish hue with linear transformations, i.e. `let v' = v * scale + offset`:
+
+```typescript
+const makeBlueish = createRGBATransformHighlight({
+  red: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
+  green: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
+  blue: { scale: 1, offset: 0.5 }, // boost blue
+});
+```
+
+### Hue, lightness and saturation transform
+
+Here we darken and reduce color saturation for a dim, gray'ish effect:
+
+```typescript
+const dimGrayish = createHSLATransformHighlight({
+  lightness: 0.5, // darken
+  saturation: 0.5, // reduce color saturation
+});
+```
+
+By applying a combination of these effects on groups, and/or by default, you can make your selection stand out in many ways.
+Of course, you can also make your own linear transform matrix for even more flexibility.
+Feel free to inspect the source code of the existing helper functions for inspiration!
+
+## Putting it all together
+
+Now let's try to interactively highlight the object you click on by combining object picking and object highlighting.
+
+<PlaygroundComponent {...snippets.objectSelection.interactive}></PlaygroundComponent>
+
+:::caution
+Large scenes can have millions of objects.
+For large sets of object id's, we recommend you use [`Uint32Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array) to reduce memory consumption.
+You may also want to download active groups on demand to make your app super-scalable, particularly on mobile devices.
 :::

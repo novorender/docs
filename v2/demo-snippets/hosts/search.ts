@@ -1,34 +1,17 @@
 import { createAPI, type SceneData } from "@novorender/data-js-api";
 import { View } from "@novorender/api";
-import { IDemoContext, IDemoHost, IModule } from "../demo";
+import { IDemoHost, IModule } from "../demo";
+import { BaseDemoHost } from "./base";
 
 type Args = [View: View, sceneData: SceneData];
 type Ret = void;
 type Module = IModule<Ret, Args>;
 
-export class SearchDemoHost implements IDemoHost<Module> {
-  private readonly view: View;
-  private sceneData!: SceneData;
+export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
+  sceneData!: SceneData;
 
-  constructor(readonly context: IDemoContext) {
-    const {
-      canvasElements: { primaryCanvas: canvas },
-      deviceProfile,
-      imports,
-    } = this.context;
-    this.view = new View(canvas, deviceProfile, imports);
-  }
-
-  async run(): Promise<void> {
+  async init() {
     const { view } = this;
-    await this.loadScene();
-    await view.run();
-    view.dispose();
-  }
-
-  async loadScene() {
-    const { view } = this;
-
     // Initialize the data API with the Novorender data server service
     const dataApi = createAPI({
       serviceUrl: "https://data.novorender.com/api",
@@ -50,16 +33,17 @@ export class SearchDemoHost implements IDemoHost<Module> {
       const { center, radius } = config.boundingSphere;
       view.activeController.autoFit(center, radius);
     } catch (error) {
-      console.log("Error while loading scene from URL ", error);
+      this.context.reportErrors([error as Error]);
     }
+    this.context.reportErrors([]);
   }
 
   updateModule(module: Module) {
     // TODO: verify module shape first
-    module.main(this.view, this.sceneData);
-  }
-
-  exit(): void {
-    this.view?.exit();
+    try {
+      module.main(this.view, this.sceneData);
+    } catch (error) {
+      this.context.reportErrors(error);
+    }
   }
 }

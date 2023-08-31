@@ -1,53 +1,24 @@
 import { IDemoContext, IDemoHost, IModule } from "../demo";
 import { View, OrbitController } from "@novorender/api";
+import { BaseDemoHost } from "./base";
 
 type Args = [controller: OrbitController];
 type Ret = void;
 type Module = IModule<Ret, Args>;
 
-export class ControllerDemoHost implements IDemoHost<Module> {
-  private _module: Module | undefined;
-  private _view: View | undefined;
-
-  constructor(readonly context: IDemoContext) {}
-
-  async run(): Promise<void> {
-    const {
-      canvasElements: { primaryCanvas: canvas },
-      deviceProfile,
-      imports,
-    } = this.context;
-    const view = new View(canvas, deviceProfile, imports);
-    view.modifyRenderState({ grid: { enabled: true } });
-    const { activeController } = view;
-    // activeController["changed"]();
-    OrbitController.assert(activeController);
-
-    this._view = view;
-
-    let prev_module: Module | undefined;
-
-    view.animate = () => {
-      try {
-        if (prev_module !== this._module) {
-          prev_module = this._module;
-          prev_module?.main(activeController);
-        }
-      } catch (error) {
-        this.context.reportErrors([error as Error]);
-        console.log("error while running module ", error);
-      }
-    };
-
-    await view.run();
-    view.dispose();
+export class ControllerDemoHost extends BaseDemoHost implements IDemoHost<Module> {
+  constructor(context: IDemoContext) {
+    super(context);
+    this.view.modifyRenderState({ grid: { enabled: true } });
   }
 
   updateModule(module: Module) {
-    this._module = module;
-  }
-
-  exit(): void {
-    this._view?.exit();
+    const { activeController } = this.view;
+    try {
+      OrbitController.assert(activeController);
+      module.main(activeController);
+    } catch (error) {
+      this.context.reportErrors(error);
+    }
   }
 }
