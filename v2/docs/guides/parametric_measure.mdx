@@ -1,0 +1,71 @@
+---
+title: "Parametric measure"
+description: "Fetch parametric data based on real world position, and calculate measurements between 2 objects using Web API's Measure module."
+keywords: ["novorender api docs", "web api", "measure module", "parametric measure"]
+---
+
+import { snippets } from "@site/demo-snippets/index";
+
+TODO - add correct links to mentioned functions
+
+Web API's Measure module can be used to fetch parametric data based on real world position, and calculate measurements between 2 objects
+
+### Measure entity
+
+A measure entity refers to a part of a parametric object, for example the inner or outer cylinder of a pipe.
+A measure entity can also be a single point, this is usually used if no parametric object exists at a clicked location.
+
+The normal way of getting measure entities is to used the <code>[pickMeasureEntity()](/docs/web_api/Classes/class.View#pickmeasureentity)</code> function on the <code>[measure view](/docs/web_api/Classes/class.View#measure)</code> object. This will use world coordinates and <code>[objectId](/docs/web_api/Interfaces/interface.PickSample#objectid)</code> to find the closest edge surface or point. It will return the picked point if no parametric data is found near the input point. <code>[objectId](/docs/web_api/Interfaces/interface.PickSample#objectid)</code> and <code>[position](/docs/web_api/Interfaces/interface.PickSample#position)</code> can be used from the <code>[pick](/docs/web_api/Classes/class.View#pick)</code> function on <code>[view](/docs/web_api/Classes/class.View)</code>
+
+```typescript
+const view = new View(canvas, deviceProfile, imports);
+const result = await view.pick(x, y);
+
+if (result) {
+  const entity = await measureView.core.pickMeasureEntity(objectId, position);
+}
+```
+
+### Parametric values on entity
+
+To get the parametric values such as the the radius, and centerline of a cylinder the <code>[measure()](#)</code>
+function can be used. This function be be used to get values from a single object by leaving the second argument as undefined.
+
+```typescript
+const measureView = await view.measure;
+const measureValues = await measureView.core.measure(entity);
+
+if (measureValues.kind === "cylinder") {
+  console.log(`Radius of cylinder is: ${measureValues.radius}`);
+}
+```
+
+### Measure against another entity
+
+A measure between two entities is done by using the <code>[core.measure()](#)</code> function on scene with 2 arguments.
+What property the resulting object has will depend on the input arguments. There is also an option parameter
+to support additional options such as where a cylinder should measure from
+
+```typescript
+const view = new View(canvas, deviceProfile, imports);
+const result1 = await view.pick(x1, y1);
+const result2 = await view.pick(x2, y2);
+
+if (result1 && result2) {
+  const entity1 = await measureView.core.pickMeasureEntity(result1.objectId, result1.position);
+  const entity2 = await measureView.core.pickMeasureEntity(result2.objectId, result2.position);
+
+  const measureValues = await measureView.core.measure(entity1, entity1);
+
+  if (measureValues && measureValues.distance) {
+    console.log(`Distance between objects is: ${measureValues.distance}`);
+  }
+}
+```
+
+### Demo
+
+Click to select parametric object, parametric data will be shown in an alert dialog. Select another object and the measurement data between the objects will be shown in the alert dialog.
+Clicking further objects will alternate between first and second selected and show measure values within an alert dialog.
+
+<PlaygroundComponent {...snippets.measure.parametric_measure}></PlaygroundComponent>
