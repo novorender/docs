@@ -36,6 +36,7 @@ export class BareboneDemoHost implements IDemoHost<Module> {
       this._mainPromise = module.main(canvas, deviceProfile, imports, signal);
     } catch (error) {
       console.log("error while running module ", error);
+      this.context.reportErrors([error as Error]);
     }
   }
 

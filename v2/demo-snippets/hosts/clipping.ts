@@ -36,13 +36,13 @@ export class ClippingDemoHost implements IDemoHost<Module> {
     vec3.set(this.center, cx, -cz, cy);
   }
 
-  updateModule(module: Module): readonly Error[] {
+  updateModule(module: Module) {
     // TODO: verify module shape first
     const [cx, cy, cz] = this.center;
     const stateChanges = module.main(cx, cy, cz);
     const errors = this.view.validateRenderState({ clipping: stateChanges });
+    this.context.reportErrors(errors);
     this.view.modifyRenderState({ clipping: stateChanges });
-    return errors;
   }
 
   exit(): void {

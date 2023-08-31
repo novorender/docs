@@ -4,3 +4,4 @@ export * from "./view";
 export * from "./controller";
 export * from "./clipping";
 export * from "./pick";
+export * from "./search";

@@ -111,17 +111,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
           const encodedJs = encodeURIComponent(codeOutput);
           const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
           const module = await import(/* webpackIgnore: true */ dataUri);
-
-          const errors = await hostRef.current.updateModule(module);
-          console.log("validation errors ==> ", errors);
-
-          setModuleInternalValidationErrors([...((errors || []) as Error[])]);
-
-          if (errors && errors.length) {
-            setEditorStatus(EditorStatus.ERRORS);
-          } else {
-            setEditorStatus(EditorStatus.OKAY);
-          }
+          await hostRef.current.updateModule(module);
         } catch (error) {
           setEditorStatus(EditorStatus.ERRORS);
           console.warn("something bad happened ", error);
@@ -266,10 +256,20 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     }
   }, [monaco]);
 
+  const reportErrors = (errors: Error[]) => {
+    console.log("validation errors ==> ", errors);
+    setModuleInternalValidationErrors([...((errors || []) as Error[])]);
+    if (errors && errors.length) {
+      setEditorStatus(EditorStatus.ERRORS);
+    } else {
+      setEditorStatus(EditorStatus.OKAY);
+    }
+  };
+
   async function runDemo() {
     (async () => {
       if ((canvas.current && canvas2D.current, previewCanvas.current)) {
-        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current });
+        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
         const host = new hostCtor(context);
         hostRef.current = host;
         await host.run();
@@ -653,7 +653,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   );
 }
 
-const StatusIndicator = ({ status }: { status: EditorStatus }) => {
+const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
   return (
     <div style={{ marginLeft: 6 }}>
       {(() => {

@@ -30,6 +30,7 @@ export class ViewDemoHost implements IDemoHost<Module> {
           await prev_module?.main(view);
         }
       } catch (error) {
+        this.context.reportErrors([error as Error]);
         console.log("error while running module ", error);
       }
     };
