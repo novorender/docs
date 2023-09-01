@@ -12,11 +12,11 @@ import controllerProperties from "./controllerProperties.ts?raw";
 const dirName = "getting_started";
 
 export const gettingStarted = {
-  ...demo(dirName, "basic", "Basic app", basic, BareboneDemoHost, { contentHeight: 150 }, "A minimal example."),
-  ...demo(dirName, "renderState", "Render state edit", renderState, StateDemoHost, {}, "Render state editing example."),
-  ...demo(dirName, "validation", "Render state validation", validation, StateDemoHost, {}, "Render state validation example."),
-  ...demo(dirName, "spheres", "Spheres", spheres, StateDemoHost, {}, "Dynamic Spheres example."),
-  ...demo(dirName, "cameraState", "Camera state", cameraState, ViewDemoHost, {}, "Camera state example."),
-  ...demo(dirName, "controllerParams", "Controller params", controllerParams, ControllerDemoHost, {}, "Camera controller parameters example."),
-  ...demo(dirName, "controllerProperties", "Controller properties", controllerProperties, ControllerDemoHost, {}, "Camera controller properties example."),
+	...demo(dirName, "basic", "Basic app", basic, BareboneDemoHost, { contentHeight: 150 }, "A minimal example."),
+	...demo(dirName, "renderState", "Render state edit", renderState, StateDemoHost, {}, "Render state editing example."),
+	...demo(dirName, "validation", "Render state validation", validation, StateDemoHost, {}, "Render state validation example."),
+	...demo(dirName, "spheres", "Spheres", spheres, StateDemoHost, {}, "Dynamic Spheres example."),
+	...demo(dirName, "cameraState", "Camera state", cameraState, ViewDemoHost, {}, "Camera state example."),
+	...demo(dirName, "controllerParams", "Controller params", controllerParams, ControllerDemoHost, {}, "Camera controller parameters example."),
+	...demo(dirName, "controllerProperties", "Controller properties", controllerProperties, ControllerDemoHost, {}, "Camera controller properties example."),
 };

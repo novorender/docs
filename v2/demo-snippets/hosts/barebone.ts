@@ -6,39 +6,39 @@ type Ret = Promise<void>;
 type Module = IModule<Ret, Args>;
 
 export class BareboneDemoHost implements IDemoHost<Module> {
-  abortController: AbortController | undefined;
-  resolveRun: () => void = undefined!;
-  mainPromise: Promise<void> | undefined;
+	abortController: AbortController | undefined;
+	resolveRun: () => void = undefined!;
+	mainPromise: Promise<void> | undefined;
 
-  constructor(readonly context: IDemoContext) {}
+	constructor(readonly context: IDemoContext) {}
 
-  async run(): Promise<void> {
-    const promise = new Promise<void>((resolve) => {
-      this.resolveRun = resolve;
-    });
-    await promise;
-  }
+	async run(): Promise<void> {
+		const promise = new Promise<void>((resolve) => {
+			this.resolveRun = resolve;
+		});
+		await promise;
+	}
 
-  async updateModule(module: Module) {
-    const {
-      canvasElements: { primaryCanvas: canvas },
-      deviceProfile,
-      imports,
-    } = this.context;
-    this.abortController?.abort();
-    this.abortController = new AbortController();
-    const { signal } = this.abortController;
-    try {
-      await this.mainPromise;
-      this.mainPromise = module.main(canvas, deviceProfile, imports, signal);
-    } catch (error) {
-      this.context.reportErrors(error);
-    }
-  }
+	async updateModule(module: Module) {
+		const {
+			canvasElements: { primaryCanvas: canvas },
+			deviceProfile,
+			imports,
+		} = this.context;
+		this.abortController?.abort();
+		this.abortController = new AbortController();
+		const { signal } = this.abortController;
+		try {
+			await this.mainPromise;
+			this.mainPromise = module.main(canvas, deviceProfile, imports, signal);
+		} catch (error) {
+			this.context.reportErrors(error);
+		}
+	}
 
-  async exit(): Promise<void> {
-    this.abortController?.abort();
-    await this.mainPromise;
-    this.resolveRun();
-  }
+	async exit(): Promise<void> {
+		this.abortController?.abort();
+		await this.mainPromise;
+		this.resolveRun();
+	}
 }

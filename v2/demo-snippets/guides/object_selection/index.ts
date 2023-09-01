@@ -10,8 +10,8 @@ import interactive from "./interactive.ts?raw";
 const dirName = "object_selection";
 
 export const objectSelection = {
-  ...demo(dirName, "pick", "Object picking", pick, ViewCondosDemoHost, {}, "Pick objects by clicking on them."),
-  ...demo(dirName, "color", "Object color highlight", color, StateCondosDemoHost, {}, "Highlight specified objects."),
-  ...demo(dirName, "defaultAction", "Object default highlight", defaultAction, StateCondosDemoHost, {}, "Apply default highlight to all objects not in a group."),
-  ...demo(dirName, "interactive", "Interactive highlight", interactive, ViewCondosDemoHost, {}, "Highlight picked objects."),
+	...demo(dirName, "pick", "Object picking", pick, ViewCondosDemoHost, {}, "Pick objects by clicking on them."),
+	...demo(dirName, "color", "Object color highlight", color, StateCondosDemoHost, {}, "Highlight specified objects."),
+	...demo(dirName, "defaultAction", "Object default highlight", defaultAction, StateCondosDemoHost, {}, "Apply default highlight to all objects not in a group."),
+	...demo(dirName, "interactive", "Interactive highlight", interactive, ViewCondosDemoHost, {}, "Highlight picked objects."),
 };

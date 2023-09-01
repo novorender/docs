@@ -31,203 +31,203 @@ import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
 import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
-  minimap: { enabled: false },
-  formatOnPaste: true,
-  formatOnType: true,
-  scrollBeyondLastLine: false,
-  automaticLayout: true,
-  contextmenu: false,
-  folding: false,
-  showFoldingControls: "never",
-  guides: { indentation: true },
-  fixedOverflowWidgets: true,
-  lineNumbers: "off",
+	minimap: { enabled: false },
+	formatOnPaste: true,
+	formatOnType: true,
+	scrollBeyondLastLine: false,
+	automaticLayout: true,
+	contextmenu: false,
+	folding: false,
+	showFoldingControls: "never",
+	guides: { indentation: true },
+	fixedOverflowWidgets: true,
+	lineNumbers: "off",
 };
 
 enum EditorStatus {
-  INITIAL = 0,
-  OKAY = 1,
-  WORKING = 2,
-  ERRORS = 3,
-  WARNINGS = 4,
+	INITIAL = 0,
+	OKAY = 1,
+	WORKING = 2,
+	ERRORS = 3,
+	WARNINGS = 4,
 }
 
 /** Copied from Monaco source code to fix SSR build */
 enum MarkerSeverity {
-  Hint = 1,
-  Info = 2,
-  Warning = 4,
-  Error = 8,
+	Hint = 1,
+	Info = 2,
+	Warning = 4,
+	Error = 8,
 }
 
 export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
-  const monaco = useMonaco();
-  const { siteConfig } = useDocusaurusContext();
-  const { colorMode } = useColorMode();
-  const themeURL = useBaseUrl("/assets/monaco-theme-oceanic-next.json");
-  const history = useHistory();
-  const editorInstance = useRef(null);
-  const textAreaInstance = useRef<HTMLTextAreaElement>(null);
-  const editorFooterInstance = useRef<HTMLElement>();
-  const editorNavbarInstance = useRef<HTMLElement>();
-  const [codeOutput, setCodeOutput] = useState<string>(null);
-  const [initialCode, setInitialCode] = useState<string>(null);
-  const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
-  const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
-  const [editorStatus, setEditorStatus] = useState<EditorStatus>(EditorStatus.INITIAL);
-  const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
-  const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-  const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
-  const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
-  const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
-  const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
-  const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
-  const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
-  const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
-  const [hasMainChanged, setHasMainChanged] = useState(false);
-  const [fontSize, setFontSize] = useState<number>();
-  const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
-  const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
-  const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
-  const hostRef = useRef<IDemoHost<any>>(null);
-  const canvasWrapper = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const canvas2D = useRef<HTMLCanvasElement>(null);
-  const previewCanvas = useRef<HTMLCanvasElement>(null);
-  const allotmentRef = useRef(null);
-  const demoEditUrlEndpoint = useBaseUrl(editUrl);
-  const demoEditUrl = new URL(siteConfig.presets[0][1]["docs"].editUrl + demoEditUrlEndpoint).toString();
+	const monaco = useMonaco();
+	const { siteConfig } = useDocusaurusContext();
+	const { colorMode } = useColorMode();
+	const themeURL = useBaseUrl("/assets/monaco-theme-oceanic-next.json");
+	const history = useHistory();
+	const editorInstance = useRef(null);
+	const textAreaInstance = useRef<HTMLTextAreaElement>(null);
+	const editorFooterInstance = useRef<HTMLElement>();
+	const editorNavbarInstance = useRef<HTMLElement>();
+	const [codeOutput, setCodeOutput] = useState<string>(null);
+	const [initialCode, setInitialCode] = useState<string>(null);
+	const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
+	const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
+	const [editorStatus, setEditorStatus] = useState<EditorStatus>(EditorStatus.INITIAL);
+	const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
+	const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
+	const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+	const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+	const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
+	const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
+	const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
+	const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
+	const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
+	const [hasMainChanged, setHasMainChanged] = useState(false);
+	const [fontSize, setFontSize] = useState<number>();
+	const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
+	const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
+	const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
+	const hostRef = useRef<IDemoHost<any>>(null);
+	const canvasWrapper = useRef<HTMLDivElement>(null);
+	const canvas = useRef<HTMLCanvasElement>(null);
+	const canvas2D = useRef<HTMLCanvasElement>(null);
+	const previewCanvas = useRef<HTMLCanvasElement>(null);
+	const allotmentRef = useRef(null);
+	const demoEditUrlEndpoint = useBaseUrl(editUrl);
+	const demoEditUrl = new URL(siteConfig.presets[0][1]["docs"].editUrl + demoEditUrlEndpoint).toString();
 
-  const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
+	const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
 
-  useEffect(() => {
-    (async () => await runDemo())();
-  }, [canvas, canvas2D, previewCanvas]);
+	useEffect(() => {
+		(async () => await runDemo())();
+	}, [canvas, canvas2D, previewCanvas]);
 
-  useEffect(() => {
-    (async () => {
-      if (codeOutput) {
-        try {
-          const encodedJs = encodeURIComponent(codeOutput);
-          const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-          const module = await import(/* webpackIgnore: true */ dataUri);
-          await hostRef.current.updateModule(module);
-        } catch (error) {
-          setEditorStatus(EditorStatus.ERRORS);
-          console.warn("something bad happened ", error);
-        }
-      }
-    })();
-  }, [codeOutput]);
+	useEffect(() => {
+		(async () => {
+			if (codeOutput) {
+				try {
+					const encodedJs = encodeURIComponent(codeOutput);
+					const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
+					const module = await import(/* webpackIgnore: true */ dataUri);
+					await hostRef.current.updateModule(module);
+				} catch (error) {
+					setEditorStatus(EditorStatus.ERRORS);
+					console.warn("something bad happened ", error);
+				}
+			}
+		})();
+	}, [codeOutput]);
 
-  useEffect(() => {
-    console.log("playgroundConfig ", editorConfig);
-    if (code) {
-      setInitialCode(code);
-      setTsCodeForClipboard(code); // for clipboard copy
-    }
-  }, [code]);
+	useEffect(() => {
+		console.log("playgroundConfig ", editorConfig);
+		if (code) {
+			setInitialCode(code);
+			setTsCodeForClipboard(code); // for clipboard copy
+		}
+	}, [code]);
 
-  /**
-   * @description transpile and return js string
-   * @param editor Editor instance
-   * @param monaco Monaco Instance
-   * @returns transpiled output as string
-   */
-  const returnTranspiledOutput = async (editor, monaco: Monaco): Promise<string> => {
-    try {
-      const model = editor.getModel()!;
-      const uri = model.uri;
-      const worker = await monaco.languages.typescript.getTypeScriptWorker();
-      const languageService = await worker(uri);
-      const result = await languageService.getEmitOutput(uri.toString());
-      return result.outputFiles[0].text;
-    } catch (error) {
-      console.log("Failed to get transpiled output, details ==> ", error);
-    }
-  };
+	/**
+	 * @description transpile and return js string
+	 * @param editor Editor instance
+	 * @param monaco Monaco Instance
+	 * @returns transpiled output as string
+	 */
+	const returnTranspiledOutput = async (editor, monaco: Monaco): Promise<string> => {
+		try {
+			const model = editor.getModel()!;
+			const uri = model.uri;
+			const worker = await monaco.languages.typescript.getTypeScriptWorker();
+			const languageService = await worker(uri);
+			const result = await languageService.getEmitOutput(uri.toString());
+			return result.outputFiles[0].text;
+		} catch (error) {
+			console.log("Failed to get transpiled output, details ==> ", error);
+		}
+	};
 
-  const codeChangeHandler = async (tsCode: string) => {
-    setEditorStatus(EditorStatus.WORKING); // toggle spinner.
-    setTsCodeForClipboard(tsCode); // for clipboard copy
-    const output = await returnTranspiledOutput(editorInstance.current, monaco);
+	const codeChangeHandler = async (tsCode: string) => {
+		setEditorStatus(EditorStatus.WORKING); // toggle spinner.
+		setTsCodeForClipboard(tsCode); // for clipboard copy
+		const output = await returnTranspiledOutput(editorInstance.current, monaco);
 
-    // compare current output with previous output to check if anything has
-    // been changed.
-    if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
-      console.log("[INFO]: Code hasn't been changed, returning.");
-      setEditorStatus(EditorStatus.OKAY); // toggle spinner.
-      return false;
-    }
+		// compare current output with previous output to check if anything has
+		// been changed.
+		if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
+			console.log("[INFO]: Code hasn't been changed, returning.");
+			setEditorStatus(EditorStatus.OKAY); // toggle spinner.
+			return false;
+		}
 
-    // set current output in state so we can compare later
-    setCodeOutput(output);
-    setHasMainChanged(true);
-  };
+		// set current output in state so we can compare later
+		setCodeOutput(output);
+		setHasMainChanged(true);
+	};
 
-  useEffect(() => {
-    let unblock;
-    if (hasMainChanged) {
-      // Block navigation and register a callback that
-      // fires when a navigation attempt is blocked.
-      unblock = history.block((tx) => {
-        // Navigation was blocked! Let's show a confirmation dialog
-        // so the user can decide if they actually want to navigate
-        // away and discard changes they've made in the current page.
-        if (window.confirm("Are you sure you want to leave this page? changes you made could be lost.")) {
-          return unblock();
-        }
-        return false;
-      });
-      window.addEventListener("beforeunload", unloadEventHandler);
-    }
+	useEffect(() => {
+		let unblock;
+		if (hasMainChanged) {
+			// Block navigation and register a callback that
+			// fires when a navigation attempt is blocked.
+			unblock = history.block((tx) => {
+				// Navigation was blocked! Let's show a confirmation dialog
+				// so the user can decide if they actually want to navigate
+				// away and discard changes they've made in the current page.
+				if (window.confirm("Are you sure you want to leave this page? changes you made could be lost.")) {
+					return unblock();
+				}
+				return false;
+			});
+			window.addEventListener("beforeunload", unloadEventHandler);
+		}
 
-    return () => {
-      window.removeEventListener("beforeunload", unloadEventHandler);
-      if (unblock) {
-        unblock();
-      }
-    };
-  }, [hasMainChanged]);
+		return () => {
+			window.removeEventListener("beforeunload", unloadEventHandler);
+			if (unblock) {
+				unblock();
+			}
+		};
+	}, [hasMainChanged]);
 
-  useEffect(() => {
-    return () => {
-      hostRef.current.exit(); // TODO: use await?
-      window.removeEventListener("beforeunload", unloadEventHandler);
-    };
-  }, []);
+	useEffect(() => {
+		return () => {
+			hostRef.current.exit(); // TODO: use await?
+			window.removeEventListener("beforeunload", unloadEventHandler);
+		};
+	}, []);
 
-  const unloadEventHandler = (e) => {
-    if (hasMainChanged) {
-      e.preventDefault();
-      return (e.returnValue = "");
-    }
-  };
+	const unloadEventHandler = (e) => {
+		if (hasMainChanged) {
+			e.preventDefault();
+			return (e.returnValue = "");
+		}
+	};
 
-  // handle editor theme based on docusaurus colorMode.
-  useEffect(() => {
-    setTheme(colorMode === "dark" ? "vs-dark" : "light");
-  }, [colorMode]);
+	// handle editor theme based on docusaurus colorMode.
+	useEffect(() => {
+		setTheme(colorMode === "dark" ? "vs-dark" : "light");
+	}, [colorMode]);
 
-  useEffect(() => {
-    if (monaco) {
-      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
-        strict: false,
-        noImplicitAny: false,
-        noImplicitThis: false,
-        strictNullChecks: false,
-        strictFunctionTypes: false,
-        strictPropertyInitialization: false,
-        noUnusedLocals: false,
-        noUnusedParameters: false,
-        noEmitOnError: true,
-      });
+	useEffect(() => {
+		if (monaco) {
+			monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+				...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+				strict: false,
+				noImplicitAny: false,
+				noImplicitThis: false,
+				strictNullChecks: false,
+				strictFunctionTypes: false,
+				strictPropertyInitialization: false,
+				noUnusedLocals: false,
+				noUnusedParameters: false,
+				noEmitOnError: true,
+			});
 
-      // Add additional d.ts files to the JavaScript language service.
-      dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `/**
+			// Add additional d.ts files to the JavaScript language service.
+			dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
+			monaco.languages.typescript.typescriptDefaults.addExtraLib(
+				`/**
              * @description opens an alert that displays provided content
              * @param content string to show in the alert
              */
@@ -238,436 +238,436 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             * @param content string to show in the info pane
             */
             declare function openInfoPane(content: object | string | any, title?: string): void;`
-      );
+			);
 
-      // const moduleUri = monaco.Uri.file("module.ts");
-      const mainUri = monaco.Uri.file("main.ts");
+			// const moduleUri = monaco.Uri.file("module.ts");
+			const mainUri = monaco.Uri.file("main.ts");
 
-      // if (!monaco.editor.getModel(moduleUri)) {
-      //   const moduleCode = apiProxy;
-      //   monaco.editor.createModel(moduleCode, "typescript", moduleUri);
-      // }
+			// if (!monaco.editor.getModel(moduleUri)) {
+			//   const moduleCode = apiProxy;
+			//   monaco.editor.createModel(moduleCode, "typescript", moduleUri);
+			// }
 
-      // When resolving definitions and references, the editor will try to use created models.
-      // Creating a model for the library allows "peek definition/references" commands to work with the library.
-      if (!monaco.editor.getModel(mainUri)) {
-        monaco.editor.createModel("", "typescript", mainUri);
-      }
-    }
-  }, [monaco]);
+			// When resolving definitions and references, the editor will try to use created models.
+			// Creating a model for the library allows "peek definition/references" commands to work with the library.
+			if (!monaco.editor.getModel(mainUri)) {
+				monaco.editor.createModel("", "typescript", mainUri);
+			}
+		}
+	}, [monaco]);
 
-  const reportErrors = (errors: any[]) => {
-    setModuleInternalValidationErrors([...((errors || []) as Error[])]);
-    if (errors && errors.length) {
-      // console.log("validation errors ==> ", errors);
-      setEditorStatus(EditorStatus.ERRORS);
-    } else {
-      setEditorStatus(EditorStatus.OKAY);
-    }
-  };
+	const reportErrors = (errors: any[]) => {
+		setModuleInternalValidationErrors([...((errors || []) as Error[])]);
+		if (errors && errors.length) {
+			// console.log("validation errors ==> ", errors);
+			setEditorStatus(EditorStatus.ERRORS);
+		} else {
+			setEditorStatus(EditorStatus.OKAY);
+		}
+	};
 
-  async function runDemo() {
-    (async () => {
-      if ((canvas.current && canvas2D.current, previewCanvas.current)) {
-        const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
-        const host = new hostCtor(context);
-        hostRef.current = host;
-        await host.run();
-      }
-    })();
-  }
+	async function runDemo() {
+		(async () => {
+			if ((canvas.current && canvas2D.current, previewCanvas.current)) {
+				const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
+				const host = new hostCtor(context);
+				hostRef.current = host;
+				await host.run();
+			}
+		})();
+	}
 
-  function handleEditorWillMount(monaco) {
-    fetch(themeURL)
-      .then((data) => data.json())
-      .then((data) => {
-        monaco.editor.defineTheme("oceanic-next", data);
-        monaco.editor.setTheme("oceanic-next");
-      });
+	function handleEditorWillMount(monaco) {
+		fetch(themeURL)
+			.then((data) => data.json())
+			.then((data) => {
+				monaco.editor.defineTheme("oceanic-next", data);
+				monaco.editor.setTheme("oceanic-next");
+			});
 
-    configureFontSize();
-  }
+		configureFontSize();
+	}
 
-  function configureFontSize(size?: number): void {
-    const lsKey = "playground.fontSize";
-    const fontSize = size || Number(localStorage.getItem(lsKey)) || 14; // default font-size 14;
-    localStorage.setItem(lsKey, fontSize.toString());
-    setFontSize(fontSize);
-  }
+	function configureFontSize(size?: number): void {
+		const lsKey = "playground.fontSize";
+		const fontSize = size || Number(localStorage.getItem(lsKey)) || 14; // default font-size 14;
+		localStorage.setItem(lsKey, fontSize.toString());
+		setFontSize(fontSize);
+	}
 
-  async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
-    setEditorStatus(EditorStatus.WORKING); // toggle spinner
-    editorInstance.current = editor;
+	async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
+		setEditorStatus(EditorStatus.WORKING); // toggle spinner
+		editorInstance.current = editor;
 
-    // hide hidden ranges upon init
-    toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
+		// hide hidden ranges upon init
+		toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
 
-    if (editorConfig.mode === "inline") {
-      const contentHeight = Math.min(260, editorConfig.contentHeight ?? editor.getContentHeight());
-      allotmentRef.current.resize([contentHeight]);
-    }
+		if (editorConfig.mode === "inline") {
+			const contentHeight = Math.min(260, editorConfig.contentHeight ?? editor.getContentHeight());
+			allotmentRef.current.resize([contentHeight]);
+		}
 
-    const model = editor.getModel();
-    // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
-    const rangesToHighlight = model.findMatches("//\\s*HighlightedRangeStarted\n([\\s\\S\\n]*?)//\\s*HighlightedRangeEnded", false, true, false, null, true);
-    if (rangesToHighlight && rangesToHighlight.length) {
-      let _rangesToHighlight = [];
-      let _rangesToRemove = [];
+		const model = editor.getModel();
+		// highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
+		const rangesToHighlight = model.findMatches("//\\s*HighlightedRangeStarted\n([\\s\\S\\n]*?)//\\s*HighlightedRangeEnded", false, true, false, null, true);
+		if (rangesToHighlight && rangesToHighlight.length) {
+			let _rangesToHighlight = [];
+			let _rangesToRemove = [];
 
-      rangesToHighlight.map((r) => {
-        _rangesToHighlight.push({
-          range: new monaco.Range(r.range.startLineNumber === 0 ? r.range.startLineNumber : r.range.startLineNumber + 1, 0, r.range.endLineNumber - 1, 0),
-          options: {
-            inlineClassName: "playground-monaco-inline-decoration",
-            isWholeLine: true,
-          },
-        });
-        _rangesToRemove.push(
-          {
-            range: new monaco.Range(r.range.startLineNumber, 0, r.range.startLineNumber + 1, 0),
-            text: null,
-          },
-          {
-            range: new monaco.Range(r.range.endLineNumber, 0, r.range.endLineNumber + 1, 0),
-            text: null,
-          }
-        );
-      });
+			rangesToHighlight.map((r) => {
+				_rangesToHighlight.push({
+					range: new monaco.Range(r.range.startLineNumber === 0 ? r.range.startLineNumber : r.range.startLineNumber + 1, 0, r.range.endLineNumber - 1, 0),
+					options: {
+						inlineClassName: "playground-monaco-inline-decoration",
+						isWholeLine: true,
+					},
+				});
+				_rangesToRemove.push(
+					{
+						range: new monaco.Range(r.range.startLineNumber, 0, r.range.startLineNumber + 1, 0),
+						text: null,
+					},
+					{
+						range: new monaco.Range(r.range.endLineNumber, 0, r.range.endLineNumber + 1, 0),
+						text: null,
+					}
+				);
+			});
 
-      editor.deltaDecorations([], _rangesToHighlight);
-      model.applyEdits(_rangesToRemove);
-    }
+			editor.deltaDecorations([], _rangesToHighlight);
+			model.applyEdits(_rangesToRemove);
+		}
 
-    await editor.getAction("editor.action.formatDocument").run();
-    if (editorConfig.cursorPosition) {
-      editor.setPosition(editorConfig.cursorPosition);
-    }
-    if (editorConfig.revealLine) {
-      editor.revealLineNearTop(editorConfig.revealLine);
-    }
-    const output = await returnTranspiledOutput(editor, monaco);
-    setCodeOutput(output);
-    // const { showTip } = await returnRenderConfigFromOutput(output);
+		await editor.getAction("editor.action.formatDocument").run();
+		if (editorConfig.cursorPosition) {
+			editor.setPosition(editorConfig.cursorPosition);
+		}
+		if (editorConfig.revealLine) {
+			editor.revealLineNearTop(editorConfig.revealLine);
+		}
+		const output = await returnTranspiledOutput(editor, monaco);
+		setCodeOutput(output);
+		// const { showTip } = await returnRenderConfigFromOutput(output);
 
-    // if (showTip) {
-    //   try {
-    //     showTip();
-    //   } catch (error) {
-    //     console.error("An error occurred while trying to execute showTip");
-    //   }
-    // }
+		// if (showTip) {
+		//   try {
+		//     showTip();
+		//   } catch (error) {
+		//     console.error("An error occurred while trying to execute showTip");
+		//   }
+		// }
 
-    setEditorStatus(EditorStatus.OKAY); // toggle spinner
-  }
+		setEditorStatus(EditorStatus.OKAY); // toggle spinner
+	}
 
-  // toggle hidden areas in the editor
-  function toggleHiddenAreas(show: boolean, editor: editor.ICodeEditor, monacoInstance: Monaco): void {
-    if (show) {
-      // @ts-expect-error
-      editor.setHiddenAreas([]);
-    } else {
-      const model = editor.getModel();
-      // hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
-      const rangesToHide = model.findMatches("//\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)//\\s*HiddenRangeEnded", false, true, false, null, true);
-      console.log("rangesToHide ", rangesToHide);
-      if (rangesToHide && rangesToHide.length) {
-        // @ts-expect-error
-        editor.setHiddenAreas(rangesToHide.map((r) => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
-      }
-    }
+	// toggle hidden areas in the editor
+	function toggleHiddenAreas(show: boolean, editor: editor.ICodeEditor, monacoInstance: Monaco): void {
+		if (show) {
+			// @ts-expect-error
+			editor.setHiddenAreas([]);
+		} else {
+			const model = editor.getModel();
+			// hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
+			const rangesToHide = model.findMatches("//\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)//\\s*HiddenRangeEnded", false, true, false, null, true);
+			console.log("rangesToHide ", rangesToHide);
+			if (rangesToHide && rangesToHide.length) {
+				// @ts-expect-error
+				editor.setHiddenAreas(rangesToHide.map((r) => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
+			}
+		}
 
-    setIsHiddenAreasShowing(show);
-  }
+		setIsHiddenAreasShowing(show);
+	}
 
-  function handleEditorValidation(markers: editor.IMarker[]) {
-    console.warn("markers ", markers);
-    const errorMarkers: Error[] = [];
-    markers.forEach((marker) => {
-      if (marker.severity === MarkerSeverity.Error) {
-        errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
-      }
-    });
-    if (errorMarkers.length) {
-      setEditorStatus(EditorStatus.ERRORS);
-    }
-    setGeneralSyntaxErrors(errorMarkers);
-  }
+	function handleEditorValidation(markers: editor.IMarker[]) {
+		console.warn("markers ", markers);
+		const errorMarkers: Error[] = [];
+		markers.forEach((marker) => {
+			if (marker.severity === MarkerSeverity.Error) {
+				errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
+			}
+		});
+		if (errorMarkers.length) {
+			setEditorStatus(EditorStatus.ERRORS);
+		}
+		setGeneralSyntaxErrors(errorMarkers);
+	}
 
-  // copy the current code output to clipboard
-  function copyToClipboard() {
-    textAreaInstance.current.select();
-    document.execCommand("copy");
-  }
+	// copy the current code output to clipboard
+	function copyToClipboard() {
+		textAreaInstance.current.select();
+		document.execCommand("copy");
+	}
 
-  // download the contents of current canvas as image
-  function downloadCanvasAsImage(): void {
-    let link = document.createElement("a");
-    link.download = `${fileName}.png`;
-    link.href = canvas.current.toDataURL();
-    link.click();
-    link.remove();
-  }
+	// download the contents of current canvas as image
+	function downloadCanvasAsImage(): void {
+		let link = document.createElement("a");
+		link.download = `${fileName}.png`;
+		link.href = canvas.current.toDataURL();
+		link.click();
+		link.remove();
+	}
 
-  // change split pane mode to vertical or horizontal
-  function changeSplitPaneRotation(): void {
-    hostRef.current.exit(); // TODO: await?
-    hostRef.current = null;
-    set_force_rerender_allotment(false); // hide the allotment component
-    setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
-    setTimeout(async () => {
-      set_force_rerender_allotment(true); // render the allotment component again
-      await runDemo();
-      setCodeOutput(codeOutput + " ");
-    }, 50);
-  }
+	// change split pane mode to vertical or horizontal
+	function changeSplitPaneRotation(): void {
+		hostRef.current.exit(); // TODO: await?
+		hostRef.current = null;
+		set_force_rerender_allotment(false); // hide the allotment component
+		setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
+		setTimeout(async () => {
+			set_force_rerender_allotment(true); // render the allotment component again
+			await runDemo();
+			setCodeOutput(codeOutput + " ");
+		}, 50);
+	}
 
-  // toggle canvas fullscreen mode
-  function toggleCanvasFullscreenMode(): void {
-    canvasWrapper.current.requestFullscreen().catch((e) => {
-      console.log("Failed to request fullscreen => ", e);
-      alert("Failed to expand canvas");
-    });
-  }
+	// toggle canvas fullscreen mode
+	function toggleCanvasFullscreenMode(): void {
+		canvasWrapper.current.requestFullscreen().catch((e) => {
+			console.log("Failed to request fullscreen => ", e);
+			alert("Failed to expand canvas");
+		});
+	}
 
-  return (
-    <BrowserOnly>
-      {() => (
-        <Fragment>
-          <nav className="navbar playground_navbar" ref={editorNavbarInstance}>
-            <div className="navbar__inner">
-              <div className="navbar__items">
-                {/* Demo description popover */}
-                <Popover
-                  isOpen={isDemoDescPopoverOpen}
-                  positions={["bottom", "right", "top", "left"]}
-                  parentElement={editorConfig.mode === "inline" ? editorNavbarInstance.current : undefined}
-                  content={
-                    <div className="popover-content">
-                      <p>{description || "There is no description provided for this demo."}</p>
-                    </div>
-                  }
-                >
-                  <button
-                    onMouseEnter={() => {
-                      setIsDemoDescPopoverOpen(true);
-                    }}
-                    onMouseLeave={() => {
-                      setIsDemoDescPopoverOpen(false);
-                    }}
-                    className="clean-btn navbar__item"
-                  >
-                    <FontAwesomeIcon icon={faCircleInfo} className="fa-icon size-14" style={{ color: "var(--ifm-color-secondary-darkest)" }} />
-                  </button>
-                </Popover>
-                {demoName}
-                <StatusIndicator status={editorStatus} />
-              </div>
+	return (
+		<BrowserOnly>
+			{() => (
+				<Fragment>
+					<nav className="navbar playground_navbar" ref={editorNavbarInstance}>
+						<div className="navbar__inner">
+							<div className="navbar__items">
+								{/* Demo description popover */}
+								<Popover
+									isOpen={isDemoDescPopoverOpen}
+									positions={["bottom", "right", "top", "left"]}
+									parentElement={editorConfig.mode === "inline" ? editorNavbarInstance.current : undefined}
+									content={
+										<div className="popover-content">
+											<p>{description || "There is no description provided for this demo."}</p>
+										</div>
+									}
+								>
+									<button
+										onMouseEnter={() => {
+											setIsDemoDescPopoverOpen(true);
+										}}
+										onMouseLeave={() => {
+											setIsDemoDescPopoverOpen(false);
+										}}
+										className="clean-btn navbar__item"
+									>
+										<FontAwesomeIcon icon={faCircleInfo} className="fa-icon size-14" style={{ color: "var(--ifm-color-secondary-darkest)" }} />
+									</button>
+								</Popover>
+								{demoName}
+								<StatusIndicator status={editorStatus} />
+							</div>
 
-              <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
-                <div className="dropdown dropdown--hoverable dropdown--right">
-                  {/* editor settings */}
-                  <button className="clean-btn navbar__item" title="Configure editor settings">
-                    <FontAwesomeIcon icon={faGear} className="fa-icon size-16" />
-                  </button>
-                  <ul className={`dropdown__menu editor-config-dropdown`}>
-                    {/* Font Size config */}
-                    <li>
-                      <span>Font Size: </span>
-                      <div>
-                        {[10, 12, 14, 16, 18].map((size) => (
-                          <button
-                            onClick={() => {
-                              configureFontSize(size);
-                            }}
-                            className={`button button--primary font-size-button ${fontSize !== size ? "button--outline" : ""}`}
-                            key={size}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                      <hr />
-                    </li>
-                    {/* toggle hidden areas in the editor */}
-                    <li>
-                      <span>Show/Hide boilerplate code: </span>
-                      <div>
-                        {["Show", "Hide"].map((e) => (
-                          <button
-                            onClick={() => {
-                              toggleHiddenAreas(e === "Show", editorInstance.current, monaco);
-                            }}
-                            className={`button button--primary hidden-areas-toggle-button ${(e === "Show" && isHiddenAreasShowing) || (e === "Hide" && !isHiddenAreasShowing) ? "" : "button--outline"}`}
-                            key={e}
-                          >
-                            {e}
-                          </button>
-                        ))}
-                      </div>
-                      <hr />
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </nav>
+							<div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
+								<div className="dropdown dropdown--hoverable dropdown--right">
+									{/* editor settings */}
+									<button className="clean-btn navbar__item" title="Configure editor settings">
+										<FontAwesomeIcon icon={faGear} className="fa-icon size-16" />
+									</button>
+									<ul className={`dropdown__menu editor-config-dropdown`}>
+										{/* Font Size config */}
+										<li>
+											<span>Font Size: </span>
+											<div>
+												{[10, 12, 14, 16, 18].map((size) => (
+													<button
+														onClick={() => {
+															configureFontSize(size);
+														}}
+														className={`button button--primary font-size-button ${fontSize !== size ? "button--outline" : ""}`}
+														key={size}
+													>
+														{size}
+													</button>
+												))}
+											</div>
+											<hr />
+										</li>
+										{/* toggle hidden areas in the editor */}
+										<li>
+											<span>Show/Hide boilerplate code: </span>
+											<div>
+												{["Show", "Hide"].map((e) => (
+													<button
+														onClick={() => {
+															toggleHiddenAreas(e === "Show", editorInstance.current, monaco);
+														}}
+														className={`button button--primary hidden-areas-toggle-button ${(e === "Show" && isHiddenAreasShowing) || (e === "Hide" && !isHiddenAreasShowing) ? "" : "button--outline"}`}
+														key={e}
+													>
+														{e}
+													</button>
+												))}
+											</div>
+											<hr />
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</nav>
 
-          <div
-            style={{
-              height: Boolean(editorHeight) && Boolean(rendererHeight) && editorHeight + rendererHeight,
-            }}
-          >
-            {force_rerender_allotment && (
-              <Allotment
-                ref={allotmentRef}
-                vertical={splitPaneDirectionVertical}
-                onChange={(e: Array<number>) => {
-                  if (e?.length > 1) {
-                    if (splitPaneDirectionVertical) {
-                      setEditorHeight(e[0]);
-                      setRendererHeight(e[1]);
-                    } else {
-                      setRendererPaneWidth(e[1]);
-                    }
-                  }
-                }}
-              >
-                <div style={{ position: "relative" }}>
-                  <Editor
-                    height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
-                    defaultLanguage="typescript"
-                    value={code}
-                    onChange={codeChangeHandler}
-                    loading="loading the playground"
-                    theme={theme}
-                    options={{ fontSize, ...editorOptions }}
-                    onMount={handleEditorDidMount}
-                    beforeMount={handleEditorWillMount}
-                    onValidate={handleEditorValidation}
-                  />
-                  {/* {codeError && (
+					<div
+						style={{
+							height: Boolean(editorHeight) && Boolean(rendererHeight) && editorHeight + rendererHeight,
+						}}
+					>
+						{force_rerender_allotment && (
+							<Allotment
+								ref={allotmentRef}
+								vertical={splitPaneDirectionVertical}
+								onChange={(e: Array<number>) => {
+									if (e?.length > 1) {
+										if (splitPaneDirectionVertical) {
+											setEditorHeight(e[0]);
+											setRendererHeight(e[1]);
+										} else {
+											setRendererPaneWidth(e[1]);
+										}
+									}
+								}}
+							>
+								<div style={{ position: "relative" }}>
+									<Editor
+										height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
+										defaultLanguage="typescript"
+										value={code}
+										onChange={codeChangeHandler}
+										loading="loading the playground"
+										theme={theme}
+										options={{ fontSize, ...editorOptions }}
+										onMount={handleEditorDidMount}
+										beforeMount={handleEditorWillMount}
+										onValidate={handleEditorValidation}
+									/>
+									{/* {codeError && (
                     <div className="editor-error-alert">
                       <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
                         <p>{codeError.message}</p>
                       </Admonition>
                     </div>
                   )} */}
-                </div>
-                {true ? (
-                  <Renderer
-                    canvasWrapperRef={canvasWrapper}
-                    canvasRef={canvas}
-                    canvas2DRef={canvas2D}
-                    previewCanvasRef={previewCanvas}
-                    panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
-                    panesWidth={rendererPaneWidth}
-                    editorConfig={editorConfig}
-                    splitPaneDirectionVertical={splitPaneDirectionVertical}
-                    validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight,
-                    }}
-                    className="renderer-loading-message"
-                  >
-                    Loading the renderer...
-                  </div>
-                )}
-              </Allotment>
-            )}
-          </div>
-          <textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: "absolute", width: 0, height: 0, top: 5 }} />
+								</div>
+								{true ? (
+									<Renderer
+										canvasWrapperRef={canvasWrapper}
+										canvasRef={canvas}
+										canvas2DRef={canvas2D}
+										previewCanvasRef={previewCanvas}
+										panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
+										panesWidth={rendererPaneWidth}
+										editorConfig={editorConfig}
+										splitPaneDirectionVertical={splitPaneDirectionVertical}
+										validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
+									/>
+								) : (
+									<div
+										style={{
+											height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight,
+										}}
+										className="renderer-loading-message"
+									>
+										Loading the renderer...
+									</div>
+								)}
+							</Allotment>
+						)}
+					</div>
+					<textarea ref={textAreaInstance} defaultValue={tsCodeForClipboard} style={{ position: "absolute", width: 0, height: 0, top: 5 }} />
 
-          <nav className="navbar playground_footer_navbar" ref={editorFooterInstance} style={{}}>
-            <div className="navbar__inner">
-              <div className="navbar__items" style={{ height: "100%" }}>
-                {/* Messages/alert popover */}
-                <Popover
-                  isOpen={isMessagesAndAlertPopoverOpen}
-                  positions={["top", "right", "bottom", "left"]}
-                  parentElement={editorConfig.mode === "inline" ? editorFooterInstance.current : undefined}
-                  content={
-                    <div className="popover-content">
-                      <p>WebGL Web API: {devDependencies["@novorender/api"]}</p>
-                      <hr />
-                      <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
-                    </div>
-                  }
-                >
-                  <button
-                    onMouseEnter={() => {
-                      setIsMessagesAndAlertPopoverOpen(true);
-                    }}
-                    onMouseLeave={() => {
-                      setIsMessagesAndAlertPopoverOpen(false);
-                    }}
-                    className="clean-btn navbar__item"
-                    title="messages and alerts"
-                    style={{ marginTop: "-2px", marginLeft: "-12px" }}
-                  >
-                    <FontAwesomeIcon icon={faCircleInfo} className="fa-icon size-14" style={messagesAndAlerts.length ? { color: "var(--ifm-color-warning-darkest)" } : { color: "var(--ifm-color-gray-800)" }} />
-                  </button>
-                </Popover>
-              </div>
+					<nav className="navbar playground_footer_navbar" ref={editorFooterInstance} style={{}}>
+						<div className="navbar__inner">
+							<div className="navbar__items" style={{ height: "100%" }}>
+								{/* Messages/alert popover */}
+								<Popover
+									isOpen={isMessagesAndAlertPopoverOpen}
+									positions={["top", "right", "bottom", "left"]}
+									parentElement={editorConfig.mode === "inline" ? editorFooterInstance.current : undefined}
+									content={
+										<div className="popover-content">
+											<p>WebGL Web API: {devDependencies["@novorender/api"]}</p>
+											<hr />
+											<ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
+										</div>
+									}
+								>
+									<button
+										onMouseEnter={() => {
+											setIsMessagesAndAlertPopoverOpen(true);
+										}}
+										onMouseLeave={() => {
+											setIsMessagesAndAlertPopoverOpen(false);
+										}}
+										className="clean-btn navbar__item"
+										title="messages and alerts"
+										style={{ marginTop: "-2px", marginLeft: "-12px" }}
+									>
+										<FontAwesomeIcon icon={faCircleInfo} className="fa-icon size-14" style={messagesAndAlerts.length ? { color: "var(--ifm-color-warning-darkest)" } : { color: "var(--ifm-color-gray-800)" }} />
+									</button>
+								</Popover>
+							</div>
 
-              <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
-                {/* open the demo in playground */}
-                {editorConfig.mode === "inline" && (
-                  <Link className="navbar__item" title="Open this demo in the Playground" to={`/playground/run?id=${dirName}___${demoName}`}>
-                    <FontAwesomeIcon icon={faSquareArrowUpRight} className="fa-icon size-14" />
-                  </Link>
-                )}
+							<div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
+								{/* open the demo in playground */}
+								{editorConfig.mode === "inline" && (
+									<Link className="navbar__item" title="Open this demo in the Playground" to={`/playground/run?id=${dirName}___${demoName}`}>
+										<FontAwesomeIcon icon={faSquareArrowUpRight} className="fa-icon size-14" />
+									</Link>
+								)}
 
-                {/* expand canvas to fullscreen */}
-                <button onClick={toggleCanvasFullscreenMode} className="clean-btn navbar__item" title="Expand the canvas to fullscreen">
-                  <FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} className="fa-icon size-14" />
-                </button>
+								{/* expand canvas to fullscreen */}
+								<button onClick={toggleCanvasFullscreenMode} className="clean-btn navbar__item" title="Expand the canvas to fullscreen">
+									<FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} className="fa-icon size-14" />
+								</button>
 
-                {/* Pane mode change */}
-                <button onClick={changeSplitPaneRotation} className="clean-btn navbar__item" title="Change split pane mode" style={{ marginTop: 4 }}>
-                  <RotationIconSvg className="editor-svg-icon" />
-                </button>
+								{/* Pane mode change */}
+								<button onClick={changeSplitPaneRotation} className="clean-btn navbar__item" title="Change split pane mode" style={{ marginTop: 4 }}>
+									<RotationIconSvg className="editor-svg-icon" />
+								</button>
 
-                {/* Download image */}
-                <button onClick={downloadCanvasAsImage} disabled={!canvas.current} className="clean-btn navbar__item" title="Download current view as image">
-                  <FontAwesomeIcon icon={faDownload} className="fa-icon size-14" />
-                </button>
+								{/* Download image */}
+								<button onClick={downloadCanvasAsImage} disabled={!canvas.current} className="clean-btn navbar__item" title="Download current view as image">
+									<FontAwesomeIcon icon={faDownload} className="fa-icon size-14" />
+								</button>
 
-                {/* Copy snippet */}
-                <button onClick={copyToClipboard} className="clean-btn navbar__item" title="Copy TypeScript code to clipboard">
-                  <FontAwesomeIcon icon={faCopy} className="fa-icon size-14" />
-                </button>
+								{/* Copy snippet */}
+								<button onClick={copyToClipboard} className="clean-btn navbar__item" title="Copy TypeScript code to clipboard">
+									<FontAwesomeIcon icon={faCopy} className="fa-icon size-14" />
+								</button>
 
-                {/* Edit snippet */}
-                <a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
-                  <FontAwesomeIcon icon={faPenToSquare} className="fa-icon size-14" />
-                </a>
-              </div>
-            </div>
-          </nav>
-        </Fragment>
-      )}
-    </BrowserOnly>
-  );
+								{/* Edit snippet */}
+								<a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
+									<FontAwesomeIcon icon={faPenToSquare} className="fa-icon size-14" />
+								</a>
+							</div>
+						</div>
+					</nav>
+				</Fragment>
+			)}
+		</BrowserOnly>
+	);
 }
 
 const StatusIndicator = ({ status }: { status: EditorStatus }) => {
-  return (
-    <div style={{ marginLeft: 6 }}>
-      {(() => {
-        switch (status) {
-          case EditorStatus.WORKING:
-            return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
-          case EditorStatus.ERRORS:
-            return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
-          case EditorStatus.OKAY:
-            return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
-          default:
-            return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
-        }
-      })()}
-    </div>
-  );
+	return (
+		<div style={{ marginLeft: 6 }}>
+			{(() => {
+				switch (status) {
+					case EditorStatus.WORKING:
+						return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
+					case EditorStatus.ERRORS:
+						return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
+					case EditorStatus.OKAY:
+						return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
+					default:
+						return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
+				}
+			})()}
+		</div>
+	);
 };

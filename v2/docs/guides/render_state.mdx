@@ -88,7 +88,7 @@ Option 3 also happens to be the one that makes it easy for the engine to detect 
 ```typescript
 // lurking deep inside the 3D engine somewhere...
 if (prevObj !== newObj) {
-  // update internal and GPU state.
+	// update internal and GPU state.
 }
 ```
 
@@ -111,11 +111,11 @@ Unfortunately, javascript is not particularly functional language, so we end up 
 
 ```typescript
 const newState = {
-  ...prevState, // preserve all the state sub-objects that we're not changing.
-  background: {
-    ...background, // preserve other background state.
-    color: [0, 0, 0.1, 1], // introduce changes as new objects/copies.
-  },
+	...prevState, // preserve all the state sub-objects that we're not changing.
+	background: {
+		...background, // preserve other background state.
+		color: [0, 0, 0.1, 1], // introduce changes as new objects/copies.
+	},
 };
 ```
 
@@ -133,8 +133,8 @@ You can also combine several changes into a single call.
 ```typescript
 // multiple changes in single call.
 view.modifyRenderState({
-  background: { color: [0, 0, 0.1, 1] },
-  tonemapping: { exposure: 1 },
+	background: { color: [0, 0, 0.1, 1] },
+	tonemapping: { exposure: 1 },
 });
 ```
 
@@ -165,7 +165,7 @@ You can perform validation explicitly, however.
 // ...apply state changes above
 const errors = view.validateRenderState();
 for (const error of errors) {
-  console.warn(error);
+	console.warn(error);
 }
 ```
 
@@ -208,7 +208,7 @@ To help your team avoid accidental in-place mutation, you should use the typescr
 
 ```typescript
 interface MyObject {
-  readonly items: readonly number[];
+	readonly items: readonly number[];
 }
 ```
 
