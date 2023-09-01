@@ -51,15 +51,15 @@ Positions can be described as an array of float triplets, each triplet describin
 
 ```typescript
 const vertices = new Float32Array([
-	0,
-	1,
-	0, // xyz #0
-	-1,
-	0,
-	0, // xyz #1
-	1,
-	0,
-	0, // xyz #2
+  0,
+  1,
+  0, // xyz #0
+  -1,
+  0,
+  0, // xyz #1
+  1,
+  0,
+  0, // xyz #2
 ]);
 ```
 
@@ -68,9 +68,9 @@ In this case, we have only one vertex attribute (positions), and are rendering t
 
 ```typescript
 const geometry: RenderStateDynamicGeometry = {
-	primitiveType: "TRIANGLES",
-	attributes: { position: { kind: "VEC3", buffer: vertices } },
-	indices: 3, // # vertices
+  primitiveType: "TRIANGLES",
+  attributes: { position: { kind: "VEC3", buffer: vertices } },
+  indices: 3, // # vertices
 };
 ```
 
@@ -79,8 +79,8 @@ For simplicity, we're just making a basic unlit material with green color.
 
 ```typescript
 const material: RenderStateDynamicMaterial = {
-	kind: "unlit",
-	baseColorFactor: [0, 1, 0, 1], // green, opaque
+  kind: "unlit",
+  baseColorFactor: [0, 1, 0, 1], // green, opaque
 };
 ```
 
@@ -89,7 +89,7 @@ Since we only have one material, the mesh will have only one primitive.
 
 ```typescript
 const mesh: RenderStateDynamicMesh = {
-	primitives: [{ geometry, material }],
+  primitives: [{ geometry, material }],
 };
 ```
 
@@ -98,8 +98,8 @@ Each object has a mesh and a set of instances for that mesh.
 
 ```typescript
 const triangleObject: RenderStateDynamicObject = {
-	mesh,
-	instances: [{ position: [0, 0, 0] }],
+  mesh,
+  instances: [{ position: [0, 0, 0] }],
 };
 ```
 

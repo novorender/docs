@@ -18,7 +18,7 @@ One way of obtaining such an id is using the <CodeLink type="class" name="View.p
 ```typescript
 const result = await view.pick(x, y);
 if (result) {
-	const { objectId } = result;
+  const { objectId } = result;
 }
 ```
 
@@ -40,11 +40,11 @@ This highlight is actually a 5x4 transformation matrix used to perform a linear 
 See <CodeLink type="type" name="RGBATransform"/> for more details.
 While you can make this manually for full control, we've provided some helper functions for common transformations:
 
--   <CodeLink type="function" name="createNeutralHighlight" />: No change in color.
--   <CodeLink type="function" name="createColorSetHighlight" />: Replaces material color.
--   <CodeLink type="function" name="createTransparentHighlight" />: Replaces material opacity.
--   <CodeLink type="function" name="createRGBATransformHighlight" />: Modifies material color and opacity.
--   <CodeLink type="function" name="createHSLATransformHighlight" />: Modifies material color and opacity using hue, saturation and lightness.
+- <CodeLink type="function" name="createNeutralHighlight" />: No change in color.
+- <CodeLink type="function" name="createColorSetHighlight" />: Replaces material color.
+- <CodeLink type="function" name="createTransparentHighlight" />: Replaces material opacity.
+- <CodeLink type="function" name="createRGBATransformHighlight" />: Modifies material color and opacity.
+- <CodeLink type="function" name="createHSLATransformHighlight" />: Modifies material color and opacity using hue, saturation and lightness.
 
 ## Object highlight groups
 
@@ -53,8 +53,8 @@ Enter highlight groups:
 
 ```typescript
 const myHighlightGroup = {
-	action: highlightLimeGreen, // highlight action
-	objectIds: [objectId], // objects to highlight
+  action: highlightLimeGreen, // highlight action
+  objectIds: [objectId], // objects to highlight
 };
 ```
 
@@ -82,9 +82,9 @@ Let's try to make everything not in a group semi-transparent by default!
 
 ```typescript
 return {
-	highlights: {
-		defaultAction: semiTransparent, // applies to all objects not in a group.
-	},
+  highlights: {
+    defaultAction: semiTransparent, // applies to all objects not in a group.
+  },
 };
 ```
 
@@ -102,9 +102,9 @@ While you can also effectively hide objects by making them 100% transparent, usi
 
 ```typescript
 return {
-	highlights: {
-		defaultAction: "hide", // hide all objects not in a group.
-	},
+  highlights: {
+    defaultAction: "hide", // hide all objects not in a group.
+  },
 };
 ```
 
@@ -124,9 +124,9 @@ In this example we apply a blue'ish hue with linear transformations, i.e. `let v
 
 ```typescript
 const makeBlueish = createRGBATransformHighlight({
-	red: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
-	green: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
-	blue: { scale: 1, offset: 0.5 }, // boost blue
+  red: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
+  green: { scale: 0.5, offset: 0.25 }, // reduce contrast and brightness
+  blue: { scale: 1, offset: 0.5 }, // boost blue
 });
 ```
 
@@ -136,8 +136,8 @@ Here we darken and reduce color saturation for a dim, gray'ish effect:
 
 ```typescript
 const dimGrayish = createHSLATransformHighlight({
-	lightness: 0.5, // darken
-	saturation: 0.5, // reduce color saturation
+  lightness: 0.5, // darken
+  saturation: 0.5, // reduce color saturation
 });
 ```
 

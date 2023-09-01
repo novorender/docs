@@ -7,7 +7,7 @@ type Ret = void;
 type Module = IModule<Ret, Args>;
 
 export class ViewDemoHost extends BaseDemoHost implements IDemoHost<Module> {
-	updateModule(module: Module) {
-		module.main(this.view);
-	}
+  updateModule(module: Module) {
+    module.main(this.view);
+  }
 }

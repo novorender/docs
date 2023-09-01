@@ -15,7 +15,7 @@ const rotation = [0, 0, 0, 1];
 const kind = "pinhole"; // perspective projection
 const fov = 60; // field of view in degrees
 view.modifyRenderState({
-	camera: { kind, position, rotation, fov },
+  camera: { kind, position, rotation, fov },
 });
 ```
 
@@ -84,7 +84,7 @@ If you're not sure what type the controller is, you could use type guards to che
 
 ```typescript
 if (OrbitController.is(activeController)) {
-	// activeController is OrbitController in this scope
+  // activeController is OrbitController in this scope
 }
 ```
 
@@ -160,10 +160,10 @@ To do this you'll need to make a new controller factory function.
 
 ```typescript
 function myCameraControllers(input: ControllerInput, pick: PickContext) {
-	return {
-		...builtinControllers(input, pick),
-		mine: new MyController(input, pick),
-	} as const;
+  return {
+    ...builtinControllers(input, pick),
+    mine: new MyController(input, pick),
+  } as const;
 }
 ```
 

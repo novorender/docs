@@ -34,10 +34,10 @@ Once active, you should be able to navigate the 3D view by moving the cursor wit
 The above example shows a minimalistic implementation to get anything on screen.
 It demonstrates the key concept of rendering:
 
--   Create a render view.
--   Modify the render state.
--   Run the render loop.
--   Cleanup.
+- Create a render view.
+- Modify the render state.
+- Run the render loop.
+- Cleanup.
 
 ## Live code editing
 
@@ -87,25 +87,25 @@ Guides can only get you started. For more detailed information, please consult t
 For complete, buildable demo projects, please visit our example repo at [github](https://github.com/novorender/novorender-examples)!
 
 export const PlaygroundTip = () => (
-	<div
-		style={{
-			border: "1px solid var(--ifm-color-primary)",
-			margin: "20px 0",
-			padding: 10,
-			borderRadius: "var(--ifm-code-border-radius)",
-		}}
-	>
-		<div style={{ display: "flex" }}>
-			<div style={{ fontSize: 38 }}>💡</div>
-			<div>
-				<p style={{ fontSize: 24, margin: 0 }}>Need more demonstrations?</p>
-				<p style={{ fontSize: 12 }}>The Playground page contains 20+ demos covering various aspects of different Novorender packages.</p>
-			</div>
-		</div>
-		<Link to="/playground" className="button button--primary" style={{ display: "block", margin: "0 auto", maxWidth: 300 }}>
-			Go to Playground
-		</Link>
-	</div>
+  <div
+    style={{
+      border: "1px solid var(--ifm-color-primary)",
+      margin: "20px 0",
+      padding: 10,
+      borderRadius: "var(--ifm-code-border-radius)",
+    }}
+  >
+    <div style={{ display: "flex" }}>
+      <div style={{ fontSize: 38 }}>💡</div>
+      <div>
+        <p style={{ fontSize: 24, margin: 0 }}>Need more demonstrations?</p>
+        <p style={{ fontSize: 12 }}>The Playground page contains 20+ demos covering various aspects of different Novorender packages.</p>
+      </div>
+    </div>
+    <Link to="/playground" className="button button--primary" style={{ display: "block", margin: "0 auto", maxWidth: 300 }}>
+      Go to Playground
+    </Link>
+  </div>
 );
 
 <PlaygroundTip />

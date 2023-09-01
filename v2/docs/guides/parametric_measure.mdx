@@ -20,7 +20,7 @@ const view = new View(canvas, deviceProfile, imports);
 const result = await view.pick(x, y);
 
 if (result) {
-	const entity = await measureView.core.pickMeasureEntity(objectId, position);
+  const entity = await measureView.core.pickMeasureEntity(objectId, position);
 }
 ```
 
@@ -34,7 +34,7 @@ const measureView = await view.measure;
 const measureValues = await measureView.core.measure(entity);
 
 if (measureValues.kind === "cylinder") {
-	console.log(`Radius of cylinder is: ${measureValues.radius}`);
+  console.log(`Radius of cylinder is: ${measureValues.radius}`);
 }
 ```
 
@@ -50,14 +50,14 @@ const result1 = await view.pick(x1, y1);
 const result2 = await view.pick(x2, y2);
 
 if (result1 && result2) {
-	const entity1 = await measureView.core.pickMeasureEntity(result1.objectId, result1.position);
-	const entity2 = await measureView.core.pickMeasureEntity(result2.objectId, result2.position);
+  const entity1 = await measureView.core.pickMeasureEntity(result1.objectId, result1.position);
+  const entity2 = await measureView.core.pickMeasureEntity(result2.objectId, result2.position);
 
-	const measureValues = await measureView.core.measure(entity1, entity1);
+  const measureValues = await measureView.core.measure(entity1, entity1);
 
-	if (measureValues && measureValues.distance) {
-		console.log(`Distance between objects is: ${measureValues.distance}`);
-	}
+  if (measureValues && measureValues.distance) {
+    console.log(`Distance between objects is: ${measureValues.distance}`);
+  }
 }
 ```
 
