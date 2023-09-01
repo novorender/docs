@@ -8,7 +8,7 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const baseGithub = "https://github.com/novorender";
-const baseAPI = "https://data.novorender.com";
+// const baseAPI = "https://data.novorender.com";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -47,7 +47,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      metadata: [{ name: "keywords", content: "novorender, novorender docs, novorender documentation, novorender/webgl-api, novorender/data-js-api, novorender/measure-api, novorender rest api docs, api docs" }],
+      metadata: [{ name: "keywords", content: "novorender, novorender docs, novorender documentation, novorender/api, novorender web api, webgl, webgl 2, novorender rest api docs, api docs" }],
       docs: {
         sidebar: {
           hideable: true,
@@ -67,26 +67,6 @@ const config = {
             position: "left",
             label: "Docs",
           },
-          // {
-          //   to: "docs/category/documentation",
-          //   position: "left",
-          //   label: "Docs",
-          // },
-          // {
-          //   to: "docs/webgl-api",
-          //   position: "left",
-          //   label: "WebGL API",
-          // },
-          // {
-          //   to: "docs/data-js-api",
-          //   position: "left",
-          //   label: "Data JS API",
-          // },
-          // {
-          //   to: "docs/measure-api",
-          //   position: "left",
-          //   label: "Measure API",
-          // },
           // {
           //   to: "/data-rest-api/",
           //   position: "left",
@@ -112,18 +92,6 @@ const config = {
           // {
           //   title: "Docs",
           //   items: [
-          //     {
-          //       label: "WebGL API",
-          //       to: "/docs/webgl-api",
-          //     },
-          //     {
-          //       label: "Data JS API",
-          //       to: "/docs/data-js-api",
-          //     },
-          //     {
-          //       label: "Measure API",
-          //       to: "/docs/measure-api/",
-          //     },
           //     {
           //       label: "Data Rest API",
           //       to: "/data-rest-api/",
@@ -236,51 +204,6 @@ const config = {
           return execSync("cd ts && git rev-parse HEAD").toString().trim();
         })(),
       },
-      //   {
-      //     id: "webgl-api",
-      //     entryPoints: ["type-definitions/webgl-api.ts"],
-      //     logLevel: "Error",
-      //     out: "webgl-api",
-      //     tsconfig: "type-definitions/tsconfig.json",
-      //     readme: require.resolve("@novorender/webgl-api/README.md"),
-      //     disableSources: true,
-      //     frontmatter: {
-      //       description: "A Web API for scalable 3D rendering in the cloud.",
-      //       title: "WebGL API",
-      //     },
-      //   },
-      // ],
-      // [
-      //   "docusaurus-plugin-typedoc",
-      //   {
-      //     id: "data-js-api",
-      //     entryPoints: ["type-definitions/data-js-api.ts"],
-      //     logLevel: "Error",
-      //     out: "data-js-api",
-      //     tsconfig: "type-definitions/tsconfig.json",
-      //     readme: require.resolve("@novorender/data-js-api/README.md"),
-      //     disableSources: true,
-      //     frontmatter: {
-      //       description: "A Data JS API for managing scalable Novorender 3D rendering in the cloud.",
-      //       title: "Data JS API",
-      //     },
-      //   },
-      // ],
-      // [
-      //   "docusaurus-plugin-typedoc",
-      //   {
-      //     id: "measure-api",
-      //     entryPoints: ["type-definitions/measure-api.ts"],
-      //     logLevel: "Error",
-      //     out: "measure-api",
-      //     tsconfig: "type-definitions/tsconfig.json",
-      //     readme: require.resolve("@novorender/measure-api/README.md"),
-      //     disableSources: true,
-      //     frontmatter: {
-      //       description: "for detailed measuring show distances, differences, elevations and more.",
-      //       title: "Measure API",
-      //     },
-      //   },
     ],
     require.resolve("@cmfcmf/docusaurus-search-local"),
   ],

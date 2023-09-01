@@ -21,26 +21,9 @@ const webpackPlugin = (context, options) => {
           }),
           new ProvidePlugin({
             process: require.resolve("process/browser"),
-            NovoRender: require.resolve("@novorender/webgl-api"),
           }),
           new CopyPlugin({
             patterns: [
-              {
-                from: "node_modules/@novorender/webgl-api/render.js",
-                to: config.mode === "development" ? "[name][ext]" : "assets/js/[name][ext]",
-              },
-              {
-                from: "node_modules/@novorender/webgl-api/geometry.js",
-                to: config.mode === "development" ? "[name][ext]" : "assets/js/[name][ext]",
-              },
-              {
-                from: "node_modules/@novorender/measure-api/build/worker.js",
-                to: config.mode === "development" ? "[name][ext]" : "assets/js/[name][ext]",
-              },
-              {
-                from: "node_modules/@novorender/measure-api/build/nurbs-XCWNWOSP.wasm",
-                to: config.mode === "development" ? "[name][ext]" : "assets/js/[name][ext]",
-              },
               {
                 from: "node_modules/@novorender/api/public/*",
                 to: "[name][ext]",
@@ -58,7 +41,6 @@ const webpackPlugin = (context, options) => {
           },
           alias: {
             process: "process/browser.js",
-            "@novorender/measure-api": "@novorender/measure-api/build/main.js",
           },
         },
         module: {},
