@@ -31,7 +31,7 @@ For the sake of understanding, we select the inert <CodeLink type="class" name="
 ## Active controller
 
 A view comes with a preset selection of camera controllers, all listed in the <CodeLink type="class" name="View.controllers"/> property.
-Only one of them can be active as a time, however, defined in the 'view.activeController' property.
+Only one of them can be active at a time, however, defined in the 'view.activeController' property.
 
 ```typescript
 const { activeController } = view;
@@ -59,7 +59,7 @@ activeController.init(controllerState);
 
 For type specific functions and properties, you'll need to narrow down the type.
 
-<CodeLink type="class" name="View.switchCameraController" /> returns the specific type you requested.
+The <CodeLink type="class" name="View.switchCameraController" /> returns the specific type you requested.
 
 If all you have available is <CodeLink type="class" name="View.activeController"/>, you could downcast to the specific subtype, but this is potentially unsafe and not checked at runtime.
 Instead we provide typescript type assertions and type guard helper functions to assist you.
@@ -128,7 +128,7 @@ activeController.pivot = [x, y, z];
 ```
 
 The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
-One reason for this is to contain the orientation to have zero roll angle, which is often confusing and rarely useful.
+One reason for this is to restrain the orientation to have zero roll angle, which is often confusing and rarely useful.
 
 <PlaygroundComponent {...snippets.gettingStarted.controllerProperties} />
 

@@ -192,7 +192,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
   useEffect(() => {
     return () => {
-      hostRef.current.exit();
+      hostRef.current.exit(); // TODO: use await?
       window.removeEventListener("beforeunload", unloadEventHandler);
     };
   }, []);
@@ -256,10 +256,10 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     }
   }, [monaco]);
 
-  const reportErrors = (errors: Error[]) => {
-    console.log("validation errors ==> ", errors);
+  const reportErrors = (...errors: any[]) => {
     setModuleInternalValidationErrors([...((errors || []) as Error[])]);
     if (errors && errors.length) {
+      // console.log("validation errors ==> ", errors);
       setEditorStatus(EditorStatus.ERRORS);
     } else {
       setEditorStatus(EditorStatus.OKAY);
@@ -410,7 +410,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
   // change split pane mode to vertical or horizontal
   function changeSplitPaneRotation(): void {
-    hostRef.current.exit();
+    hostRef.current.exit(); // TODO: await?
     hostRef.current = null;
     set_force_rerender_allotment(false); // hide the allotment component
     setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
@@ -653,7 +653,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
   );
 }
 
-const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
+const StatusIndicator = ({ status }: { status: EditorStatus }) => {
   return (
     <div style={{ marginLeft: 6 }}>
       {(() => {

@@ -1,6 +1,7 @@
 import type { RenderStateDynamicGeometry, RenderStateChanges, RenderStateDynamicMesh, RenderStateDynamicMaterialUnlit, RenderStateDynamicObject } from "@novorender/api";
 
 export async function main(): Promise<RenderStateChanges> {
+  // TODO: Get rid of prettier and reformat in a 3x3 layout manually!
   const vertices = new Float32Array([
     0,
     2,

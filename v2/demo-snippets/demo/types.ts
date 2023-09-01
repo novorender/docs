@@ -10,9 +10,10 @@ export interface DemoHostCtor<T> {
   new (context: IDemoContext): IDemoHost<T>;
 }
 export interface IDemoHost<T> {
-  run(): Promise<void>;
+  readonly context: IDemoContext;
+  run(): void | Promise<void>;
   updateModule(module: T): void | Promise<void>;
-  exit(): void;
+  exit?(): void | Promise<void>;
 }
 
 export interface ICanvas {
@@ -25,7 +26,7 @@ export interface IDemoContext<T = any> {
   readonly canvasElements: ICanvas;
   readonly deviceProfile: DeviceProfile;
   readonly imports: ViewImports;
-  reportErrors(errors: readonly Error[]): void;
+  reportErrors(...errors: any[]): void;
 }
 
 /** Core imports, you can provide your own to `createDemoContext` if want */
@@ -37,7 +38,7 @@ if (typeof window !== "undefined") {
   coreImportsPromise = View.downloadImports(coreImportsMap);
 }
 
-export async function createDemoContext(canvasElements: ICanvas, reportErrors: (errors: Error[]) => void, importsPromise: Promise<ViewImports> = coreImportsPromise): Promise<IDemoContext> {
+export async function createDemoContext(canvasElements: ICanvas, reportErrors: (...errors: any[]) => void, importsPromise: Promise<ViewImports> = coreImportsPromise): Promise<IDemoContext> {
   const gpuTier = 2; // laptop with reasonably new/powerful GPU.
   const deviceProfile = getDeviceProfile(gpuTier);
   const imports = await importsPromise;
