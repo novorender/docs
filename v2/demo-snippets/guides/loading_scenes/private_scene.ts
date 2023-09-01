@@ -1,6 +1,5 @@
-import * as dataJsApi from "@novorender/data-js-api";
+import { createAPI, type SceneData } from "@novorender/data-js-api";
 import { type View } from "@novorender/api";
-import { type ReadonlyVec3, quat } from "gl-matrix";
 
 const DATA_API_SERVICE_URL = "https://data.novorender.com/api";
 export async function main(view: View): Promise<void> {
@@ -8,7 +7,7 @@ export async function main(view: View): Promise<void> {
   const accessToken = await login();
   // Initialize the data API with the Novorender data server service
   // and a callback which returns the auth header with the access token
-  const dataApi = dataJsApi.createAPI({
+  const dataApi = createAPI({
     serviceUrl: DATA_API_SERVICE_URL,
     authHeader: async () => ({
       header: "Authorization",
@@ -21,13 +20,11 @@ export async function main(view: View): Promise<void> {
     // Condos scene ID, but can be changed to any public scene ID
     const sceneData = await dataApi.loadScene("7a0a302fe9b24ddeb3c496fb36e932b0");
     // Destructure relevant properties into variables
-    const { url, camera } = sceneData as dataJsApi.SceneData;
-    // Destructure relevant camera properties
-    const { position, fieldOfView: fov } = camera as any;
+    const { url } = sceneData as SceneData;
     // load the scene using URL gotten from `sceneData`
-    await view.loadSceneFromURL(new URL(url));
-    // Assign a camera controller
-    await view.switchCameraController(camera?.kind as any, { position: flip(position as ReadonlyVec3), fov, rotation: flipGLtoCadQuat([1, 0, 0, 0]) });
+    const config = await view.loadSceneFromURL(new URL(url));
+    const { center, radius } = config.boundingSphere;
+    view.activeController.autoFit(center, radius);
   } catch (error) {
     console.log("Error while loading scene from URL ", error);
   }
@@ -54,31 +51,3 @@ async function login(): Promise<string> {
 
   return res.token;
 }
-
-/**
- *  helper function to flip the coordinate system
- */
-function flip(v: ReadonlyVec3): ReadonlyVec3 {
-  const flipped: [number, number, number] = [v[0], -v[2], v[1]];
-  return flipped;
-}
-
-/**
- *  helper function to flip the coordinate system
- */
-function flipGLtoCadQuat(b: quat) {
-  let ax = 0.7071067811865475,
-    aw = 0.7071067811865475;
-  let bx = b[0],
-    by = b[1],
-    bz = b[2],
-    bw = b[3];
-
-  // prettier-ignore
-  return quat.fromValues(
-        ax * bw + aw * bx,
-        aw * by + - ax * bz,
-        aw * bz + ax * by,
-        aw * bw - ax * bx);
-}
-// HiddenRangeEnded
