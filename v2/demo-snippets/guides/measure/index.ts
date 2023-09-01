@@ -1,9 +1,9 @@
 import { demo } from "../../demo";
-import { MeasureDemoHost } from "../../hosts/measure";
+import { ViewCondosDemoHost } from "../../hosts";
 
 /** Here goes  code demo code that you can see in the playground */
 import parametricMeasure from "./parametric_measure.ts?raw";
 
 export const measure = {
-  ...demo("measure", "parametric_measure", "Parametric Measure", parametricMeasure, MeasureDemoHost, {}, "Measure API can be used to fetch parametric data based on real world position, and calculate measurements between 2 objects."),
+  ...demo("measure", "parametric_measure", "Parametric Measure", parametricMeasure, ViewCondosDemoHost, {}, "Measure API can be used to fetch parametric data based on real world position, and calculate measurements between 2 objects."),
 };
