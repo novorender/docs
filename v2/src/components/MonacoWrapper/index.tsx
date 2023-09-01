@@ -256,7 +256,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     }
   }, [monaco]);
 
-  const reportErrors = (...errors: any[]) => {
+  const reportErrors = (errors: any[]) => {
     setModuleInternalValidationErrors([...((errors || []) as Error[])]);
     if (errors && errors.length) {
       // console.log("validation errors ==> ", errors);
