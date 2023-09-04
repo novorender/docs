@@ -25,10 +25,9 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
 
       if (context2D && (point1 || point2)) {
         context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-        const { rotation, position } = view.renderState.camera;
-
-        const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
         // Extract needed camera settings
+        const { rotation, position } = view.renderState.camera;
+        const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
         const camSettings = { pos: position, dir: cameraDirection };
 
         const drawProd = point2 ? measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], false, false) : measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], false, false);

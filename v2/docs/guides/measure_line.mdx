@@ -1,11 +1,62 @@
 ---
-title: "Measure Line"
+title: "Drawing Measure Line"
 description: "---"
-keywords: ["novorender web api docs", "web api", "measure"]
+keywords: ["novorender web api docs", "web api", "measure line strip"]
 ---
 
 import { snippets } from "@site/demo-snippets/index";
 
-Todo - Add guide content
+Web API's Measure module allows for multiple 3d points to be transformed to an on screen-linestrip or polygon. This is used in the [Novoweb](https://explorer.novorender.com/) to display area and measurement between multiple points.
+To get draw objects from a list of points use <CodeLink type="class" name="DrawModule.getdrawobjectfrompoints" /> on the measure View, there are also options to display angle between the lines and whether or not to close it to create a polygon. The position from <CodeLink type="class" name="View.pick"/> function can be stored to create lines between multiple clicked points.
+It can be used with utility functions found in the open source Novoweb [github repository](https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts).
+These functions are placed in the frontend code to make it easy for developers to change the style of 2d drawings to fit their own application.
+These functions can also be found at the bottom of the [interactive demo](#demo).
 
+This a very simple guide to get you started with drawing a simple measure line.
+
+### Draw line strip
+
+Start by storing the positions the from 2 points using <CodeLink type="class" name="View.pick"/> function:
+
+```typescript
+let point1: ReadonlyVec3;
+let point2: ReadonlyVec3;
+// number to alternate between selected entities.
+let selectEntity: 1 | 2 = 1;
+
+const { position } = await view.pick(e.offsetX, e.offsetY);
+if (selectEntity === 1) {
+  point1 = position;
+  selectEntity = 2;
+} else {
+  point2 = position;
+  selectEntity = 1;
+}
+```
+
+then use the <CodeLink type="class" name="DrawModule.getdrawobjectfrompoints" /> function to convert a list of points to a drawable linestrip
+
+```typescript
+const measureView = await view.measure;
+// Extract needed camera settings
+const { rotation, position } = view.renderState.camera;
+const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
+const camSettings = { pos: position, dir: cameraDirection };
+const drawProd = measureView.draw.getDrawObjectFromPoints([point1, point2], false, false);
+```
+
+Finally, we use the utility function <code>[drawProduct](https://github.com/novorender/novoweb/blob/3409db4172c8cd7e15ed833c41547682c5c016eb/src/features/engine2D/utils.ts#L31-L93)</code> to draw the line strip on 2D Canvas:
+
+```typescript
+// Draw result in green, all lines use 3 pixel width
+drawProduct(context2D, camSettings, drawProd, { lineColor: "green" }, 3, { type: "default" });
+```
+
+:::info
+
+Please run the the interactive demo below to get the the complete code snippet including the necessary utility functions.
+
+:::
+
+### Demo
 <PlaygroundComponent {...snippets.measure.measure_line} />
