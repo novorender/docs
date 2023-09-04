@@ -175,3 +175,25 @@ Short animation sequences of seconds or less are fine, however, and may help the
 :::caution
 Animations will drain device batteries quickly. Use with moderation!
 :::
+
+## Dynamic object picking.
+
+Just like in a static scene, dynamic objects can be picked.
+To enable picking, you must assign a value to <CodeLink type="interface" name="RenderStateDynamicObject.baseObjectId"/>.
+Since static scenes starts at id `0`, you should pick a high value to avoid clashes.
+The object id is an unsigned 32 bit integer, so `0xf000_0000` seem like a good choice.
+
+Each instance will be assgined an id from the base id value, thusly: `instance_object_id = baseObjectId + instance_index`.
+In this example we only have one instance, so the base id becomes the only id we need to test for.
+If you click on the cube, it should grow by 10%.
+If you click outside the cube, it should shrink by 10%.
+
+<PlaygroundComponent {...snippets.dynamic.pick_dynamic}></PlaygroundComponent>
+
+Dynamic objects don't support the same highlight mechanism that static objects do.
+Unlike static geometry, dynamic objects are, well, dynamic.
+You are free to change their appearance any way you'd like to "highlight" them.
+
+:::info
+It is up to you to manage object ids for dynamic objects. Take care to avoid clashes!
+:::
