@@ -31,5 +31,6 @@
     "*.json": "jsonc"
   },
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "modifications"
+  "editor.formatOnSaveMode": "modifications",
+  "prettier.tabWidth": 4
 }
