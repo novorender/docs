@@ -10,23 +10,23 @@ import { DemoHostCtor, IEditorConfig, IDemo } from ".";
  * @param desc some description of demo
  */
 export function demo<T extends string>(dirName: string, fileName: string, demoName: T, code: string, hostCtor: DemoHostCtor<any>, config: IEditorConfig = {}, desc?: string): IDemo {
-  return {
-    [fileName]: {
-      dirName,
-      fileName,
-      demoName,
-      editorConfig: {
-        clickToRun: true,
-        mode: "inline",
-        canvas2D: true,
-        enablePreviewCanvas: false,
-        ...config,
-      },
-      hostCtor,
-      code,
-      editUrl: `demo-snippets/guides/${dirName}/${fileName}.ts`,
-      previewImageUrl: `/v2/assets/demo-screenshots/${fileName}.png`,
-      description: desc || "No Description Available",
-    } as const,
-  } as const;
+    return {
+        [fileName]: {
+            dirName,
+            fileName,
+            demoName,
+            editorConfig: {
+                clickToRun: true,
+                mode: "inline",
+                canvas2D: true,
+                enablePreviewCanvas: false,
+                ...config,
+            },
+            hostCtor,
+            code,
+            editUrl: `demo-snippets/guides/${dirName}/${fileName}.ts`,
+            previewImageUrl: `/v2/assets/demo-screenshots/${fileName}.png`,
+            description: desc || "No Description Available",
+        } as const,
+    } as const;
 }

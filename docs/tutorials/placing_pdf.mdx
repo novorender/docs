@@ -22,38 +22,38 @@ This image can be found by using database search and getting the metadata.
 ```typescript
 const pdfScene = (await dataApi.loadScene("bad260f94a5340b9b767ea2756392be4")) as SceneData;
 if (pdfScene.db) {
-  //Search for preview Property
-  const iterator = pdfScene.db.search(
-    {
-      searchPattern: [{ property: "Novorender/Document/Preview", exact: true }],
-    },
-    undefined
-  );
-  const iteratorResult = await iterator.next();
-  const data = await iteratorResult.value.loadMetaData();
-  for (const prop of data.properties) {
-    if (prop[0] === "Novorender/Document/Preview") {
-      const url = new URL((scene as any).url);
-      url.pathname += prop[1];
-      // This is the PDF image URL
-      return url.toString();
+    //Search for preview Property
+    const iterator = pdfScene.db.search(
+        {
+            searchPattern: [{ property: "Novorender/Document/Preview", exact: true }],
+        },
+        undefined,
+    );
+    const iteratorResult = await iterator.next();
+    const data = await iteratorResult.value.loadMetaData();
+    for (const prop of data.properties) {
+        if (prop[0] === "Novorender/Document/Preview") {
+            const url = new URL((scene as any).url);
+            url.pathname += prop[1];
+            // This is the PDF image URL
+            return url.toString();
+        }
     }
-  }
 }
 return undefined;
 
 for (let i = 0; i < 5; i++) {
-  const iteratorResult = await iterator.next();
+    const iteratorResult = await iterator.next();
 
-  if (iteratorResult.done) {
-    break;
-  }
+    if (iteratorResult.done) {
+        break;
+    }
 
-  // Because we have set the search option "full: true"
-  // .loadMetadata() will not result in any more requests being made
-  // Try flipping it to false and see the difference in the network request log
-  const objectWithMetadata = await iteratorResult.value.loadMetaData();
-  searchResult.push(objectWithMetadata);
+    // Because we have set the search option "full: true"
+    // .loadMetadata() will not result in any more requests being made
+    // Try flipping it to false and see the difference in the network request log
+    const objectWithMetadata = await iteratorResult.value.loadMetaData();
+    searchResult.push(objectWithMetadata);
 }
 ```
 
@@ -62,9 +62,9 @@ The image can be drawn on a 2d canvas
 ```typescript
 const img = new Image();
 img.onload = function () {
-  if (context) {
-    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
-  }
+    if (context) {
+        context.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+    }
 };
 img.src = previewImage;
 ```

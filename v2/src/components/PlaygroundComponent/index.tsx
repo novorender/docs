@@ -13,77 +13,77 @@ import type { IDempProps } from "@site/demo-snippets/demo";
 /** Types END */
 
 export default function PlaygroundComponent({ code, demoName, description, editorConfig, editUrl, previewImageUrl, dirName, fileName, hostCtor }: IDempProps): JSX.Element {
-  const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
-  const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
-  const { colorMode } = useColorMode();
+    const [isPlaygroundActive, setIsPlaygroundActive] = useState<boolean>(false);
+    const { runningPlaygroundId, setRunningPlaygroundId } = useContext(PlaygroundContext);
+    const { colorMode } = useColorMode();
 
-  useEffect(() => {
-    if (!demoName) {
-      throw new Error("Prop `demoName` is required and must be unique");
-    }
+    useEffect(() => {
+        if (!demoName) {
+            throw new Error("Prop `demoName` is required and must be unique");
+        }
 
-    return () => {
-      // close any existing alerts
-      const existing_alert = document.querySelector(".custom-alert-container");
-      if (existing_alert) {
-        document.body.removeChild(existing_alert);
-      }
+        return () => {
+            // close any existing alerts
+            const existing_alert = document.querySelector(".custom-alert-container");
+            if (existing_alert) {
+                document.body.removeChild(existing_alert);
+            }
+        };
+    }, []);
+
+    const runPlayground = (): void => {
+        setRunningPlaygroundId(demoName);
+        setIsPlaygroundActive(true);
     };
-  }, []);
 
-  const runPlayground = (): void => {
-    setRunningPlaygroundId(demoName);
-    setIsPlaygroundActive(true);
-  };
-
-  return (
-    <BrowserOnly fallback={<div>Loading...</div>}>
-      {() => (
-        <div>
-          {editorConfig && (
-            <div
-              style={
-                editorConfig.mode === "inline"
-                  ? { border: "2px solid #d5275d33", padding: 5 }
-                  : {
-                      height: "calc(100vh - 60px)",
-                      overflow: "hidden",
-                      paddingTop: 2,
-                    }
-              }
-            >
-              {editorConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ? (
-                <div style={{ position: "relative" }}>
-                  <button onClick={runPlayground} className="cu-button">
-                    Click to run the demo
-                  </button>
-                  {previewImageUrl && (
-                    <>
-                      <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
-                      <img
-                        src={previewImageUrl}
-                        onError={(e) => {
-                          e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
-                        }}
-                        style={{
-                          width: "100%",
-                          position: "absolute",
-                          maxHeight: 400,
-                          overflow: "hidden",
-                          display: "block",
-                          bottom: 40,
-                        }}
-                      />
-                    </>
-                  )}
+    return (
+        <BrowserOnly fallback={<div>Loading...</div>}>
+            {() => (
+                <div>
+                    {editorConfig && (
+                        <div
+                            style={
+                                editorConfig.mode === "inline"
+                                    ? { border: "2px solid #d5275d33", padding: 5 }
+                                    : {
+                                          height: "calc(100vh - 60px)",
+                                          overflow: "hidden",
+                                          paddingTop: 2,
+                                      }
+                            }
+                        >
+                            {editorConfig.clickToRun && (!isPlaygroundActive || (isPlaygroundActive && demoName !== runningPlaygroundId)) ? (
+                                <div style={{ position: "relative" }}>
+                                    <button onClick={runPlayground} className="cu-button">
+                                        Click to run the demo
+                                    </button>
+                                    {previewImageUrl && (
+                                        <>
+                                            <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
+                                            <img
+                                                src={previewImageUrl}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
+                                                }}
+                                                style={{
+                                                    width: "100%",
+                                                    position: "absolute",
+                                                    maxHeight: 400,
+                                                    overflow: "hidden",
+                                                    display: "block",
+                                                    bottom: 40,
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
+                            )}
+                        </div>
+                    )}
                 </div>
-              ) : (
-                <MonacoWrapper hostCtor={hostCtor} code={code} demoName={demoName} description={description} editorConfig={editorConfig} editUrl={editUrl} dirName={dirName} fileName={fileName}></MonacoWrapper>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </BrowserOnly>
-  );
+            )}
+        </BrowserOnly>
+    );
 }

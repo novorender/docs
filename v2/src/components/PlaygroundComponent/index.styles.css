@@ -1,60 +1,60 @@
 @keyframes slideInDown {
-  from {
-    transform: translate3d(0, -100%, 0);
-    visibility: visible;
-  }
+    from {
+        transform: translate3d(0, -100%, 0);
+        visibility: visible;
+    }
 
-  to {
-    transform: translate3d(0, 0, 0);
-  }
+    to {
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 .alert-enter {
-  opacity: 0;
+    opacity: 0;
 }
 
 .alert-enter-active {
-  opacity: 1;
-  animation-fill-mode: both;
-  animation-duration: 150ms;
-  animation-name: slideInDown;
+    opacity: 1;
+    animation-fill-mode: both;
+    animation-duration: 150ms;
+    animation-name: slideInDown;
 }
 
 .alert-exit {
-  opacity: 1;
+    opacity: 1;
 }
 
 .alert-exit-active {
-  opacity: 0;
-  transform: scale(0.9);
-  transition:
-    opacity 300ms,
-    transform 300ms;
+    opacity: 0;
+    transform: scale(0.9);
+    transition:
+        opacity 300ms,
+        transform 300ms;
 }
 
 .cu-button {
-  background: rgb(0 0 0 / 50%);
-  position: absolute;
-  z-index: 9999;
-  color: #c8c8c8;
-  width: 350px;
-  height: 60px;
-  margin: 0 auto;
-  display: block;
-  left: 0;
-  right: 0;
-  top: 15%;
-  font-size: 14px;
-  font-weight: bold;
-  border: 10px solid;
-  border-image-slice: 1;
-  border-width: 2px;
-  cursor: pointer;
-  border-image-source: linear-gradient(93deg, #12c2e9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
-  transition: all 0.25s ease;
+    background: rgb(0 0 0 / 50%);
+    position: absolute;
+    z-index: 9999;
+    color: #c8c8c8;
+    width: 350px;
+    height: 60px;
+    margin: 0 auto;
+    display: block;
+    left: 0;
+    right: 0;
+    top: 15%;
+    font-size: 14px;
+    font-weight: bold;
+    border: 10px solid;
+    border-image-slice: 1;
+    border-width: 2px;
+    cursor: pointer;
+    border-image-source: linear-gradient(93deg, #12c2e9 -15%, #c471ed 50%, var(--ifm-color-primary) 100%);
+    transition: all 0.25s ease;
 }
 
 .cu-button:hover {
-  font-size: 16px;
-  background: rgb(0 0 0 / 65%);
+    font-size: 16px;
+    background: rgb(0 0 0 / 65%);
 }
