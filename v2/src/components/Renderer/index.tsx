@@ -89,8 +89,8 @@ export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, can
                             {editorConfig?.canvas2D && (
                                 <canvas
                                     ref={canvas2DRef}
-                                    // width={canvasDimensions.width}
-                                    // height={canvasDimensions.height}
+                                    width={canvasRef?.current?.width}
+                                    height={canvasRef?.current?.height}
                                     style={{
                                         pointerEvents: "none",
                                         width: "100%",
