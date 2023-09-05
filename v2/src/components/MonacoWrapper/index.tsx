@@ -258,12 +258,8 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     }, [monaco]);
 
     const reportErrors = (errors: any[]) => {
-
-        console.log("setModuleInternalValidationErrors ", errors);
-
         setModuleInternalValidationErrors([...((errors || []) as Error[])]);
         if (errors && errors.length) {
-            // console.log("validation errors ==> ", errors);
             setEditorStatus(EditorStatus.ERRORS);
         } else {
             setEditorStatus(EditorStatus.OKAY);
@@ -373,7 +369,6 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             const model = editor.getModel();
             // hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
             const rangesToHide = model.findMatches("//\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)//\\s*HiddenRangeEnded", false, true, false, null, true);
-            console.log("rangesToHide ", rangesToHide);
             if (rangesToHide && rangesToHide.length) {
                 // @ts-expect-error
                 editor.setHiddenAreas(rangesToHide.map((r) => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
@@ -392,12 +387,8 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             }
         });
         if (errorMarkers.length) {
-            console.log("errorMarkers.length")
             setEditorStatus(EditorStatus.ERRORS);
         }
-
-        console.log("setGeneralSyntaxErrors ", errorMarkers)
-
         setGeneralSyntaxErrors(errorMarkers);
     }
 
