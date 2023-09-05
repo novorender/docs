@@ -47,7 +47,7 @@ function drawLine(context2D: CanvasRenderingContext2D, view: View, measureView: 
     const drawProd = point2 ? measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], false, false) : measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], false, false);
     if (drawProd) {
         // Draw result in green, all lines use 3 pixel width
-        drawProduct(context2D, camSettings, drawProd, { lineColor: "green" }, 3, { type: "default" });
+        drawProduct(context2D, camSettings, drawProd, { lineColor: "green", displayAllPoints: true }, 3, { type: "centerOfLine", unit: "m", customText: point2 ? [vec3.distance(point1 as ReadonlyVec3, point2).toFixed(3)] : [] });
     }
 }
 
