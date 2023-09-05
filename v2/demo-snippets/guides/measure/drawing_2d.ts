@@ -25,51 +25,57 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
                 selectEntity = 1;
             }
 
-            //As long as one object is selected log out the values
-            //Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
+            // As long as one object is selected log out the values
+            // Note that if measureEntity2 is undefined then the result will be the parametric values of measureEntity1
             if (measureEntity1) {
                 result = await measureView.core.measure(measureEntity1, measureEntity2);
             }
 
-            if (context2D) {
-                context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-                await draw2d(context2D, view, measureView, result, measureEntity1, measureEntity2);
-            }
+            await draw2d(canvas2D, context2D, view, measureView, result, measureEntity1, measureEntity2);
         }
     };
 
     view.animate = async () => {
-        if (context2D) {
-            context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-            await draw2d(context2D, view, measureView, result, measureEntity1, measureEntity2);
-        }
+        await draw2d(canvas2D, context2D, view, measureView, result, measureEntity1, measureEntity2);
     };
 }
 
-async function draw2d(context: CanvasRenderingContext2D, view: View, measureView: MeasureView, result: MeasurementValues | undefined, measureEntity1: MeasureEntity | undefined, measureEntity2: MeasureEntity | undefined) {
+async function draw2d(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D | null,
+    view: View,
+    measureView: MeasureView,
+    result: MeasurementValues | undefined,
+    measureEntity1: MeasureEntity | undefined,
+    measureEntity2: MeasureEntity | undefined
+) {
     // Extract needed camera settings
     const { rotation, position } = view.renderState.camera;
     const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
     const camSettings = { pos: position, dir: cameraDirection };
 
-    //Await all draw objects first to avoid flickering
+    // Await all draw objects first to avoid flickering
     const [drawResult, drawProduct1, drawProduct2] = await Promise.all([
         result && measureView.draw.getDrawEntity(result as any),
         measureEntity1 && measureView.draw.getDrawEntity(measureEntity1),
         measureEntity2 && measureView.draw.getDrawEntity(measureEntity2),
     ]);
 
-    // Draw result in green, all lines use 3 pixel width
-    if (drawResult) {
-        drawProduct(context, camSettings, drawResult, { lineColor: "green" }, 3);
-    }
-    if (drawProduct1) {
-        //Draw first object with yellow line and blue fill
-        drawProduct(context, camSettings, drawProduct1, { lineColor: "yellow", fillColor: "blue" }, 3, { type: "default" });
-    }
-    if (drawProduct2) {
-        //Draw second object with blue lines and yellow fill
-        drawProduct(context, camSettings, drawProduct2, { lineColor: "blue", fillColor: "yellow" }, 3, { type: "default" });
+    if (context) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw result in green, all lines use 3 pixel width
+        if (drawResult) {
+            drawProduct(context, camSettings, drawResult, { lineColor: "green" }, 3);
+        }
+        if (drawProduct1) {
+            // Draw first object with yellow line and blue fill
+            drawProduct(context, camSettings, drawProduct1, { lineColor: "yellow", fillColor: "blue" }, 3, { type: "default" });
+        }
+        if (drawProduct2) {
+            // Draw second object with blue lines and yellow fill
+            drawProduct(context, camSettings, drawProduct2, { lineColor: "blue", fillColor: "yellow" }, 3, { type: "default" });
+        }
     }
 }
 

@@ -24,31 +24,31 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
             }
 
             if (context2D && (point1 || point2)) {
-                context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-                drawLine(context2D, view, measureView, point1, point2);
+                drawLine(canvas2D, context2D, view, measureView, point1, point2);
+
             }
         }
     };
 
     view.animate = () => {
         if (context2D && (point1 || point2)) {
-            context2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
-            drawLine(context2D, view, measureView, point1, point2);
+            drawLine(canvas2D, context2D, view, measureView, point1, point2);
         }
     };
 }
 
-function drawLine(context2D: CanvasRenderingContext2D, view: View, measureView: MeasureView, point1: ReadonlyVec3 | undefined, point2: ReadonlyVec3 | undefined): void {
+function drawLine(canvas: HTMLCanvasElement, context2D: CanvasRenderingContext2D, view: View, measureView: MeasureView, point1: ReadonlyVec3 | undefined, point2: ReadonlyVec3 | undefined): void {
     // Extract needed camera settings
     const { rotation, position } = view.renderState.camera;
     const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
     const camSettings = { pos: position, dir: cameraDirection };
-
     const drawProd = point2 ? measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], false, false) : measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], false, false);
     if (drawProd) {
+        context2D.clearRect(0, 0, canvas.width, canvas.height);
         // Draw result in green, all lines use 3 pixel width
         drawProduct(context2D, camSettings, drawProd, { lineColor: "green", displayAllPoints: true }, 3, { type: "centerOfLine", unit: "m", customText: point2 ? [vec3.distance(point1 as ReadonlyVec3, point2).toFixed(3)] : [] });
     }
+
 }
 
 /**
@@ -58,7 +58,7 @@ function drawLine(context2D: CanvasRenderingContext2D, view: View, measureView: 
 interface ColorSettings {
     lineColor?: string | CanvasGradient | string[];
     fillColor?: string;
-    pointColor?: string | { start: string; middle: string; end: string };
+    pointColor?: string | { start: string; middle: string; end: string; };
     outlineColor?: string;
     complexCylinder?: boolean;
     displayAllPoints?: boolean;
@@ -352,7 +352,7 @@ function getLineColor(lineColor: string | CanvasGradient | string[] | undefined,
     return "black";
 }
 
-function getPointColor(pointColor: string | { start: string; middle: string; end: string }, idx: number, length: number) {
+function getPointColor(pointColor: string | { start: string; middle: string; end: string; }, idx: number, length: number) {
     if (typeof pointColor === "string") {
         return pointColor;
     }
