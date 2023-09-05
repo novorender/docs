@@ -28,6 +28,7 @@ import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCop
 
 import WebAppDTS from "@site/static/web_api.d.ts?raw";
 import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
+import WebGlDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
 import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
@@ -98,7 +99,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     const demoEditUrlEndpoint = useBaseUrl(editUrl);
     const demoEditUrl = new URL(siteConfig.presets[0][1]["docs"].editUrl + demoEditUrlEndpoint).toString();
 
-    const dts_files = [WebAppDTS, GlMatrixDTS, DataJsApiDTS];
+    const dts_files = [WebAppDTS, WebGlDTS, GlMatrixDTS, DataJsApiDTS];
 
     useEffect(() => {
         (async () => await runDemo())();
@@ -257,6 +258,9 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     }, [monaco]);
 
     const reportErrors = (errors: any[]) => {
+
+        console.log("setModuleInternalValidationErrors ", errors);
+
         setModuleInternalValidationErrors([...((errors || []) as Error[])]);
         if (errors && errors.length) {
             // console.log("validation errors ==> ", errors);
@@ -388,8 +392,12 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             }
         });
         if (errorMarkers.length) {
+            console.log("errorMarkers.length")
             setEditorStatus(EditorStatus.ERRORS);
         }
+
+        console.log("setGeneralSyntaxErrors ", errorMarkers)
+
         setGeneralSyntaxErrors(errorMarkers);
     }
 
