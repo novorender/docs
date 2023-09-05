@@ -1,0 +1,35 @@
+---
+title: "Object metadata"
+description: "Getting metadata using various techniques."
+tags:
+    - Properties
+    - Zoom to
+    - Move to
+    - Fly to
+keywords: ["novorender api docs", "web api", "data js api", "object metadata"]
+---
+
+import { snippets } from "@site/demo-snippets/index";
+
+Object metadata is not loaded automatically with the scene and may require additional server requests depending on what data you need.
+Generally you will work with either <code>[HierarchicalObjectReference](https://docs.novorender.com/docs/webgl-api/interfaces/NovoRender.HierarcicalObjectReference)</code> or the full <code>[ObjectData](https://docs.novorender.com/docs/webgl-api/interfaces/NovoRender.ObjectData)</code> metadata set.
+
+## From pick
+
+If you are not already familiar with picking, see the guide for [Object selection](./object_selection)  first.
+
+<PlaygroundComponent {...snippets.objectMetadata.metadata_from_pick} />
+
+## From search
+
+If you are not already familiar with searching, see [Searching](./searching) guide first.
+
+<PlaygroundComponent {...snippets.objectMetadata.metadata_from_search} />
+
+## Fly to objects
+
+The previous examples show how to load object data and dump it in a box.  
+In this example we will show how to fly to objects using <CodeLink type="class" name="BaseController.zoomto" />.  
+When the example is run it will first do a quick search for 4 objects and fly to them. After that it will fly to any object you click.
+
+<PlaygroundComponent {...snippets.objectMetadata.fly_to} />
