@@ -44,7 +44,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                         <div
                             style={
                                 editorConfig.mode === "inline"
-                                    ? { border: "2px solid #d5275d33", padding: 5 }
+                                    ? { border: "2px solid #d5275d33", padding: 5, marginBottom: 20 }
                                     : {
                                           height: "calc(100vh - 60px)",
                                           overflow: "hidden",
