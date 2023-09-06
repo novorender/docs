@@ -86,6 +86,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
     const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
     const [hasMainChanged, setHasMainChanged] = useState(false);
+    const [isReadyToUpdate, setIsReadyToUpdate] = useState(false);
     const [fontSize, setFontSize] = useState<number>();
     const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
     const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
@@ -107,7 +108,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
     useEffect(() => {
         (async () => {
-            if (codeOutput) {
+            if (codeOutput && isReadyToUpdate) {
                 try {
                     const encodedJs = encodeURIComponent(codeOutput);
                     const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
@@ -119,7 +120,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                 }
             }
         })();
-    }, [codeOutput]);
+    }, [codeOutput, isReadyToUpdate]);
 
     useEffect(() => {
         console.log("playgroundConfig ", editorConfig);
@@ -267,14 +268,13 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     };
 
     async function runDemo() {
-        (async () => {
-            if ((canvas.current && canvas2D.current, previewCanvas.current)) {
-                const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
-                const host = new hostCtor(context);
-                hostRef.current = host;
-                await host.run();
-            }
-        })();
+        if (canvas.current && canvas2D.current && previewCanvas.current) {
+            const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
+            const host = new hostCtor(context);
+            hostRef.current = host;
+            setIsReadyToUpdate(true);
+            await host.run();
+        }
     }
 
     function handleEditorWillMount(monaco) {
@@ -652,7 +652,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     );
 }
 
-const StatusIndicator = ({ status }: { status: EditorStatus }) => {
+const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
     return (
         <div style={{ marginLeft: 6 }}>
             {(() => {
