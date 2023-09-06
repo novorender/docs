@@ -6,5 +6,5 @@ export * from "./stateAnimation";
 export * from "./stateCondos";
 export * from "./view";
 export * from "./viewCondos";
-export * from "./viewCondosWithCanvas2d";
 export * from "./search";
+export * from "./objectGroups";

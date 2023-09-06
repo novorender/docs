@@ -81,6 +81,7 @@ function createFloorButtons(container: HTMLElement, floors: ObjectGroup[], onCli
     wrapper.style.top = "0";
     floors.forEach((floor) => {
         const btn = document.createElement("button");
+        btn.style.marginRight = "2px"
         btn.innerText = floor.name;
         btn.onclick = () => {
             onClick(floor);
