@@ -1,26 +1,27 @@
-import { createAPI, type SceneData } from "@novorender/data-js-api";
+import { createAPI, type SceneData, type API } from "@novorender/data-js-api";
 import { View } from "@novorender/api";
 import { IDemoHost, IModule } from "../demo";
 import { BaseDemoHost } from "./base";
 
-type Args = [View: View, sceneData: SceneData];
+type Args = [View: View, sceneData: SceneData, dataApi?: API];
 type Ret = void;
 type Module = IModule<Ret, Args>;
 
 export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
     sceneData!: SceneData;
+    dataAPI!: API;
 
     async init() {
         const { view } = this;
         // Initialize the data API with the Novorender data server service
-        const dataApi = createAPI({
+        this.dataAPI = createAPI({
             serviceUrl: "https://data.novorender.com/api",
         });
 
         try {
             // Load scene metadata
             // Condos scene ID, but can be changed to any public scene ID
-            const sceneData = await dataApi.loadScene("95a89d20dd084d9486e383e131242c4c");
+            const sceneData = await this.dataAPI.loadScene("c132d3eecf4f4247ace112410f4219aa");
 
             console.log("sceneData ", sceneData);
 
@@ -41,7 +42,7 @@ export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
     updateModule(module: Module) {
         // TODO: verify module shape first
         try {
-            module.main(this.view, this.sceneData);
+            module.main(this.view, this.sceneData, this.dataAPI);
         } catch (error) {
             this.context.reportErrors(error);
         }

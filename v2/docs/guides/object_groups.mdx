@@ -1,0 +1,121 @@
+---
+title: "Object groups"
+sidebar_position: 5
+description: "Creating or modifying or isolating object groups."
+keywords: ["novorender api docs", "web api", "data js api", "creating object groups", "isolating object groups"]
+---
+
+import { snippets } from "@site/demo-snippets/index";
+
+Although the [ObjectGroup interface](https://docs.novorender.com/docs/data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particularly noteworthy,
+the <code>[SceneData.objectGroups](https://docs.novorender.com/docs/data-js-api/interfaces/DataJsAPI.SceneData#objectgroups)</code> property can be extremely useful.
+Object IDs in Novorender are not fixed and may change whenever the scene's resources are modified.
+Therefore if you store the IDs from a search (e.g. all objects on the first floor) and then later modify the scene's resources,
+the scene's objects' IDs may have changed and your stored list of IDs will be stale.
+
+The search patterns assigned to each object group is run every time a scene's resources are modified so that the list of IDs always will be correct.
+That way you can easily create cached searches by using object groups.
+
+When the <code>[objectGroups.ids](https://docs.novorender.com/docs/data-js-api/interfaces/DataJsAPI.Bookmark.ObjectGroup#ids)</code> list becomes extensive, the `.ids` property will be `undefined` and must be explicitly loaded, as demonstrated in the [Floors demo](#floors-example).
+
+## Creating a group
+
+```typescript
+// Search utility function to return array of object IDs
+async function search(scene: Scene, searchPattern: SearchPattern[]): Promise<number[]> {
+    const iterator = scene.search({ searchPattern });
+
+    const result: number[] = [];
+    for await (const object of iterator) {
+        result.push(object.id);
+    }
+
+    return result;
+}
+
+// Search pattern to assign to group
+const searchPattern: SearchPattern[] = [
+    {
+        property: "path",
+        value: "Farger.IFC/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
+        exact: true,
+    },
+];
+
+const secondFloor: ObjectGroup = {
+    // This search is run on the server every time the scene is rebuilt
+    // and the resulting object IDs are saved to the group.ids property
+    search: searchPattern,
+    // The search is not run when the groups are saved
+    // so you have to run it client side and set the .ids property yourself when you create the group
+    ids: await search(scene, searchPattern),
+    // Search deep
+    includeDescendants: true,
+    // The remaining properties are not used for anything on the server
+    // Group id - UUIDv4 in this case, but it's up to you
+    id: "56196cbf-f5aa-4f65-9934-911546f89225",
+    name: "2nd floor", // Display name
+    grouping: "", // We use this as a path style string to nest groups in the UI
+    color: [1, 0, 0, 1], // Can be used to highlight objects in group
+    selected: false,
+    hidden: false,
+};
+
+// Before saving it is a good idea to load the latest scene data
+// in case it has been modified by someone else as there is currently no way of just adding groups
+const sceneData = await dataApi.loadScene(SCENE_ID);
+
+dataApi.putScene({
+    // Keep most of the data
+    ...sceneData,
+    // scene.id is the id of the main/admin scene while SCENE_ID is the viewer scene id
+    url: `${SCENE_ID}:${scene.id}`,
+    // Overwrite .objectGroups
+    objectGroups: [secondFloor],
+});
+
+// Now that the group is saved the .ids property will be kept up to date by the server
+```
+
+## Modifying groups
+
+### Edit a group
+```typescript
+// Load scene data
+const sceneData = await dataApi.loadScene(SCENE_ID);
+// ID of group to edit
+const toEdit = "56196cbf-f5aa-4f65-9934-911546f89225";
+// Create new array with the changes applied.
+// In this case name is set to "Updated name"
+const updatedGroups = sceneData.objectGroups.map((group) => (group.id === toEdit ? { ...group, name: "Updated name" } : group));
+
+// Save scene
+dataApi.putScene({
+    ...sceneData,
+    url: `${SCENE_ID}:${scene.id}`,
+    objectGroups: updatedGroups,
+});
+```
+
+### Delete a group
+```typescript
+// Load scene data
+const sceneData = await dataApi.loadScene(SCENE_ID);
+// ID of group to delete
+const toDelete = "56196cbf-f5aa-4f65-9934-911546f89225";
+// Create new array without the group to delete
+const updatedGroups = sceneData.objectGroups.filter((group) => group.id !== toDelete);
+
+// Save scene
+dataApi.putScene({
+    ...sceneData,
+    url: `${SCENE_ID}:${scene.id}`,
+    objectGroups: updatedGroups,
+});
+```
+
+## Floors example
+
+In this example, we've established predefined groups for each floor and implemented buttons to isolate [objectGroups](https://docs.novorender.com/docs/data-js-api/interfaces/DataJsAPI.Bookmark-1#objectgroups) within the group corresponding to the selected floor.
+
+<PlaygroundComponent {...snippets.objectGroups.floors} />

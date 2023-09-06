@@ -6,3 +6,4 @@ export * from "./object_selection";
 export * from "./searching";
 export * from "./measure";
 export * from "./object_metadata";
+export * from "./object_groups";
