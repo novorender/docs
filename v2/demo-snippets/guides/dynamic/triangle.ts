@@ -2,15 +2,9 @@ import type { RenderStateDynamicGeometry, RenderStateChanges, RenderStateDynamic
 
 export function main(): RenderStateChanges {
     const vertices = new Float32Array([
-        0,
-        2,
-        0, // xyz #0
-        -1,
-        0,
-        0, // xyz #1
-        1,
-        0,
-        0, // xyz #2
+        0, 2, 0, // xyz #0
+        -1, 0, 0, // xyz #1
+        1, 0, 0, // xyz #2
     ]);
     const geometry: RenderStateDynamicGeometry = {
         primitiveType: "TRIANGLES",
