@@ -15,7 +15,7 @@ const config = {
     title: "Novorender",
     tagline: "Novorender API Docs",
     url: "https://novorender.com/",
-    baseUrl: "/v2/",
+    baseUrl: "/",
     onBrokenLinks: "warn",
     onBrokenMarkdownLinks: "warn",
     favicon: "img/favicon.ico",
@@ -79,7 +79,7 @@ const config = {
                     },
                     // { to: '/blog', label: 'Blog', position: 'left' },
                     {
-                        href: baseGithub,
+                        href: `${baseGithub}/ts`,
                         className: "header-github-link",
                         position: "right",
                         "aria-label": "GitHub repository",

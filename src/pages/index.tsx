@@ -31,7 +31,7 @@ export default function Home(): JSX.Element {
     React.useEffect(() => {
         /** transparent navbar on homepage */
         const navbar: HTMLElement = document.querySelector(".navbar");
-        if ((location.pathname === "/v2/" || location.pathname === "/v2") && !navbar.classList.contains("transparent")) {
+        if (location.pathname === "/" && !navbar.classList.contains("transparent")) {
             navbar.classList.add("transparent");
         }
     }, [location]);

@@ -1,14 +1,14 @@
 {
     "name": "novorender-api-docs",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "private": true,
     "engines": {
         "node": ">=16.14"
     },
     "scripts": {
         "docusaurus": "docusaurus",
-        "start": "npm run re-gen && docusaurus start",
-        "build": "npm run validate-snippets && npm run re-gen && docusaurus build && cd v2/ && npm ci && npm run build",
+        "start": "npm run re-gen && docusaurus start --port 3001",
+        "build": "npm run validate-snippets && npm run re-gen && docusaurus build --out-dir ../build/legacy",
         "swizzle": "docusaurus swizzle",
         "deploy": "docusaurus deploy",
         "clear": "docusaurus clear",
@@ -20,7 +20,6 @@
         "gen:demo-screenshots": "tsc -p scene-screenshot-gen/tsconfig.json && node scene-screenshot-gen/index.js",
         "validate-and-gen": "npm run validate:json-config && npm run gen:demos-screenshots --",
         "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
-        "prepare": "husky install",
         "lint": "eslint src/ demo-snippets/ --max-warnings=0",
         "gen-api-docs": "docusaurus gen-api-docs",
         "clean-api-docs": "docusaurus clean-api-docs",
@@ -69,7 +68,6 @@
         "docusaurus-theme-openapi-docs": "2.0.0-beta.3",
         "eslint": "^8.35.0",
         "eslint-plugin-react": "^7.32.2",
-        "husky": "8.0.3",
         "lint-staged": "13.2.3",
         "path-browserify": "1.0.1",
         "process": "0.11.10",

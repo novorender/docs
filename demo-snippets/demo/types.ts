@@ -33,7 +33,7 @@ export interface IDemoContext<T = any> {
 export let coreImportsPromise: Promise<ViewImports>;
 // for fixing docusaurus build
 if (typeof window !== "undefined") {
-    const baseUrl = new URL(".", window.location.origin + "/v2/");
+    const baseUrl = new URL(".", location.origin);
     const coreImportsMap: ViewImportmap = { baseUrl, shaders };
     coreImportsPromise = View.downloadImports(coreImportsMap);
 }

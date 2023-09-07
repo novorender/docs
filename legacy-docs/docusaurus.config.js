@@ -12,9 +12,9 @@ const baseAPI = "https://data.novorender.com";
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: "Novorender",
-    tagline: "Novorender API Docs",
+    tagline: "Novorender API Docs (Legacy)",
     url: "https://novorender.com/",
-    baseUrl: "/",
+    baseUrl: "/legacy/",
     onBrokenLinks: "warn",
     onBrokenMarkdownLinks: "warn",
     favicon: "img/favicon.ico",

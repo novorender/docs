@@ -38,7 +38,7 @@ export default function Playground(): JSX.Element {
                                     alt={t.demoName}
                                     title={t.demoName}
                                     onError={(e) => {
-                                        e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
+                                        e.currentTarget.src = `/img/playground-demo-placeholder-dark.jpg`;
                                         e.currentTarget.alt = "demo preview image not found";
                                         e.currentTarget.title = "demo preview image not found";
                                     }}

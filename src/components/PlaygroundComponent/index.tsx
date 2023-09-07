@@ -59,11 +59,11 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                                     </button>
                                     {previewImageUrl && (
                                         <>
-                                            <img src={`/v2/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
+                                            <img src={`/img/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(4px)", width: "100%" }} />
                                             <img
                                                 src={previewImageUrl}
                                                 onError={(e) => {
-                                                    e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
+                                                    e.currentTarget.src = `/img/playground-demo-placeholder-dark.jpg`;
                                                 }}
                                                 style={{
                                                     width: "100%",

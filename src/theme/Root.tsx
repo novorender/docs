@@ -88,7 +88,7 @@ export default function Root({ children }) {
         };
     }, []);
 
-    const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/v2/api_proxy.js", "gl-matrix": "/v2/gl_matrix_proxy.js", "@novorender/data-js-api": "/v2/data_api_proxy.js" } });
+    const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/api_proxy.js", "gl-matrix": "/gl_matrix_proxy.js", "@novorender/data-js-api": "/data_api_proxy.js" } });
 
     return (
         <>
