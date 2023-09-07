@@ -60,7 +60,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                                     </button>
                                     {previewImageUrl && (
                                         <>
-                                            <img src={`/assets/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
+                                            <img src={`/legacy/assets/playground-placeholder-${colorMode}.png`} style={{ filter: "blur(2px)", width: "100%" }} />
                                             <img
                                                 src={previewImageUrl}
                                                 onError={(e) => {
