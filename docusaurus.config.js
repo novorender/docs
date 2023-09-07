@@ -79,6 +79,15 @@ const config = {
                     },
                     // { to: '/blog', label: 'Blog', position: 'left' },
                     {
+                        type: "dropdown",
+                        position: "right",
+                        label: "Stable",
+                        items: [
+                            { to: "/", label: "Stable (current)" },
+                            { type: "html", value: `<a class="dropdown__link" href="#" onClick="window.location.href = window.location.origin + '/legacy'">Legacy</a>` },
+                        ],
+                    },
+                    {
                         href: `${baseGithub}/ts`,
                         className: "header-github-link",
                         position: "right",
