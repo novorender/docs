@@ -1,17 +1,19 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { useColorMode } from "@docusaurus/theme-common";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
+import { useColorMode } from "@docusaurus/theme-common";
 import { useHistory } from "@docusaurus/router";
-import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
+import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Admonition from "@theme/Admonition";
 import { Allotment } from "allotment";
 import { Popover } from "react-tiny-popover";
 import Renderer from "@site/src/components/Renderer";
 import Spinner from "@site/src/components/misc/spinner";
+import { IDemoHost, type IDempProps, createDemoContext } from "@site/demo-snippets/demo";
 const { devDependencies } = require("../../../package.json");
 
 /** CSS */
@@ -21,53 +23,13 @@ import "allotment/dist/style.css";
 
 /** Icons */
 import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
-import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faCode, faSlash, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear, faCircleExclamation, faCheck, faSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
-import WebglDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
-import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
-import MeasureApiDTS from "@site/node_modules/@novorender/measure-api/index.d.ts?raw";
+import WebAppDTS from "@site/static/web_api.d.ts?raw";
 import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
-
-import * as MeasureAPI from "@novorender/measure-api";
-import * as DataJsAPI from "@novorender/data-js-api";
-import * as GlMatrix from "gl-matrix";
-
-/** Types */
-import type { API } from "@novorender/webgl-api";
-import type { IDempProps } from "@site/demo-snippets/misc";
-/** Types END */
-
-export interface IParams {
-    webglAPI: API;
-    measureAPI: typeof MeasureAPI;
-    dataJsAPI: typeof DataJsAPI;
-    glMatrix: typeof GlMatrix;
-    primaryCanvas: HTMLCanvasElement;
-    canvas2D: HTMLCanvasElement;
-}
-
-// the namespace from the original index.d.ts needs replacing
-// or Monaco doesn't like it
-const dts_fixed = WebglDTS.replace(`"@novorender/webgl-api"`, "NovoRender");
-// const dts_fixed_measure_api = MeasureApiDTS.replace(`"@novorender/measure-api"`, "NovoRender1")
-
-/**
- * @todo move to separate file
- */
-function useDebounce<T>(value: T, delay?: number): T {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
-
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [value, delay]);
-
-    return debouncedValue;
-}
+import WebGlDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
+import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
     minimap: { enabled: false },
@@ -83,42 +45,87 @@ const editorOptions: editor.IEditorConstructionOptions = {
     lineNumbers: "off",
 };
 
-export default function MonacoWrapper({ code, demoName, dirName, description, editorConfig, editUrl }: IDempProps): JSX.Element {
+enum EditorStatus {
+    INITIAL = 0,
+    OKAY = 1,
+    WORKING = 2,
+    ERRORS = 3,
+    WARNINGS = 4,
+}
+
+/** Copied from Monaco source code to fix SSR build */
+enum MarkerSeverity {
+    Hint = 1,
+    Info = 2,
+    Warning = 4,
+    Error = 8,
+}
+
+export default function MonacoWrapper({ code, demoName, dirName, fileName, description, editorConfig, editUrl, hostCtor }: IDempProps): JSX.Element {
     const monaco = useMonaco();
     const { siteConfig } = useDocusaurusContext();
     const { colorMode } = useColorMode();
+    const themeURL = useBaseUrl("/assets/monaco-theme-oceanic-next.json");
     const history = useHistory();
     const editorInstance = useRef(null);
     const textAreaInstance = useRef<HTMLTextAreaElement>(null);
     const editorFooterInstance = useRef<HTMLElement>();
     const editorNavbarInstance = useRef<HTMLElement>();
     const [codeOutput, setCodeOutput] = useState<string>(null);
-    const [codeError, setCodeError] = useState(null);
     const [initialCode, setInitialCode] = useState<string>(null);
     const [tsCodeForClipboard, setTsCodeForClipboard] = useState<string>(initialCode);
     const [theme, setTheme] = useState<"light" | "vs-dark" | "">("");
-    const [isActivity, setIsActivity] = useState<boolean>(false);
-    const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>(null);
-    const [canvasWrapperRef, setCanvasWrapperRef] = useState<HTMLDivElement>(null);
-    const [api, setApiInstance] = useState<any>(); // Create API
-    const [measureApiInstance, setMeasureApiInstance] = useState<any>(); // Measure API
+    const [editorStatus, setEditorStatus] = useState<EditorStatus>(EditorStatus.INITIAL);
     const [splitPaneDirectionVertical, setSplitPaneDirectionVertical] = useState<boolean>(true); // Direction to split. If true then the panes will be stacked vertically, otherwise they will be stacked horizontally.
     const [force_rerender_allotment, set_force_rerender_allotment] = useState<boolean>(true); // allotment doesn't support dynamically changing pane positions so we must force re-render the component so it recalculates the size
-    const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
-    const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 80) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+    const [editorHeight, setEditorHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
+    const [rendererHeight, setRendererHeight] = useState<number>(editorConfig.mode === "inline" ? (innerHeight * 60) / 100 / 2 : innerHeight / 2 - 68); // minus editor top-bar and footer height
     const [rendererPaneWidth, setRendererPaneWidth] = useState<number>();
     const [isDemoDescPopoverOpen, setIsDemoDescPopoverOpen] = useState<boolean>(false);
     const [isMessagesAndAlertPopoverOpen, setIsMessagesAndAlertPopoverOpen] = useState<boolean>(false);
     const [messagesAndAlerts, setMessagesAndAlerts] = useState<string[]>([]);
-    const [main, setMain] = useState<any>();
     const [isHiddenAreasShowing, setIsHiddenAreasShowing] = useState<boolean>(false);
-    const main_debounced = useDebounce(codeOutput, 1000);
     const [hasMainChanged, setHasMainChanged] = useState(false);
+    const [isReadyToUpdate, setIsReadyToUpdate] = useState(false);
     const [fontSize, setFontSize] = useState<number>();
+    const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
+    const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
+    const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
+    const hostRef = useRef<IDemoHost<any>>(null);
+    const canvasWrapper = useRef<HTMLDivElement>(null);
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const canvas2D = useRef<HTMLCanvasElement>(null);
+    const previewCanvas = useRef<HTMLCanvasElement>(null);
+    const allotmentRef = useRef(null);
+    const demoEditUrlEndpoint = useBaseUrl(editUrl);
+    const demoEditUrl = new URL(siteConfig.presets[0][1]["docs"].editUrl + demoEditUrlEndpoint).toString();
+
+    const dts_files = [WebAppDTS, WebGlDTS, GlMatrixDTS, DataJsApiDTS];
+
+    useEffect(() => {
+        (async () => await runDemo())();
+    }, [canvas, canvas2D, previewCanvas]);
+
+    useEffect(() => {
+        (async () => {
+            if (codeOutput && isReadyToUpdate) {
+                try {
+                    const encodedJs = encodeURIComponent(codeOutput);
+                    const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
+                    const module = await import(/* webpackIgnore: true */ dataUri);
+                    setEditorStatus(EditorStatus.OKAY);
+                    await hostRef.current.updateModule(module);
+                } catch (error) {
+                    setEditorStatus(EditorStatus.ERRORS);
+                    setModuleInternalValidationErrors([error]);
+                    console.warn("something bad happened ", error);
+                }
+            }
+        })();
+    }, [codeOutput, isReadyToUpdate]);
 
     useEffect(() => {
         console.log("playgroundConfig ", editorConfig);
-
         if (code) {
             setInitialCode(code);
             setTsCodeForClipboard(code); // for clipboard copy
@@ -144,33 +151,16 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         }
     };
 
-    /**
-     * @description extract and return render config
-     * @param transpiledOutput string that contains config
-     * @returns RenderConfig
-     */
-    const returnRenderConfigFromOutput = async (transpiledOutput: string): Promise<{ main: () => void; showTip?: () => void }> => {
-        const encodedJs = encodeURIComponent(transpiledOutput);
-        const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
-        const { main, showTip } = await import(/* webpackIgnore: true */ dataUri);
-
-        console.log("main ==> ", main);
-
-        return { main, showTip };
-    };
-
     const codeChangeHandler = async (tsCode: string) => {
-        setIsActivity(true); // toggle spinner.
+        setEditorStatus(EditorStatus.WORKING); // toggle spinner.
         setTsCodeForClipboard(tsCode); // for clipboard copy
         const output = await returnTranspiledOutput(editorInstance.current, monaco);
-
-        console.log("output ", output);
 
         // compare current output with previous output to check if anything has
         // been changed.
         if (codeOutput && JSON.stringify(codeOutput) === JSON.stringify(output)) {
             console.log("[INFO]: Code hasn't been changed, returning.");
-            setIsActivity(false); // toggle spinner.
+            setEditorStatus(EditorStatus.OKAY); // toggle spinner.
             return false;
         }
 
@@ -178,24 +168,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         setCodeOutput(output);
         setHasMainChanged(true);
     };
-
-    useEffect(() => {
-        if (main_debounced) {
-            (async () => {
-                const { main } = await returnRenderConfigFromOutput(codeOutput);
-                if (main) {
-                    // first reset `main` so the react forces
-                    // the component to remount which then creates
-                    // everything again (the view, scene etc...)
-                    setMain(() => null);
-
-                    // set the main again
-                    setMain(() => main);
-                }
-                setIsActivity(false); // toggle spinner.
-            })();
-        }
-    }, [main_debounced]);
 
     useEffect(() => {
         let unblock;
@@ -223,22 +195,8 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     }, [hasMainChanged]);
 
     useEffect(() => {
-        (async () => {
-            // import dynamically for SSR
-            const api = await import("@novorender/webgl-api");
-            const measureApi = await import("@novorender/measure-api");
-
-            setApiInstance(api);
-            setMeasureApiInstance(measureApi);
-
-            const apiInstance = api.createAPI();
-
-            if (!apiInstance["supportsOffscreenCanvas"]) {
-                setMessagesAndAlerts([...messagesAndAlerts, "⚠ OffscreenCanvas is not supported in this browser."]);
-            }
-        })();
-
         return () => {
+            hostRef.current.exit(); // TODO: use await?
             window.removeEventListener("beforeunload", unloadEventHandler);
         };
     }, []);
@@ -257,32 +215,21 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
 
     useEffect(() => {
         if (monaco) {
-            // Add additional d.ts files to the JavaScript language service and change.
-            // Also change the default compilation options.
-            // The sample below shows how a class Facts is declared and introduced
-            // to the system and how the compiler is told to use ES6 (target=2).
+            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+                strict: false,
+                noImplicitAny: false,
+                noImplicitThis: false,
+                strictNullChecks: false,
+                strictFunctionTypes: false,
+                strictPropertyInitialization: false,
+                noUnusedLocals: false,
+                noUnusedParameters: false,
+                noEmitOnError: true,
+            });
 
-            // validation settings
-            // monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-            //   noSemanticValidation: true,
-            //   noSyntaxValidation: false
-            // });
-
-            // compiler options
-            //   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-            //     // moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-            //     // allowSyntheticDefaultImports: true,
-            //     moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-            //     module: monaco.languages.typescript.ModuleKind.ESNext,
-            //     allowNonTsExtensions: true,
-            //     // baseUrl: '.',
-            //     // paths: { "@/*": ['node_modules/*'] },
-            //     target: monaco.languages.typescript.ScriptTarget.Latest
-            //   });
-
-            const libUri = "index.d.ts";
-            monaco.languages.typescript.typescriptDefaults.addExtraLib(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS, libUri);
-
+            // Add additional d.ts files to the JavaScript language service.
+            dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
                 `/**
              * @description opens an alert that displays provided content
@@ -297,20 +244,56 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
             declare function openInfoPane(content: object | string | any, title?: string): void;`,
             );
 
-            // monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            //    GlMatrixDTS,
-            //     'file:///node_modules/gl-matrix/index.d.ts'
-            // );
+            // const moduleUri = monaco.Uri.file("module.ts");
+            const mainUri = monaco.Uri.file("main.ts");
+
+            // if (!monaco.editor.getModel(moduleUri)) {
+            //   const moduleCode = apiProxy;
+            //   monaco.editor.createModel(moduleCode, "typescript", moduleUri);
+            // }
 
             // When resolving definitions and references, the editor will try to use created models.
             // Creating a model for the library allows "peek definition/references" commands to work with the library.
-            if (!monaco.editor.getModel(monaco.Uri.parse(libUri))) {
-                monaco.editor.createModel(WebglDTS + dts_fixed + MeasureApiDTS + GlMatrixDTS + DataJsApiDTS, "typescript", monaco.Uri.parse(libUri));
+            if (!monaco.editor.getModel(mainUri)) {
+                monaco.editor.createModel("", "typescript", mainUri);
             }
         }
     }, [monaco]);
 
+    const reportErrors = (errors: any[] | any) => {
+        console.log("Error(s) Reported ", errors);
+        let _errors = [];
+        if (Array.isArray(errors)) {
+            _errors = errors.filter(e => e);
+        } else if (errors) {
+            _errors = [errors];
+        }
+        if (_errors?.length) {
+            setEditorStatus(EditorStatus.ERRORS);
+        } else {
+            setEditorStatus(EditorStatus.OKAY);
+        }
+        setModuleInternalValidationErrors(_errors as Error[]);
+    };
+
+    async function runDemo() {
+        if (canvas.current && canvas2D.current && previewCanvas.current) {
+            const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
+            const host = new hostCtor(context);
+            hostRef.current = host;
+            setIsReadyToUpdate(true);
+            await host.run();
+        }
+    }
+
     function handleEditorWillMount(monaco) {
+        fetch(themeURL)
+            .then((data) => data.json())
+            .then((data) => {
+                monaco.editor.defineTheme("oceanic-next", data);
+                monaco.editor.setTheme("oceanic-next");
+            });
+
         configureFontSize();
     }
 
@@ -322,11 +305,16 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     }
 
     async function handleEditorDidMount(editor: editor.ICodeEditor, monaco: Monaco) {
-        setIsActivity(true); // toggle spinner
+        setEditorStatus(EditorStatus.WORKING); // toggle spinner
         editorInstance.current = editor;
 
         // hide hidden ranges upon init
         toggleHiddenAreas(isHiddenAreasShowing, editor, monaco);
+
+        if (editorConfig.mode === "inline") {
+            const contentHeight = Math.min(260, editorConfig.contentHeight ?? editor.getContentHeight());
+            allotmentRef.current.resize([contentHeight]);
+        }
 
         const model = editor.getModel();
         // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
@@ -368,21 +356,17 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         }
         const output = await returnTranspiledOutput(editor, monaco);
         setCodeOutput(output);
-        const { main, showTip } = await returnRenderConfigFromOutput(output);
+        // const { showTip } = await returnRenderConfigFromOutput(output);
 
-        if (showTip) {
-            try {
-                showTip();
-            } catch (error) {
-                console.error("An error occurred while trying to execute showTip");
-            }
-        }
+        // if (showTip) {
+        //   try {
+        //     showTip();
+        //   } catch (error) {
+        //     console.error("An error occurred while trying to execute showTip");
+        //   }
+        // }
 
-        if (main) {
-            setMain(() => main);
-        }
-
-        setIsActivity(false); // toggle spinner
+        setEditorStatus(EditorStatus.OKAY); // toggle spinner
     }
 
     // toggle hidden areas in the editor
@@ -394,7 +378,6 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
             const model = editor.getModel();
             // hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
             const rangesToHide = model.findMatches("//\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)//\\s*HiddenRangeEnded", false, true, false, null, true);
-            console.log("rangesToHide ", rangesToHide);
             if (rangesToHide && rangesToHide.length) {
                 // @ts-expect-error
                 editor.setHiddenAreas(rangesToHide.map((r) => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
@@ -404,16 +387,18 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         setIsHiddenAreasShowing(show);
     }
 
-    function handleEditorValidation(markers) {
-        console.log("markers ", markers);
-
-        if (markers.length && markers[0].severity > 1) {
-            console.log("diags ", markers[0]);
-            const diagnostic = markers[0];
-            setCodeError(diagnostic);
-        } else {
-            setCodeError(null);
+    function handleEditorValidation(markers: editor.IMarker[]) {
+        console.warn("markers ", markers);
+        const errorMarkers: Error[] = [];
+        markers.forEach((marker) => {
+            if (marker.severity === MarkerSeverity.Error) {
+                errorMarkers.push(new Error(`${marker.message} on line ${marker.startLineNumber}:${marker.startColumn}`));
+            }
+        });
+        if (errorMarkers.length) {
+            setEditorStatus(EditorStatus.ERRORS);
         }
+        setGeneralSyntaxErrors(errorMarkers);
     }
 
     // copy the current code output to clipboard
@@ -425,24 +410,28 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
     // download the contents of current canvas as image
     function downloadCanvasAsImage(): void {
         let link = document.createElement("a");
-        link.download = `${demoName}.png`;
-        link.href = canvasRef.toDataURL();
+        link.download = `${fileName}.png`;
+        link.href = canvas.current.toDataURL();
         link.click();
         link.remove();
     }
 
     // change split pane mode to vertical or horizontal
     function changeSplitPaneRotation(): void {
+        hostRef.current.exit(); // TODO: await?
+        hostRef.current = null;
         set_force_rerender_allotment(false); // hide the allotment component
         setSplitPaneDirectionVertical(!splitPaneDirectionVertical); // update position
-        setTimeout(() => {
+        setTimeout(async () => {
             set_force_rerender_allotment(true); // render the allotment component again
+            await runDemo();
+            setCodeOutput(codeOutput + " ");
         }, 50);
     }
 
     // toggle canvas fullscreen mode
     function toggleCanvasFullscreenMode(): void {
-        canvasWrapperRef.requestFullscreen().catch((e) => {
+        canvasWrapper.current.requestFullscreen().catch((e) => {
             console.log("Failed to request fullscreen => ", e);
             alert("Failed to expand canvas");
         });
@@ -479,7 +468,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     </button>
                                 </Popover>
                                 {demoName}
-                                {isActivity && <Spinner />}
+                                <StatusIndicator status={editorStatus} />
                             </div>
 
                             <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
@@ -538,6 +527,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                     >
                         {force_rerender_allotment && (
                             <Allotment
+                                ref={allotmentRef}
                                 vertical={splitPaneDirectionVertical}
                                 onChange={(e: Array<number>) => {
                                     if (e?.length > 1) {
@@ -554,7 +544,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     <Editor
                                         height={splitPaneDirectionVertical ? editorHeight : editorHeight + rendererHeight}
                                         defaultLanguage="typescript"
-                                        value={initialCode}
+                                        value={code}
                                         onChange={codeChangeHandler}
                                         loading="loading the playground"
                                         theme={theme}
@@ -563,27 +553,25 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                         beforeMount={handleEditorWillMount}
                                         onValidate={handleEditorValidation}
                                     />
-                                    {codeError && (
-                                        <div className="editor-error-alert">
-                                            <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
-                                                <p>{codeError.message}</p>
-                                            </Admonition>
-                                        </div>
-                                    )}
+                                    {/* {codeError && (
+                    <div className="editor-error-alert">
+                      <Admonition type="danger" title={`error on line: ${codeError.endLineNumber}, column: ${codeError.endColumn}`}>
+                        <p>{codeError.message}</p>
+                      </Admonition>
+                    </div>
+                  )} */}
                                 </div>
-                                {main ? (
+                                {true ? (
                                     <Renderer
-                                        canvasWrapperRef={setCanvasWrapperRef}
-                                        webglApi={api}
-                                        measureApi={measureApiInstance}
-                                        main={main}
-                                        isDoingActivity={setIsActivity}
-                                        canvasRef={setCanvasRef}
+                                        canvasWrapperRef={canvasWrapper}
+                                        canvasRef={canvas}
+                                        canvas2DRef={canvas2D}
+                                        previewCanvasRef={previewCanvas}
                                         panesHeight={splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight}
                                         panesWidth={rendererPaneWidth}
                                         editorConfig={editorConfig}
-                                        onMessagesAndAlert={(m) => setMessagesAndAlerts(Array.from(new Set([...messagesAndAlerts, m])))}
                                         splitPaneDirectionVertical={splitPaneDirectionVertical}
+                                        validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
                                     />
                                 ) : (
                                     <div
@@ -610,9 +598,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                     parentElement={editorConfig.mode === "inline" ? editorFooterInstance.current : undefined}
                                     content={
                                         <div className="popover-content">
-                                            <p>WebGL API: {devDependencies["@novorender/webgl-api"]}</p>
-                                            <p>Data JS API: {devDependencies["@novorender/data-js-api"]}</p>
-                                            <p>Measure API: {devDependencies["@novorender/measure-api"]}</p>
+                                            <p>WebGL Web API: {devDependencies["@novorender/api"]}</p>
                                             <hr />
                                             <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
                                         </div>
@@ -653,7 +639,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                 </button>
 
                                 {/* Download image */}
-                                <button onClick={downloadCanvasAsImage} disabled={!canvasRef} className="clean-btn navbar__item" title="Download current view as image">
+                                <button onClick={downloadCanvasAsImage} disabled={!canvas.current} className="clean-btn navbar__item" title="Download current view as image">
                                     <FontAwesomeIcon icon={faDownload} className="fa-icon size-14" />
                                 </button>
 
@@ -663,7 +649,7 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
                                 </button>
 
                                 {/* Edit snippet */}
-                                <a href={`${siteConfig.presets[0][1]["docs"].editUrl}${editUrl ? "/" + editUrl : "/demo-snippets/" + demoName + "/render-settings.ts"}`} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
+                                <a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
                                     <FontAwesomeIcon icon={faPenToSquare} className="fa-icon size-14" />
                                 </a>
                             </div>
@@ -674,3 +660,22 @@ export default function MonacoWrapper({ code, demoName, dirName, description, ed
         </BrowserOnly>
     );
 }
+
+const StatusIndicator = ({ status }: { status: EditorStatus; }) => {
+    return (
+        <div style={{ marginLeft: 6 }}>
+            {(() => {
+                switch (status) {
+                    case EditorStatus.WORKING:
+                        return <FontAwesomeIcon icon={faSpinner} className="fa-icon size-14" spin />;
+                    case EditorStatus.ERRORS:
+                        return <FontAwesomeIcon icon={faCircleExclamation} style={{ color: "red" }} className="fa-icon size-14" fade />;
+                    case EditorStatus.OKAY:
+                        return <FontAwesomeIcon icon={faCheck} style={{ animationIterationCount: 1, color: "lightgreen" }} className="fa-icon size-14" bounce />;
+                    default:
+                        return <FontAwesomeIcon icon={faSlash} className="fa-icon size-14" spin />;
+                }
+            })()}
+        </div>
+    );
+};

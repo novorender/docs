@@ -1,167 +1,100 @@
-import React from "react";
+import React, { useRef } from "react";
 import Layout from "@theme/Layout";
+import { useLocation } from "@docusaurus/router";
 import Link from "@docusaurus/Link";
-import styles from "./index.module.css";
-import Waves from "@site/static/img/waves.svg";
-import WavesInverted from "@site/static/img/waves_inverted.svg";
-import CardWaves from "@site/static/img/card_waves.svg";
-
-type FeatureItem = {
-    title: string;
-    Svg: any;
-    description: JSX.Element;
-};
-
-const FeatureList: FeatureItem[] = [
-    {
-        title: "Any format and size",
-        Svg: require("@site/static/img/albums-outline.svg").default,
-        description: <>Biggest 3D model to date: 50 GB of CAD data with over 4 000 000 000 triangles</>,
-    },
-    {
-        title: "Any device",
-        Svg: require("@site/static/img/globe-outline.svg").default,
-        description: <>View in browser on devices such as phone, tablet and laptop</>,
-    },
-    {
-        title: "Sharing",
-        Svg: require("@site/static/img/share-social-outline.svg").default,
-        description: <>Share 3D models with anyone inside or outside your organization</>,
-    },
-    {
-        title: "Open API",
-        Svg: require("@site/static/img/hardware-chip-outline.svg").default,
-        description: <>If wanted, connect to APIs such as ERP, IoT sensors and others</>,
-    },
-    {
-        title: "Embed",
-        Svg: require("@site/static/img/code-slash-outline.svg").default,
-        description: <>Embed your 3D models in Microsoft Teams, Sharepoint, web apps and more</>,
-    },
-];
-
-function HomepageHeader() {
-    return (
-        <header className={`hero ${styles.headerBanner}`}>
-            <div className={`${styles.headerContainer} container`}>
-                <div style={{}}></div>
-                <h1 className={`hero__title ${styles.headerTagLine}`}>
-                    A scalable
-                    <br />
-                    3D viewer
-                    <br />
-                    in the cloud
-                </h1>
-                <p className={styles.headerSubTagLine}>
-                    Welcome to Novorender&apos;s documentation landing page! Here you will find the most up to date tutorials and reference documentation on our various APIs and products. The information is mostly aim at professional developers who are proficient with the
-                    programming platform (web/typescript) and also are familiar with basic 3D math, such as vectors and matrices.
-                </p>
-                <div className={styles.buttons}>
-                    <Link className={styles.headerButtonMain} to="/docs/tutorials/getting_started">
-                        Get Started
-                    </Link>
-                </div>
-            </div>
-            <Waves className={styles.headerWaves} />
-        </header>
-    );
-}
-
-function Feature({ title, description, Svg }: FeatureItem) {
-    return (
-        <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
-            <CardWaves style={{ position: "absolute", bottom: 0 }} />
-            <div className="card__header">
-                <Svg
-                    style={{
-                        width: 50,
-                        color: "var(--ifm-color-primary)",
-                        marginBottom: 15,
-                    }}
-                />
-                <h3>{title}</h3>
-            </div>
-            <div className="card__body" style={{ marginBottom: 15 }}>
-                <p>{description}</p>
-            </div>
-        </div>
-    );
-}
+import("./index.css");
 
 export default function Home(): JSX.Element {
+    const location = useLocation();
+    const section2 = useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        /** transparent navbar on homepage */
+        const navbar: HTMLElement = document.querySelector(".navbar");
+
+        const observer = new MutationObserver((mutationList, observer) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === "attributes" && !navbar.classList.contains("transparent")) {
+                    navbar.classList.add("transparent");
+                }
+            }
+        });
+
+        observer.observe(navbar, { attributes: true });
+
+        return () => {
+            navbar.classList.remove("transparent");
+            observer.disconnect();
+        };
+    }, []);
+
+    React.useEffect(() => {
+        /** transparent navbar on homepage */
+        const navbar: HTMLElement = document.querySelector(".navbar");
+        if ((location.pathname === "/v2/" || location.pathname === "/v2") && !navbar.classList.contains("transparent")) {
+            navbar.classList.add("transparent");
+        }
+    }, [location]);
+
     return (
         <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
-            <HomepageHeader />
-            <main className={styles.featuresContainer}>
-                <WavesInverted className={styles.wavesInverted} />
-                <section className={styles.features}>
-                    <div
-                        className="container"
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <div style={{ justifyContent: "center" }} className="row">
-                            {FeatureList.map((props, idx) => (
-                                <Feature key={idx} {...props} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-                <section className={styles.features} style={{ marginTop: 48 }}>
-                    <div
-                        className="container"
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexDirection: "column",
-                        }}
-                    >
-                        <p style={{ fontSize: 62 }}>Ready to dive in?</p>
-                        <div style={{ justifyContent: "center" }} className="row">
-                            <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
-                                <CardWaves style={{ position: "absolute", bottom: 0 }} />
-                                <div className="card__header">
-                                    <h3>Get Started</h3>
-                                </div>
-                                <div className="card__body" style={{ marginBottom: 15 }}>
-                                    <p style={{ minHeight: 135 }}>Learn how to set up various Novorender packages by following our getting started guide.</p>
-                                    <Link className="button button--outline button--primary" to="/docs/tutorials/getting_started">
-                                        Get Started
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
-                                <CardWaves style={{ position: "absolute", bottom: 0 }} />
-                                <div className="card__header">
-                                    <h3>Docs</h3>
-                                </div>
-                                <div className="card__body" style={{ marginBottom: 15 }}>
-                                    <p style={{ minHeight: 135 }}>Learn more about the features and APIs offered by the various Novorender packages by checking out the latest documentation.</p>
-                                    <Link className="button button--outline button--primary" to="/docs/category/documentation">
-                                        Go To Docs
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="card shadow--md" style={{ position: "relative", width: 250, margin: 15 }}>
-                                <CardWaves style={{ position: "absolute", bottom: 0 }} />
-                                <div className="card__header">
-                                    <h3>Playground</h3>
-                                </div>
-                                <div className="card__body" style={{ marginBottom: 15 }}>
-                                    <p style={{ minHeight: 135 }}>Our online playground is the quickest and easiest way to experiment different Novorender packages right in your browser.</p>
-                                    <Link className="button button--outline button--primary" to="/playground">
-                                        Open Playground
-                                    </Link>
-                                </div>
+            {/* SECTION 1 */}
+            <header className="hero header-banner">
+                <div className="header-container container">
+                    <h1 className="title-heading fade-in-top">
+                        Your Gateway to
+                        <br />
+                        Effortless 3D Management
+                        <br />
+                        and Innovation.
+                    </h1>
+                    <div className="action-btn-container fade-in-fwd">
+                        <Link to={`/docs/web_api/`} className="button-get-started pulse">
+                            Get Started!
+                        </Link>
+                        <p>or</p>
+                        <button
+                            onClick={() => {
+                                section2.current.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="button button--outline button--secondary"
+                        >
+                            Learn more
+                        </button>
+                        <div className="mouse-scroll">
+                            <div>
+                                <span className="down-arrow-1"></span>
+                                <span className="down-arrow-2"></span>
+                                <span className="down-arrow-3"></span>
                             </div>
                         </div>
                     </div>
-                </section>
-            </main>
+                </div>
+            </header>
+
+            {/* SECTION 2 */}
+            <div ref={section2} className="hero section-2">
+                <p>
+                    Discover the revolutionary capabilities of Novorender's state-of-the-art technology, granting you the ability to experience 3D models across a spectrum of formats and file sizes seamlessly, all without the necessity of extra software or plugins. Now, your 3D
+                    models are at your fingertips, accessible from any device, anywhere.
+                </p>
+                <p>
+                    We've taken the bold step of <a href="https://docs.novorender.com/blog/webgl-web-api-v2">open-sourcing</a> the foundational technology that drives the <a href="https://novorender.com">industry's most potent 3D Viewer</a>. This empowers you not only to leverage
+                    the might of our advanced viewer but also to swiftly create and deploy dependable web applications, streamlining your 3D workflows. Whether it's in the realms of <a href="https://novorender.com/industries/construction/">Construction</a>,{" "}
+                    <a href="https://novorender.com/industries/infrastructure/">Infrastructure</a>, <a href="https://novorender.com/industries/energy/">Energy</a>, or <a href="https://novorender.com/industries/ship-design/">Shipyard & Design</a>, our solution caters to a myriad
+                    of use cases, propelling your projects into a new era of efficiency and innovation.
+                </p>
+                <p>
+                    Leverage the potential of Novorender's Open Source API to craft robust functionalities for your 3D models. Unleash capabilities like Clash Detection, Precise Area Measurements, Dynamic Parametric Assessments, Smart Clipping Planes, Insightful Cross Sections,
+                    Fine-tuned Geometric Controls, and an array of other transformative features. Elevate your 3D experience with Novorender's API and empower your creations beyond imagination.
+                </p>
+                <p>
+                    Seamlessly integrate your 3D workflow with widely embraced 3rd party services by harnessing Novorender's <a href="https://docs.novorender.com/docs/category/data-rest-api-v1">Open API</a>. Forge connections with industry stalwarts like{" "}
+                    <a href="https://novorender.com/integrations/active-directory-ad/">Active Directory (AD)</a>, <a href="https://novorender.com/integrations/autodesk-bim360/">Autodesk BIM360</a>, <a href="https://novorender.com/integrations/jira/">Jira</a>,{" "}
+                    <a href="https://novorender.com/integrations/microsoft-teams/">Microsoft Teams</a>, <a href="https://novorender.com/integrations/power-bi/">Power BI</a>, <a href="https://novorender.com/integrations/naviswork/">Navisworks</a>, and an{" "}
+                    <a href="https://novorender.com/integrations/">extensive lineup</a> of other influential platforms. Elevate your collaboration and efficiency through the power of Novorender's API, expanding your horizons to a realm of limitless possibilities.
+                </p>
+            </div>
         </Layout>
     );
 }

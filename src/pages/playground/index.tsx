@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import Admonition from "@theme/Admonition";
-import { tutorials } from "@site/demo-snippets/index";
-import type { IDempProps } from "../../../demo-snippets/misc";
+import { snippets } from "@site/demo-snippets/index";
+import type { IDempProps } from "@site/demo-snippets/demo";
 
 export default function Playground(): JSX.Element {
-    const [tutorialsList, setTutorialsList] = useState<Array<{ dirName: string; demos: IDempProps[] }>>([]);
+    const [snippetsList, setSnippetsList] = useState<Array<{ dirName: string; demos: IDempProps[] }>>([]);
 
     useEffect(() => {
         const tutsList = [
-            ...Object.keys(tutorials).map((k) => {
-                const values = Object.values(tutorials[k] as IDempProps);
-                return { dirName: values[0].dirName, demos: [...values] };
+            ...Object.keys(snippets).map((k) => {
+                const values = Object.values(snippets[k] as IDempProps);
+                return { dirName: values[0]?.dirName, demos: [...values] };
             }),
         ];
 
@@ -23,7 +23,7 @@ export default function Playground(): JSX.Element {
             tutsList.splice(indexOfGettingStartedDemo, 1);
             tutsList.splice(0, 0, element);
         }
-        setTutorialsList(tutsList);
+        setSnippetsList(tutsList);
     }, []);
 
     const renderCard = (key: string, t: IDempProps) => {
@@ -38,7 +38,7 @@ export default function Playground(): JSX.Element {
                                     alt={t.demoName}
                                     title={t.demoName}
                                     onError={(e) => {
-                                        e.currentTarget.src = require(`@site/static/assets/playground-demo-placeholder-dark.jpg`).default;
+                                        e.currentTarget.src = `/v2/img/playground-demo-placeholder-dark.jpg`;
                                         e.currentTarget.alt = "demo preview image not found";
                                         e.currentTarget.title = "demo preview image not found";
                                     }}
@@ -59,7 +59,7 @@ export default function Playground(): JSX.Element {
                         </small>
                     </div>
                     <div className="card__footer">
-                        <Link to={`/playground/run?id=${key}___${t.demoName}`} className="button button--primary button--block">
+                        <Link to={`/playground/run?id=${key}___${t.fileName}`} className="button button--primary button--block">
                             Run
                         </Link>
                     </div>
@@ -83,7 +83,7 @@ export default function Playground(): JSX.Element {
                         <p>Select a demo, then press "Run" to launch the playground.</p>
                     </Admonition>
                 </div>
-                {tutorialsList.map((demo_grp) => (
+                {snippetsList.map((demo_grp) => (
                     <div key={demo_grp.dirName}>
                         <nav className="navbar fade-in" style={{ borderRadius: 10 }}>
                             <div className="navbar__inner">

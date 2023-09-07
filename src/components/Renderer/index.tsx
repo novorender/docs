@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import CodeBlock from "@theme/CodeBlock";
 import { Allotment } from "allotment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import * as dataJsApi from "@novorender/data-js-api";
-import * as glMatrix from "gl-matrix";
 import Spinner from "../misc/spinner";
 
 /** Icons */
@@ -12,48 +10,36 @@ import { faReceipt, faCircleChevronDown } from "@fortawesome/free-solid-svg-icon
 /** Icons end */
 
 /** Types */
-// import type { API } from "@novorender/webgl-api";
-import * as NovoRender from "@novorender/webgl-api";
-import * as MeasureAPI from "@novorender/measure-api";
-import type { IEditorConfig } from "@site/demo-snippets/misc";
+import type { IEditorConfig } from "@site/demo-snippets/demo";
 /** Types END */
 
 interface Props {
-    main: ({}: any) => void;
-    webglApi: typeof NovoRender;
-    measureApi: typeof MeasureAPI;
     panesHeight: number;
     panesWidth: number;
     editorConfig: IEditorConfig;
     splitPaneDirectionVertical: boolean;
-    isDoingActivity: (a: boolean) => void;
-    canvasRef: (a: HTMLCanvasElement) => void;
-    canvasWrapperRef: (a: HTMLDivElement) => void;
-    onMessagesAndAlert: (m: string) => void;
+    canvasRef: MutableRefObject<HTMLCanvasElement>;
+    canvas2DRef: MutableRefObject<HTMLCanvasElement>;
+    previewCanvasRef: MutableRefObject<HTMLCanvasElement>;
+    canvasWrapperRef: MutableRefObject<HTMLDivElement>;
+    validationErrors: readonly Error[];
 }
 
-export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapperRef, webglApi, measureApi, panesHeight, panesWidth, onMessagesAndAlert, editorConfig, splitPaneDirectionVertical }: Props): JSX.Element {
-    const canvasWrapper = useRef<HTMLDivElement>(null);
-    const canvas = useRef<HTMLCanvasElement>(null);
-    const canvas2D = useRef<HTMLCanvasElement>(null);
-    const previewCanvas = useRef<HTMLCanvasElement>(null);
+export default function Renderer({ canvasRef, canvas2DRef, previewCanvasRef, canvasWrapperRef, panesHeight, panesWidth, editorConfig, splitPaneDirectionVertical, validationErrors }: Props): JSX.Element {
     const [canvasDimensions, setCanvasDimensions] = useState<{
         width: number;
         height: number;
     }>({ width: 0, height: 0 });
-    // const [apiInstance, setApiInstance] = useState<API>(api.createAPI()); // Create API
     const [infoPaneContent, setInfoPaneContent] = useState<{
         content: string | object | any;
         title?: string;
     }>({ content: "" });
     const [previewCanvasWidth, setPreviewCanvasWidth] = useState<number>(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
-    // const [_measureApiInstance, setMeasureApiInstance] = useState<MeasureAPI>(measureApiInstance.createMeasureAPI()); // Create API
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver((entries) => {
-            if (canvas.current) {
-                console.log("canvas ", canvas.current);
+            if (canvasRef.current) {
                 for (const entry of entries) {
                     setCanvasDimensions({
                         width: entry.contentRect.width,
@@ -63,7 +49,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
             }
         });
 
-        resizeObserver.observe(canvas.current);
+        resizeObserver.observe(canvasRef.current);
 
         window["openInfoPane"] = (content: object | string | any, title?: string) => {
             setInfoPaneContent({ content, title });
@@ -74,36 +60,16 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
          * to prevent page scrolling when user actually tries to do the zoom in or out on canvas
          * not sure if this can cause any interference with API's internal events.
          */
-        canvas.current.addEventListener("wheel", wheelEventListener, {
+        canvasRef.current.addEventListener("wheel", wheelEventListener, {
             passive: false,
         });
+
         return () => {
             document.removeEventListener("fullscreenchange", fullScreenEventListener, false);
-            canvas?.current?.removeEventListener("wheel", wheelEventListener, false);
+            canvasRef?.current?.removeEventListener("wheel", wheelEventListener, false);
+            resizeObserver.disconnect()
         };
     }, []);
-
-    useEffect(() => {
-        console.log("main from renderer", main);
-        // console.log('api from renderer', apiInstance);
-        canvasRef(canvas.current);
-        canvasWrapperRef(canvasWrapper.current);
-        (async () => {
-            try {
-                await main({
-                    webglApi,
-                    measureApi,
-                    dataJsApi,
-                    glMatrix,
-                    canvas: canvas.current,
-                    canvas2D: canvas2D.current,
-                    previewCanvas: previewCanvas.current,
-                });
-            } catch (err) {
-                console.log("something got caught ", err);
-            }
-        })();
-    }, [main]);
 
     const fullScreenEventListener = () => setIsFullScreen(!!document.fullscreenElement);
     const wheelEventListener = (e: MouseEvent) => {
@@ -115,14 +81,15 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
     return (
         <BrowserOnly>
             {() => (
-                <div ref={canvasWrapper} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
+                <div ref={canvasWrapperRef} style={{ height: panesHeight, position: "relative" }} className="canvas-overscroll-fix">
                     <Allotment vertical={!splitPaneDirectionVertical} onChange={(e: Array<number>) => setPreviewCanvasWidth(e[1])}>
                         <Allotment.Pane>
                             <RenderSpinner />
-                            <canvas ref={canvas} width={canvasDimensions.width} height={canvasDimensions.height} style={{ width: "100%", height: "100%" }}></canvas>
+                            <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }}></canvas>
+                            {validationErrors?.length && <CustomErrorOverlay validationErrors={validationErrors} />}
                             {editorConfig?.canvas2D && (
                                 <canvas
-                                    ref={canvas2D}
+                                    ref={canvas2DRef}
                                     width={canvasDimensions.width}
                                     height={canvasDimensions.height}
                                     style={{
@@ -138,7 +105,7 @@ export default function Renderer({ main, isDoingActivity, canvasRef, canvasWrapp
                         </Allotment.Pane>
                         <Allotment.Pane visible={editorConfig.enablePreviewCanvas}>
                             <RenderSpinner />
-                            <canvas ref={previewCanvas} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
+                            <canvas ref={previewCanvasRef} width={splitPaneDirectionVertical ? previewCanvasWidth : panesWidth} height={!isFullScreen ? panesHeight : innerHeight} />
                         </Allotment.Pane>
                     </Allotment>
                     <InfoBox content={infoPaneContent.content} title={infoPaneContent.title} />
@@ -219,3 +186,66 @@ export const RenderSpinner = () => (
         }}
     />
 );
+
+const CustomErrorOverlay = ({ validationErrors }: { validationErrors: readonly Error[] }) => {
+    function DisplayError({ error }: { error: Error }) {
+        const errorMessage = error?.message || "No error message available";
+        return (
+            <>
+                <p>
+                    <strong>Error Message:</strong> {errorMessage}
+                </p>
+            </>
+        );
+    }
+
+    return (
+        <div
+            style={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                inset: 0,
+                fontSize: "large",
+                padding: "2rem 2rem 4rem",
+                lineHeight: 1.2,
+                whiteSpace: "pre-wrap",
+                overflow: "auto",
+                backgroundColor: "rgba(0, 0, 0, 0.9)",
+                color: "white",
+            }}
+        >
+            <div
+                style={{
+                    backgroundColor: "rgba(206, 17, 38, 0.1)",
+                    color: "rgb(252, 207, 207)",
+                    padding: "1rem 1rem 1.5rem",
+                }}
+            >
+                <div
+                    style={{
+                        color: "rgb(232, 59, 70)",
+                        fontSize: "1.2em",
+                        marginBottom: "1rem",
+                        fontFamily: "sans-serif",
+                    }}
+                >
+                    ERROR(S)
+                </div>
+                <div
+                    style={{
+                        lineHeight: 1.5,
+                        fontSize: "1rem",
+                        fontFamily: "Menlo, Consolas, monospace",
+                    }}
+                >
+                    {validationErrors.map((e, i) => (
+                        <DisplayError key={i} error={e} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};

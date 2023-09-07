@@ -4,7 +4,6 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
 :root {
     --ifm-color-primary: #d61e5c;
     --ifm-color-primary-dark: #c11b53;
@@ -13,6 +12,15 @@
     --ifm-color-primary-light: #e02061;
     --ifm-color-primary-lighter: #e12b68;
     --ifm-color-primary-lightest: #e44178;
+    /* --ifm-background-color: #101b25 !important; */
+
+    --novo-color-secondary-lightest: #152330;
+    --novo-color-secondary-lighter: #121f2b;
+    --novo-color-secondary-light: #121e29;
+    --novo-color-secondary: #101b25;
+    --novo-color-secondary-dark: #0e1821;
+    --novo-color-secondary-darker: #0e171f;
+    --novo-color-secondary-darkest: #0b131a;
 
     /* Typography */
     --ifm-font-family-base: "Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -24,18 +32,15 @@
     /* misc */
     --landing-header-sub-tagline-color: var(--ifm-color-gray-900);
     --custom-spinner-color: var(--ifm-color-gray-800);
+    --ifm-footer-background-color: #101b25;
+    --search-btn-color: #000;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme="dark"] {
-    --ifm-color-primary: #d61e5c;
-    --ifm-color-primary-dark: #c11b53;
-    --ifm-color-primary-darker: #b6194e;
-    --ifm-color-primary-darkest: #961540;
-    --ifm-color-primary-light: #e12b68;
-    --ifm-color-primary-lighter: #e33670;
-    --ifm-color-primary-lightest: #e75687;
-    --ifm-background-color: #253746;
+    --ifm-background-color: var(--novo-color-secondary-darker) !important;
+    --ifm-card-background-color: var(--novo-color-secondary-lightest);
+    --ifm-navbar-background-color: var(--novo-color-secondary-lightest);
 
     /* Typography */
     --ifm-font-family-base: "Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -47,6 +52,31 @@
     /* misc */
     --landing-header-sub-tagline-color: var(--ifm-color-gray-500);
     --custom-spinner-color: #fff;
+    --ifm-footer-background-color: #101b25;
+    --search-btn-color: #fff;
+}
+
+.footer,
+.footer-dark {
+    background: #101b25;
+    font-size: 14px;
+    border-top: 1px solid var(--ifm-color-primary);
+}
+
+.footer .container {
+    margin: 50px auto;
+    position: relative;
+}
+
+.footer .container .footer__links {
+    margin-bottom: 2rem;
+}
+
+.footer .container .footer__bottom {
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    right: 0;
 }
 
 .fa-icon {
@@ -89,6 +119,11 @@
     line-height: 1;
 }
 
+.navbar.transparent {
+    background: linear-gradient(rgb(0 0 0 / 35%) 1%, transparent 99%);
+    box-shadow: none;
+}
+
 .canvas-overscroll-fix {
     overflow: auto;
     overscroll-behavior: contain;
@@ -122,118 +157,47 @@
 /* Search bar customization */
 
 .aa-DetachedSearchButton {
-    border-radius: 15px !important;
-    width: 150px !important;
-    height: 35px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: none !important;
+}
+
+.aa-DetachedSearchButtonIcon {
+    cursor: pointer !important;
 }
 
 .aa-SubmitIcon {
-    width: 18px !important;
-    height: 18px !important;
+    fill: var(--search-btn-color) !important;
+    width: 24px !important;
+    height: 24px !important;
 }
 
-.aa-DetachedSearchButtonPlaceholder {
-    font-size: 14px !important;
+.aa-DetachedSearchButtonPlaceholder,
+.aa-DetachedSearchButtonQuery {
+    display: none;
+    visibility: hidden;
+}
+
+.navbar__items--right > :last-child {
+    padding: 0;
+}
+
+svg[class*="darkToggleIcon"],
+svg[class*="darkToggleIcon"] {
+    width: 30px;
+    height: 30px;
 }
 
 /* Search bar customization END */
+
+.navbar__items:not(.navbar__items--right) .navbar__item.navbar__link {
+    margin-top: 12px;
+}
 
 [data-theme="dark"] .header-github-link::before {
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
         no-repeat;
 }
-
-div[class^="announcementBar_"] {
-    opacity: 1;
-    background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #253746 5px), repeating-linear-gradient(#d61e5c55, var(--ifm-color-primary-darkest));
-}
-
-/* hide announcement bar on blog */
-html.blog-wrapper div[class*="announcementBar"] {
-    display: none;
-}
-
-/** Open API Docs Styling */
-.api-method > .menu__link {
-    align-items: center;
-    justify-content: start;
-}
-
-.api-method > .menu__link::before {
-    width: 50px;
-    height: 20px;
-    font-size: 12px;
-    line-height: 20px;
-    text-transform: uppercase;
-    font-weight: 600;
-    border-radius: 0.25rem;
-    border: 1px solid;
-    border-inline-start-width: 5px;
-    margin-right: var(--ifm-spacing-horizontal);
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.get > .menu__link::before {
-    content: "get";
-    background-color: var(--ifm-color-info-contrast-background);
-    color: var(--ifm-color-info-contrast-foreground);
-    border-color: var(--ifm-color-info-dark);
-}
-
-.post > .menu__link::before {
-    content: "post";
-    background-color: var(--ifm-color-success-contrast-background);
-    color: var(--ifm-color-success-contrast-foreground);
-    border-color: var(--ifm-color-success-dark);
-}
-
-.delete > .menu__link::before {
-    content: "del";
-    background-color: var(--ifm-color-danger-contrast-background);
-    color: var(--ifm-color-danger-contrast-foreground);
-    border-color: var(--ifm-color-danger-dark);
-}
-
-.put > .menu__link::before {
-    content: "put";
-    background-color: var(--ifm-color-warning-contrast-background);
-    color: var(--ifm-color-warning-contrast-foreground);
-    border-color: var(--ifm-color-warning-dark);
-}
-
-.patch > .menu__link::before {
-    content: "patch";
-    background-color: var(--ifm-color-success-contrast-background);
-    color: var(--ifm-color-success-contrast-foreground);
-    border-color: var(--ifm-color-success-dark);
-}
-
-.head > .menu__link::before {
-    content: "head";
-    background-color: var(--ifm-color-secondary-contrast-background);
-    color: var(--ifm-color-secondary-contrast-foreground);
-    border-color: var(--ifm-color-secondary-dark);
-}
-
-.version-button div {
-    display: block;
-}
-
-.version-button div > button > span::after {
-    border-color: currentcolor transparent;
-    border-style: solid;
-    border-width: 0.4em 0.4em 0;
-    content: "";
-    margin-left: 0.3em;
-    position: relative;
-    transform: translateY(-50%);
-    display: inline-block;
-    font-size: 0.8rem;
-    top: 1px;
-}
-
-/** Open API Docs Styling END */
 
 @media screen and (max-width: 599px) {
     .aa-DetachedSearchButton {
