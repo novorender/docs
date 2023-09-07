@@ -8,13 +8,14 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const baseGithub = "https://github.com/novorender";
 const baseAPI = "https://data.novorender.com";
+const baseUrl = "/legacy/";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: "Novorender",
     tagline: "Novorender API Docs (Legacy)",
     url: "https://novorender.com/",
-    baseUrl: "/legacy/",
+    baseUrl: baseUrl,
     onBrokenLinks: "warn",
     onBrokenMarkdownLinks: "warn",
     favicon: "img/favicon.ico",
@@ -267,13 +268,13 @@ const config = {
                         },
                         version: "1.0",
                         label: "V1",
-                        baseUrl: "/docs/category/data-rest-api-v1",
+                        baseUrl: `${baseUrl}docs/category/data-rest-api-v1`,
                         versions: {
                             "2.0": {
                                 specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
                                 outputDir: "docs/rest-api/2.0",
                                 label: "V2",
-                                baseUrl: "/docs/category/data-rest-api-v2",
+                                baseUrl: `${baseUrl}docs/category/data-rest-api-v2`,
                             },
                         },
                     },
