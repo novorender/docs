@@ -12,7 +12,7 @@ export interface DemoHostCtor<T> {
 export interface IDemoHost<T> {
     readonly context: IDemoContext;
     run(): void | Promise<void>;
-    updateModule(module: T): void | Promise<void>;
+    updateModule(module: T): Promise<void>;
     exit?(): void | Promise<void>;
 }
 

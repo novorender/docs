@@ -12,13 +12,17 @@ export class ControllerDemoHost extends BaseDemoHost implements IDemoHost<Module
         this.view.modifyRenderState({ grid: { enabled: true } });
     }
 
-    updateModule(module: Module) {
+    async updateModule(module: Module) {
         const { activeController } = this.view;
+        let moduleError;
         try {
             OrbitController.assert(activeController);
             module.main(activeController);
         } catch (error) {
-            this.context.reportErrors(error);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
+
         }
     }
 }

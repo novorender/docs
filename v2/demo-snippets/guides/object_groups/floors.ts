@@ -3,7 +3,7 @@ import type { API, ObjectGroup, SceneData } from "@novorender/data-js-api";
 
 // Condos demo scene
 const SCENE_ID = "c132d3eecf4f4247ace112410f4219aa";
-export async function main(view: View, sceneData: SceneData, dataAPI: API) {
+export function main(view: View, sceneData: SceneData, dataAPI: API) {
     try {
         // Destructure relevant properties into variables
         const { objectGroups } = sceneData;

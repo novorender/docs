@@ -113,9 +113,11 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                     const encodedJs = encodeURIComponent(codeOutput);
                     const dataUri = `data:text/javascript;charset=utf-8,${encodedJs}`;
                     const module = await import(/* webpackIgnore: true */ dataUri);
+                    setEditorStatus(EditorStatus.OKAY);
                     await hostRef.current.updateModule(module);
                 } catch (error) {
                     setEditorStatus(EditorStatus.ERRORS);
+                    setModuleInternalValidationErrors([error]);
                     console.warn("something bad happened ", error);
                 }
             }
@@ -258,13 +260,20 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         }
     }, [monaco]);
 
-    const reportErrors = (errors: any[]) => {
-        setModuleInternalValidationErrors([...((errors || []) as Error[])]);
-        if (errors && errors.length) {
+    const reportErrors = (errors: any[] | any) => {
+        console.log("Error(s) Reported ", errors);
+        let _errors = [];
+        if (Array.isArray(errors)) {
+            _errors = errors.filter(e => e);
+        } else if (errors) {
+            _errors = [errors];
+        }
+        if (_errors?.length) {
             setEditorStatus(EditorStatus.ERRORS);
         } else {
             setEditorStatus(EditorStatus.OKAY);
         }
+        setModuleInternalValidationErrors(_errors as Error[]);
     };
 
     async function runDemo() {

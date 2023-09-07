@@ -14,7 +14,7 @@ export class ClippingDemoHost extends BaseDemoHost implements IDemoHost<Module> 
         await this.loadScene("https://api.novorender.com/assets/scenes/18f56c98c1e748feb8369a6d32fde9ef/");
     }
 
-    updateModule(module: Module) {
+    async updateModule(module: Module) {
         // TODO: verify module shape first
         const [cx, cy, cz] = this.center;
         const stateChanges = { clipping: module.main(cx, cy, cz) };

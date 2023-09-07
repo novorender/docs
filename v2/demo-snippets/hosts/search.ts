@@ -11,12 +11,11 @@ export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
     sceneData!: SceneData;
 
     async init() {
-        const { view } = this;
         // Initialize the data API with the Novorender data server service
         const dataAPI = createAPI({
             serviceUrl: "https://data.novorender.com/api",
         });
-
+        let moduleError;
         try {
             // Load scene metadata
             // Condos scene ID, but can be changed to any public scene ID
@@ -27,17 +26,22 @@ export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
             // load the scene using URL gotten from `sceneData`
             this.loadScene(url);
         } catch (error) {
-            this.context.reportErrors([error as Error]);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
         }
-        this.context.reportErrors([]);
     }
 
-    updateModule(module: Module) {
-        // TODO: verify module shape first
+    async updateModule(module: Module) {
+        let moduleError;
         try {
-            module.main(this.view, this.sceneData);
+            // TODO: verify module shape first
+            await module.main(this.view, this.sceneData);
         } catch (error) {
-            this.context.reportErrors(error);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
+
         }
     }
 }

@@ -18,12 +18,15 @@ export class StateAnimationDemoHost extends BaseDemoHost implements IDemoHost<Mo
     }
 
     async updateModule(module: Module) {
-        // TODO: verify module shape first
+        let moduleError;
         try {
+            // TODO: verify module shape first
             await module.init?.(this.view);
             this.module = module;
         } catch (error) {
-            this.context.reportErrors(error);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
         }
     }
 }

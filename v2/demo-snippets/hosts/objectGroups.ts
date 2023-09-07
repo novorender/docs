@@ -12,11 +12,11 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
     dataAPI!: API;
 
     async init() {
-        const { view } = this;
         // Initialize the data API with the Novorender data server service
         this.dataAPI = createAPI({
             serviceUrl: "https://data.novorender.com/api",
         });
+        let moduleError;
 
         try {
             // Load scene metadata
@@ -29,17 +29,22 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
             // load the scene using URL gotten from `sceneData`
             this.loadScene(url);
         } catch (error) {
-            this.context.reportErrors([error as Error]);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors([]);
         }
-        this.context.reportErrors([]);
     }
 
-    updateModule(module: Module) {
-        // TODO: verify module shape first
+    async updateModule(module: Module) {
+        let moduleError;
         try {
+            // TODO: verify module shape first
             module.main(this.view, this.sceneData, this.dataAPI);
         } catch (error) {
-            this.context.reportErrors(error);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
+
         }
     }
 }

@@ -15,19 +15,15 @@ export async function main(view: View): Promise<void> {
         }),
     });
 
-    try {
-        // Load scene metadata
-        // Condos scene ID, but can be changed to any public scene ID
-        const sceneData = await dataApi.loadScene("7a0a302fe9b24ddeb3c496fb36e932b0");
-        // Destructure relevant properties into variables
-        const { url } = sceneData as SceneData;
-        // load the scene using URL gotten from `sceneData`
-        const config = await view.loadSceneFromURL(new URL(url));
-        const { center, radius } = config.boundingSphere;
-        view.activeController.autoFit(center, radius);
-    } catch (error) {
-        console.log("Error while loading scene from URL ", error);
-    }
+    // Load scene metadata
+    // Condos scene ID, but can be changed to any public scene ID
+    const sceneData = await dataApi.loadScene("7a0a302fe9b24ddeb3c496fb36e932b0");
+    // Destructure relevant properties into variables
+    const { url } = sceneData as SceneData;
+    // load the scene using URL gotten from `sceneData`
+    const config = await view.loadSceneFromURL(new URL(url));
+    const { center, radius } = config.boundingSphere;
+    view.activeController.autoFit(center, radius);
 }
 // HiddenRangeStarted
 async function login(): Promise<string> {
@@ -36,7 +32,7 @@ async function login(): Promise<string> {
     const password = "demopassword";
 
     // POST to the dataserver service's /user/login endpoint
-    const res: { token: string } = await fetch(DATA_API_SERVICE_URL + "/user/login", {
+    const res: { token: string; } = await fetch(DATA_API_SERVICE_URL + "/user/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -51,3 +47,4 @@ async function login(): Promise<string> {
 
     return res.token;
 }
+// HiddenRangeEnded

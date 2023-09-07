@@ -28,11 +28,14 @@ export class BareboneDemoHost implements IDemoHost<Module> {
         this.abortController?.abort();
         this.abortController = new AbortController();
         const { signal } = this.abortController;
+        let moduleError;
         try {
             await this.mainPromise;
             this.mainPromise = module.main(canvas, deviceProfile, imports, signal);
         } catch (error) {
-            this.context.reportErrors(error);
+            moduleError = error;
+        } finally {
+            this.context.reportErrors(moduleError);
         }
     }
 
