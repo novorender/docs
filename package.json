@@ -8,7 +8,7 @@
     "scripts": {
         "docusaurus": "docusaurus",
         "start": "docusaurus start",
-        "build": "npm run validate-snippets && docusaurus build && cd legacy-docs/ && npm i && npm run build",
+        "build": "npm run validate-snippets && docusaurus build && cd legacy-docs/ && npm i --legacy-peer-deps && npm run build",
         "swizzle": "docusaurus swizzle",
         "deploy": "docusaurus deploy",
         "clear": "docusaurus clear",
