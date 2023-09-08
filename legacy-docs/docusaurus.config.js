@@ -195,10 +195,9 @@ const config = {
                 defaultMode: "dark",
             },
             announcementBar: {
-                id: "new_api_announcement_banner",
-                content: `🎉 Exciting news! The all-new Web API is officially up and running. Dive into the <a target="_blank" rel="noopener noreferrer" href="/blog/webgl-web-api-v2">announcement post</a> to learn more about its incredible features. 🥳`,
-                backgroundColor: "#303846",
-                textColor: "#fff",
+                id: "legacy_announcement_banner",
+                content: `🚧 This documentation is intended for our Legacy APIs, which have been retired from active maintenance. For the most current documentation, please visit the <a href="https://docs.novorender.com">latest version</a>. 🚧`,
+                isCloseable: false
             },
         }),
     plugins: [
