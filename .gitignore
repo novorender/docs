@@ -7,7 +7,7 @@
 /docs/webgl-api
 /docs/data-js-api
 /docs/measure-api
-docs/rest-api
+/docs/web_api
 
 # Generated files
 .docusaurus
@@ -29,3 +29,7 @@ docusaurus-theme-github-codeblock-main
 scene-screenshot-gen/index.js
 demo-snippets/**/*.js
 src/shared/*.js
+
+/ts
+
+static/web_api.d.ts

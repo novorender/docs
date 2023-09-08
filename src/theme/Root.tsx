@@ -1,6 +1,8 @@
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import React, { useEffect, useState } from "react";
 import { PlaygroundContext } from "./context";
+import Head from "@docusaurus/Head";
+import * as glMatrix from "gl-matrix";
 
 if (ExecutionEnvironment.canUseDOM) {
     window["runtime_process_env"] = {
@@ -39,6 +41,13 @@ export default function Root({ children }) {
 
     useEffect(() => {
         (async () => {
+            /** APIs to be used in the playground/editor */
+            const novorender = await import("@novorender/api");
+            const dataApi = await import("@novorender/data-js-api");
+            window["__novorender__"] = novorender;
+            window["__dataApi__"] = dataApi;
+            window["__glMatrix__"] = glMatrix;
+
             const message = `Unable to obtain access token; some demos requiring an access token may not function; please reload the application to try again.`;
             try {
                 const accessToken = await login();
@@ -79,5 +88,14 @@ export default function Root({ children }) {
         };
     }, []);
 
-    return <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>;
+    const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/api_proxy.js", "gl-matrix": "/gl_matrix_proxy.js", "@novorender/data-js-api": "/data_api_proxy.js" } });
+
+    return (
+        <>
+            <Head>
+                <script type="importmap">{importMap()}</script>
+            </Head>
+            <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>
+        </>
+    );
 }

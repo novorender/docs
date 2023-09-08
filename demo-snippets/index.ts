@@ -1,3 +1,2 @@
-import * as tutorials from "./tutorials";
-
-export { tutorials };
+import * as snippets from "./guides";
+export { snippets };
