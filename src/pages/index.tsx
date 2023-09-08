@@ -94,6 +94,9 @@ export default function Home(): JSX.Element {
                     <a href="https://novorender.com/integrations/microsoft-teams/">Microsoft Teams</a>, <a href="https://novorender.com/integrations/power-bi/">Power BI</a>, <a href="https://novorender.com/integrations/naviswork/">Navisworks</a>, and an{" "}
                     <a href="https://novorender.com/integrations/">extensive lineup</a> of other influential platforms. Elevate your collaboration and efficiency through the power of Novorender's API, expanding your horizons to a realm of limitless possibilities.
                 </p>
+
+                <p>Dive deeper into the <a href="/blog/webgl-web-api-v2">announcement post</a> for more details or jump right into our <a href="/docs/web_api/">getting started guide</a> to render your first 3D model with Novorender!</p>
+
             </div>
         </Layout>
     );
