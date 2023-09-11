@@ -623,7 +623,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                             <div className="navbar__items navbar__items--right" style={{ height: "100%" }}>
                                 {/* open the demo in playground */}
                                 {editorConfig.mode === "inline" && (
-                                    <Link className="navbar__item" title="Open this demo in the Playground" to={`/playground/run?id=${dirName}___${demoName}`}>
+                                    <Link className="navbar__item" title="Open this demo in the Playground" to={`/playground/run?id=${dirName}___${fileName}`}>
                                         <FontAwesomeIcon icon={faSquareArrowUpRight} className="fa-icon size-14" />
                                     </Link>
                                 )}
