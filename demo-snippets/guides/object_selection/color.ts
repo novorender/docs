@@ -2,7 +2,7 @@ import { createColorSetHighlight, type RenderStateChanges } from "@novorender/ap
 
 export function main(): RenderStateChanges {
     const highlight = createColorSetHighlight([0, 1, 0]);
-    const objectIds = [2221]; // list of objects that we want to highlight
+    const objectIds = [2, 2221]; // list of objects that we want to highlight
     return {
         highlights: {
             groups: [{ action: highlight, objectIds }],

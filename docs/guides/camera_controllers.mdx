@@ -26,7 +26,7 @@ To help with this, the <CodeLink type="class" name="View"/> class introduces cam
 These will overwrite the camera related render state on every frame, so setting it directly like in the example above usually won't work.
 For the sake of understanding, we select the inert <CodeLink type="class" name="NullController"/> so we can play around with the camera state ourselves.
 
-<PlaygroundComponent {...snippets.gettingStarted.cameraState} />
+<PlaygroundComponent {...snippets.cameraControllers.cameraState} />
 
 ## Active controller
 
@@ -105,7 +105,7 @@ OrbitController.assert(activeController);
 activeController.updateParams({ rotationalVelocity: 2 });
 ```
 
-<PlaygroundComponent {...snippets.gettingStarted.controllerParams} />
+<PlaygroundComponent {...snippets.cameraControllers.controllerParams} />
 
 ## Properties
 
@@ -130,7 +130,7 @@ activeController.pivot = [x, y, z];
 The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
 One reason for this is to restrain the orientation to have zero roll angle, which is often confusing and rarely useful.
 
-<PlaygroundComponent {...snippets.gettingStarted.controllerProperties} />
+<PlaygroundComponent {...snippets.cameraControllers.controllerProperties} />
 
 ## Zoom to and fly to
 
