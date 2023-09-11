@@ -1,0 +1,148 @@
+---
+title: "Spaces and linear algebra."
+description: "A brief introduction to world and camera space as well as some linear algebra."
+keywords: ["novorender api docs", "spaces", "spaces", "matrix", "vector", "quaternion"]
+---
+
+The term `space` is used throughout the documentation assuming you already know what it means.
+This is also true for basic linear algebra.
+In case you are not familiar, this guide aims to give you a brief introduction as well as pointers to where you may learn more.
+
+## The absolute basics
+
+A 3D vector defines a point along three euclidian axes, often referred to as `X`, `Y` and `Z`.
+Or put another way, it's like a 2D point, but with an extra dimention.
+
+You can define a vector by an array with 3 numbers, e.g.:
+
+```typescript
+const myVec = [1,2,3]; // x:1, y:2, z:3
+```
+
+You can also destructure that array back into individual coordinates:
+
+```typescript
+const [x,y,z] = myVec;
+```
+
+For simplicity, we often use this form in our examples.
+
+## gl-Matrix
+
+For anything slightly more complex we strongly recommend you use the [gl-matrix](https://www.npmjs.com/package/gl-matrix) library.
+This is a fast and lightweight linear algebra library that we use internally.
+
+It uses number arrays to define vectors, quaternions and matrices.
+
+```typescript
+const myVec = vec3.fromValues(3,4,0);
+const length = vec3.length(myVec); // sqrt(3*3 + 4*4 + 0*0) = 5
+const [x,y,z] = myVec; // destructures too.
+```
+
+Allocating new arrays are usually fast, but creates a lot of work for the garbage collector if done thousands of times per second.
+To alleviate this, gl-matrix requires that you specify an output array for non-scalar results:
+
+```typescript
+const normalizedVec = vec3.create(); // allocate an empty 3D vector with all coordinates set to 0.
+vec3.normalize(normalizedVec, myVec); // output a normalized copy of myVec into normalizedVector.
+```
+
+You can mutate in place too, in case you don't care about readability.
+
+```typescript
+vec3.normalize(myVec, myVec);
+```
+
+You could spend a lot of time trying to microoptimize these allocations.
+Unless your code is part of a performance critical inner loop, we generally recommend you inline allocations, like this:
+
+```typescript
+const normalizedVec = vec3.normalize(vec3.create(), myVec);
+```
+
+Please see their [tutorial](https://math.hws.edu/graphicsbook/c7/s1.html#webgl3d.1.2) and [documentation](https://glmatrix.net/) for details!
+
+On [linear algrebra](https://en.wikipedia.org/wiki/Linear_algebra) in general there are pleny of resources, as this is a fairly mature math subject.
+[This series](https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab) on youtube may serve as an introduction/refresher for beginners.
+
+:::caution
+By default, gl-matrix uses `Float32Array` for matrices.
+We require double precision matrices and set this to `Array` of numbers at the first line in our API.
+You may want to do this in your code also to avoid having a mix of matrix types.
+:::
+
+## Coordinate system
+
+In novorender we use a right hand coordinate system, where the positive x-axis points right and the positive y-axis point up.
+This is a fairly common coordinate system in the CAD world, but unlike that of most games and many other 3D engines, like `three.js` and the previous version of our API.
+
+// Aamir: draw.io illustration goes here!
+
+
+## Spaces
+
+A space is a frame of reference relative to another space.
+The difference can usually be expressed by a linear transformation.
+
+Imagine you have an image and you want to rotate that image 45 degrees on screen.
+The original space might be named `image space`, while the displayed, rotated image might be named `screen space`.
+
+In this case, the transformation between the two spaces would be a 2D rotation.
+Such transformations are reversible, i.e. the inverse matrix will reverse the transformation of the original matrix.
+Or put differently, if one matrix transforms from `image` to `screen` space, then the inverse matrix transforms from `screen` to `image` space.
+To help clarify this, we name most of our matrices by the source and target space respectively:
+
+```typescript
+const angle = glMatrix.toRadian(45);
+const imageToScreenTransform = mat2.fromRotation(mat2.create(), angle);
+const screenToImageTransform = mat2.fromRotation(mat2.create(), -angle);
+```
+
+In this trivial example, it's quite obvious that the reverse of the original transform is as simple as negating the angle.
+More often than not, however, things are not quite that simple.
+For this reason, it's often necessary to compute the inverse of a matrix, which will reliably cancel out/reverse the original transform, albeit at a slightly higher cost.
+
+```typescript
+const screenToImageTransform = mat2.invert(mat2.create(), imageToScreenTransform);
+```
+
+We can now transform 2D points/vectors back and forth between these two spaces:
+
+```typescript
+const pointInImageSpace = vec2.fromValues(1,2);
+const pointInScreenSpace = vec2.transform(vec2.create(), pointInImageSpace, imageToScreenTransform);
+const pointInImageSpaceAgain = vec2.transform(vec2.create(), pointInScreenSpace, screenToImageTransform);
+console.assert(glMatrix.equals(pointInImageSpace, pointInImageSpaceAgain));
+```
+
+Things gets a bit more complicated with 3 dimensions, but the same principles applies.
+
+Quite often we want to move/offset/translate points, not just scale or rotate them.
+To achieve this, we introduce a fourth coordinate, `W`, and `4x4` transformation matrices.
+Since 3D vectors only have 3 dimensions, we assign either `1` to `W` component to also apply translation, or `0` to apply rotation, scaling (and shearing) only.
+There's also a non-linear projection transformation when going from clip space to screen space, which enables perspective projections.
+These topics are outside the scope of this guide, however.
+
+To learn more about spaces in a typical 3D transformation pipeline, please check out `learn opengl`'s [page](https://learnopengl.com/Getting-started/Coordinate-Systems).
+Note that their up-axis is positive `Y`, not positive `Z` as in our (new) engine.
+
+### World space
+
+Most of our coordinates are defined in `world space`.
+You can think of this as a global coordinate, almost like a GPS position, but in 3D.
+The scale is in meters.
+If geolocated, these coordinates are often relative to an [UTM zone](https://gisgeography.com/utm-universal-transverse-mercator-projection/).
+Such zones can be thousands of kilometer across, so these coordinates can be quite large.
+This is the main reason we require double precision matrices, to avoid rounding errors.
+
+Suffice to say, `world space` is relative to planet earth, while `view space` is relative to the current camera position/rotation.
+
+
+### CSS space
+
+We're also using another term, `css space`, which refers to a 2D pixel coordinate relative to the view rectangle on screen, but scaled with [`devicePixelRatio`](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio),
+also referred to as `CSS pixels`.
+This is the space in which you will get mouse event coordinates from the browser.
+
+Unless you're planning to make your own 3D rendering module, you are unlikely to run into any other spaces that you need to understand.
