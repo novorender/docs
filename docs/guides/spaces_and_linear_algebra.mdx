@@ -14,8 +14,8 @@ In case you are not familiar, this guide aims to give you a brief introduction a
 
 ## The absolute basics
 
-A 3D vector defines a point along three euclidian axes, often referred to as `X`, `Y` and `Z`.
-Or put another way, it's like a 2D point, but with an extra dimention.
+A 3D vector defines a point along three euclidean axes, often referred to as `X`, `Y` and `Z`.
+Or put another way, it's like a 2D point, but with an extra dimension.
 
 You can define a vector by an array with 3 numbers, e.g.:
 
@@ -58,7 +58,7 @@ You can mutate in place too, in case you don't care about readability.
 vec3.normalize(myVec, myVec);
 ```
 
-You could spend a lot of time trying to microoptimize these allocations.
+You could spend a lot of time trying to micro-optimize these allocations.
 Unless your code is part of a performance critical inner loop, we generally recommend you inline allocations, like this:
 
 ```typescript
@@ -67,7 +67,7 @@ const normalizedVec = vec3.normalize(vec3.create(), myVec);
 
 Please see their [tutorial](https://math.hws.edu/graphicsbook/c7/s1.html#webgl3d.1.2) and [documentation](https://glmatrix.net/) for details!
 
-On [linear algrebra](https://en.wikipedia.org/wiki/Linear_algebra) in general there are pleny of resources, as this is a fairly mature math subject.
+On [linear algebra](https://en.wikipedia.org/wiki/Linear_algebra) in general there are plenty of resources, as this is a fairly mature math subject.
 [This series](https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab) on youtube may serve as an introduction/refresher for beginners.
 
 :::caution
@@ -128,7 +128,7 @@ Since 3D vectors only have 3 dimensions, we assign either `1` to `W` component t
 There's also a non-linear projection transformation when going from clip space to screen space, which enables perspective projections.
 These topics are outside the scope of this guide, however.
 
-To learn more about spaces in a typical 3D transformation pipeline, please check out `learn opengl`'s [page](https://learnopengl.com/Getting-started/Coordinate-Systems).
+To learn more about spaces in a typical 3D transformation pipeline, please check out `Learn OpenGL`'s [page](https://learnopengl.com/Getting-started/Coordinate-Systems).
 Note that their up-axis is positive `Y`, not positive `Z` as in our (new) engine.
 
 ### World space
