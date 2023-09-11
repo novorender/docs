@@ -78,13 +78,8 @@ export default function Playground(): JSX.Element {
                     overflow: "auto",
                 }}
             >
-                <div className="fade-in">
-                    <Admonition type="info" icon="💡" title="Tip">
-                        <p>Select a demo, then press "Run" to launch the playground.</p>
-                    </Admonition>
-                </div>
-                {snippetsList.map((demo_grp) => (
-                    <div key={demo_grp.dirName}>
+                {snippetsList.map((demo_grp, i) => (
+                    <div key={i}>
                         <nav className="navbar fade-in" style={{ borderRadius: 10 }}>
                             <div className="navbar__inner">
                                 <div className="navbar__items">

@@ -5,7 +5,7 @@ import cameraState from "./cameraState.ts?raw";
 import controllerParams from "./controllerParams.ts?raw";
 import controllerProperties from "./controllerProperties.ts?raw";
 
-const dirName = "getting_started";
+const dirName = "camera_controllers";
 
 export const cameraControllers = {
     ...demo(dirName, "cameraState", "Camera state", cameraState, ViewDemoHost, {}, "Camera state example."),

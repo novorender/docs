@@ -4,7 +4,7 @@ import { StateDemoHost, BareboneDemoHost } from "../../hosts";
 import basic from "./basic.ts?raw";
 import renderState from "./renderState.ts?raw";
 
-const dirName = "getting_started";
+const dirName = "interactive_examples";
 
 export const interactiveExamples = {
     ...demo(dirName, "basic", "Basic app", basic, BareboneDemoHost, { contentHeight: 150 }, "A minimal example."),
