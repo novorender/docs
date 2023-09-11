@@ -14,10 +14,10 @@ In case you are not familiar, this guide aims to give you a brief introduction a
 
 ## The absolute basics
 
-A 3D vector defines a point along three euclidean axes, often referred to as `X`, `Y` and `Z`.
+A three dimensional vector defines a point along three euclidean axes, often referred to as `X`, `Y` and `Z`.
 Or put another way, it's like a 2D point, but with an extra dimension.
 
-You can define a vector by an array with 3 numbers, e.g.:
+You can define a 3D vector by an array with 3 numbers, e.g.:
 
 ```typescript
 const myVec = [1,2,3]; // x:1, y:2, z:3
@@ -44,7 +44,7 @@ const length = vec3.length(myVec); // sqrt(3*3 + 4*4 + 0*0) = 5
 const [x,y,z] = myVec; // destructures too.
 ```
 
-Allocating new arrays are usually fast, but creates a lot of work for the garbage collector if done thousands of times per second.
+Allocating new arrays are usually fast, but can create excessive work for the garbage collector if done often.
 To alleviate this, gl-matrix requires that you specify an output array for non-scalar results:
 
 ```typescript
@@ -79,14 +79,19 @@ You may want to do this in your code also to avoid having a mix of matrix types.
 ## Coordinate system
 
 In novorender we use a right hand coordinate system, where the positive x-axis points right and the positive y-axis point up.
-This is a fairly common coordinate system in the CAD world, but unlike that of most games and many other 3D engines, like `three.js` and the previous version of our API.
+This is a fairly common coordinate system in the CAD world, but unlike that of most games and many other 3D engines, like `three.js`.
 
 <Drawio content={coordinateAxesGraph} />
+<br/>
 
+:::info
+We changed our coordinate system from positive z-axis pointing up to positive y-axis pointing up.
+:::
 
 ## Spaces
 
-A space is a frame of reference relative to another space.
+A space is a frame of reference, or coordinate system if you prefer.
+We usually refer to spaces in relation to other spaces.
 The difference can usually be expressed by a linear transformation.
 
 Imagine you have an image and you want to rotate that image 45 degrees on screen.
@@ -95,7 +100,7 @@ The original space might be named `image space`, while the displayed, rotated im
 In this case, the transformation between the two spaces would be a 2D rotation.
 Such transformations are reversible, i.e. the inverse matrix will reverse the transformation of the original matrix.
 Or put differently, if one matrix transforms from `image` to `screen` space, then the inverse matrix transforms from `screen` to `image` space.
-To help clarify this, we name most of our matrices by the source and target space respectively:
+To help clarify this, we name our matrices by the source and target space respectively:
 
 ```typescript
 const angle = glMatrix.toRadian(45);
@@ -115,8 +120,8 @@ We can now transform 2D points/vectors back and forth between these two spaces:
 
 ```typescript
 const pointInImageSpace = vec2.fromValues(1,2);
-const pointInScreenSpace = vec2.transform(vec2.create(), pointInImageSpace, imageToScreenTransform);
-const pointInImageSpaceAgain = vec2.transform(vec2.create(), pointInScreenSpace, screenToImageTransform);
+const pointInScreenSpace = vec2.transformMat2(vec2.create(), pointInImageSpace, imageToScreenTransform);
+const pointInImageSpaceAgain = vec2.transformMat2(vec2.create(), pointInScreenSpace, screenToImageTransform);
 console.assert(glMatrix.equals(pointInImageSpace, pointInImageSpaceAgain));
 ```
 
@@ -145,8 +150,8 @@ Suffice to say, `world space` is relative to planet earth, while `view space` is
 
 ### CSS space
 
-We're also using another term, `css space`, which refers to a 2D pixel coordinate relative to the view rectangle on screen, but scaled with [`devicePixelRatio`](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio),
-also referred to as `CSS pixels`.
-This is the space in which you will get mouse event coordinates from the browser.
+We're also using another term, `css space`, which refers to a 2D pixel coordinate relative to the view rectangle on screen, but scaled with [`devicePixelRatio`](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio).
+This is also referred to as `CSS pixels`.
+The browser will give mouse event coordinates in this space.
 
 Unless you're planning to make your own 3D rendering module, you are unlikely to run into any other spaces that you need to understand.
