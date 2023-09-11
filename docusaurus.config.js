@@ -215,6 +215,7 @@ const config = {
             },
         ],
         require.resolve("@cmfcmf/docusaurus-search-local"),
+        ["drawio", {}]
     ],
     // customFields: {
     //   swaggerUI: `https://data-v2.novorender.com/swagger`,

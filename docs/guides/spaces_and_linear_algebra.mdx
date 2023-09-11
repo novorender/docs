@@ -4,6 +4,9 @@ description: "A brief introduction to world and camera space as well as some lin
 keywords: ["novorender api docs", "spaces", "spaces", "matrix", "vector", "quaternion"]
 ---
 
+import Drawio from '@theme/Drawio'
+import coordinateAxesGraph from '../coordinate_axes.drawio?raw';
+
 The term `space` is used throughout the documentation assuming you already know what it means.
 This is also true for basic linear algebra.
 In case you are not familiar, this guide aims to give you a brief introduction as well as pointers to where you may learn more.
@@ -77,7 +80,7 @@ You may want to do this in your code also to avoid having a mix of matrix types.
 In novorender we use a right hand coordinate system, where the positive x-axis points right and the positive y-axis point up.
 This is a fairly common coordinate system in the CAD world, but unlike that of most games and many other 3D engines, like `three.js` and the previous version of our API.
 
-// Aamir: draw.io illustration goes here!
+<Drawio content={coordinateAxesGraph} />
 
 
 ## Spaces
