@@ -200,7 +200,7 @@ const config = {
                 out: "web_api",
                 logLevel: "Error",
                 tsconfig: "ts/tsconfig.json",
-                readme: "ts/README.md",
+                readme: "ts/dist/README.md",
                 disableSources: false,
                 excludeInternal: true,
                 excludePrivate: true,
