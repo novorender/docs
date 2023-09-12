@@ -57,7 +57,7 @@ Browsers in general, and Apple in particular, are secretive about the underlying
 This means there are no easy way to automatically detect a device's limitations and performance characteristics.
 
 :::caution
-Overestimating your GPU capabilities will cause slow frame rates and can cause the browser to terminate the GPU context, resulting in flickering and page reloads.
+Overestimating your GPU capabilities will render slowly and can cause the browser to terminate the GPU context, resulting in flickering and page reloads.
 When in doubt, go low!
 :::
 
@@ -72,7 +72,7 @@ To help construct this object, we've added a helper function <CodeLink type="cla
 This uses a <CodeLink type="alias" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
 
 If you followed the recipe in the API `README` file, all the resources should be in the same URL folder as the main script, i.e. [import.meta.url](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta).
-If so, you can pass and empty object `{}` as an argument.
+If so, you can pass an empty object `{}` as an argument.
 If you put all the resources in another folder, but with no changes to names or types, you could use this shorthand:
 
 ```typescript
