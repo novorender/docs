@@ -178,7 +178,7 @@ Beware frameworks that "demounts" the concrete canvas DOM element, as the view i
 
 Where things might get more complicated is determining who "owns" which state.
 It's tempting to embed the render state as part of you own viewstate.
-As long as you can determine when and what parts of that viewstate has changed, e.g. by using immutable data and reference comparisons [like we do](render_state),
+As long as you can determine when and what parts of that viewstate has changed, e.g. by using immutable data and reference comparisons [like we do](render_state#immutability),
 we recommend you duplicate what state you need and keep a single "master state" in your own view state, updating the render state accordingly.
 
 If that seems like too much work with the boilerplate-heavy state system you're currently using,
