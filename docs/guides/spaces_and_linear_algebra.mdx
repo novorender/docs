@@ -86,6 +86,8 @@ This is a fairly common coordinate system in the CAD world, but unlike that of m
 
 :::info
 We changed our coordinate system from positive z-axis pointing up to positive y-axis pointing up.
+This currently not true for the `core3D` module, which still uses the classic opengl coordinate system.
+The `View` class flips the render state for you, so unless you're using the core3D module directly, you don't have to worry about it.
 :::
 
 ## Spaces
@@ -145,8 +147,7 @@ If geolocated, these coordinates are often relative to an [UTM zone](https://gis
 Such zones can be thousands of kilometer across, so these coordinates can be quite large.
 This is the main reason we require double precision matrices, to avoid rounding errors.
 
-Suffice to say, `world space` is relative to planet earth, while `view space` is relative to the current camera position/rotation.
-
+> `world space` is relative to planet earth, while `view space` is relative to the current camera position/rotation.
 
 ### CSS space
 
@@ -155,3 +156,24 @@ This is also referred to as `CSS pixels`.
 The browser will give mouse event coordinates in this space.
 
 Unless you're planning to make your own 3D rendering module, you are unlikely to run into any other spaces that you need to understand.
+
+## Quaternions
+
+While we use 4x4 matrices internally, they actually offer a little too much flexibility, which often means shooting yourself in the foot.
+Shearing, for instance, is rarely an intentional transformation.
+Also, ensuring matrices are normalized can be cumbersome.
+Finally, there is always the question if a matrix layout is row or column major.
+
+For this and other reasons, we prefer to express most of our transformation as position, rotation and uniform scale in the public interface.
+This enables us to make several assumptions about the matrices that gets produced internally, which make our code simpler, faster and less likely to fail.
+
+[Quaternions](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation) are a great way to express rotation.
+Essentially they define a rotation axis and an angle around that axis.
+They are far more compact than matrices and they don't suffer the same degeneracy issues at the poles as do euler angle triplets.
+They are also quick to combine, invert and normalize among other things.
+Hence, we use them whenever it makes sense.
+
+Debugging and reasoning about matrices can be hard.
+We believe the restrictions we introduce by not taking in raw 4x4 matrices will help you avoid several classic pitfalls.
+
+> If you need more flexibility, please let us know!

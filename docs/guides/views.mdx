@@ -1,0 +1,185 @@
+---
+title: "Render view"
+sidebar_position: 2
+description: "Learn how to create and modify render views."
+keywords: ["novorender api docs", "view"]
+---
+
+The <CodeLink type="class" name="View"/> class offers an abstraction that takes care of several important aspects for you:
+
+- Camera controllers
+- Render loop
+  - Dynamic resolution and detail based on camera movement and idling.
+- Resizing
+- Restoration of lost of GPU contexts.
+- Environments
+- Wraps, aggregates and simplifies many of the underlying modules into a single, high level interface.
+
+A view represents the primary interface that most users will interact with.
+It is an expensive component, however, as each view has it's own GPU context.
+This means that the entire GPU state will be duplicated for each view.
+Using multiple views is possible but generally a bad idea.
+
+## Prerequisites
+
+Before you can create a view, you need to provide it with some resources.
+
+### Canvas
+
+You need to put an html `<canvas>` into your DOM and retrieve a reference to it, e.g.:
+
+```html
+<canvas id="view_canvas" style="width:100%; height:100%"></canvas>
+```
+
+
+```typescript
+const canvas = document.getElementById("view_canvas");
+```
+
+:::info
+Make sure to set the canvas CSS size to avoid runaway resize feedback loops!
+:::
+
+
+### Device profile
+
+The view needs to know details about the device you're running on.
+We define this in the <CodeLink type="interface" name="DeviceProfile"/> interface.
+While you can manually specify this, we also offer a helper function <CodeLink type="function" name="getDeviceProfile"/> that will give you reasonable values based on a simplistic GPU tier scheme.
+
+```typescript
+const gpuTier: GPUTier = 2; // mid-tier GPU, e.g. laptop and newer IOS/Ipad device.
+const deviceProfile = getDeviceProfile(gpuTier);
+```
+
+Browsers in general, and Apple in particular, are secretive about the underlying hardware capabilities, primarily to avoid [fingerprinting](https://en.wikipedia.org/wiki/Device_fingerprint).
+This means there are no easy way to automatically detect a device's limitations and performance characteristics.
+
+:::caution
+Overestimating your GPU capabilities will cause slow frame rates and can cause the browser to terminate the GPU context, resulting in flickering and page reloads.
+When in doubt, go low!
+:::
+
+### Imports
+
+Sadly, bundlers are still a thing.
+Exactly how to wrangle your bundler of choice can vary quite a bit.
+You/it may choose to inline some of these resources as base64 strings, or append a hash to their URL to support updates/caching.
+The view expects that you provided it with all imports through a <CodeLink type="alias" name="ViewImports"/> object.
+
+To help construct this object, we've added a helper function <CodeLink type="class" name="View.downloadImports"/>.
+This uses a <CodeLink type="alias" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
+
+If you followed the recipe in the API `README` file, all the resources should be in the same URL folder as the main script, i.e. [import.meta.url](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta).
+If so, you can pass and empty object `{}` as an argument.
+If you put all the resources in another folder, but with no changes to names or types, you could use this shorthand:
+
+```typescript
+const baseUrl = "/my_imports/";
+const imports = await View.downloadImports({baseUrl});
+```
+
+Otherwise, you'll have to manually specify the url and/or reference to each resource, making sure you get the exact url the bundler generated, e.g. including hash etc.
+
+## View life cycle
+
+With all those plumbing chores out of the way, we're finally ready to create our view:
+
+```typescript
+const view = new View(canvas, deviceProfile, imports);
+```
+
+This will create a GPU context and initialize things, but nothing really happens until you run the view.
+
+```typescript
+await view.run();
+```
+
+Note that <CodeLink type="class" name="View.run"/> is an async function.
+It will run a render loop indefintively, relinquishing control back to the browser after each frame is completed.
+This means the browser won't kill it for timing out, like a synchronous loop would.
+Behind the scenes it uses [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame).
+Every frame it will check if there has been any changes to the render state, and if so, render that new state.
+
+Sometimes you may want to exit this loop and dispose of a view explicitly to free up its resources.
+To do so, you pass and signal an [abortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+
+```typescript
+const abortController = new AbortController();
+setTimeout(() => { abortController.abort(); }, 10_000); // exit after 10 seconds.
+await view.run(abortController.signal);
+view.dispose();
+```
+
+Alternatively, you can use the new `using` keyword from
+[typescript 5.2](https://devblogs.microsoft.com/typescript/announcing-typescript-5-2/#using-declarations-and-explicit-resource-management) /
+[TC39 Proposal](https://github.com/tc39/proposal-explicit-resource-management) if your browser supports it.
+
+```typescript
+using view = new View(canvas, deviceProfile, imports);
+await view.run(abortController.signal);
+```
+
+Once 'run' returns, you may resume running the view, e.g. after a pause.
+Once disposed, the view is no longer usable.
+
+Let's see it in action:
+
+TODO: add demo!
+
+## Animation and compositing
+
+If you want to animate anything in the view, you should assign/override the <CodeLink type="class" name="View.animate"/> function rather than `requestAnimationFrame`.
+
+```typescript
+view.animate = (time: number) => {
+    const v = Math.sin(time / 1000) * .5 + .5;
+    view.modifyRenderState({ background: { color: [v, v, v, 1] } });
+}
+```
+
+:::info
+Animations will drain batteries quickly. Use with moderation!
+:::
+
+If you want to composite your own 2D content into the canvas, after the frame has actually been rendered, you should assign/override the <CodeLink type="class" name="View.render"/> function.
+Since this function is called after all render state changes has been resolved and commited for a frame, you may inspect it for your own purposes.
+
+```typescript
+view.render = () => {
+    const { width, height } = view.renderState.output;
+    console.log(`Pixel size: ${width}, ${height}`);
+}
+```
+
+For more complex scenarious you may want to override the `View` with a class of your own and override these functions instead.
+
+:::info
+The canvas you pass to the view cannot simultaneously be used for e.g. [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D).
+For compositing you must create a new canvas and overlay with alpha blending.
+:::
+
+TODO: add demo!
+
+## Using with React.js and other UI frameworks.
+
+As long as you update the render state correctly, there's no need to explicitly render a view, e.g. as part of a react render.
+Calling `run()` will make the render loop will run in the background, updating automatically when needed.
+You may trigger a re-render indirectly by changing the render state or resizing the CSS layout of the canvas.
+
+In many cases the `View` will live as long as your app does, so there's no need to `await` or `dispose` the view.
+In that case, it's just fire and forget!
+If you do need to manage the lifecycle of the view, just store the promise somewhere and await after you signalled an abort.
+
+:::caution
+Beware frameworks that "demounts" the concrete canvas DOM element, as the view is tightly coupled with it.
+:::
+
+Where things might get more complicated is determining who "owns" which state.
+It's tempting to embed the render state as part of you own viewstate.
+As long as you can determine when and what parts of that viewstate has changed, e.g. by using immutable data and reference comparisons [like we do](render_state),
+we recommend you duplicate what state you need and keep a single "master state" in your own view state, updating the render state accordingly.
+
+If that seems like too much work with the boilerplate-heavy state system you're currently using,
+you might want to consider investigating newer/simpler frameworks like [SolidJS](https://www.solidjs.com/).
