@@ -200,7 +200,7 @@ const config = {
                 out: "web_api",
                 logLevel: "Error",
                 tsconfig: "@novorender/tsconfig.json",
-                readme: "ts/dist/README.md",
+                readme: "@novorender/dist/README.md",
                 disableSources: false,
                 excludeInternal: true,
                 excludePrivate: true,
