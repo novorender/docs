@@ -196,10 +196,10 @@ const config = {
                     custom_edit_url: "",
                 },
                 /** TypeDoc Options */
-                entryPoints: ["ts/web_app/index.ts"],
+                entryPoints: ["@novorender/web_app/index.ts"],
                 out: "web_api",
                 logLevel: "Error",
-                tsconfig: "ts/tsconfig.json",
+                tsconfig: "@novorender/tsconfig.json",
                 readme: "ts/dist/README.md",
                 disableSources: false,
                 excludeInternal: true,
@@ -210,7 +210,7 @@ const config = {
                     includeGroups: true,
                 },
                 gitRevision: (() => {
-                    return execSync("cd ts && git rev-parse HEAD").toString().trim();
+                    return execSync("cd @novorender && git rev-parse HEAD").toString().trim();
                 })(),
             },
         ],
