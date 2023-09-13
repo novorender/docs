@@ -5,6 +5,8 @@ description: "Learn how to create and modify render views."
 keywords: ["novorender api docs", "view"]
 ---
 
+import { snippets } from "@site/demo-snippets/index";
+
 The <CodeLink type="class" name="View"/> class offers an abstraction that takes care of several important aspects for you:
 
 - Camera controllers
@@ -66,10 +68,10 @@ When in doubt, go low!
 Sadly, bundlers are still a thing.
 Exactly how to wrangle your bundler of choice can vary quite a bit.
 You/it may choose to inline some of these resources as base64 strings, or append a hash to their URL to support updates/caching.
-The view expects that you provided it with all imports through a <CodeLink type="alias" name="ViewImports"/> object.
+The view expects that you provided it with all imports through a <CodeLink type="type" name="ViewImports"/> object.
 
 To help construct this object, we've added a helper function <CodeLink type="class" name="View.downloadImports"/>.
-This uses a <CodeLink type="alias" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
+This uses a <CodeLink type="type" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
 
 If you followed the recipe in the API `README` file, all the resources should be in the same URL folder as the main script, i.e. [import.meta.url](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta).
 If so, you can pass an empty object `{}` as an argument.
@@ -126,7 +128,7 @@ Once disposed, the view is no longer usable.
 
 Let's see it in action:
 
-TODO: add demo!
+<PlaygroundComponent {...snippets.views.creation} />
 
 ## Animation and compositing
 
@@ -134,8 +136,8 @@ If you want to animate anything in the view, you should assign/override the <Cod
 
 ```typescript
 view.animate = (time: number) => {
-    const v = Math.sin(time / 1000) * .5 + .5;
-    view.modifyRenderState({ background: { color: [v, v, v, 1] } });
+    const t = Math.sin(time / 1000) * .5 + .5;
+    view.modifyRenderState({ background: { color: [t, t, t, 1] } });
 }
 ```
 
@@ -160,7 +162,36 @@ The canvas you pass to the view cannot simultaneously be used for e.g. [CanvasRe
 For compositing you must create a new canvas and overlay with alpha blending.
 :::
 
-TODO: add demo!
+<PlaygroundComponent {...snippets.views.animation} />
+
+## Environments
+
+We used image based lighting ([IBL](https://en.wikipedia.org/wiki/Image-based_lighting)) to light and shade the geometry.
+Most of our examples use the default environment, which is a boring 6-pixel cube map with shades of gray.
+Such a simple environment doesn't do the engine any justice and is just there so that at least there is some light by default.
+
+To use a proper environment map, we need to download a set of HDRI cube texture maps with pre-convoluted irradiance.
+The process of how to generate those from an original HDR panorama image is outside the scope of this guide.
+Instead we'll show you how to pick and download one of the default environments.
+
+The view contains a function <CodeLink type="class" name="View.availableEnvironments"/> that will retrieve a list of available environments from the specified source.
+We've already included some environments on our `api.novorender.com` server, so that's were we'll point it to.
+
+```typescript
+const envs = await view.availableEnvironments("https://api.novorender.com/assets/env/index.json");
+const {url} = envs[0];
+view.modifyRenderState({ background: { url } });
+```
+
+<PlaygroundComponent {...snippets.views.environments} />
+
+You can pick from one of currently 16 environments by changing the index into the `envs` array.
+Loading them can take some time the first time, so be patient.
+Setting <CodeLink type="interface" name="RenderStateBackground.url"/> to `undefined` will revert things back to the default environment.
+
+:::tip
+If you don't want the skybox background to stand out, you can blur it using <CodeLink type="interface" name="RenderStateBackground.blur"/>.
+:::
 
 ## Using with React.js and other UI frameworks.
 
