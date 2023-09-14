@@ -32,6 +32,9 @@ const config = {
                     sidebarPath: require.resolve("./sidebars.js"),
                     editUrl: `${baseGithub}/docs/edit/main`,
                     showLastUpdateTime: true,
+                    remarkPlugins: [
+                        [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true, converters: ["yarn", "pnpm"] }],
+                    ],
                 },
                 blog: {
                     showReadingTime: true,
@@ -188,6 +191,7 @@ const config = {
                 id: "web_api",
                 sidebar: {
                     readmeLabel: "Introduction",
+                    readmeTitle: "",
                     indexLabel: "Index",
                     autoConfiguration: true,
                 },
@@ -200,10 +204,11 @@ const config = {
                 out: "web_api",
                 logLevel: "Error",
                 tsconfig: "@novorender/tsconfig.json",
-                readme: "ts/dist/README.md",
+                readme: "./docs/index.mdx",
                 disableSources: false,
                 excludeInternal: true,
                 excludePrivate: true,
+                hideBreadcrumbs: false,
                 hideGenerator: true,
                 navigation: {
                     includeCategories: true,

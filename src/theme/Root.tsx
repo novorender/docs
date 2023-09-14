@@ -1,5 +1,6 @@
-import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import React, { useEffect, useState } from "react";
+import { useHistory, useLocation } from "@docusaurus/router";
+import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import { PlaygroundContext } from "./context";
 import Head from "@docusaurus/Head";
 import * as glMatrix from "gl-matrix";
@@ -12,6 +13,8 @@ if (ExecutionEnvironment.canUseDOM) {
 
 // Default implementation, that you can customize
 export default function Root({ children }) {
+    const history = useHistory();
+    const location = useLocation();
     const [runningPlaygroundId, setRunningPlaygroundId] = useState("");
 
     /**
@@ -86,7 +89,40 @@ export default function Root({ children }) {
             ele.append(content);
             document.body.appendChild(ele);
         };
+
+
+        // Quick workaround to hide some elements on docs readme file
+        // might need to find a better way
+        if (location.pathname === "/docs/web_api/" || location.pathname === "/docs/web_api") {
+            hideElementsOnReadme(location.pathname);
+        }
+        history.listen(({ pathname }) => {
+            setTimeout(() => {
+                hideElementsOnReadme(pathname);
+            }, 0);
+        });
+
     }, []);
+
+    const hideElementsOnReadme = (pathname: string) => {
+        const ele1 = document.querySelector<HTMLElement>(`div[class*="tableOfContents_"]`);
+        const ele2 = document.querySelector<HTMLElement>(`header`);
+        const ele3 = document.querySelector<HTMLElement>(`.pagination-nav`);
+        if (pathname === "/docs/web_api/" || pathname === "/docs/web_api") {
+            [ele1, ele2, ele3].forEach(e => {
+                console.log("EEE ", e);
+                if (e) {
+                    e.style.display = "none";
+                }
+            });
+        } else {
+            [ele1, ele2, ele3].forEach(e => {
+                if (e) {
+                    e.style.display = "";
+                }
+            });
+        }
+    }
 
     const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/api_proxy.js", "gl-matrix": "/gl_matrix_proxy.js", "@novorender/data-js-api": "/data_api_proxy.js" } });
 

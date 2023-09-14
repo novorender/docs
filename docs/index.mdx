@@ -1,0 +1,39 @@
+<PackageHeader />
+
+The novorender API consist of several modules.
+
+```mermaid
+graph TD;
+    A[Web API]-->B[Core3D Module]
+    A-->C[Measure Module]
+    A-->D[Data Module]
+```
+
+### Core3D Module
+Core3D Module is optimized to deliver scalable 3D rendering capabilities.
+### Measure Module
+This module contains standard measure functions for Novorender data models.
+### Data Module
+Data Module provides APIs for managing scalable 3D rendering in the cloud.
+
+## Getting started
+
+<ActionCard cards={[
+  {title:"Quick Start", description:"Read our quick start tutorial to learn how to setup a basic application using Novorender Web API.", actionLabel:"Read", link:"/docs/tutorial/getting_started"},
+  {title:"Documentation", description:"Refer to the reference documentation for detailed information on different methods and classes.", actionLabel:"Go to Docs", link:"/docs/web_api/API"},
+  {title:"Interactive Guides", description:"Take a look at our interactive guides, which provide in-depth insights into various features.", actionLabel:"Check out Guides", link:"/docs/category/guides"}
+  ]} />
+
+
+
+export const PackageHeader = () => (
+    <div style={{background: "linear-gradient(140deg, #606c88, #3f4c6b)", padding: 15, borderRadius: 10, marginBottom: 30}}>
+      <p style={{fontSize: 48, marginBottom: 0}}>Novorender Web API</p>
+      <PackageVersion />
+    </div>
+);
+
+export const PackageVersion = () => (
+    <p style={{fontSize: 12, margin: 0}}>Build version: {WEB_API_VERSION}</p>
+);
+

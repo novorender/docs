@@ -18,6 +18,8 @@ const webpackPlugin = (context, options) => {
                 plugins: [
                     new DefinePlugin({
                         "process.env.DEBUG": "runtime_process_env.DEBUG",
+                        WEB_API_VERSION: JSON.stringify(require("./package.json").dependencies["@novorender/api"]),
+                        WEB_API_TYPESCRIPT_VERSION: JSON.stringify(require("./@novorender/package.json").devDependencies["typescript"])
                     }),
                     new ProvidePlugin({
                         process: require.resolve("process/browser"),
