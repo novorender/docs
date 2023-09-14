@@ -60,6 +60,7 @@
         "@tsconfig/node16": "1.0.3",
         "@types/puppeteer": "5.4.6",
         "@typescript-eslint/eslint-plugin": "^5.54.0",
+        "@docusaurus/remark-plugin-npm2yarn": "^2.4.1",
         "@typescript-eslint/parser": "^5.54.0",
         "ajv-cli": "5.0.0",
         "buffer": "6.0.3",
