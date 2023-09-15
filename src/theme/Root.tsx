@@ -93,14 +93,14 @@ export default function Root({ children }) {
 
         // Quick workaround to hide some elements on docs readme file
         // might need to find a better way
-        if (location.pathname === "/docs/web_api/" || location.pathname === "/docs/web_api") {
-            hideElementsOnReadme(location.pathname);
-        }
-        history.listen(({ pathname }) => {
-            setTimeout(() => {
-                hideElementsOnReadme(pathname);
-            }, 0);
-        });
+        // if (location.pathname === "/docs/web_api/" || location.pathname === "/docs/web_api") {
+        //     hideElementsOnReadme(location.pathname);
+        // }
+        // history.listen(({ pathname }) => {
+        //     setTimeout(() => {
+        //         hideElementsOnReadme(pathname);
+        //     }, 0);
+        // });
 
     }, []);
 
