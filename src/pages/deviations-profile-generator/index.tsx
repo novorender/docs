@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type API, type ObjectGroup, type SceneData } from "@novorender/data-js-api";
+import { createAPI, type API, type ObjectGroup, type SceneData } from "@novorender/data-js-api";
 import("./index.css");
 
 
@@ -119,9 +119,9 @@ export default function DeviationsProfileGenerator() {
 
         event.preventDefault();
 
-        const dataApiModule = await import("@novorender/data-js-api");
+        // const dataApiModule = await import("@novorender/data-js-api");
 
-        const dataApi = dataApiModule.createAPI({
+        const dataApi = createAPI({
             serviceUrl: sceneDetails.dataServerUrl,
             authHeader: async () => ({
                 header: "Authorization",
