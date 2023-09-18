@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API, createAPI, ObjectGroup, type SceneData } from "@novorender/data-js-api";
+import { type API, type ObjectGroup, type SceneData } from "@novorender/data-js-api";
 import("./index.css");
 
 
@@ -11,13 +11,15 @@ export default function DeviationsProfileGenerator() {
     const [sceneDetails, setSceneDetails] = useState<{ dataServerUrl: string; sceneId: string; }>({ dataServerUrl: "https://data.novorender.com/api", sceneId: "" });
     const [pointsVsTriangles, setPointsVsTriangles] = useState<{ name: string; groupIds: string; }>({ name: "", groupIds: "" });
     const [pointsVsPoints, setPointsVsPoints] = useState<{ name: string; fromGroupIds: string; toGroupIds: string; }>({ name: "", fromGroupIds: "", toGroupIds: "" });
-    const [token, setToken] = useState(localStorage.getItem(JWT_KEY));
+    const [token, setToken] = useState<string>();
     const [dataApi, setDataApi] = useState<API>();
     const [sceneData, setSceneData] = useState<SceneData>();
     const [pointsVsTrianglesData, setPointsVsTrianglesData] = useState<Array<{ name: string; groupIds: Array<string>; objectIds: Array<number>; }>>([]);
 
 
     React.useEffect(() => {
+
+        setToken(localStorage.getItem(JWT_KEY) as string);
 
     }, []);
 
@@ -116,7 +118,10 @@ export default function DeviationsProfileGenerator() {
     async function loadScene(event: React.FormEvent<HTMLFormElement>) {
 
         event.preventDefault();
-        const dataApi = createAPI({
+
+        const dataApiModule = await import("@novorender/data-js-api");
+
+        const dataApi = dataApiModule.createAPI({
             serviceUrl: sceneDetails.dataServerUrl,
             authHeader: async () => ({
                 header: "Authorization",
