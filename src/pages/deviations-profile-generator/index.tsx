@@ -80,6 +80,8 @@ export default function DeviationsProfileGenerator() {
         setPointsVsTrianglesData(values => [...values, { name: pointsVsTriangles.name, groupIds, objectIds }]);
 
 
+        setPointsVsTriangles({ name: "", groupIds: "" })
+
 
     };
     const handlePointsVsPointsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
