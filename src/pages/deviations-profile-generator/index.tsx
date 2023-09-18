@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Layout from "@theme/Layout";
+import CodeBlock from "@theme/CodeBlock";
 import { createAPI, type API, type ObjectGroup, type SceneData } from "@novorender/data-js-api";
 import("./index.css");
 
@@ -15,7 +17,7 @@ export default function DeviationsProfileGenerator() {
     const [dataApi, setDataApi] = useState<API>();
     const [sceneData, setSceneData] = useState<SceneData>();
     const [pointsVsTrianglesData, setPointsVsTrianglesData] = useState<Array<{ name: string; groupIds: Array<string>; objectIds: Array<number>; }>>([]);
-
+    const [isDetailsOpen, setIsDetailsOpen] = useState(true);
 
     React.useEffect(() => {
 
@@ -23,20 +25,24 @@ export default function DeviationsProfileGenerator() {
 
     }, []);
 
-    const handleLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, stateKey: string) => {
         const name = event.target.name;
         const value = event.target.value;
-        setLoginDetails(values => ({ ...values, [name]: value }));
-    };
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setSceneDetails(values => ({ ...values, [name]: value }));
-    };
-    const handlePointsVsTrianglesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setPointsVsTriangles(values => ({ ...values, [name]: value }));
+        switch (stateKey) {
+            case "login":
+                setLoginDetails(values => ({ ...values, [name]: value }));
+                break;
+            case "sceneDetails":
+                setSceneDetails(values => ({ ...values, [name]: value }));
+                break;
+            case "pointsVsTriangles":
+                setPointsVsTriangles(values => ({ ...values, [name]: value }));
+                break;
+            case "pointsVsPoints":
+                setPointsVsPoints(values => ({ ...values, [name]: value }));
+                break;
+        }
+
     };
 
     const handlePointsVsTrianglesSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -80,15 +86,11 @@ export default function DeviationsProfileGenerator() {
         setPointsVsTrianglesData(values => [...values, { name: pointsVsTriangles.name, groupIds, objectIds }]);
 
 
-        setPointsVsTriangles({ name: "", groupIds: "" })
+        setPointsVsTriangles({ name: "", groupIds: "" });
 
 
     };
-    const handlePointsVsPointsChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setPointsVsPoints(values => ({ ...values, [name]: value }));
-    };
+
 
     const handlePointsVsPointsSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -140,6 +142,7 @@ export default function DeviationsProfileGenerator() {
         // const { url } = sceneData as SceneData;
 
         setSceneData(sceneData as SceneData);
+        setIsDetailsOpen(false);
     }
 
 
@@ -180,135 +183,132 @@ export default function DeviationsProfileGenerator() {
     }
 
     return (
-        <>
-            {
-                !token ?
-                    <div>
-                        <p>Login</p>
-                        <form onSubmit={handleLoginSubmit}>
-                            <label>Username:
-                                <input
-                                    type="text"
-                                    name="username"
-                                    value={loginDetails.username}
-                                    onChange={handleLoginChange}
-                                />
-                            </label>
-                            <br />
-                            <label>Password:
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={loginDetails.password}
-                                    onChange={handleLoginChange}
-                                />
-                            </label>
-                            <input type="submit" />
-                        </form>
-                    </div>
-                    :
-                    <div className='main-container'>
-                        <div className='scene-details-container'>
-                            <details>
-                                <summary>Scene Details</summary>
-                                <form onSubmit={loadScene}>
-                                    <label>Data Server URL:
+        <Layout>
+            <div className="deviations-root">
+                {
+                    !token
+                        ? <div style={{ background: "transparent" }} className="hero shadow--lw">
+                            <div className="container">
+                                <h1 className="hero__title">Login</h1>
+                                <div>
+                                    <form onSubmit={handleLoginSubmit}>
+                                        <label>Username:</label>
+                                        <input
+                                            type="text"
+                                            name="username"
+                                            value={loginDetails.username}
+                                            onChange={(e) => { handleInputChange(e, 'login'); }}
+                                        />
+                                        <br />
+                                        <label>Password:</label>
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={loginDetails.password}
+                                            onChange={(e) => { handleInputChange(e, 'login'); }}
+                                        />
+                                        <br />
+                                        <input type="submit" />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        : <div className='main-container'>
+                            <div className='scene-details-container'>
+                                <details open={isDetailsOpen}>
+                                    <summary>Scene Details</summary>
+                                    <form onSubmit={loadScene}>
+                                        <label>Data Server URL:</label>
                                         <input
                                             type="text"
                                             name="dataServerUrl"
                                             value={sceneDetails.dataServerUrl}
-                                            onChange={handleChange}
+                                            onChange={(e) => { handleInputChange(e, 'sceneDetails'); }}
                                         />
-                                    </label>
-                                    <br />
-                                    <label>Scene ID:
+                                        {/* <br /> */}
+                                        <label>Scene ID:</label>
                                         <input
                                             type="text"
                                             name="sceneId"
                                             value={sceneDetails.sceneId}
-                                            onChange={handleChange}
+                                            onChange={(e) => { handleInputChange(e, 'sceneDetails'); }}
                                         />
-                                    </label>
-                                    <br />
-                                    <button type="submit">Load Scene</button>
-                                </form>
-                            </details>
-                        </div>
+                                        {/* <br /> */}
+                                        <button type="submit">Load Scene</button>
+                                    </form>
+                                </details>
+                            </div>
 
-                        {!sceneData
-                            ? <p>Load Scene First</p>
-                            : <div className='deviations-container'>
-                                <div>
+                            {!sceneData
+                                ? <p>Load Scene First</p>
+                                : <div className='deviations-container'>
+                                    <div>
 
-                                    <h3>{sceneData.title}</h3>
-                                    <hr />
-                                    <div className='d-form pt-form'>
-                                        <p>Point vs triangles</p>
-                                        <form onSubmit={handlePointsVsTrianglesSubmit}>
-                                            <label>Name:
+                                        <h3>{sceneData.title}</h3>
+                                        <hr />
+                                        <div className='d-form pt-form'>
+                                            <p>Point vs triangles</p>
+                                            <form onSubmit={handlePointsVsTrianglesSubmit}>
+                                                <label>Name:</label>
                                                 <input
                                                     type="text"
                                                     name="name"
                                                     value={pointsVsTriangles.name || ""}
-                                                    onChange={handlePointsVsTrianglesChange}
+                                                    onChange={(e) => { handleInputChange(e, 'pointsVsTriangles'); }}
                                                 />
-                                            </label>
-                                            <br />
-                                            <label>Group IDs:
+                                                <br />
+                                                <label>Group IDs:</label>
                                                 <textarea
                                                     name="groupIds"
                                                     value={pointsVsTriangles.groupIds || ""}
-                                                    onChange={handlePointsVsTrianglesChange}
+                                                    onChange={(e) => { handleInputChange(e, 'pointsVsTriangles'); }}
                                                 />
-                                            </label>
-                                            <br />
-                                            <input type="submit" />
-                                        </form>
-                                    </div>
-                                    <hr />
-                                    <div className='d-form pp-form'>
-                                        <p>Points vs points</p>
-                                        <form onSubmit={handlePointsVsPointsSubmit}>
-                                            <label>Name:
+                                                <br />
+                                                <input type="submit" />
+                                            </form>
+                                        </div>
+                                        <hr />
+                                        <div className='d-form pp-form'>
+                                            <p>Points vs points</p>
+                                            <form onSubmit={handlePointsVsPointsSubmit}>
+                                                <label>Name:</label>
                                                 <input
                                                     type="text"
                                                     name="name"
                                                     value={pointsVsPoints.name || ""}
-                                                    onChange={handlePointsVsPointsChange}
+                                                    onChange={(e) => { handleInputChange(e, 'pointsVsPoints'); }}
                                                 />
-                                            </label>
-                                            <br />
-                                            <label>From Group IDs:
+                                                <br />
+                                                <label>From Group IDs:</label>
                                                 <textarea
                                                     name="fromGroupIds"
                                                     value={pointsVsPoints.fromGroupIds || ""}
-                                                    onChange={handlePointsVsPointsChange}
+                                                    onChange={(e) => { handleInputChange(e, 'pointsVsPoints'); }}
                                                 />
-                                            </label>
-                                            <br />
-                                            <label>To Group IDs:
+                                                <br />
+                                                <label>To Group IDs:</label>
                                                 <textarea
                                                     name="toGroupIds"
                                                     value={pointsVsPoints.toGroupIds || ""}
-                                                    onChange={handlePointsVsPointsChange}
+                                                    onChange={(e) => { handleInputChange(e, 'pointsVsPoints'); }}
                                                 />
-                                            </label>
-                                            <br />
-                                            <input type="submit" />
-                                        </form>
+                                                <br />
+                                                <input type="submit" />
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ maxHeight: 800, overflow: "scroll" }}>
+                                        <CodeBlock language="json">
+                                            {JSON.stringify(pointsVsTrianglesData, null, 4)}
+                                        </CodeBlock>
                                     </div>
                                 </div>
-
-                                <div> <pre style={{ maxHeight: 800, overflow: "scroll" }}>
-                                    {JSON.stringify(pointsVsTrianglesData, null, 4)}
-                                </pre> </div>
-                            </div>
-                        }
-                    </div>
-
-
-            }
-        </>
+                            }
+                        </div>
+                }
+            </div>
+        </Layout>
 
     );
 }
