@@ -410,7 +410,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     // download the contents of current canvas as image
     function downloadCanvasAsImage(): void {
         let link = document.createElement("a");
-        link.download = `${dirName}___${fileName}.png`;
+        link.download = `${dirName}___${fileName}.webp`;
         link.href = canvas.current.toDataURL();
         link.click();
         link.remove();
