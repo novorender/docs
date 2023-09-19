@@ -35,8 +35,7 @@
   min-width: 250px;
 }
 
-.deviations-root input[type=text],
-.deviations-root input[type=password],
+.deviations-root input:not([type=submit]),
 .deviations-root textarea {
   width: 100%;
   padding: 12px 20px;
