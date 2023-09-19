@@ -1,57 +1,58 @@
+.deviations-root {
+  padding: 25px;
+}
 
-  .deviations-root {
-    padding: 25px;
-  }
-  
-  .deviations-root .main-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-  }
-  
-  .deviations-root .main-container > div {
-    border: 1px solid;
-    border-radius: 10px;
-    margin: 5px;
-    padding: 10px;
-  }
-  
-  .deviations-root .main-container > div.deviations-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-    gap: 15px;
-  }
-  
-  .deviations-root .main-container > div.deviations-container > div {
-    flex: 1 1 0px;
-  }
+.deviations-root .main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+.deviations-root .main-container>div {
+  border: 1px solid;
+  border-radius: 10px;
+  margin: 5px;
+  padding: 10px;
+}
+.deviations-root .main-container>div.deviations-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  gap: 15px;
+}
+.deviations-root .main-container>div.deviations-container>div {
+  flex: 1 1 0px;
+}
 
-  .deviations-root .main-container .scene-details-container details {
-    min-width: 250px;
-  }
+.deviations-root .main-container>div.deviations-container .dev-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.deviations-root .main-container .scene-details-container details {
+  min-width: 250px;
+}
 
-  .deviations-root input[type=text], .deviations-root textarea {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .deviations-root input[type=submit], .deviations-root button[type=submit] {
-    width: 100%;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  
+.deviations-root input[type=text],
+.deviations-root input[type=password],
+.deviations-root textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.deviations-root input[type=submit],
+.deviations-root button[type=submit] {
+  width: 100%;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
