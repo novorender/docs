@@ -26,11 +26,13 @@
   flex: 1 1 0px;
 }
 
-.deviations-root .main-container>div.deviations-container .dev-header {
+/* .deviations-root .main-container>div.deviations-container .dev-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
+
+*/
 .deviations-root .main-container .scene-details-container details {
   min-width: 250px;
 }

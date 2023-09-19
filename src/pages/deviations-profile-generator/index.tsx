@@ -238,12 +238,11 @@ export default function DeviationsProfileGenerator() {
                                 : <div className='deviations-container'>
                                     <div>
                                         <div className="dev-header">
-                                        <h3>{sceneData.title}</h3>
-
+                                            <h3>{sceneData.title}</h3>
                                         </div>
                                         <hr />
                                         <div className='d-form pt-form'>
-                                            <p>Point vs triangles</p>
+                                            <h4>Point vs Triangles</h4>
                                             <form onSubmit={handlePointsVsTrianglesSubmit}>
                                                 <label>Name:</label>
                                                 <input
@@ -256,7 +255,7 @@ export default function DeviationsProfileGenerator() {
                                                 <label>Group IDs:</label>
                                                 <div style={{ width: "100%" }} className="dropdown dropdown--hoverable">
                                                     <ul className="dropdown__menu">
-                                                        {sceneData.objectGroups.map(g =>
+                                                        {sceneData.objectGroups.filter(g => g.id).map(g =>
                                                             <li onClick={() => selectGrp(g)} style={{ cursor: "pointer" }} className="dropdown__link" key={g.name}>
                                                                 {g["picked"] && <FontAwesomeIcon icon={faCheck} />}
                                                                 {" " + g.name}</li>
@@ -273,7 +272,7 @@ export default function DeviationsProfileGenerator() {
                                                 <input type="submit" />
                                             </form>
                                         </div>
-                                        <hr />
+                                        {/* <hr />
                                         <div className='d-form pp-form'>
                                             <p>Points vs points</p>
                                             <form onSubmit={handlePointsVsPointsSubmit}>
@@ -301,7 +300,7 @@ export default function DeviationsProfileGenerator() {
                                                 <br />
                                                 <input type="submit" />
                                             </form>
-                                        </div>
+                                        </div> */}
                                     </div>
 
                                     <div style={{ maxHeight: 800, overflow: "scroll" }}>
