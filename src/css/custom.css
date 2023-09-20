@@ -199,6 +199,9 @@ svg[class*="darkToggleIcon"] {
         no-repeat;
 }
 
+.tut_label_hidden {
+    display: none !important;
+}
 @media screen and (max-width: 599px) {
     .aa-DetachedSearchButton {
         border-radius: 100% !important;
