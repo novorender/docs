@@ -64,11 +64,10 @@ const sidebars = {
                 {
                     type: "category",
                     label: "Tutorial",
-                    // link: {
-                    //     type: "generated-index",
-                    //     title: "Tutorial",
-                    //     description: "Getting started tutorial for setting up novorender web api.",
-                    // },
+                    link: {
+                        type: "doc",
+                        id: 'tutorial/getting_started',
+                    },
                     items: [{
                         type: 'doc',
                         id: 'tutorial/getting_started',

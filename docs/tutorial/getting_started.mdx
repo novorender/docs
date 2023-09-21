@@ -7,6 +7,8 @@ pagination_next: null
 pagination_prev: null
 ---
 import Link from "@docusaurus/Link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 
 :::caution Before we begin
@@ -19,13 +21,14 @@ It is **highly recommended** to get yourself familiar with these fundamental con
 
 In this introductory tutorial, we will explore the process of configuring the Novorender Web API by developing a plain & simple web application.
 
-While we've only provided tutorials for Vite and Webpack, the setup process should be similar for other bundlers/frameworks, with some minor modifications or adjustments as needed. You can adapt the provided instructions to your specific development environment to seamlessly integrate Novorender into your project.
+While we've only provided tutorials for [Vite](https://vitejs.dev/) and [Webpack](https://webpack.js.org/), the setup process should be similar for other bundlers/frameworks, with some minor modifications or adjustments as needed. You can adapt the provided instructions to your specific development environment to seamlessly integrate Novorender into your project.
 
 
 <BundlerCard />
 
 export const BundlerCard = () => (
-    <div style={{ display: "flex", gap: 50, justifyContent: "center", alignItems: "center" }}>{['Vite', 'Webpack'].map((v) =>  <div key={v} style={{width: 200}} className="card">
+    <div style={{ display: "flex", gap: 50, justifyContent: "center", alignItems: "center" }}>
+      {['Vite', 'Webpack'].map((v) =>  <div key={v} style={{width: 200}} className="card">
     <div className="card__image">
       <img
       style={{transform: "scale(0.8)"}}
@@ -34,7 +37,8 @@ export const BundlerCard = () => (
         title={v+ " logo"} />
     </div>
     <div style={{padding: 0}} className="card__footer">
-      <Link to={"/docs/tutorial/"+v.toLowerCase()+"_getting_started"} className="button button--primary button--block">{v}</Link>
+      <Link to={"/docs/tutorial/"+v.toLowerCase()+"_getting_started"} className="button button--primary button--block">{v} <FontAwesomeIcon icon={faAngleRight} /></Link>
     </div>
-  </div>)}</div>
+  </div>)}
+  </div>
 );

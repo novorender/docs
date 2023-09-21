@@ -14,35 +14,32 @@ import TabItem from '@theme/TabItem';
 
 ## Setup
 
-:::info
-Make sure you have TypeScript installed on your computer. To install TypeScript globally, use the command below:
-```bash
-npm install -g typescript
-```
-:::
+To begin, let's initiate a new Webpack + TypeScript project from scratch.
 
-To begin, let's initiate a new Webpack + TypeScript project from scratch:
-
-1. Let's create an empty directory first:
+1. Create an empty directory first:
 ```bash
 mkdir my-novorender-app
 ```
-Navigate into the newly created directory and then proceed with the following commands to complete the project creation process:
 
-2. Create a `package.json` file with sane defaults:
+2. Navigate into the newly created directory:
+```bash
+cd my-novorender-app
+```
+
+3. Create a `package.json` file with default config:
 ```bash npm2yarn
 npm init -y
 ```
 
-3. Install the required packages:
+4. Install the required packages:
 ```bash npm2yarn  
-npm install -D webpack webpack-cli ts-loader webpack-dev-server copy-webpack-plugin html-webpack-plugin
+npm install -D webpack webpack-cli typescript ts-loader webpack-dev-server copy-webpack-plugin html-webpack-plugin
 ```
 
 ### Configuring Webpack
-In this step, we'll configure Webpack with some basic configuration to transpile the project with Typescript.
+In this step, we will add some basic Webpack configuration to transpile the project with Typescript.
 
-Create a file named `webpack.config.js` in the root directory and paste the following code:
+Create a `webpack.config.js` file in the root directory of the project and add the following code:
 ```javascript title="webpack.config.js"
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -77,6 +74,39 @@ module.exports = {
 :::note
 In addition to the Webpack configuration (which is pretty much self-explanatory), you might have noticed that we're setting `devServer.client.overlay.warnings` to `false`. This setting is necessary because Webpack may produce warnings related to dynamic imports within the `@novorender/api`, which can be displayed as overlay warnings on the browser viewport. However, by setting this value to `false`, we prevent these warnings from appearing on the browser screen while still being able to view them in the developer console for debugging purposes. This adjustment helps maintain a cleaner and less cluttered development experience.
 :::
+
+### Configuring TypeScript
+The presence of a `tsconfig.json` file in a directory indicates that the directory is the root of a TypeScript project. The `tsconfig.json` file specifies the root files and the compiler options required to compile the project.
+Let's create one for ourselves:
+```bash
+tsc --init 
+```
+Above command will create a `tsconfig.json` file in project directory with default settings. You can further customize this file to match your project's specific TypeScript configuration needs.
+
+<details>
+  <summary>Getting Error: tsc is not recognized as an internal or external command...</summary>
+
+If you encounter an error message like `tsc is not recognized as an internal or external command...`, it means that TypeScript is not installed globally on your system, or it's not available in your system's PATH.
+
+To resolve this issue, you have two options:
+
+1. **Install TypeScript Globally**: You can install TypeScript globally on your system by running the following command:
+   
+   ```bash npm2yarn
+   npm install -g typescript
+   ```
+
+2. **Use `npx` to Initialize TypeScript**: Alternatively, you can use `npx` to run TypeScript commands:
+
+   ```bash
+   npx tsc --init
+   ```
+
+   This will ensure that TypeScript is temporarily installed and executed within your project's context.
+
+Both options are valid, and you can choose the one that suits your preference. Using `npx` is a common practice for project-specific dependencies to avoid global package management.
+</details>
+
 
 #### Adding Build Commands:
 Open `package.json` and add the following commands to `scripts`, we'll use these later to run the development server and to bundle the project:
@@ -226,7 +256,7 @@ const baseUrl = new URL("/novorender/api/", location.origin);
 const imports = await View.downloadImports({ baseUrl, shaders });
 ```
 :::info
-Did you notice the `// @ts-expect-error` comment? This is essential because Webpack might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
+Did you notice the `// @ts-expect-error` comment? This is essential because TypeScript might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
 :::
 
 ### Creating View

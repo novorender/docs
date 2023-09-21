@@ -66,9 +66,10 @@ const config = {
                 hideOnScroll: true,
                 items: [
                     {
-                        to: "docs/category/documentation",
+                        to: "docs/web_api/",
                         position: "left",
                         label: "Docs",
+                        activeBasePath: "/docs"
                     },
                     // {
                     //   to: "/data-rest-api/",

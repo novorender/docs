@@ -14,7 +14,7 @@ import TabItem from '@theme/TabItem';
 
 ## Setup
 
-To begin, let's initiate a new TypeScript project from scratch:
+To begin, let's initiate a new Vite + TypeScript project from scratch:
 
 <Tabs groupId="npm2yarn">
   <TabItem value="npm" label="NPM">
@@ -110,9 +110,9 @@ Our API uses advanced, cutting edge javascript APIs, many of which comes with ce
 
 To make it all work, your server has to ensure:
 
-1) A [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). In practice, this means HTTP on localhost (for debugging only) and HTTPS everywhere else, including LAN.
+1. A [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). In practice, this means HTTP on localhost (for debugging only) and HTTPS everywhere else, including LAN.
 
-2) Cross origin [HTTP headers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements) for *top level documents*.
+2. Cross origin [HTTP headers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements) for *top level documents*.
 ```http
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
@@ -135,30 +135,11 @@ export default {
 It's important to note that the method described above for enabling Cross-Origin headers is primarily intended for development mode. When transitioning to a production environment, you will need to configure these headers on your server. The specific implementation will depend on the server you are using, so please consult the relevant documentation for detailed instructions.
 :::
 
+3. MIME type [`text/javascript`](https://www.iana.org/assignments/media-types/text/javascript) for javascript files and [`application/wasm`](https://www.iana.org/assignments/media-types/application/wasm) for web assembly files.
 
-<details>
-  <summary>Enabling Cross Origin headers in Webpack</summary>
+4. Any resources loaded from a separate domain has be configured with [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to allow your domain.
 
-Webpack users can also enable cross origin headers by adding the following code snippet to their `webpack.config.js` file
- 
-```javascript title="webpack.config.js"
-...
-devServer: {
-      headers: {
-          "Cross-Origin-Opener-Policy": "same-origin",
-          "Cross-Origin-Embedder-Policy": "require-corp",
-      }
-},
-...
-```
-</details>
-
-
-3) MIME type [`text/javascript`](https://www.iana.org/assignments/media-types/text/javascript) for javascript files and [`application/wasm`](https://www.iana.org/assignments/media-types/application/wasm) for web assembly files.
-
-4) Any resources loaded from a separate domain has be configured with [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to allow your domain.
-
-5) Service workers script at the appropriate location, preferably at the root of your domain. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) for more.
+5. Service workers script at the appropriate location, preferably at the root of your domain. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) for more.
 
 ### Typescript
 
