@@ -37,6 +37,7 @@ export default function Playground(): JSX.Element {
                                     src={t.previewImageUrl}
                                     alt={t.demoName}
                                     title={t.demoName}
+                                    loading="lazy"
                                     onError={(e) => {
                                         e.currentTarget.src = `/img/playground-demo-placeholder-dark.jpg`;
                                         e.currentTarget.alt = "demo preview image not found";

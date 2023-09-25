@@ -65,6 +65,7 @@ export default function PlaygroundComponent({ code, demoName, description, edito
                                                 onError={(e) => {
                                                     e.currentTarget.src = `/img/playground-demo-placeholder-dark.jpg`;
                                                 }}
+                                                loading="lazy"
                                                 style={{
                                                     width: "100%",
                                                     position: "absolute",
