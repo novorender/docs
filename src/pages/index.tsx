@@ -79,9 +79,9 @@ export default function Home(): JSX.Element {
                     models are at your fingertips, accessible from any device, anywhere.
                 </p>
                 <p>
-                    We've taken the bold step of <a href="https://docs.novorender.com/blog/webgl-web-api-v2">open-sourcing</a> the foundational technology that drives the <a href="https://novorender.com">industry's most potent 3D Viewer</a>. This empowers you not only to leverage
-                    the might of our advanced viewer but also to swiftly create and deploy dependable web applications, streamlining your 3D workflows. Whether it's in the realms of <a href="https://novorender.com/industries/construction/">Construction</a>,{" "}
-                    <a href="https://novorender.com/industries/infrastructure/">Infrastructure</a>, <a href="https://novorender.com/industries/energy/">Energy</a>, or <a href="https://novorender.com/industries/ship-design/">Shipyard & Design</a>, our solution caters to a myriad
+                    We've taken the bold step of <Link to="https://docs.novorender.com/blog/webgl-web-api-v2">open-sourcing</Link> the foundational technology that drives the <Link to="https://novorender.com">industry's most potent 3D Viewer</Link>. This empowers you not only to leverage
+                    the might of our advanced viewer but also to swiftly create and deploy dependable web applications, streamlining your 3D workflows. Whether it's in the realms of <Link to="https://novorender.com/industries/construction/">Construction</Link>,{" "}
+                    <Link to="https://novorender.com/industries/infrastructure/">Infrastructure</Link>, <Link to="https://novorender.com/industries/energy/">Energy</Link>, or <Link to="https://novorender.com/industries/ship-design/">Shipyard & Design</Link>, our solution caters to a myriad
                     of use cases, propelling your projects into a new era of efficiency and innovation.
                 </p>
                 <p>
@@ -89,13 +89,13 @@ export default function Home(): JSX.Element {
                     Fine-tuned Geometric Controls, and an array of other transformative features. Elevate your 3D experience with Novorender's API and empower your creations beyond imagination.
                 </p>
                 <p>
-                    Seamlessly integrate your 3D workflow with widely embraced 3rd party services by harnessing Novorender's <a href="https://docs.novorender.com/docs/category/data-rest-api-v1">Open API</a>. Forge connections with industry stalwarts like{" "}
-                    <a href="https://novorender.com/integrations/active-directory-ad/">Active Directory (AD)</a>, <a href="https://novorender.com/integrations/autodesk-bim360/">Autodesk BIM360</a>, <a href="https://novorender.com/integrations/jira/">Jira</a>,{" "}
-                    <a href="https://novorender.com/integrations/microsoft-teams/">Microsoft Teams</a>, <a href="https://novorender.com/integrations/power-bi/">Power BI</a>, <a href="https://novorender.com/integrations/naviswork/">Navisworks</a>, and an{" "}
-                    <a href="https://novorender.com/integrations/">extensive lineup</a> of other influential platforms. Elevate your collaboration and efficiency through the power of Novorender's API, expanding your horizons to a realm of limitless possibilities.
+                    Seamlessly integrate your 3D workflow with widely embraced 3rd party services by harnessing Novorender's <Link to="https://docs.novorender.com/docs/category/data-rest-api-v1">Open API</Link>. Forge connections with industry stalwarts like{" "}
+                    <Link to="https://novorender.com/integrations/active-directory-ad/">Active Directory (AD)</Link>, <Link to="https://novorender.com/integrations/autodesk-bim360/">Autodesk BIM360</Link>, <Link to="https://novorender.com/integrations/jira/">Jira</Link>,{" "}
+                    <Link to="https://novorender.com/integrations/microsoft-teams/">Microsoft Teams</Link>, <Link to="https://novorender.com/integrations/power-bi/">Power BI</Link>, <Link to="https://novorender.com/integrations/naviswork/">Navisworks</Link>, and an{" "}
+                    <Link to="https://novorender.com/integrations/">extensive lineup</Link> of other influential platforms. Elevate your collaboration and efficiency through the power of Novorender's API, expanding your horizons to a realm of limitless possibilities.
                 </p>
 
-                <p>Dive deeper into the <a href="/blog/webgl-web-api-v2">announcement post</a> for more details or jump right into our <a href="/docs/web_api/">getting started guide</a> to render your first 3D model with Novorender!</p>
+                <p>Dive deeper into the <Link to="/blog/webgl-web-api-v2">announcement post</Link> for more details or jump right into our <Link to="/docs/web_api/">getting started guide</Link> to render your first 3D model with Novorender!</p>
 
             </div>
         </Layout>

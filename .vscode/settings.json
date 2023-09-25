@@ -18,6 +18,7 @@
     "measurescene",
     "MSAL",
     "Naviswork",
+    "Navisworks",
     "Novorender",
     "Novoweb",
     "objectgroups",
@@ -26,6 +27,7 @@
     "Quadtree",
     "stackblitz",
     "tonemapping",
+    "transformative",
     "webgl"
   ],
   "files.associations": {
