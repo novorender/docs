@@ -1,5 +1,4 @@
-import { DeviceProfile, getDeviceProfile, ViewImports, View, ViewImportmap } from "@novorender/api";
-// @ts-expect-error
+import { type DeviceProfile, type ViewImports, type ViewImportmap } from "@novorender/api";
 import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
 
@@ -32,13 +31,20 @@ export interface IDemoContext<T = any> {
 /** Core imports, you can provide your own to `createDemoContext` if want */
 export let coreImportsPromise: Promise<ViewImports>;
 // for fixing docusaurus build
-if (typeof window !== "undefined") {
-    const baseUrl = new URL(".", location.origin);
-    const coreImportsMap: ViewImportmap = { baseUrl, shaders };
-    coreImportsPromise = View.downloadImports(coreImportsMap);
+if (typeof window !== "undefined" && typeof navigator !== 'undefined') {
+    // must be imported dynamically to fix SSG build
+    import("@novorender/api").then(({ View }) => {
+        const baseUrl = new URL(".", location.origin);
+        const coreImportsMap: ViewImportmap = { baseUrl, shaders };
+        coreImportsPromise = View.downloadImports(coreImportsMap);
+    });
 }
 
 export async function createDemoContext(canvasElements: ICanvas, reportErrors: (...errors: any[]) => void, importsPromise: Promise<ViewImports> = coreImportsPromise): Promise<IDemoContext> {
+
+    // must be imported dynamically to fix SSG build
+    const { getDeviceProfile } = await import("@novorender/api")
+
     const gpuTier = 2; // laptop with reasonably new/powerful GPU.
     const deviceProfile = getDeviceProfile(gpuTier);
     const imports = await importsPromise;

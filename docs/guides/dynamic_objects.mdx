@@ -5,7 +5,7 @@ description: "Add dynamic 3D objects into the view."
 keywords: ["novorender api docs", "webgl api", "gltf", "dynamic objects"]
 ---
 
-import { snippets } from "@site/demo-snippets";
+ ;
 
 While Novorender is mostly about streaming and rendering large, static 3D scenes, sometimes you may want to add smaller, dynamic 3D objects into the view.
 Dynamic objects are meant for small and lightweight objects, such as 3D widgets or avatars.
@@ -33,7 +33,7 @@ We recommend verifying your files using https://github.khronos.org/glTF-Validato
 
 Let's try to download a binary gltf file (glb), which has all the textures and buffers included in a single file.
 
-<PlaygroundComponent {...snippets.dynamic.gltf}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.gltf"></PlaygroundComponent>
 
 ### Procedural geometry
 
@@ -116,7 +116,7 @@ view.modifyRenderState({ dynamic: { objects: [triangleObject] } });
 
 So, let's see it all run.
 
-<PlaygroundComponent {...snippets.dynamic.triangle}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.triangle"></PlaygroundComponent>
 
 ## Instances
 
@@ -138,7 +138,7 @@ Instances are drawn in a single batch operation without javascript or the CPU ge
 So if you have a simple object like this cube with 12 triangles each, you can easily have thousands of instances, or even tens or hundreds of thousands.
 Let's start easy with `10 x 10 x 10 = 1000` instances, which produces 12K triangles.
 
-<PlaygroundComponent {...snippets.dynamic.instances}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.instances"></PlaygroundComponent>
 
 Try modifying the `dim` variable to increase/decrease # instances.
 Most PCs should be able to handle millions of triangles, so if you feel adventurous, change `dim` to `100`, which produces one million instances.
@@ -171,7 +171,7 @@ This is because whenever the render state changes, the frame has to be completel
 Also, progressive post effects and high-res rendering are often only applied after a small period of inaction.
 Short animation sequences of seconds or less are fine, however, and may help the user to better understand function and context.
 
-<PlaygroundComponent {...snippets.dynamic.animation}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.animation"></PlaygroundComponent>
 
 :::caution
 Animations will drain device batteries quickly. Use with moderation!
@@ -189,7 +189,7 @@ In this example we only have one instance, so the base id becomes the only id we
 If you click on the cube, it should grow by 10%.
 If you click outside the cube, it should shrink by 10%.
 
-<PlaygroundComponent {...snippets.dynamic.pick_dynamic}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.pick_dynamic"></PlaygroundComponent>
 
 Dynamic objects don't support the same highlight mechanism that static objects do.
 Unlike static geometry, dynamic objects are, well, dynamic.

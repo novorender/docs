@@ -1,5 +1,5 @@
 import { IDemoContext, IDemoHost, IModule } from "../demo";
-import { View, OrbitController } from "@novorender/api";
+import { OrbitController } from "@novorender/api";
 import { BaseDemoHost } from "./base";
 
 type Args = [OrbitController];

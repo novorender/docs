@@ -5,14 +5,14 @@ description: "Loading scenes via Data JS API or Data REST API."
 keywords: ["novorender api docs", "web api", "data js api", "loading scenes"]
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 To load your own scenes we recommend that you use the [`@novorender/data-js-api`](https://docs.novorender.com/docs/data-js-api) package, but you can also use the [Novorender data REST API](https://docs.novorender.com/docs/category/data-rest-api-v1) directly if you prefer.
 We will be using the npm package in all our examples.
 
 ## Public scenes
 
-<PlaygroundComponent {...snippets.loadingScenes.public_scene} />
+<PlaygroundComponent demoKey="loadingScenes.public_scene" />
 
 ## Private scenes
 
@@ -20,7 +20,7 @@ Only scene related endpoints are covered by the NPM package, so for user / authe
 
 ### Username / Password
 
-<PlaygroundComponent {...snippets.loadingScenes.private_scene} />
+<PlaygroundComponent demoKey="loadingScenes.private_scene" />
 
 ### Active Directory
 

@@ -6,7 +6,7 @@ keywords: ["novorender api docs", "examples"]
 ---
 
 import Link from "@docusaurus/Link";
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 ## Live examples
 
@@ -16,10 +16,10 @@ This is why we include plenty of interactive examples.
 Click the "run demo" button below to activate the example!
 Once active, you should be able to navigate the 3D view by moving the cursor with the left mouse button pressed to rotate, or mouse wheel to zoom in/out.
 
-<PlaygroundComponent {...snippets.interactiveExamples.basic} />
+<PlaygroundComponent demoKey="interactiveExamples.basic" />
 
 The above example shows a minimalistic implementation to get anything on screen.
-It demonstrates the key concept of rendering:
+It demonstrates the demoKey concept of rendering:
 
 -   Create a render view.
 -   Modify the render state.
@@ -35,7 +35,7 @@ The context in which is runs applies those changes to the view's render state be
 
 Click to activate and then try changing the the values in the code in the example below!
 
-<PlaygroundComponent {...snippets.interactiveExamples.renderState} />
+<PlaygroundComponent demoKey="interactiveExamples.renderState" />
 
 We use Microsoft's [Monaco editor](https://microsoft.github.io/monaco-editor/), which is quite powerful and helpful for editing typescript code.
 Try hovering your mouse over some of the properties and see how the documentation pops up!

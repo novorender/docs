@@ -5,8 +5,6 @@ description: "How to use and configure camera controllers."
 keywords: ["novorender api docs", "webgl api", "clipping volumes"]
 ---
 
-import { snippets } from "@site/demo-snippets/index";
-
 Before we dive into camera controllers, let's examine what they control exactly.
 The camera orientation and projection used for rendering is described in the render state as a 3D vector and quaternion.
 
@@ -27,7 +25,7 @@ To help with this, the <CodeLink type="class" name="View"/> class introduces cam
 These will overwrite the camera related render state on every frame, so setting it directly like in the example above usually won't work.
 For the sake of understanding, we select the inert <CodeLink type="class" name="NullController"/> so we can play around with the camera state ourselves.
 
-<PlaygroundComponent {...snippets.cameraControllers.cameraState} />
+<PlaygroundComponent demoKey="cameraControllers.cameraState" />
 
 ## Active controller
 
@@ -106,7 +104,7 @@ OrbitController.assert(activeController);
 activeController.updateParams({ rotationalVelocity: 2 });
 ```
 
-<PlaygroundComponent {...snippets.cameraControllers.controllerParams} />
+<PlaygroundComponent demoKey="cameraControllers.controllerParams" />
 
 ## Properties
 
@@ -131,7 +129,7 @@ activeController.pivot = [x, y, z];
 The same applies to rotation, which is expressed as two angles, `yaw` and `pitch`.
 One reason for this is to restrain the orientation to have zero roll angle, which is often confusing and rarely useful.
 
-<PlaygroundComponent {...snippets.cameraControllers.controllerProperties} />
+<PlaygroundComponent demoKey="cameraControllers.controllerProperties" />
 
 ## Zoom to and fly to
 

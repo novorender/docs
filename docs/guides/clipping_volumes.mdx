@@ -5,7 +5,7 @@ description: "Clipping allows you to render only part of a scene."
 keywords: ["novorender api docs", "webgl api", "clipping volumes"]
 ---
 
-import { snippets } from "@site/demo-snippets";
+ ;
 
 TODO: Make Condos demo host
 TODO: Describe outlines.
@@ -39,14 +39,14 @@ Points that lie outside will be clipped, while points inside will be rendered.
 
 To illustrate this, let's create a simple clipping volume with a single plane along the yz axes, effectively clipping everything to the right of center.
 
-<PlaygroundComponent {...snippets.clipping.single} />
+<PlaygroundComponent demoKey="clipping.single" />
 
 ### Single plane with offset
 
 We used the center of the scene (which is far from origo) to position the plane.
 Let's add a few meters extra to observe the effect.
 
-<PlaygroundComponent {...snippets.clipping.offset} />
+<PlaygroundComponent demoKey="clipping.offset" />
 
 ### Single plane, flipped
 
@@ -54,13 +54,13 @@ You may flip the plane by flipping the direction of the normal.
 When doing so, also remember to negate the offset.
 Or, to put another way, simply negate all the elements `[-nx,-ny,-nz,-o]`.
 
-<PlaygroundComponent {...snippets.clipping.flipped} />
+<PlaygroundComponent demoKey="clipping.flipped" />
 
 ### Single plane, rotated
 
 Of course, you may use any normal you like for the plane, as long as its length is 1.0.
 
-<PlaygroundComponent {...snippets.clipping.rotated} />
+<PlaygroundComponent demoKey="clipping.rotated" />
 
 ### Dual plane
 
@@ -80,33 +80,33 @@ For those familiar with [CSG (constructive solid geometry)](https://en.wikipedia
 
 Let's create a more complex clipping volume with an additional plane along the xz axes, effectively clipping everything to the right and above center.
 
-<PlaygroundComponent {...snippets.clipping.dual} />
+<PlaygroundComponent demoKey="clipping.dual" />
 
 ### Dual plane, slab
 
 A perhaps more useful volume is a slab, consisting of a top and bottom plane, but otherwise extending into infinity.
 
-<PlaygroundComponent {...snippets.clipping.slab} />
+<PlaygroundComponent demoKey="clipping.slab" />
 
 ### Inverted slab
 
 If you wish to clip everything inside of the volume, rather than outside, simply flip the planes (negate all elements) and change the combination mode.
 
-<PlaygroundComponent {...snippets.clipping.slab_inv} />
+<PlaygroundComponent demoKey="clipping.slab_inv" />
 
 ### Box
 
 We currently support up to 6 planes, allowing you to define simple polyhedra of any size, rotation and position.
 Let's define an axis aligned clipping box.
 
-<PlaygroundComponent {...snippets.clipping.box} />
+<PlaygroundComponent demoKey="clipping.box" />
 
 ### Outlines
 
 You can also enable outline rendering, which will render lines where the geometry intersects a clipping plane.
 This feature is particularly useful for orthographic projections, where surfaces perpendicular to the camera would otherwise be invisible.
 
-<PlaygroundComponent {...snippets.clipping.outlines} />
+<PlaygroundComponent demoKey="clipping.outlines" />
 
 Due to limitations in the WebGL2 api, outline rendering has a significant memory overhead.
 Every clipping plane you enable it on will also incur an extra performance cost.
@@ -127,7 +127,7 @@ By default, <CodeLink type="interface" name="RenderStateClippingPlane.color"/> i
 To visualize a specific plane, you need to set this color to a an 4D RGBA vector/array.
 The alpha component lets you draw the planes transparently when less than 1.0.
 
-<PlaygroundComponent {...snippets.clipping.visualize} />
+<PlaygroundComponent demoKey="clipping.visualize" />
 
 Note that clipping planes are only drawn when the camera is on the positive side, i.e. "outside" the plane halfspace.
 Rotate the camera to see how the planes disappear when viewed from "inside".

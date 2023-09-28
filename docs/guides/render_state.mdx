@@ -5,7 +5,7 @@ description: "How to treat and modify immutable render state."
 keywords: ["novorender api docs", "render state"]
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 In this guide we will dive more into <CodeLink type="interface" name="RenderState"/> and how to modify it.
 
@@ -174,7 +174,7 @@ It will only perform basic range checks and values that could result in a run-ti
 
 Some examples will do validation and report back validation errors, like the one below:
 
-<PlaygroundComponent {...snippets.renderState.validation} />
+<PlaygroundComponent demoKey="renderState.validation" />
 
 Change the `grid.distance` to `100` instead of `-100` to rectify the problem.
 

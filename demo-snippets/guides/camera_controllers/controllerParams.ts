@@ -1,4 +1,4 @@
-import { OrbitController } from "@novorender/api";
+import { type OrbitController } from "@novorender/api";
 
 export function main(controller: OrbitController) {
     controller.updateParams({

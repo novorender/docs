@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+// eslint-disable-next-line no-undef
 const { execSync } = require("child_process");
+// eslint-disable-next-line no-undef
 const { webpackPlugin } = require("./webpack.plugin");
 
+// eslint-disable-next-line no-undef
 const lightCodeTheme = require("prism-react-renderer/themes/github");
+// eslint-disable-next-line no-undef
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const baseGithub = "https://github.com/novorender";
@@ -29,10 +34,12 @@ const config = {
             /** @type {import('@docusaurus/preset-classic').Options} */
             ({
                 docs: {
+                    // eslint-disable-next-line no-undef
                     sidebarPath: require.resolve("./sidebars.js"),
                     editUrl: `${baseGithub}/docs/edit/main`,
                     showLastUpdateTime: true,
                     remarkPlugins: [
+                        // eslint-disable-next-line no-undef
                         [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true, converters: ["yarn", "pnpm"] }],
                     ],
                 },
@@ -41,6 +48,7 @@ const config = {
                     editUrl: `${baseGithub}/docs`,
                 },
                 theme: {
+                    // eslint-disable-next-line no-undef
                     customCss: require.resolve("./src/css/custom.css"),
                 },
             }),
@@ -220,6 +228,7 @@ const config = {
                 })(),
             },
         ],
+        // eslint-disable-next-line no-undef
         require.resolve("@cmfcmf/docusaurus-search-local"),
         ["drawio", {}]
     ],
@@ -230,4 +239,5 @@ const config = {
     // },
 };
 
+// eslint-disable-next-line no-undef
 module.exports = config;

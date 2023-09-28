@@ -1,5 +1,5 @@
 import { IDemoHost, IModule } from "../demo";
-import { View } from "@novorender/api";
+import { type View } from "@novorender/api";
 import { BaseDemoHost } from "./base";
 
 type Args = [View, (HTMLCanvasElement | undefined)?];

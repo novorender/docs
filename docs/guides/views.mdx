@@ -5,7 +5,7 @@ description: "Learn how to create and modify render views."
 keywords: ["novorender api docs", "view"]
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 The <CodeLink type="class" name="View"/> class offers an abstraction that takes care of several important aspects for you:
 
@@ -128,7 +128,7 @@ Once disposed, the view is no longer usable.
 
 Let's see it in action:
 
-<PlaygroundComponent {...snippets.views.creation} />
+<PlaygroundComponent demoKey="views.creation" />
 
 ## Animation and compositing
 
@@ -162,7 +162,7 @@ The canvas you pass to the view cannot simultaneously be used for e.g. [CanvasRe
 For compositing you must create a new canvas and overlay with alpha blending.
 :::
 
-<PlaygroundComponent {...snippets.views.animation} />
+<PlaygroundComponent demoKey="views.animation" />
 
 ## Environments
 
@@ -183,7 +183,7 @@ const {url} = envs[0];
 view.modifyRenderState({ background: { url } });
 ```
 
-<PlaygroundComponent {...snippets.views.environments} />
+<PlaygroundComponent demoKey="views.environments" />
 
 You can pick from one of currently 16 environments by changing the index into the `envs` array.
 Loading them can take some time the first time, so be patient.
