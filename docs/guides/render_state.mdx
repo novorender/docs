@@ -14,7 +14,7 @@ In this guide we will dive more into <CodeLink type="interface" name="RenderStat
 One way to think of render state is as instruction on how to produce a certain output image.
 The same render state should produce the same image.
 Being a vanilla javascript object, render state is also serializable.
-This should allow you to reproduce the exact same image on another computer or another time.
+This should allow you to reproduce the same image on another computer or another time.
 It can also be useful for unit testing, since mocking and validating state objects are a lot easier than images.
 
 ## Context
@@ -36,7 +36,7 @@ Details of all the default values can be viewed in the source code linked from t
 ## Immutability
 
 A common problem in javascript (and programming in general) is understanding how state should be modified.
-Let's consider a hypothetical example:
+Let's consider a hypothetical example, loosely inspired by [three.js](https://threejs.org/):
 
 ```typescript
 interface Object3D {
@@ -70,10 +70,10 @@ In the first two options, it's not obvious to the rendering engine that somethin
 Quite often this results in additional method calls to notify the engine that recomputation are required.
 
 ```typescript
-obj.updateWorldMatrix();
+obj.updateWorldMatrix(); // Do I have to call this, and if so, when? Why aren't my updates reflected in the view?
 ```
 
-Using typescript's `readonly` keyword to enforce immutability on the hypothetical example, it becomes obvious that only option 3 is possible, since the other two produces compile time errors.
+Using typescript's `readonly` keyword to enforce immutability on this hypothetical example, it becomes obvious that only option 3 is possible, since the other two produces compile time errors.
 
 ```typescript
 interface Object3D {
@@ -101,13 +101,13 @@ Not to mention the simplicity of understanding, use, implementation and a host o
 Now that we've discussed the why, let's see how render state should be changed.
 Each view has a copy of the render state of the previously rendered frame <CodeLink type="class" name="View.prevRenderState"/>.
 To save energy and battery life, it will not re-render unless the state changes.
-Under the hood, we tell it to re-render by assigning a brand new render state object.
+We essentially tell it to re-render by assigning a brand new render state object.
 
 However, there's no need to copy sub state that hasn't changed.
 In fact, doing so would force the update of internal state unnecessarily, which can be a costly affair.
 So, for the sake of efficient and correctness, it's important that we reuse all the sub objects that hasn't changed!
 This is a common paradigm in [functional programming](https://en.wikipedia.org/wiki/Functional_programming) languages, such as Haskell and Elm.
-Unfortunately, javascript is not particularly functional language, so we end up with something like this:
+Unfortunately, javascript is not a particularly functional language, so we end up with something like this:
 
 ```typescript
 const newState = {
@@ -118,8 +118,9 @@ const newState = {
     },
 };
 ```
-
-(See MDN for more details on the ... [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)!)
+:::tip
+See MDN for more details on the ... [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)!
+:::
 
 To simplify matters and help encourage correct update of render state, we made the <CodeLink type="class" name="View.modifyRenderState"/> function.
 
@@ -151,7 +152,7 @@ const hasBackgroundColorChanged = renderState.background.color !== prevRenderSta
 const hasBackgroundColorRedChanged = renderState.background.color[0] !== prevRenderState?.background?.color?.[0];
 ```
 
-Due to the way immutable changes trickle up to the parent object, `hasBackgroundChanged` will be true for any changes to the background state has changed, including color.
+Due to the way immutable changes trickle up to the parent object, `hasBackgroundChanged` will be true for any changes to the background state, including color.
 
 Note that the state is not actually updated until just prior to a frame being rendered.
 You can override or assign the <CodeLink type="class" name="View.render"/> method to inspect the actual state that just got rendered.
@@ -170,9 +171,9 @@ for (const error of errors) {
 ```
 
 This validation will only check state changes since the last rendered frame.
-It will only perform basic range checks and values that could result in a run-time exception, such as making sure expected integers are indeed integers.
+It will perform basic range checks and values that could result in a run-time exception, such as making sure expected integers are indeed integers.
 
-Some examples will do validation and report back validation errors, like the one below:
+Some examples will do validation for you and report back validation errors, like the one below:
 
 <PlaygroundComponent demoKey="renderState.validation" />
 
@@ -189,7 +190,8 @@ In an iteractive session, you may want to use a temporary group for frequent cha
 Dynamic objects are described in their entirety by render state.
 With the exception of typed arrays, javascript does not have a very efficient memory layout for such data.
 Typed arrays are not easy to work with, however.
-We decided simplicity was worth the extra memory overhead.
+For this reason, most of the dynamic objects render state is defined by vanilla JS objects, despite the extra memory overhead.
+
 Also keep in mind that this data is then copied into memory that is GPU accessible, nearly doubling the memory footprint.
 In the future, we may offer an option to "freeze" objects and thus remove the CPU copy.
 For now, extra care should be taken to keep dynamic geometry at modest complexity and memory footprint, particularly on mobile devices.
@@ -213,6 +215,7 @@ interface MyObject {
 ```
 
 We strive to do this everywhere, except where the intention is explictly that of mutation.
+When mutation is possible, such as on [camera controller properties](camera_controllers#properties), it's usually backed up by some logic to handle it gracefully.
 
 You may find typescript [const assertions](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) useful for making members readonly implicitly.
 
