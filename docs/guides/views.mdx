@@ -39,24 +39,28 @@ You need to put an html `<canvas>` into your DOM and retrieve a reference to it,
 const canvas = document.getElementById("view_canvas");
 ```
 
-:::info
+The view uses [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) to automatically handle resizes.
+The canvas' `width` and `height` properties will be set/modified from such resizes.
+Unless you explicitly set the *CSS size*, i.e., the `style` width and height, this will once again resize the canvas layout, causing a resize feedback loop.
+
+:::caution
 Make sure to set the canvas CSS size to avoid runaway resize feedback loops!
 :::
-
 
 ### Device profile
 
 The view needs to know details about the device you're running on.
 We define this in the <CodeLink type="interface" name="DeviceProfile"/> interface.
+Using this information allows it to adapt the level of detail and render resolution to your device's capabilities.
+Alas, browsers in general, and Apple in particular, are secretive about the underlying hardware capabilities, primarily to avoid [fingerprinting](https://en.wikipedia.org/wiki/Device_fingerprint).
+This means there are no easy way to automatically detect a device's limitations and performance characteristics.
+
 While you can manually specify this, we also offer a helper function <CodeLink type="function" name="getDeviceProfile"/> that will give you reasonable values based on a simplistic GPU tier scheme.
 
 ```typescript
 const gpuTier: GPUTier = 2; // mid-tier GPU, e.g. laptop and newer IOS/Ipad device.
 const deviceProfile = getDeviceProfile(gpuTier);
 ```
-
-Browsers in general, and Apple in particular, are secretive about the underlying hardware capabilities, primarily to avoid [fingerprinting](https://en.wikipedia.org/wiki/Device_fingerprint).
-This means there are no easy way to automatically detect a device's limitations and performance characteristics.
 
 :::caution
 Overestimating your GPU capabilities will render slowly and can cause the browser to terminate the GPU context, resulting in flickering and page reloads.
@@ -68,21 +72,27 @@ When in doubt, go low!
 Sadly, bundlers are still a thing.
 Exactly how to wrangle your bundler of choice can vary quite a bit.
 You/it may choose to inline some of these resources as base64 strings, or append a hash to their URL to support updates/caching.
-The view expects that you provided it with all imports through a <CodeLink type="type" name="ViewImports"/> object.
+The view expects that you provide it with all imports through a <CodeLink type="type" name="ViewImports"/> object.
 
 To help construct this object, we've added a helper function <CodeLink type="class" name="View.downloadImports"/>.
 This uses a <CodeLink type="type" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
 
-If you followed the recipe in the API `README` file, all the resources should be in the same URL folder as the main script, i.e. [import.meta.url](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta).
-If so, you can pass an empty object `{}` as an argument.
-If you put all the resources in another folder, but with no changes to names or types, you could use this shorthand:
+Most of the guides on bundling will simply copy or map `node_modules/@novorender/api/public/` into a browser accessible path: `/public/novorender/api/`.
+If you followed this recipe, you can simply set the <CodeLink type="type" name="ViewImportmap.baseUrl"/> property of the import map as below.
 
 ```typescript
-const baseUrl = "/my_imports/";
+const baseUrl = new URL("/public/novorender/api/", import.meta.url);
 const imports = await View.downloadImports({baseUrl});
 ```
 
-Otherwise, you'll have to manually specify the url and/or reference to each resource, making sure you get the exact url the bundler generated, e.g. including hash etc.
+You could of course give the full URL with domain and port number, but this could make it hard to share the same code for `localhost` debugging and production, hence the `import.meta.url` base url.
+
+:::tip
+[`import.meta.url`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta) will only work inside ESM modules.
+If your code is not running as ESM, you can use [`document.currentScript.src`](https://developer.mozilla.org/en-US/docs/Web/API/Document/currentScript) instead.
+:::
+
+For any other variants, you'll have to manually specify the url and/or reference to each resource, making sure you get the exact url the bundler generated, e.g. including hash etc.
 
 ## View life cycle
 
@@ -105,7 +115,7 @@ Behind the scenes it uses [requestAnimationFrame](https://developer.mozilla.org/
 Every frame it will check if there has been any changes to the render state, and if so, render that new state.
 
 Sometimes you may want to exit this loop and dispose of a view explicitly to free up its resources.
-To do so, you pass and signal an [abortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+To do so, you pass in and signal an [abortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
 
 ```typescript
 const abortController = new AbortController();
@@ -132,7 +142,7 @@ Let's see it in action:
 
 ## Animation and compositing
 
-If you want to animate anything in the view, you should assign/override the <CodeLink type="class" name="View.animate"/> function rather than `requestAnimationFrame`.
+If you want to animate anything in the view, you should assign/override the <CodeLink type="class" name="View.animate"/> function rather than relying on `requestAnimationFrame`.
 
 ```typescript
 view.animate = (time: number) => {
@@ -145,7 +155,7 @@ view.animate = (time: number) => {
 Animations will drain batteries quickly. Use with moderation!
 :::
 
-If you want to composite your own 2D content into the canvas, after the frame has actually been rendered, you should assign/override the <CodeLink type="class" name="View.render"/> function.
+If you want to composite your own 2D content into the canvas after the frame has actually been rendered, you should assign/override the <CodeLink type="class" name="View.render"/> function.
 Since this function is called after all render state changes has been resolved and commited for a frame, you may inspect it for your own purposes.
 
 ```typescript
@@ -155,9 +165,9 @@ view.render = () => {
 }
 ```
 
-For more complex scenarious you may want to override the `View` with a class of your own and override these functions instead.
+For more complex scenarios you may want to override the `View` with a class of your own and override these functions instead.
 
-:::info
+:::note
 The canvas you pass to the view cannot simultaneously be used for e.g. [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D).
 For compositing you must create a new canvas and overlay with alpha blending.
 :::
@@ -167,12 +177,15 @@ For compositing you must create a new canvas and overlay with alpha blending.
 ## Environments
 
 We used image based lighting ([IBL](https://en.wikipedia.org/wiki/Image-based_lighting)) to light and shade the geometry.
-Most of our examples use the default environment, which is a boring 6-pixel cube map with shades of gray.
-Such a simple environment doesn't do the engine any justice and is just there so that at least there is some light by default.
+Most of our examples use the default environment, which is a boring 6-pixel cube map with subtle shades of gray.
+Such a simple environment doesn't do the engine any justice.
+It's just there to provde at least some light out of the box.
+Otherwise the output would be completely black by default.
 
-To use a proper environment map, we need to download a set of HDRI cube texture maps with pre-convoluted irradiance.
+To use a proper environment map, we need to download a set of HDRI cube texture maps with pre-convoluted radiance and irradiance information.
 The process of how to generate those from an original HDR panorama image is outside the scope of this guide.
-Instead we'll show you how to pick and download one of the default environments.
+Arturo's [open source IBL baker](https://github.com/arturoc/skylights) may help you bake your own.
+Here, we'll show you how to pick and download one of the default environments.
 
 The view contains a function <CodeLink type="class" name="View.availableEnvironments"/> that will retrieve a list of available environments from the specified source.
 We've already included some environments on our `api.novorender.com` server, so that's were we'll point it to.
@@ -190,7 +203,7 @@ Loading them can take some time the first time, so be patient.
 Setting <CodeLink type="interface" name="RenderStateBackground.url"/> to `undefined` will revert things back to the default environment.
 
 :::tip
-If you don't want the skybox background to stand out, you can blur it using <CodeLink type="interface" name="RenderStateBackground.blur"/>.
+If you don't want the background image to stand out, you can blur it setting <CodeLink type="interface" name="RenderStateBackground.blur"/> to, e.g. 0.5.
 :::
 
 ## Using with React.js and other UI frameworks.
@@ -208,9 +221,7 @@ Beware frameworks that "demounts" the concrete canvas DOM element, as the view i
 :::
 
 Where things might get more complicated is determining who "owns" which state.
-It's tempting to embed the render state as part of you own viewstate.
-As long as you can determine when and what parts of that viewstate has changed, e.g. by using immutable data and reference comparisons [like we do](render_state#immutability),
-we recommend you duplicate what state you need and keep a single "master state" in your own view state, updating the render state accordingly.
-
-If that seems like too much work with the boilerplate-heavy state system you're currently using,
-you might want to consider investigating newer/simpler frameworks like [SolidJS](https://www.solidjs.com/).
+It's tempting to borrow/embed the render state as part of you own view state.
+As long as you can determine when and what parts of that view state has changed, e.g. by using immutable data and reference comparisons [like we do](render_state#immutability),
+we recommend you duplicate what state you need in your own view state.
+Or, in other words, keep a single "source of truth" and update the render state accordingly.

@@ -6,20 +6,21 @@ keywords: ["novorender api docs", "examples"]
 ---
 
 import Link from "@docusaurus/Link";
- 
-
-## Live examples
 
 A picture says more than a thousand words and a demo more than a thousand pictures.
 This is why we include plenty of interactive examples.
 
+## Live examples
+
 Click the "run demo" button below to activate the example!
 Once active, you should be able to navigate the 3D view by moving the cursor with the left mouse button pressed to rotate, or mouse wheel to zoom in/out.
+You can also move the camera by moving the cursor with the right mouse button pressed,
+or by pushing any of the <kbd>W</kbd><kbd>S</kbd>, <kbd>A</kbd><kbd>D</kbd> or <kbd>Q</kbd><kbd>E</kbd> keys.
 
 <PlaygroundComponent demoKey="interactiveExamples.basic" />
 
 The above example shows a minimalistic implementation to get anything on screen.
-It demonstrates the demoKey concept of rendering:
+It also demonstrates a few key concepts:
 
 -   Create a render view.
 -   Modify the render state.
@@ -50,12 +51,12 @@ Use <kbd>ctrl</kbd> + <kbd>space</kbd> or <kbd>⌥</kbd> + <kbd>esc</kbd> on mac
 Like any programming, live editing has several possibilities for errors.
 Red squigglies will appear under code that typescript don't understand.
 If you change the module signature, i.e., change the function name(s) or parameters, the example won't work.
-Run time errors may also break the example.
+Runtime errors may also break the example.
 Some examples will attempt further validation of e.g. render state and report values that are out of range or invalid combinations of values.
 All the errors mentioned above will prevent the 3D view from running.
 
 Other sources of errors that won't be reported is render state or other parameters set to values that are technically valid, but nonsensical.
-An example of this would be to set the exposure to -100, which would produce essentially a black image, or camera parameters where nothing is visible.
+For example setting the exposure to -100, which would produce essentially a black image, or camera parameters where nothing is visible.
 Also, you might create render state that results in too much memory consumption and will crash your browser, or take too long to render and time out.
 
 In 3D, the possibilities of shooting yourself in the foot are near infinite.
