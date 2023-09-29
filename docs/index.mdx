@@ -1,20 +1,39 @@
 <PackageHeader />
 
-The novorender API consist of several modules.
+The novorender Web API consist of several modules.
 
 ```mermaid
 graph TD;
-    A[Web API]-->B[Core3D Module]
-    A-->C[Measure Module]
-    A-->D[Data Module]
+    api[Web API]-->core3D[Core3D Module]
+    core3D-->webGL2[WebGL2 Module]
+    api-->measure[Measure Module]
+    api-->data[Data Module]
+    api-->offline[Offline Module]
 ```
 
 ### Core3D Module
-Core3D Module is optimized to deliver scalable 3D rendering capabilities.
+
+The Core3D module handles 3D rendering on the browser platform.
+Streaming geometry from the cloud enables very large scenes to be rendered even on modest mobile devices.
+
 ### Measure Module
-This module contains standard measure functions for Novorender data models.
+
+This module enables various forms of measurements and visualization of such.
+By using the original parametric CAD/BIM data whenever available, it produces accurate and reliable measurements.
+
 ### Data Module
-Data Module provides APIs for managing scalable 3D rendering in the cloud.
+
+The data module handles authentication and meta-data.
+Employing a custom made search engine, it provides fast and complex queries on meta-data properties keys and values.
+
+### Offline Module
+
+The offline module handles local storage, pre-filtering and synchronization of assets.
+Not only does this enable offline use, but can also greatly enhance the experience for slow and/or intermittent internet connections.
+
+### WebGL2 Module
+
+Provides a thin, yet powerful typescript wrapper on top of the WebGL2 API.
 
 ## Getting started
 
@@ -23,8 +42,6 @@ Data Module provides APIs for managing scalable 3D rendering in the cloud.
   {title:"Documentation", description:"Refer to the reference documentation for detailed information on different methods and classes.", actionLabel:"Go to Docs", link:"/docs/web_api/API"},
   {title:"Interactive Guides", description:"Take a look at our interactive guides, which provide in-depth insights into various features.", actionLabel:"Check out Guides", link:"/docs/category/guides"}
   ]} />
-
-
 
 export const PackageHeader = () => (
     <div style={{background: "linear-gradient(140deg, #606c88, #3f4c6b)", padding: 15, borderRadius: 10, marginBottom: 30}}>

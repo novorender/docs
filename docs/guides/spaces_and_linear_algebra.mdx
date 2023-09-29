@@ -20,13 +20,13 @@ Or put another way, it's like a 2D point, but with an extra dimension.
 You can define a 3D vector by an array with 3 numbers, e.g.:
 
 ```typescript
-const myVec = [1,2,3]; // x:1, y:2, z:3
+const myVec = [1, 2, 3]; // x:1, y:2, z:3
 ```
 
 You can also destructure that array back into individual coordinates:
 
 ```typescript
-const [x,y,z] = myVec;
+const [x, y, z] = myVec;
 ```
 
 For simplicity, we often use this form in our examples.
@@ -39,9 +39,9 @@ This is a fast and lightweight linear algebra library that we use internally.
 It uses number arrays to define vectors, quaternions and matrices.
 
 ```typescript
-const myVec = vec3.fromValues(3,4,0);
+const myVec = vec3.fromValues(3, 4, 0);
 const length = vec3.length(myVec); // sqrt(3*3 + 4*4 + 0*0) = 5
-const [x,y,z] = myVec; // destructures too.
+const [x, y, z] = myVec; // destructures too.
 ```
 
 Allocating new arrays are usually fast, but can create excessive work for the garbage collector if done often.

@@ -1,15 +1,9 @@
 ---
 title: "Clipping Volumes"
 sidebar_position: 10
-description: "Clipping allows you to render only part of a scene."
+description: "How to apply clipping planes and volumes to view only part of a scene."
 keywords: ["novorender api docs", "webgl api", "clipping volumes"]
 ---
-
- ;
-
-TODO: Make Condos demo host
-TODO: Describe outlines.
-TODO: Add clipping on dynamic objects?
 
 Clipping allows you to render only part of a scene.
 This can be useful to reveal internal structures that would otherwise be obscured by surrounding geometry, such as walls and outer shells.
@@ -22,22 +16,22 @@ Clipping volumes are formed by a set of planes, or [halfspaces](<https://en.wiki
 Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (negative distance) along that vector `o`.
 From this we can compute a signed distance to that plane for any given 3D coordinate (x,y,z).
 
-```typescript
-signed_distance = (x, y, z) => x * nx + y * ny + z * nz - o;
+```math
+signed_distance(x, y, z) = x*nx + y*ny + z*nz - o;
 ```
 
 This can be expressed as a 4D dot product where the w component of the input is -1.
 
 ```typescript
-signed_distance = dot_product([x, y, z, -1], [nx, ny, nz, o]);
+const signed_distance = vec4.dot([x, y, z, -1], [nx, ny, nz, o]);
 ```
 
-The positive side of this plane, i.e. signed_distance > 0, is considered "outside" the halfspace, whereas the negative side is "inside".
+The positive side of this plane, i.e. `signed_distance > 0`, is considered *outside* the halfspace, whereas the negative side is *inside*.
 Points that lie outside will be clipped, while points inside will be rendered.
 
 ### Single plane
 
-To illustrate this, let's create a simple clipping volume with a single plane along the yz axes, effectively clipping everything to the right of center.
+To illustrate this, let's create a simple clipping volume with a single plane along the `yz` axes, effectively clipping everything to the right of center.
 
 <PlaygroundComponent demoKey="clipping.single" />
 
@@ -78,7 +72,7 @@ union = sd1 > 0 || sd2 > 0;
 For those familiar with [CSG (constructive solid geometry)](https://en.wikipedia.org/wiki/Constructive_solid_geometry), the clipping volume is defined by a simple CSG expression.
 :::
 
-Let's create a more complex clipping volume with an additional plane along the xz axes, effectively clipping everything to the right and above center.
+Let's create a more complex clipping volume with an additional plane along the xz axes, effectively clipping everything to the right and in front of center.
 
 <PlaygroundComponent demoKey="clipping.dual" />
 
@@ -115,9 +109,7 @@ Because of the performance and memory hit of the outline feature, not all device
 You can check if it is available in the view's <CodeLink type="class" name="View.deviceProfile"/> under <CodeLink type="interface" name="DeviceProfile.features"/>.
 
 :::info
-
 Use outline feature with caution, particularly on weaker devices.
-
 :::
 
 ### Visualization
@@ -129,10 +121,14 @@ The alpha component lets you draw the planes transparently when less than 1.0.
 
 <PlaygroundComponent demoKey="clipping.visualize" />
 
-Note that clipping planes are only drawn when the camera is on the positive side, i.e. "outside" the plane halfspace.
-Rotate the camera to see how the planes disappear when viewed from "inside".
+Note that clipping planes are only drawn when the camera is on the positive side, i.e. *outside* the plane halfspace.
+Rotate the camera to see how the planes disappear when viewed from *inside*.
 This means that if you have a box, only three of the six clipping planes will be rendered at any given camera position, allowing you to interact with them without interference.
+
+### Picking
 
 Visualization also allows you to interact with the planes just like any other pickable object.
 This could be useful for making a UI where users can push/pull the position of each plane interactively.
-For more detail on object picking, please see the [Object picking](object-picking.md) guide!
+The planes will have one of the object IDs in the <CodeLink type="enum" name="ClippingId"/>, in the order by which they are listed respectively.
+
+For more detail on object picking, please see the [Object selection](object_selection.mdx) guide!
