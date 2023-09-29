@@ -200,7 +200,8 @@ const deviceProfile = getDeviceProfile(gpuTier);
 ```typescript title="main.ts"
 import { View } from "@novorender/api";
 
-const imports = await View.downloadImports({ baseUrl: "/novorender/api/" });
+const baseUrl = new URL("/novorender/api/", location.origin);
+const imports = await View.downloadImports({ baseUrl });
 ```
 
 ### Creating View
@@ -220,12 +221,14 @@ view.dispose();
 Let's consolidate all the steps and components we've discussed and see the result:
 ```typescript title="main.ts"
 import { View, getDeviceProfile } from "@novorender/api";
+
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 async function main(canvas: HTMLCanvasElement) {
-  const gpuTier = 2;
+    const gpuTier = 2;
     const deviceProfile = getDeviceProfile(gpuTier);
-    const imports = await View.downloadImports({ baseUrl: "/novorender/api/" });
+    const baseUrl = new URL("/novorender/api/", location.origin);
+    const imports = await View.downloadImports({ baseUrl });
     const view = new View(canvas, deviceProfile, imports);
     await view.run();
     view.dispose();

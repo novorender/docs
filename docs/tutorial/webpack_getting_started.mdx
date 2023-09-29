@@ -249,15 +249,10 @@ const deviceProfile = getDeviceProfile(gpuTier);
 [Remember](#providing-required-resources) we copied some resources from `@novorender/api/public` dir? that's where they come into play.
 ```typescript title="main.ts"
 import { View } from "@novorender/api";
-// @ts-expect-error
-import { shaders } from "@novorender/api/public/shaders";
 
 const baseUrl = new URL("/novorender/api/", location.origin);
-const imports = await View.downloadImports({ baseUrl, shaders });
+const imports = await View.downloadImports({ baseUrl });
 ```
-:::info
-Did you notice the `// @ts-expect-error` comment? This is essential because TypeScript might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
-:::
 
 ### Creating View
 With all the necessary components in place, we can proceed to create and run our view:
@@ -276,15 +271,14 @@ view.dispose();
 Let's consolidate all the steps and components we've discussed and see the result:
 ```typescript title="main.ts"
 import { View, getDeviceProfile } from "@novorender/api";
-// @ts-expect-error
-import { shaders } from "@novorender/api/public/shaders";
+
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 async function main(canvas: HTMLCanvasElement) {
     const gpuTier = 2;
     const deviceProfile = getDeviceProfile(gpuTier);
     const baseUrl = new URL("/novorender/api/", location.origin);
-    const imports = await View.downloadImports({ baseUrl, shaders });
+    const imports = await View.downloadImports({ baseUrl });
     const view = new View(canvas, deviceProfile, imports);
     await view.run();
     view.dispose();
