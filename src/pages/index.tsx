@@ -12,7 +12,7 @@ export default function Home(): JSX.Element {
         /** transparent navbar on homepage */
         const navbar: HTMLElement = document.querySelector(".navbar");
 
-        const observer = new MutationObserver((mutationList, observer) => {
+        const observer = new MutationObserver((mutationList) => {
             for (const mutation of mutationList) {
                 if (mutation.type === "attributes" && !navbar.classList.contains("transparent")) {
                     navbar.classList.add("transparent");

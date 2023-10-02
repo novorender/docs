@@ -3,6 +3,8 @@ title: "Render view"
 sidebar_position: 2
 description: "Learn how to create and modify render views."
 keywords: ["novorender api docs", "view"]
+pagination_next: null
+pagination_prev: null
 ---
 
  
@@ -81,15 +83,15 @@ Most of the guides on bundling will simply copy or map `node_modules/@novorender
 If you followed this recipe, you can simply set the <CodeLink type="type" name="ViewImportmap.baseUrl"/> property of the import map as below.
 
 ```typescript
-const baseUrl = new URL("/public/novorender/api/", import.meta.url);
+const baseUrl = new URL("/public/novorender/api/", window.location.origin);
 const imports = await View.downloadImports({baseUrl});
 ```
 
-You could of course give the full URL with domain and port number, but this could make it hard to share the same code for `localhost` debugging and production, hence the `import.meta.url` base url.
+You could of course give the full URL with domain and port number, but this could make it hard to share the same code for `localhost` debugging and production, hence the `location.origin` base url.
 
 :::tip
-[`import.meta.url`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta) will only work inside ESM modules.
-If your code is not running as ESM, you can use [`document.currentScript.src`](https://developer.mozilla.org/en-US/docs/Web/API/Document/currentScript) instead.
+You can also use [`import.meta.url`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta) for base URL but this will only work inside ESM modules.
+If your code is not running as ESM or `import.meta.url` doesn't work, you can keep using [`window.location.origin`](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin).
 :::
 
 For any other variants, you'll have to manually specify the url and/or reference to each resource, making sure you get the exact url the bundler generated, e.g. including hash etc.
@@ -109,7 +111,7 @@ await view.run();
 ```
 
 Note that <CodeLink type="class" name="View.run"/> is an async function.
-It will run a render loop indefintively, relinquishing control back to the browser after each frame is completed.
+It will run a render loop infinitely, relinquishing control back to the browser after each frame is completed.
 This means the browser won't kill it for timing out, like a synchronous loop would.
 Behind the scenes it uses [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame).
 Every frame it will check if there has been any changes to the render state, and if so, render that new state.
@@ -156,7 +158,7 @@ Animations will drain batteries quickly. Use with moderation!
 :::
 
 If you want to composite your own 2D content into the canvas after the frame has actually been rendered, you should assign/override the <CodeLink type="class" name="View.render"/> function.
-Since this function is called after all render state changes has been resolved and commited for a frame, you may inspect it for your own purposes.
+Since this function is called after all render state changes has been resolved and committed for a frame, you may inspect it for your own purposes.
 
 ```typescript
 view.render = () => {
@@ -179,7 +181,7 @@ For compositing you must create a new canvas and overlay with alpha blending.
 We used image based lighting ([IBL](https://en.wikipedia.org/wiki/Image-based_lighting)) to light and shade the geometry.
 Most of our examples use the default environment, which is a boring 6-pixel cube map with subtle shades of gray.
 Such a simple environment doesn't do the engine any justice.
-It's just there to provde at least some light out of the box.
+It's just there to provide at least some light out of the box.
 Otherwise the output would be completely black by default.
 
 To use a proper environment map, we need to download a set of HDRI cube texture maps with pre-convoluted radiance and irradiance information.

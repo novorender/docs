@@ -131,6 +131,16 @@ export default {
 }
 ```
 
+<details>
+      <summary>Adding headers via <b>ModHeader</b></summary>
+      
+
+If the above method of adding headers doesn't work or you don't have access to the build configuration, you can utilize the [ModHeader](https://modheader.com/) browser extension. This extension allows you to modify HTTP request and response headers, providing an alternative way to address header-related issues.     
+
+![ModHeader usage demonstration gif](/img/modheader.gif)
+
+</details>
+
 :::info
 It's important to note that the method described above for enabling Cross-Origin headers is primarily intended for development mode. When transitioning to a production environment, you will need to configure these headers on your server. The specific implementation will depend on the server you are using, so please consult the relevant documentation for detailed instructions.
 :::
@@ -200,9 +210,26 @@ const deviceProfile = getDeviceProfile(gpuTier);
 ```typescript title="main.ts"
 import { View } from "@novorender/api";
 
-const baseUrl = new URL("/novorender/api/", location.origin);
+const baseUrl = new URL("/novorender/api/", window.location.origin);
 const imports = await View.downloadImports({ baseUrl });
 ```
+
+<details>
+      <summary>Getting Error: `Cannot find module '/novorender/api/shaders.js`</summary>
+      <div>In certain build environments or bundlers, you might encounter complaints about `shaders.js` not being found. In such cases, you will need to provide the `shaders` separately to resolve this issue.</div>
+
+```typescript
+// @ts-expect-error
+import { shaders } from "@novorender/api/public/shaders";
+
+const imports = await View.downloadImports({ baseUrl, shaders });
+```
+
+:::info
+`// @ts-expect-error` is essential because TypeScript might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
+:::
+
+</details>
 
 ### Creating View
 With all the necessary components in place, we can proceed to create and run our view:
@@ -227,7 +254,7 @@ const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 async function main(canvas: HTMLCanvasElement) {
     const gpuTier = 2;
     const deviceProfile = getDeviceProfile(gpuTier);
-    const baseUrl = new URL("/novorender/api/", location.origin);
+    const baseUrl = new URL("/novorender/api/", window.location.origin);
     const imports = await View.downloadImports({ baseUrl });
     const view = new View(canvas, deviceProfile, imports);
     await view.run();

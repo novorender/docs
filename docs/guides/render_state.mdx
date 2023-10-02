@@ -3,6 +3,8 @@ title: "Render state"
 sidebar_position: 3
 description: "How to treat and modify immutable render state."
 keywords: ["novorender api docs", "render state"]
+pagination_next: null
+pagination_prev: null
 ---
 
  
@@ -93,7 +95,7 @@ if (prevObj !== newObj) {
 ```
 
 Yes, copying is slower than mutation, but that cost is easily recovered by the efficiency of basic reference comparisons to detect changes.
-Immutable style of coding may feel a bit awkward and alien to you at first, but it signficantly reduces to potential for mistakes.
+Immutable style of coding may feel a bit awkward and alien to you at first, but it significantly reduces to potential for mistakes.
 Not to mention the simplicity of understanding, use, implementation and a host of other benefits.
 
 ## How to modify render state.
@@ -214,7 +216,7 @@ interface MyObject {
 }
 ```
 
-We strive to do this everywhere, except where the intention is explictly that of mutation.
+We strive to do this everywhere, except where the intention is explicitly that of mutation.
 When mutation is possible, such as on [camera controller properties](camera_controllers#properties), it's usually backed up by some logic to handle it gracefully.
 
 You may find typescript [const assertions](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions) useful for making members readonly implicitly.

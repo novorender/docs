@@ -3,6 +3,8 @@ title: "Spaces and linear algebra."
 sidebar_position: 2
 description: "A brief introduction to world and camera space as well as some linear algebra."
 keywords: ["novorender api docs", "spaces", "spaces", "matrix", "vector", "quaternion"]
+pagination_next: null
+pagination_prev: null
 ---
 
 import Drawio from '@theme/Drawio'
@@ -88,7 +90,7 @@ This is a fairly common coordinate system in the CAD world, but unlike that of m
 
 :::info
 We changed our coordinate system from positive z-axis pointing up to positive y-axis pointing up.
-This currently not true for the `core3D` module, which still uses the classic opengl coordinate system.
+This currently not true for the `core3D` module, which still uses the classic OpenGL coordinate system.
 The `View` class flips the render state for you, so unless you're using the core3D module directly, you don't have to worry about it.
 :::
 
