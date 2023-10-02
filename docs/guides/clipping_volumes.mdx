@@ -15,8 +15,8 @@ Clipping volumes does not currently apply to dynamic objects!
 :::
 
 Clipping volumes are formed by a set of planes, or [halfspaces](<https://en.wikipedia.org/wiki/Half-space_(geometry)>).
-Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (negative distance) along that vector `o`.
-From this we can compute a signed distance to that plane for any given 3D coordinate (x,y,z).
+Each halfspace is defined by a plane normal vector $nx,ny,nz$ and an offset (negative distance) along that vector $o$.
+From this we can compute a signed distance to that plane for any given 3D coordinate $(x,y,z)$.
 
 > signed_distance$(x, y, z) = x*nx + y*ny + z*nz - o;$
 
@@ -102,7 +102,7 @@ This feature is particularly useful for orthographic projections, where surfaces
 
 <PlaygroundComponent demoKey="clipping.outlines" />
 
-Due to limitations in the WebGL2 api, outline rendering has a significant memory overhead.
+Due to limitations in the WebGL2 API, outline rendering has a significant memory overhead.
 Every clipping plane you enable it on will also incur an extra performance cost.
 
 Because of the performance and memory hit of the outline feature, not all devices will have it enabled.
