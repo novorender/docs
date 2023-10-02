@@ -89,7 +89,7 @@ const config = {
                         position: "left",
                         label: "Playground",
                     },
-                    // { to: '/blog', label: 'Blog', position: 'left' },
+                    { to: '/blog', label: 'Blog', position: 'left' },
                     {
                         type: "dropdown",
                         position: "right",
@@ -139,10 +139,10 @@ const config = {
                     {
                         title: "More",
                         items: [
-                            // {
-                            //     label: 'Blog',
-                            //     to: '/blog',
-                            // },
+                            {
+                                label: 'Blog',
+                                to: '/blog',
+                            },
                             {
                                 label: "GitHub",
                                 href: baseGithub,
