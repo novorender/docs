@@ -18,9 +18,7 @@ Clipping volumes are formed by a set of planes, or [halfspaces](<https://en.wiki
 Each halfspace is defined by a plane normal vector `nx,ny,nz` and an offset (negative distance) along that vector `o`.
 From this we can compute a signed distance to that plane for any given 3D coordinate (x,y,z).
 
-```math
-signed_distance(x, y, z) = x*nx + y*ny + z*nz - o;
-```
+> signed_distance$(x, y, z) = x*nx + y*ny + z*nz - o;$
 
 This can be expressed as a 4D dot product where the w component of the input is -1.
 
