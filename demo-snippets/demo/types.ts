@@ -1,5 +1,4 @@
 import { type DeviceProfile, type ViewImports, type ViewImportmap } from "@novorender/api";
-import { shaders } from "@novorender/api/public/shaders";
 import type { IPosition } from "monaco-editor";
 
 export interface IModule<R = void, P extends any[] = []> {
@@ -35,7 +34,7 @@ if (typeof window !== "undefined" && typeof navigator !== 'undefined') {
     // must be imported dynamically to fix SSG build
     import("@novorender/api").then(({ View }) => {
         const baseUrl = new URL(".", location.origin);
-        const coreImportsMap: ViewImportmap = { baseUrl, shaders };
+        const coreImportsMap: ViewImportmap = { baseUrl };
         coreImportsPromise = View.downloadImports(coreImportsMap);
     });
 }

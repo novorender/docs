@@ -15,5 +15,3 @@ declare function openAlert(content: string, type: 'primary' | 'secondary' | 'suc
 * @param content string to show in the info pane
 */
 declare function openInfoPane(content: object | string | any, title?: string): void;
-
-declare module "@novorender/api/public/shaders";
