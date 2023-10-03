@@ -27,7 +27,7 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
             // Destructure relevant properties into variables
             const { url } = this.sceneData;
             // load the scene using URL gotten from `sceneData`
-            this.loadScene(url);
+            await this.loadScene(url);
         } catch (error) {
             moduleError = error;
         } finally {
