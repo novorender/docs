@@ -7,6 +7,12 @@
   flex-direction: column;
   align-items: center;
   gap: 30px;
+  position: relative;
+  }
+  
+  .deviations-root .main-container>button.button-logout {
+    position: absolute;
+    right: 0;
 }
 .deviations-root .main-container>div {
   border: 1px solid;

@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 import CodeBlock from "@theme/CodeBlock";
 import { createAPI, type API, type ObjectGroup, type SceneData } from "@novorender/data-js-api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 import("./index.css");
 
@@ -176,6 +176,11 @@ export default function DeviationsProfileGenerator() {
         setPointsVsTriangles({ name: pointsVsTriangles.name, groups: groups });
     }
 
+    function logout() {
+        localStorage.removeItem(JWT_KEY);
+        setToken(null);
+    }
+
     return (
         <Layout>
             <div className="deviations-root">
@@ -208,6 +213,9 @@ export default function DeviationsProfileGenerator() {
                             </div>
                         </div>
                         : <div className='main-container'>
+
+                            <button onClick={logout} className='button-logout button button--sm button--outline button--warning'>Logout &nbsp; <FontAwesomeIcon icon={faArrowRightFromBracket} /></button>
+
                             <div className='scene-details-container'>
                                 <details open={isDetailsOpen}>
                                     <summary>Scene Details</summary>
