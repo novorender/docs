@@ -2,9 +2,11 @@
 title: "Drawing Measure Line"
 description: "Drawing a measure line or polygon using measure module"
 keywords: ["novorender web api docs", "web api", "measure line strip"]
+pagination_next: null
+pagination_prev: null
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 Web API's Measure module allows for multiple 3d points to be transformed to an on screen-linestrip or polygon. This is used in the [Novoweb](https://explorer.novorender.com/) to display area and measurement between multiple points.
 To get draw objects from a list of points use <CodeLink type="class" name="DrawModule.getdrawobjectfrompoints" /> on the measure View, there are also options to display angle between the lines and whether or not to close it to create a polygon. The position from <CodeLink type="class" name="View.pick"/> function can be stored to create lines between multiple clicked points.
@@ -59,4 +61,4 @@ Please run the the interactive demo below to get the the complete code snippet i
 :::
 
 ### Demo
-<PlaygroundComponent {...snippets.measure.measure_line} />
+<PlaygroundComponent demoKey="measure.measure_line" />

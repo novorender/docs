@@ -1,0 +1,3 @@
+[submodule "@novorender"]
+	path = @novorender
+	url = https://github.com/novorender/ts

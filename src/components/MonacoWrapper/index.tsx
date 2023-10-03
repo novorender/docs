@@ -8,11 +8,9 @@ import { useHistory } from "@docusaurus/router";
 import { editor } from "monaco-editor";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Admonition from "@theme/Admonition";
 import { Allotment } from "allotment";
 import { Popover } from "react-tiny-popover";
 import Renderer from "@site/src/components/Renderer";
-import Spinner from "@site/src/components/misc/spinner";
 import { IDemoHost, type IDempProps, createDemoContext } from "@site/demo-snippets/demo";
 const { devDependencies } = require("../../../package.json");
 
@@ -320,8 +318,8 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         // highlight ranges based on comments "\\ HighlightedRangeStarted \\ HighlightRangeEnded"
         const rangesToHighlight = model.findMatches("//\\s*HighlightedRangeStarted\n([\\s\\S\\n]*?)//\\s*HighlightedRangeEnded", false, true, false, null, true);
         if (rangesToHighlight && rangesToHighlight.length) {
-            let _rangesToHighlight = [];
-            let _rangesToRemove = [];
+            const _rangesToHighlight = [];
+            const _rangesToRemove = [];
 
             rangesToHighlight.map((r) => {
                 _rangesToHighlight.push({
@@ -372,14 +370,14 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     // toggle hidden areas in the editor
     function toggleHiddenAreas(show: boolean, editor: editor.ICodeEditor, monacoInstance: Monaco): void {
         if (show) {
-            // @ts-expect-error
+            // @ts-expect-error suppress
             editor.setHiddenAreas([]);
         } else {
             const model = editor.getModel();
             // hide ranges based on comments "\\ HiddenRangeStarted \\ HiddenRangeEnded"
             const rangesToHide = model.findMatches("//\\s*HiddenRangeStarted\n([\\s\\S\\n]*?)//\\s*HiddenRangeEnded", false, true, false, null, true);
             if (rangesToHide && rangesToHide.length) {
-                // @ts-expect-error
+                // @ts-expect-error suppress
                 editor.setHiddenAreas(rangesToHide.map((r) => new monacoInstance.Range(r.range.startLineNumber, 0, r.range.endLineNumber, 0)));
             }
         }
@@ -409,8 +407,8 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
     // download the contents of current canvas as image
     function downloadCanvasAsImage(): void {
-        let link = document.createElement("a");
-        link.download = `${dirName}___${fileName}.png`;
+        const link = document.createElement("a");
+        link.download = `${dirName}___${fileName}.webp`;
         link.href = canvas.current.toDataURL();
         link.click();
         link.remove();
@@ -598,7 +596,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                                     parentElement={editorConfig.mode === "inline" ? editorFooterInstance.current : undefined}
                                     content={
                                         <div className="popover-content">
-                                            <p>WebGL Web API: {devDependencies["@novorender/api"]}</p>
+                                            <p>Web API: {devDependencies["@novorender/api"]}</p>
                                             <hr />
                                             <ol>{messagesAndAlerts?.length ? messagesAndAlerts.map((m, i) => <li key={i}>{m}</li>) : <li>No messages or warnings at the moment.</li>}</ol>
                                         </div>
@@ -649,7 +647,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                                 </button>
 
                                 {/* Edit snippet */}
-                                <a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank">
+                                <a href={demoEditUrl} className="navbar__item" title="Edit this code snippet on Github" target="_blank" rel="noreferrer">
                                     <FontAwesomeIcon icon={faPenToSquare} className="fa-icon size-14" />
                                 </a>
                             </div>

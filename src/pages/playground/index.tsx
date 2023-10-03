@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
-import Admonition from "@theme/Admonition";
-import { snippets } from "@site/demo-snippets/index";
 import type { IDempProps } from "@site/demo-snippets/demo";
 
 export default function Playground(): JSX.Element {
     const [snippetsList, setSnippetsList] = useState<Array<{ dirName: string; demos: IDempProps[] }>>([]);
 
     useEffect(() => {
-        const tutsList = [
-            ...Object.keys(snippets).map((k) => {
-                const values = Object.values(snippets[k] as IDempProps);
-                return { dirName: values[0]?.dirName, demos: [...values] };
-            }),
-        ];
+        // must be imported dynamically to fix SSG build
+        import("@site/demo-snippets/index").then(({ snippets }) => {
+            const tutsList = [
+                ...Object.keys(snippets).map((k) => {
+                    const values = Object.values(snippets[k] as IDempProps);
+                    return { dirName: values[0]?.dirName, demos: [...values] };
+                }),
+            ];
 
-        /** Move `gettingStarted` grp of demos to top */
-        const indexOfGettingStartedDemo = tutsList.findIndex((i) => i.dirName === "getting_started");
-        if (indexOfGettingStartedDemo !== -1) {
-            const element = tutsList[indexOfGettingStartedDemo];
-            tutsList.splice(indexOfGettingStartedDemo, 1);
-            tutsList.splice(0, 0, element);
-        }
-        setSnippetsList(tutsList);
+            /** Move `gettingStarted` grp of demos to top */
+            const indexOfGettingStartedDemo = tutsList.findIndex((i) => i.dirName === "getting_started");
+            if (indexOfGettingStartedDemo !== -1) {
+                const element = tutsList[indexOfGettingStartedDemo];
+                tutsList.splice(indexOfGettingStartedDemo, 1);
+                tutsList.splice(0, 0, element);
+            }
+            setSnippetsList(tutsList);
+        });
     }, []);
 
     const renderCard = (key: string, t: IDempProps) => {
@@ -37,6 +38,7 @@ export default function Playground(): JSX.Element {
                                     src={t.previewImageUrl}
                                     alt={t.demoName}
                                     title={t.demoName}
+                                    loading="lazy"
                                     onError={(e) => {
                                         e.currentTarget.src = `/img/playground-demo-placeholder-dark.jpg`;
                                         e.currentTarget.alt = "demo preview image not found";

@@ -3,7 +3,7 @@ import { createSphereObject, View } from "@novorender/api";
 const { mesh } = createSphereObject();
 
 export async function main(view: View) {
-    const envIndexUrl = "https://api.novorender.com/assets/env/index.json";
+    const envIndexUrl = new URL("https://api.novorender.com/assets/env/index.json");
     const envs = await view.availableEnvironments(envIndexUrl);
     const { url } = envs[2]; // just pick one
     view.modifyRenderState({

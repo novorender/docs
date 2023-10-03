@@ -3,9 +3,11 @@ title: "Object groups"
 sidebar_position: 9
 description: "Creating or modifying or isolating object groups."
 keywords: ["novorender api docs", "web api", "data js api", "creating object groups", "isolating object groups"]
+pagination_next: null
+pagination_prev: null
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 Although the [ObjectGroup interface](https://docs.novorender.com/legacy/docs/data-js-api/interfaces/DataJsAPI.ObjectGroup) itself is not particularly noteworthy,
 the <code>[SceneData.objectGroups](https://docs.novorender.com/legacy/docs/data-js-api/interfaces/DataJsAPI.SceneData#objectgroups)</code> property can be extremely useful.
@@ -118,4 +120,4 @@ dataApi.putScene({
 
 In this example, we've established predefined groups for each floor and implemented buttons to isolate [objectGroups](https://docs.novorender.com/legacy/docs/data-js-api/interfaces/DataJsAPI.Bookmark-1#objectgroups) within the group corresponding to the selected floor.
 
-<PlaygroundComponent {...snippets.objectGroups.floors} />
+<PlaygroundComponent demoKey="objectGroups.floors" />

@@ -18,7 +18,7 @@ No documentation is better than the actual source code. This is why we made the 
 
 The [NPM package](https://www.npmjs.com/package/@novorender/api) contains type declarations and a javascript bundle, with source mapping directly the typescript source code. Hopefully, this will make it even easier for you to navigate and inspect our API to your heart's content.
 
-We're also hosting our code in a monorepo, instead of different APIs. These are now modules, or sub-folders within this repo. Thus we hope to ensure that versions stay in sync as well as ease of deployment and navigation. If you don't want the cost of a single bundle with all the APIs included, we do encourage consuming our APIs directly from our typescript source code, using tree shaking and code splitting in your own app bundle to bring only what you need. Tools like [esbuild](https://esbuild.github.io/) are blazingly fast, making this a highly viable option.
+We're also hosting our code in a monorepo, instead of different APIs. These are now modules, or sub-folders within this repo. Thus we hope to ensure that versions stay in sync as well as ease of deployment and navigation. If you don't want the cost of a single bundle with all the APIs included, we do encourage consuming our APIs directly from our typescript source code, using tree shaking and code splitting in your own app bundle to bring only what you need. Tools like [esbuild](https://esbuild.github.io/) are blazing fast, making this a highly viable option.
 
 ## Geometry filtering
 
@@ -85,7 +85,7 @@ To make life easier for the users of our API, we've endeavored to bundle everyth
 
 Thankfully, most bundlers are finally supporting [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) properly. Hence, we dropped support for legacy UMD. [Vite](https://vitejs.dev/) supports code splitting for [web workers](https://vitejs.dev/guide/features.html#web-workers) and [web assembly](https://vitejs.dev/guide/features.html#webassembly) out of the box. Embracing this future, we opted for a more complicated, but flexible deployment scheme that should fit most bundlers, albeit with a little effort. Instead of shielding the users of our API from this complexity, we now aim to explain and offer options instead.
 
-We currently use [web assembly](https://developer.mozilla.org/en-US/docs/WebAssembly) for math operations. Limitations on what memory can be shared between javascript and web assembly severly limits its utility for many other cases. Once the proposal for [garbage collection](https://github.com/WebAssembly/gc) is supported in the major browsers, we aim to use it a lot more, particularly for memory intensive operations, such as parsing, object culling and geometry tesselation. A full out web assembly rendering engine is also in the cards, particularly if web assembly is able to call directly into browser APIs, such as WebGL2 and WebGPU.
+We currently use [web assembly](https://developer.mozilla.org/en-US/docs/WebAssembly) for math operations. Limitations on what memory can be shared between javascript and web assembly severely limits its utility for many other cases. Once the proposal for [garbage collection](https://github.com/WebAssembly/gc) is supported in the major browsers, we aim to use it a lot more, particularly for memory intensive operations, such as parsing, object culling and geometry tesselation. A full out web assembly rendering engine is also in the cards, particularly if web assembly is able to call directly into browser APIs, such as WebGL2 and WebGPU.
 
 ## The road ahead
 
@@ -102,14 +102,14 @@ As an added bonus, having full control over caches improves the online experienc
 Most of our customers' projects are in an active phase, with changes committed on a daily basis. In order not to reprocess their entire scene every time they upload a new version, we already do a delta update on the server. This allows our cloud data to be up-to-date, within hours at most. As we increasingly become the "single source of truth", we need to support some sort of version control, however, much like in git:
 
 - Admins should be able to review and approve changes, determining what version "everyone else" sees before it goes live, as well as "staging/preview" versions for internal review.
-- Users should be able to revert back to older version to view the state at a given point in time as well as visualizing changes within a timespan.
+- Users should be able to revert back to older version to view the state at a given point in time as well as visualizing changes within a time span.
 - Offline users should have a very clear idea what version they are currently working on with enforceable expiration dates, etc. Incremental synchronizations while online should enable staying up-to-date fast and easy.
 
 While much remains, we're already in the middle of this process. Again, it will start out simple, with a basic version dropdown in your viewer. Later, we'll add more advanced visualizations of what exactly has changed, where and how, both in terms of geometry and meta-data.
 
 ### 2.5D Compositing
 
-Some visualization requires the ability to extract partial renders as an image with an transparency and a depth component ([2.5D](https://en.wikipedia.org/wiki/2.5D)). These 2.5D images can then be augmented, e.g. by adding a 2D outline, and then reintroduced into the 3D scene as 2.5D billboards. Furthermore, meta-data, such as object id, depth, surface normals and materials should be available as masks, allowing complex 2D layering and effects. 
+Some visualization requires the ability to extract partial renders as an image with an transparency and a depth component ([2.5D](https://en.wikipedia.org/wiki/2.5D)). These 2.5D images can then be augmented, e.g. by adding a 2D outline, and then reintroduced into the 3D scene as 2.5D billboards. Furthermore, meta-data, such as object id, depth, surface normals and materials should be available as masks, allowing complex 2D layering and effects.
 
 Alternatively, 2D context, such as text or lines, can be similarly introduced into the 3D view with a given depth to make them "fit in". A small utility library to compute the 2D projection of 3D coordinates and vice versa should help "anchor" these in the 3D view. With a depth component, we could even apply lighting to these billboards, making them visually "fit in", if so desired.
 
@@ -133,7 +133,7 @@ Despite its name, WebGPU is very much a native API too, but with great cross pla
 
 While most of our customers still use our Novoweb viewer app, we increasingly see our API as a core value proposition. With increasing adoption, we're devoting even more time into code quality and documentation. We aim to reach semantic versioning stability for some, if not all of our modules soon.
 
-This version represents a major step forward and a brand-new, clean and lean platform on which we intend to continue innovating for a long time. We hope you'll join us in this aventure by migrating to, or adopting our new API. As you probably can tell, we're enthusiastic about our technology and its future. We take great pride in the quality of our work, so please feel free to contact us for questions and feedback!
+This version represents a major step forward and a brand-new, clean and lean platform on which we intend to continue innovating for a long time. We hope you'll join us in this adventure by migrating to, or adopting our new API. As you probably can tell, we're enthusiastic about our technology and its future. We take great pride in the quality of our work, so please feel free to contact us for questions and feedback!
 
 Best regards,
 

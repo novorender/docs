@@ -3,6 +3,8 @@ title: "Spaces and linear algebra."
 sidebar_position: 2
 description: "A brief introduction to world and camera space as well as some linear algebra."
 keywords: ["novorender api docs", "spaces", "spaces", "matrix", "vector", "quaternion"]
+pagination_next: null
+pagination_prev: null
 ---
 
 import Drawio from '@theme/Drawio'
@@ -20,13 +22,13 @@ Or put another way, it's like a 2D point, but with an extra dimension.
 You can define a 3D vector by an array with 3 numbers, e.g.:
 
 ```typescript
-const myVec = [1,2,3]; // x:1, y:2, z:3
+const myVec = [1, 2, 3]; // x:1, y:2, z:3
 ```
 
 You can also destructure that array back into individual coordinates:
 
 ```typescript
-const [x,y,z] = myVec;
+const [x, y, z] = myVec;
 ```
 
 For simplicity, we often use this form in our examples.
@@ -39,12 +41,12 @@ This is a fast and lightweight linear algebra library that we use internally.
 It uses number arrays to define vectors, quaternions and matrices.
 
 ```typescript
-const myVec = vec3.fromValues(3,4,0);
+const myVec = vec3.fromValues(3, 4, 0);
 const length = vec3.length(myVec); // sqrt(3*3 + 4*4 + 0*0) = 5
-const [x,y,z] = myVec; // destructures too.
+const [x, y, z] = myVec; // destructures too.
 ```
 
-Allocating new arrays are usually fast, but can create excessive work for the garbage collector if done often.
+Allocating new arrays are usually fast, but can create excessive work for the garbage collector if done too often.
 To alleviate this, gl-matrix requires that you specify an output array for non-scalar results:
 
 ```typescript
@@ -52,18 +54,20 @@ const normalizedVec = vec3.create(); // allocate an empty 3D vector with all coo
 vec3.normalize(normalizedVec, myVec); // output a normalized copy of myVec into normalizedVector.
 ```
 
-You can mutate in place too, in case you don't care about readability.
+This allows you to reuse output targets multiple times, often as temporary scratch objects, or even mutate in place.
 
 ```typescript
 vec3.normalize(myVec, myVec);
 ```
 
 You could spend a lot of time trying to micro-optimize these allocations.
-Unless your code is part of a performance critical inner loop, we generally recommend you inline allocations, like this:
+Unless your code is part of a performance critical inner loop, we generally recommend you inline allocations, however, like this:
 
 ```typescript
 const normalizedVec = vec3.normalize(vec3.create(), myVec);
 ```
+
+This style lets you use a more immutable, functional style of programming that is easier to read and reason about, albeit at the cost of some performance.
 
 Please see their [tutorial](https://math.hws.edu/graphicsbook/c7/s1.html#webgl3d.1.2) and [documentation](https://glmatrix.net/) for details!
 
@@ -86,7 +90,7 @@ This is a fairly common coordinate system in the CAD world, but unlike that of m
 
 :::info
 We changed our coordinate system from positive z-axis pointing up to positive y-axis pointing up.
-This currently not true for the `core3D` module, which still uses the classic opengl coordinate system.
+This currently not true for the `core3D` module, which still uses the classic OpenGL coordinate system.
 The `View` class flips the render state for you, so unless you're using the core3D module directly, you don't have to worry about it.
 :::
 
@@ -127,7 +131,7 @@ const pointInImageSpaceAgain = vec2.transformMat2(vec2.create(), pointInScreenSp
 console.assert(glMatrix.equals(pointInImageSpace, pointInImageSpaceAgain));
 ```
 
-Things gets a bit more complicated with 3 dimensions, but the same principles applies.
+Things gets a bit more complicated with 3 dimensions, but the same principles apply.
 
 Quite often we want to move/offset/translate points, not just scale or rotate them.
 To achieve this, we introduce a fourth coordinate, `W`, and `4x4` transformation matrices.

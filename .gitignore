@@ -30,6 +30,4 @@ scene-screenshot-gen/index.js
 demo-snippets/**/*.js
 src/shared/*.js
 
-/@novorender
-
 static/web_api.d.ts

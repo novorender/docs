@@ -3,9 +3,11 @@ title: "Searching"
 sidebar_position: 8
 description: "Search using Novorender."
 keywords: ["novorender web api docs", "web api", "searching"]
+pagination_next: null
+pagination_prev: null
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 Searching will be integral part of most applications using Novorender.
 In the example below we demonstrate a few different search patterns where the resulting objects are isolated in the view.  
@@ -15,25 +17,25 @@ Make sure to also check out the <code>[db.search()](https://docs.novorender.com/
 
 Example of a Path search pattern where the isolated objects represent the results.
 
-<PlaygroundComponent {...snippets.searching.search_by_path} />
+<PlaygroundComponent demoKey="searching.search_by_path" />
 <br />
 
 ### Fluffy Search
 
 Fluffy search pattern that looks for terms beginning with "Roof" in all properties.
 
-<PlaygroundComponent {...snippets.searching.fluffy_search} />
+<PlaygroundComponent demoKey="searching.fluffy_search" />
 <br />
 
 ### Exact Search
 
 Exact search that only checks the property "ifcClass" and the exact value "ifcRoof".
 
-<PlaygroundComponent {...snippets.searching.exact_search} />
+<PlaygroundComponent demoKey="searching.exact_search" />
 <br />
 
 ### Exact Search Excluding Results
 
 Very similar to the Exact search pattern, but with exclude. All objects other than those located above will be returned.
 
-<PlaygroundComponent {...snippets.searching.exact_search_excluding_result} />
+<PlaygroundComponent demoKey="searching.exact_search_excluding_result" />

@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
 const fs = require("fs");
 
 const source = fs.readFileSync("@novorender/dist/index.js", { encoding: "utf-8" });

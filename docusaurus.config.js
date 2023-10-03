@@ -1,10 +1,19 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+// eslint-disable-next-line no-undef
 const { execSync } = require("child_process");
+// eslint-disable-next-line no-undef
 const { webpackPlugin } = require("./webpack.plugin");
+// eslint-disable-next-line no-undef
+const math = require('remark-math');
+// eslint-disable-next-line no-undef
+const katex = require('rehype-katex');
 
+// eslint-disable-next-line no-undef
 const lightCodeTheme = require("prism-react-renderer/themes/github");
+// eslint-disable-next-line no-undef
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const baseGithub = "https://github.com/novorender";
@@ -29,24 +38,37 @@ const config = {
             /** @type {import('@docusaurus/preset-classic').Options} */
             ({
                 docs: {
+                    // eslint-disable-next-line no-undef
                     sidebarPath: require.resolve("./sidebars.js"),
                     editUrl: `${baseGithub}/docs/edit/main`,
                     showLastUpdateTime: true,
                     remarkPlugins: [
+                        // eslint-disable-next-line no-undef
                         [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true, converters: ["yarn", "pnpm"] }],
+                        math
                     ],
+                    rehypePlugins: [katex],
                 },
                 blog: {
                     showReadingTime: true,
                     editUrl: `${baseGithub}/docs`,
                 },
                 theme: {
+                    // eslint-disable-next-line no-undef
                     customCss: require.resolve("./src/css/custom.css"),
-                },
+                }
             }),
         ],
     ],
-
+    stylesheets: [
+        {
+            href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+            type: 'text/css',
+            integrity:
+                'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+            crossorigin: 'anonymous',
+        },
+    ],
     themeConfig:
         /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
@@ -66,9 +88,10 @@ const config = {
                 hideOnScroll: true,
                 items: [
                     {
-                        to: "docs/category/documentation",
+                        to: "docs/web_api/",
                         position: "left",
                         label: "Docs",
+                        activeBasePath: "/docs"
                     },
                     // {
                     //   to: "/data-rest-api/",
@@ -80,7 +103,7 @@ const config = {
                         position: "left",
                         label: "Playground",
                     },
-                    // { to: '/blog', label: 'Blog', position: 'left' },
+                    { to: '/blog', label: 'Blog', position: 'left' },
                     {
                         type: "dropdown",
                         position: "right",
@@ -130,10 +153,10 @@ const config = {
                     {
                         title: "More",
                         items: [
-                            // {
-                            //     label: 'Blog',
-                            //     to: '/blog',
-                            // },
+                            {
+                                label: 'Blog',
+                                to: '/blog',
+                            },
                             {
                                 label: "GitHub",
                                 href: baseGithub,
@@ -219,6 +242,7 @@ const config = {
                 })(),
             },
         ],
+        // eslint-disable-next-line no-undef
         require.resolve("@cmfcmf/docusaurus-search-local"),
         ["drawio", {}]
     ],
@@ -229,4 +253,5 @@ const config = {
     // },
 };
 
+// eslint-disable-next-line no-undef
 module.exports = config;

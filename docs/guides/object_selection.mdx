@@ -3,9 +3,11 @@ title: "Object Selection"
 sidebar_position: 6
 description: "Highlighting sets of objects using the web api."
 keywords: ["novorender api docs", "web api", "object selection"]
+pagination_next: null
+pagination_prev: null
 ---
 
-import { snippets } from "@site/demo-snippets/index";
+ 
 
 Novorender's Web API lets you highlight sets of objects.
 This could be used to visualize current object selection, or groups of objects, for instance the results of data queries.
@@ -25,7 +27,7 @@ if (result) {
 
 Try clicking on the model to see what id the sub-object under the cursor has.
 
-<PlaygroundComponent {...snippets.objectSelection.pick}></PlaygroundComponent>
+<PlaygroundComponent demoKey="objectSelection.pick"></PlaygroundComponent>
 
 ## Object highlighting
 
@@ -74,7 +76,7 @@ We picked object 2 and 2221, which happens to be the ground and roof in this par
 Feel free to try any other number, or combinations of numbers.
 You can use the pick example above to find out what id objects have.
 
-<PlaygroundComponent {...snippets.objectSelection.color}></PlaygroundComponent>
+<PlaygroundComponent demoKey="objectSelection.color"></PlaygroundComponent>
 
 ## Default action
 
@@ -89,7 +91,7 @@ return {
 };
 ```
 
-<PlaygroundComponent {...snippets.objectSelection.default}></PlaygroundComponent>
+<PlaygroundComponent demoKey="objectSelection.default"></PlaygroundComponent>
 
 :::info
 By default, the `defaultAction` is set to <CodeLink type="function" name="createNeutralHighlight"/>, which will leave all colors unchanged.
@@ -150,7 +152,7 @@ Feel free to inspect the source code of the existing helper functions for inspir
 
 Now let's try to interactively highlight the object you click on by combining object picking and object highlighting.
 
-<PlaygroundComponent {...snippets.objectSelection.interactive}></PlaygroundComponent>
+<PlaygroundComponent demoKey="objectSelection.interactive"></PlaygroundComponent>
 
 :::caution
 Large scenes can have millions of objects.

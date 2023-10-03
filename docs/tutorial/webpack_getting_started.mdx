@@ -1,0 +1,376 @@
+---
+title: "Getting Started with Webpack"
+description: "Getting started tutorial for setting up novorender web api with webpack and typescript."
+keywords: ["novorender web api", "novorender web api with webpack and typescript", "Getting started tutorial", "up and running with novorender", "how to install novorender web api"]
+sidebar_class_name: tut_label_hidden
+pagination_next: null
+pagination_prev: null
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+
+## Setup
+
+To begin, let's initiate a new Webpack + TypeScript project from scratch.
+
+1. Create an empty directory first:
+```bash
+mkdir my-novorender-app
+```
+
+2. Navigate into the newly created directory:
+```bash
+cd my-novorender-app
+```
+
+3. Create a `package.json` file with default config:
+```bash npm2yarn
+npm init -y
+```
+
+4. Install the required packages:
+```bash npm2yarn  
+npm install -D webpack webpack-cli typescript ts-loader webpack-dev-server copy-webpack-plugin html-webpack-plugin
+```
+
+### Configuring Webpack
+In this step, we will add some basic Webpack configuration to transpile the project with Typescript.
+
+Create a `webpack.config.js` file in the root directory of the project and add the following code:
+```javascript title="webpack.config.js"
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+    entry: './src/main.ts',
+    module: {
+        rules: [
+            {
+                test: /\.ts?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            }
+        ],
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'index.html'
+        }),
+    ],
+    devServer: {
+        client: {
+            overlay: {
+                warnings: false,
+            }
+        }
+    },
+};
+```
+:::note
+In addition to the Webpack configuration (which is pretty much self-explanatory), you might have noticed that we're setting `devServer.client.overlay.warnings` to `false`. This setting is necessary because Webpack may produce warnings related to dynamic imports within the `@novorender/api`, which can be displayed as overlay warnings on the browser viewport. However, by setting this value to `false`, we prevent these warnings from appearing on the browser screen while still being able to view them in the developer console for debugging purposes. This adjustment helps maintain a cleaner and less cluttered development experience.
+:::
+
+### Configuring TypeScript
+The presence of a `tsconfig.json` file in a directory indicates that the directory is the root of a TypeScript project. The `tsconfig.json` file specifies the root files and the compiler options required to compile the project.
+Let's create one for ourselves:
+```bash
+tsc --init 
+```
+Above command will create a `tsconfig.json` file in project directory with default settings. You can further customize this file to match your project's specific TypeScript configuration needs.
+
+<details>
+  <summary>Getting Error: tsc is not recognized as an internal or external command...</summary>
+
+If you encounter an error message like `tsc is not recognized as an internal or external command...`, it means that TypeScript is not installed globally on your system, or it's not available in your system's PATH.
+
+To resolve this issue, you have two options:
+
+1. **Install TypeScript Globally**: You can install TypeScript globally on your system by running the following command:
+   
+   ```bash npm2yarn
+   npm install -g typescript
+   ```
+
+2. **Use `npx` to Initialize TypeScript**: Alternatively, you can use `npx` to run TypeScript commands:
+
+   ```bash
+   npx tsc --init
+   ```
+
+   This will ensure that TypeScript is temporarily installed and executed within your project's context.
+
+Both options are valid, and you can choose the one that suits your preference. Using `npx` is a common practice for project-specific dependencies to avoid global package management.
+</details>
+
+
+#### Adding Build Commands:
+Open `package.json` and add the following commands to `scripts`, we'll use these later to run the development server and to bundle the project:
+```json title="package.json"
+"dev": "webpack-dev-server --mode development --open",
+"build": "webpack --mode production"
+```
+
+### Installing Web API
+Run the following command to install the Novorender Web API package:
+```bash npm2yarn
+npm i --save @novorender/api
+```
+The NPM package contains pre-built [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) bundles for the main script and worker scripts as well as the binary resource dependencies. We removed support for legacy UMD modules.
+:::info
+A copy of all the original typescript source code along with sourcemaps is included too. We consider the source code an important part of our documentation.
+:::
+Besides installing the package, you must make sure the files in the `public/` directory of this package are available to your server, this is covered in next section.
+
+### Copying required resources
+Before we move forward to actually implementing the Novorender Web API, we need to find some way to copy the resources from `node_modules/@novorender/api/public`, let's use [CopyWebpackPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) to accomplish this.
+
+Put the following code into `webpack.config.js`:
+```javascript title="webpack.config.js"
+// import the copy plugin
+const CopyPlugin = require("copy-webpack-plugin");
+
+...
+// add into into `plugins` array:
+new CopyPlugin({
+    patterns: [
+        { from: "node_modules/@novorender/api/public/*", to: "novorender/api/[name][ext]" }
+    ]
+}),
+...
+```
+
+### Server requirements
+
+Our API uses advanced, cutting edge javascript APIs, many of which comes with certain security requirements. In general, the following two global properties have to be true: [`isSecureContext`](https://developer.mozilla.org/en-US/docs/Web/API/isSecureContext) and [`crossOriginIsolated`](https://developer.mozilla.org/en-US/docs/Web/API/crossOriginIsolated).
+
+To make it all work, your server has to ensure:
+
+1. A [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). In practice, this means HTTP on localhost (for debugging only) and HTTPS everywhere else, including LAN.
+
+2. Cross origin [HTTP headers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements) for *top level documents*.
+```http
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+This can be done by adding the following headers in Webpack config file's `devServer` object.
+```javascript title="webpack.config.js"
+...
+devServer: {
+      headers: {
+          "Cross-Origin-Opener-Policy": "same-origin",
+          "Cross-Origin-Embedder-Policy": "require-corp",
+      }
+},
+...
+```
+
+<details>
+      <summary>Adding headers via <b>ModHeader</b></summary>
+      
+
+If the above method of adding headers doesn't work or you don't have access to the build configuration, you can utilize the [ModHeader](https://modheader.com/) browser extension. This extension allows you to modify HTTP request and response headers, providing an alternative way to address header-related issues.     
+
+![ModHeader usage demonstration gif](/img/modheader.gif)
+
+</details>
+
+:::info
+It's important to note that the method described above for enabling Cross-Origin headers is primarily intended for development mode. When transitioning to a production environment, you will need to configure these headers on your server. The specific implementation will depend on the server you are using, so please consult the relevant documentation for detailed instructions.
+:::
+
+
+3. MIME type [`text/javascript`](https://www.iana.org/assignments/media-types/text/javascript) for javascript files and [`application/wasm`](https://www.iana.org/assignments/media-types/application/wasm) for web assembly files.
+
+4. Any resources loaded from a separate domain has be configured with [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to allow your domain.
+
+5. Service workers script at the appropriate location, preferably at the root of your domain. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) for more.
+
+### Typescript
+
+Using our APIs from javascript is possible but *strongly discouraged*. We rely heavily on typescript to help users catch common errors at edit/compile time. Technical support will only be provided for typescript users.
+
+This package is built using version <WebApiTypescriptVersion /> of typescript. As a rule of thumb, you should upgrade to the latest version of typescript whenever a new version is released.
+
+If you plan to do your own bundling and use our sources directly, you may want to use our `tsconfig.json` as a baseline for your own:
+
+```jsonc
+{
+  "extends": "node_modules/@novorender/api/tsconfig.json", // or wherever...
+  "compilerOptions": {
+    ...
+  }
+}
+```
+
+We generally use `ESNext` as target since we only support latest version of browsers with cutting edge support for 3D rendering. Also, we use relatively new typescript features such as [`verbatimModuleSyntax`](https://www.typescriptlang.org/tsconfig#verbatimModuleSyntax) and [`allowArbitraryExtensions`](https://www.typescriptlang.org/tsconfig#allowArbitraryExtensions).
+
+
+## Writing some code
+Now that we have a proper project in place, we can go ahead implementing the actual API.
+
+### Providing required resources 
+Before we create a [view](https://docs.novorender.com/docs/guides/views), we need to provide it with some [resources](https://docs.novorender.com/docs/guides/views#prerequisites);
+- Canvas
+- Device profile
+- Imports
+
+These resources are crucial for setting up and configuring the view properly.
+
+#### Canvas
+To begin, let's create an HTML canvas element, create `index.html` file in the root directory and paste the following:
+```html title="index.html"
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Novorender App</title>
+  </head>
+  <body>
+    <canvas id="canvas" style="width: 100%; height: 100%;"></canvas>
+  </body>
+</html>
+```
+:::info
+It's crucial to set the CSS `width` and `height` properties on the canvas element to prevent runaway resize feedback loops. This ensures that the canvas has the correct dimensions and behaves as expected.
+:::
+
+Then, create a working directory called `/src` in the root of the project. Inside this directory, add a new file named `main.ts`. Then, insert the following code into `main.ts` to obtain a reference to the canvas element we previously created:
+```typescript title="main.ts"
+const canvas = document.getElementById("canvas");
+```
+
+#### Device profile
+Get the device profile:
+```typescript title="main.ts"
+import { getDeviceProfile } from "@novorender/api";
+
+const gpuTier = 2;
+const deviceProfile = getDeviceProfile(gpuTier);
+```
+
+#### Imports
+[Remember](#providing-required-resources) we copied some resources from `@novorender/api/public` dir? that's where they come into play.
+```typescript title="main.ts"
+import { View } from "@novorender/api";
+
+const baseUrl = new URL("/novorender/api/", window.location.origin);
+const imports = await View.downloadImports({ baseUrl });
+```
+
+<details>
+      <summary>Getting Error: `Cannot find module '/novorender/api/shaders.js`</summary>
+      <div>In certain build environments or bundlers, you might encounter complaints about `shaders.js` not being found. In such cases, you will need to provide the `shaders` separately to resolve this issue.</div>
+
+```typescript
+// @ts-expect-error
+import { shaders } from "@novorender/api/public/shaders";
+
+const imports = await View.downloadImports({ baseUrl, shaders });
+```
+
+:::info
+`// @ts-expect-error` is essential because TypeScript might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
+:::
+
+</details>
+
+### Creating View
+With all the necessary components in place, we can proceed to create and run our view:
+```typescript title="main.ts"
+import { View } from "@novorender/api";
+
+const view = new View(canvas, deviceProfile, imports);
+await view.run();
+```
+
+Finally, call the <CodeLink type="class" name="view.dispose" /> method to clean up the view's GPU resources.
+```typescript title="main.ts"
+view.dispose();
+```
+
+Let's consolidate all the steps and components we've discussed and see the result:
+```typescript title="main.ts"
+import { View, getDeviceProfile } from "@novorender/api";
+
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+
+async function main(canvas: HTMLCanvasElement) {
+    const gpuTier = 2;
+    const deviceProfile = getDeviceProfile(gpuTier);
+    const baseUrl = new URL("/novorender/api/", window.location.origin);
+    const imports = await View.downloadImports({ baseUrl });
+    const view = new View(canvas, deviceProfile, imports);
+    await view.run();
+    view.dispose();
+}
+
+main(canvas);
+```
+
+:::tip
+Avoid [deep imports](https://gist.github.com/daleyjem/0f38f561a4e91e58eba580889f38330f)! Everything you need should be available from the package root: `@novorender/api`.
+:::
+
+Start the development server by running the following command:
+```bash npm2yarn
+npm run dev
+```
+
+:::tip
+Furthermore, you can run the project we've built above directly by clicking the button below:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/novorender/novorender-examples/tree/master/webpack-vanilla-ts)
+:::
+
+Upon successful execution, you should now see an image with a subtle gray gradient:
+![application screenshot initial view](/img/guides/tutorial-001.png)
+
+Let's make it a little more interactive by modifying `renderState` and adding a <CodeLink type="interface" name="RenderStateGrid" />.
+```typescript title="main.ts"
+...
+const view = new View(canvas, deviceProfile, imports);
+view.modifyRenderState({ grid: { enabled: true } });
+await view.run();
+...
+```
+![application screenshot grid view](/img/guides/tutorial-002.png)
+:::info
+You can learn more about the `RenderState` [here](/docs/web_api/Interfaces/interface.RenderState) and experiment with it by adding or modifying some of its properties. This will help you better understand how to customize rendering behaviors.
+:::
+:::tip
+The view already has camera controller built in so you can interact with the view by holding down the left-click on your mouse or trackpad. Alternatively, you can use the movement keys and <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to navigate and move the camera around in the view.
+:::
+:::info
+The view will automatically resize your canvas' pixel size when the css layout and/or the render state output settings changes.
+:::
+
+## Wrapping up 
+🎉 Congratulations! You have successfully learned how to set up Novorender Web API. To gain a more comprehensive understanding of Novorender's capabilities, please explore the following resources:
+
+<ActionCard cards={[
+  {title:"Interactive Guides", description:"Take a look at our interactive guides, which provide in-depth insights into various features.", actionLabel:"Check out Guides" ,link:"/docs/category/guides"},
+  {title:"Documentation", description:"Refer to the reference documentation for detailed information on different methods and classes.", actionLabel:"Go to Docs" ,link:"/docs/web_api/API"},
+  {title:"Code Samples", description:"Visit the GitHub repository containing sample projects using different module bundlers for further practical examples.", actionLabel:"Visit the Repo" ,link:"https://github.com/novorender/novorender-examples"}
+  ]} />
+<br />
+These resources will help you harness the full potential of Novorender. 
+
+export const WebApiTypescriptVersion = () => (
+    <code>{WEB_API_TYPESCRIPT_VERSION}</code>
+);
+
+## Next steps
+Take a look at the following guides to learn how to load scenes using the Data JS API and perform basic measurements using the Measure Module:
+
+1. [**Loading Scenes with Data JS API**](/docs/guides/loading_scenes): This guide will walk you through the process of loading scenes using the Data JS API, allowing you to access and manipulate your 3D data efficiently.
+
+2. [**Basic Measurements with Measure Module**](/docs/guides/parametric_measure): Explore this guide to learn how to perform fundamental measurements using the Measure Module, enabling you to analyze and extract valuable data from your 3D models.
+
+These guides will provide you with valuable insights and practical knowledge to effectively work with scenes and perform measurements in your Novorender projects.

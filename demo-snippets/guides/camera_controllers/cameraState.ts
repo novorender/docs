@@ -1,4 +1,4 @@
-import { View } from "@novorender/api";
+import { type View } from "@novorender/api";
 
 export function main(view: View) {
     view.switchCameraController("null"); // disable camera controller

@@ -3,9 +3,11 @@ title: "Dynamic Objects"
 sidebar_position: 11
 description: "Add dynamic 3D objects into the view."
 keywords: ["novorender api docs", "webgl api", "gltf", "dynamic objects"]
+pagination_next: null
+pagination_prev: null
 ---
 
-import { snippets } from "@site/demo-snippets";
+ ;
 
 While Novorender is mostly about streaming and rendering large, static 3D scenes, sometimes you may want to add smaller, dynamic 3D objects into the view.
 Dynamic objects are meant for small and lightweight objects, such as 3D widgets or avatars.
@@ -33,7 +35,7 @@ We recommend verifying your files using https://github.khronos.org/glTF-Validato
 
 Let's try to download a binary gltf file (glb), which has all the textures and buffers included in a single file.
 
-<PlaygroundComponent {...snippets.dynamic.gltf}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.gltf"></PlaygroundComponent>
 
 ### Procedural geometry
 
@@ -41,7 +43,7 @@ The glTF loader is not magic.
 It returns render state that you can generate yourself in code.
 The dynamic object render state <CodeLink type="interface" name="RenderStateDynamicObject"/> is quite rich and complex, similar to that of glTF.
 Procedural geometry is intended for experienced 3D programmers.
-Thus, this guide will not delwe into the complexities of geometry and materials, but rather explain how to get started.
+Thus, this guide will not delve into the complexities of geometry and materials, but rather explain how to get started.
 For more detail, see the [glTF 2.0 specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) or [Learn OpenGL](https://learnopengl.com/).
 
 Let's create a triangle from scratch.
@@ -52,15 +54,9 @@ Positions can be described as an array of float triplets, each triplet describin
 
 ```typescript
 const vertices = new Float32Array([
-    0,
-    1,
-    0, // xyz #0
-    -1,
-    0,
-    0, // xyz #1
-    1,
-    0,
-    0, // xyz #2
+    0, 1, 0, // xyz #0
+    -1, 0, 0, // xyz #1
+    1, 0, 0, // xyz #2
 ]);
 ```
 
@@ -116,7 +112,7 @@ view.modifyRenderState({ dynamic: { objects: [triangleObject] } });
 
 So, let's see it all run.
 
-<PlaygroundComponent {...snippets.dynamic.triangle}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.triangle"></PlaygroundComponent>
 
 ## Instances
 
@@ -138,7 +134,7 @@ Instances are drawn in a single batch operation without javascript or the CPU ge
 So if you have a simple object like this cube with 12 triangles each, you can easily have thousands of instances, or even tens or hundreds of thousands.
 Let's start easy with `10 x 10 x 10 = 1000` instances, which produces 12K triangles.
 
-<PlaygroundComponent {...snippets.dynamic.instances}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.instances"></PlaygroundComponent>
 
 Try modifying the `dim` variable to increase/decrease # instances.
 Most PCs should be able to handle millions of triangles, so if you feel adventurous, change `dim` to `100`, which produces one million instances.
@@ -166,12 +162,12 @@ Ultimately, a scene graph is a mere convenience and trivial to implement yoursel
 
 Nodes loaded from glTF will have their matrices converted into world space and made into a flat list.
 If you wish to animate things, you will have to do so yourself.
-In general, we discourage lenghty/constant animations.
+In general, we discourage lengthy/constant animations.
 This is because whenever the render state changes, the frame has to be completely re-rendered, which costs energy.
 Also, progressive post effects and high-res rendering are often only applied after a small period of inaction.
 Short animation sequences of seconds or less are fine, however, and may help the user to better understand function and context.
 
-<PlaygroundComponent {...snippets.dynamic.animation}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.animation"></PlaygroundComponent>
 
 :::caution
 Animations will drain device batteries quickly. Use with moderation!
@@ -184,12 +180,12 @@ To enable picking, you must assign a value to <CodeLink type="interface" name="R
 Since static scenes starts at id `0`, you should pick a high value to avoid clashes.
 The object id is an unsigned 32 bit integer, so `0xf000_0000` seem like a good choice.
 
-Each instance will be assgined an id from the base id value, thusly: `instance_object_id = baseObjectId + instance_index`.
+Each instance will be assigned an id from the base id value, thusly: `instance_object_id = baseObjectId + instance_index`.
 In this example we only have one instance, so the base id becomes the only id we need to test for.
 If you click on the cube, it should grow by 10%.
 If you click outside the cube, it should shrink by 10%.
 
-<PlaygroundComponent {...snippets.dynamic.pick_dynamic}></PlaygroundComponent>
+<PlaygroundComponent demoKey="dynamic.pick_dynamic"></PlaygroundComponent>
 
 Dynamic objects don't support the same highlight mechanism that static objects do.
 Unlike static geometry, dynamic objects are, well, dynamic.
