@@ -8,18 +8,24 @@
   align-items: center;
   gap: 30px;
   position: relative;
-  }
-  
-  .deviations-root .main-container>button.button-logout {
-    position: absolute;
-    right: 0;
 }
+.deviations-root .main-container .codeblock button[aria-label="Copy code to clipboard"] {
+  opacity: 1 !important;
+  position: fixed;
+  right: 45px;
+}
+.deviations-root .main-container>button.button-logout {
+  position: absolute;
+  right: 0;
+}
+
 .deviations-root .main-container>div {
   border: 1px solid;
   border-radius: 10px;
   margin: 5px;
   padding: 10px;
 }
+
 .deviations-root .main-container>div.deviations-container {
   display: flex;
   justify-content: center;
@@ -28,6 +34,7 @@
   width: 100%;
   gap: 15px;
 }
+
 .deviations-root .main-container>div.deviations-container>div {
   flex: 1 1 0px;
 }
@@ -53,6 +60,7 @@
   border-radius: 4px;
   box-sizing: border-box;
 }
+
 .deviations-root input[type=submit],
 .deviations-root button[type=submit] {
   width: 100%;

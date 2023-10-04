@@ -7,28 +7,27 @@ import { faCheck, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-ic
 
 import("./index.css");
 
-interface CustomObjectGroup extends ObjectGroup {
-    picked?: boolean;
-}
-
 const JWT_KEY = "LOGIN_JWT";
 
 export default function DeviationsProfileGenerator() {
 
     const [loginDetails, setLoginDetails] = useState<{ username: string; password: string; }>({ username: "", password: "" });
     const [sceneDetails, setSceneDetails] = useState<{ dataServerUrl: string; sceneId: string; }>({ dataServerUrl: "https://data.novorender.com/api", sceneId: "" });
-    const [pointsVsTriangles, setPointsVsTriangles] = useState<{ name: string; groups: CustomObjectGroup[]; }>({ name: "", groups: [] });
-    const [pointsVsPoints, setPointsVsPoints] = useState<{ name: string; fromGroupIds: string; toGroupIds: string; }>({ name: "", fromGroupIds: "", toGroupIds: "" });
+    const [pointsVsTriangles, setPointsVsTriangles] = useState<{ name: string; groups: ObjectGroup[]; }>({ name: "", groups: [] });
+    const [pointsVsPoints, setPointsVsPoints] = useState<{ name: string; fromGroups: ObjectGroup[]; toGroups: ObjectGroup[]; }>({ name: "", fromGroups: [], toGroups: [] });
     const [token, setToken] = useState<string>();
     const [dataApi, setDataApi] = useState<API>();
     const [sceneData, setSceneData] = useState<SceneData>();
     const [pointsVsTrianglesData, setPointsVsTrianglesData] = useState<{ pointToTriangle: { groups: Array<{ name: string; groupIds: Array<string>; objectIds: Array<number>; }>; }; }>({ pointToTriangle: { groups: [] } });
+    const [pointsVsPointsData, setPointsVsPointsData] = useState<{
+        pointToPoint: {
+            groups: Array<{ name: string; to: { groupIds: Array<string>; objectIds: Array<number>; }; from: { groupIds: Array<string>; objectIds: Array<number>; }; }>;
+        };
+    }>({ pointToPoint: { groups: [] } });
     const [isDetailsOpen, setIsDetailsOpen] = useState(true);
 
     React.useEffect(() => {
-
         setToken(localStorage.getItem(JWT_KEY) as string);
-
     }, []);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, stateKey: string) => {
@@ -70,14 +69,44 @@ export default function DeviationsProfileGenerator() {
         console.log(JSON.stringify({ groupIds, objectIds }));
         setPointsVsTrianglesData(values => ({ pointToTriangle: { groups: [...values.pointToTriangle.groups, { name: pointsVsTriangles.name, groupIds, objectIds }] } }));
         setPointsVsTriangles({ name: "", groups: [] });
-        setSceneData(values => ({ ...values, objectGroups: values?.objectGroups.map(g => { g["picked"] = false; return g; }) } as SceneData));
 
     };
 
 
-    const handlePointsVsPointsSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handlePointsVsPointsSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log('inputs ', pointsVsTriangles);
+
+        await loadIds();
+
+        const fromGroupIds: string[] = [];
+        const fromObjectIds: number[] = [];
+        const toGroupIds: string[] = [];
+        const toObjectIds: number[] = [];
+        for (const g of pointsVsPoints.fromGroups) {
+            fromGroupIds.push(g.id);
+            if (g.ids) {
+                for (const o of g.ids) {
+                    fromObjectIds.push(o);
+                }
+            }
+        }
+        for (const g of pointsVsPoints.toGroups) {
+            toGroupIds.push(g.id);
+            if (g.ids) {
+                for (const o of g.ids) {
+                    toObjectIds.push(o);
+                }
+            }
+        }
+
+        setPointsVsPointsData(values => ({
+            pointToPoint: {
+                groups: [...values.pointToPoint.groups,
+                { name: pointsVsPoints.name, to: { groupIds: toGroupIds, objectIds: toObjectIds }, from: { groupIds: fromGroupIds, objectIds: fromObjectIds } }]
+            }
+        }));
+        setPointsVsPoints({ name: "", fromGroups: [], toGroups: [] });
+        // setSceneData(values => ({ ...values, objectGroups: values?.objectGroups.map(g => { g["picked"] = false; return g; }) } as SceneData));
     };
 
     async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -103,10 +132,7 @@ export default function DeviationsProfileGenerator() {
     }
 
     async function loadScene(event: React.FormEvent<HTMLFormElement>) {
-
         event.preventDefault();
-
-        // const dataApiModule = await import("@novorender/data-js-api");
 
         const dataApi = createAPI({
             serviceUrl: sceneDetails.dataServerUrl,
@@ -117,32 +143,14 @@ export default function DeviationsProfileGenerator() {
         });
 
         setDataApi(dataApi);
-
         const sceneData = await dataApi.loadScene(sceneDetails.sceneId);
-
-        console.log('SceneData ', sceneData);
-        // Destructure relevant properties into variables
-        // const { url } = sceneData as SceneData;
-
         setSceneData(sceneData as SceneData);
         setIsDetailsOpen(false);
     }
 
 
     async function loadIds(): Promise<void> {
-
-
-
-        // const grp_ids = pointsVsTriangles.groupIds.split(",").map(id => id.trim());
-        // console.log("grp_idsgrp_ids ", grp_ids);
-        // for (const id of grp_ids) {
-        //   const ids = await dataApi?.getGroupIds(sceneDetails.sceneId, id).catch(() => {
-        //     console.warn("failed to load ids for group - ", id);
-        //     return [];
-        //   });
-
         const local_scene_data = Object.assign({}, sceneData);
-
 
         const groupIdRequests: Promise<void>[] | undefined = local_scene_data?.objectGroups.map(async (group) => {
             if (!group.ids) {
@@ -158,22 +166,31 @@ export default function DeviationsProfileGenerator() {
         }
 
         setSceneData(local_scene_data);
-        console.log("loca ", local_scene_data);
     }
 
-    function selectGrp(group: CustomObjectGroup) {
+    function selectGrp(target: string, group: ObjectGroup, groups: ObjectGroup[]) {
 
-        const groups = [...pointsVsTriangles.groups];
+        const _groups = [...groups];
 
-        const isPicked = groups.findIndex(({ id }) => id === group.id);
+        const isPicked = _groups.findIndex(({ id }) => id === group.id);
         if (isPicked !== -1) {
-            groups.splice(isPicked, 1);
-            group.picked = false;
+            _groups.splice(isPicked, 1);
         } else {
-            groups.push(group);
-            group.picked = true;
+            _groups.push(group);
         }
-        setPointsVsTriangles({ name: pointsVsTriangles.name, groups: groups });
+
+        switch (target) {
+            case 'pointsVsTriangles':
+                setPointsVsTriangles({ name: pointsVsTriangles.name, groups: _groups });
+                break;
+            case 'pointsVsPointsFrom':
+                setPointsVsPoints({ name: pointsVsPoints.name, fromGroups: _groups, toGroups: pointsVsPoints.toGroups });
+                break;
+            case 'pointsVsPointsTo':
+                setPointsVsPoints({ name: pointsVsPoints.name, toGroups: _groups, fromGroups: pointsVsPoints.fromGroups });
+                break;
+        }
+
     }
 
     function logout() {
@@ -227,7 +244,6 @@ export default function DeviationsProfileGenerator() {
                                             value={sceneDetails.dataServerUrl}
                                             onChange={(e) => { handleInputChange(e, 'sceneDetails'); }}
                                         />
-                                        {/* <br /> */}
                                         <label>Scene ID:</label>
                                         <input
                                             type="text"
@@ -235,7 +251,6 @@ export default function DeviationsProfileGenerator() {
                                             value={sceneDetails.sceneId}
                                             onChange={(e) => { handleInputChange(e, 'sceneDetails'); }}
                                         />
-                                        {/* <br /> */}
                                         <button type="submit">Load Scene</button>
                                     </form>
                                 </details>
@@ -262,27 +277,22 @@ export default function DeviationsProfileGenerator() {
                                                 <br />
                                                 <label>Group IDs:</label>
                                                 <div style={{ width: "100%" }} className="dropdown dropdown--hoverable">
-                                                    <ul className="dropdown__menu">
+                                                    <ul className="dropdown__menu" style={{ width: "100%" }}>
                                                         {sceneData.objectGroups.filter(g => g.id).map(g =>
-                                                            <li onClick={() => selectGrp(g)} style={{ cursor: "pointer" }} className="dropdown__link" key={g.name}>
-                                                                {g["picked"] && <FontAwesomeIcon icon={faCheck} />}
+                                                            <li onClick={() => selectGrp('pointsVsTriangles', g, pointsVsTriangles.groups)} style={{ cursor: "pointer" }} className="dropdown__link" key={g.name}>
+                                                                {(pointsVsTriangles?.groups?.findIndex(v => v.id === g.id) !== -1) && <FontAwesomeIcon icon={faCheck} />}
                                                                 {" " + g.name}</li>
                                                         )}
                                                     </ul>
-                                                <textarea
-                                                    name="groupIds"
-                                                        value={pointsVsTriangles.groups.map(g => g.id).join() || ""}
-                                                        // onChange={(e) => { handleInputChange(e, 'pointsVsTriangles'); }}
-                                                        readOnly
-                                                    />
+                                                    <textarea name="groupIds" value={pointsVsTriangles.groups.map(g => g.id).join() || ""} readOnly />
                                                 </div>
                                                 <br />
-                                                <input type="submit" />
+                                                <input type="submit" value="Generate" />
                                             </form>
                                         </div>
-                                        {/* <hr />
+                                        <hr />
                                         <div className='d-form pp-form'>
-                                            <p>Points vs points</p>
+                                            <h4>Points vs points</h4>
                                             <form onSubmit={handlePointsVsPointsSubmit}>
                                                 <label>Name:</label>
                                                 <input
@@ -293,29 +303,41 @@ export default function DeviationsProfileGenerator() {
                                                 />
                                                 <br />
                                                 <label>From Group IDs:</label>
-                                                <textarea
-                                                    name="fromGroupIds"
-                                                    value={pointsVsPoints.fromGroupIds || ""}
-                                                    onChange={(e) => { handleInputChange(e, 'pointsVsPoints'); }}
-                                                />
+                                                <div style={{ width: "100%" }} className="dropdown dropdown--hoverable">
+                                                    <ul className="dropdown__menu" style={{ width: "100%" }}>
+                                                        {sceneData.objectGroups.filter(g => g.id).map(g =>
+                                                            <li onClick={() => selectGrp("pointsVsPointsFrom", g, pointsVsPoints.fromGroups)} style={{ cursor: "pointer" }} className="dropdown__link" key={g.name}>
+                                                                {pointsVsPoints?.fromGroups?.findIndex(v => v.id === g.id) !== -1 && <FontAwesomeIcon icon={faCheck} />}
+                                                                {" " + g.name}</li>
+                                                        )}
+                                                    </ul>
+                                                    <textarea name="fromGroupIds" value={pointsVsPoints.fromGroups.map(g => g.id).join() || ""} readOnly />
+                                                </div>
+
                                                 <br />
                                                 <label>To Group IDs:</label>
-                                                <textarea
-                                                    name="toGroupIds"
-                                                    value={pointsVsPoints.toGroupIds || ""}
-                                                    onChange={(e) => { handleInputChange(e, 'pointsVsPoints'); }}
-                                                />
+                                                <div style={{ width: "100%" }} className="dropdown dropdown--hoverable">
+                                                    <ul className="dropdown__menu" style={{ width: "100%" }}>
+                                                        {sceneData.objectGroups.filter(g => g.id).map(g =>
+                                                            <li onClick={() => selectGrp("pointsVsPointsTo", g, pointsVsPoints.toGroups)} style={{ cursor: "pointer" }} className="dropdown__link" key={g.name}>
+                                                                {pointsVsPoints?.toGroups?.findIndex(v => v.id === g.id) !== -1 && <FontAwesomeIcon icon={faCheck} />}
+                                                                {" " + g.name}</li>
+                                                        )}
+                                                    </ul>
+                                                    <textarea name="toGroupIds" value={pointsVsPoints.toGroups.map(g => g.id).join() || ""} readOnly />
+                                                </div>
                                                 <br />
-                                                <input type="submit" />
+                                                <input type="submit" value="Generate" />
                                             </form>
-                                        </div> */}
+                                        </div>
                                     </div>
 
-                                    <div style={{ maxHeight: 800, overflow: "scroll" }}>
+                                    <div className="codeblock" style={{ maxHeight: 800, overflow: "scroll" }}>
                                         <CodeBlock language="json">
                                             {JSON.stringify({
                                                 "rebuildRequired": true,
-                                                ...pointsVsTrianglesData
+                                                ...pointsVsTrianglesData,
+                                                ...pointsVsPointsData
                                             }, null, 4)}
                                         </CodeBlock>
                                     </div>
