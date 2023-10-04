@@ -15,7 +15,7 @@
     box-shadow: var(--ifm-global-shadow-lw);
 }
 
-.popover-content > p {
+.popover-content>p {
     color: var(--ifm-color-gray-800);
     font-size: 12px;
     margin: 0;
@@ -25,8 +25,7 @@
     margin: 5px 0;
 }
 
-.editor-config-dropdown {
-}
+.editor-config-dropdown {}
 
 .editor-config-dropdown hr {
     margin-top: 8px;
@@ -34,17 +33,17 @@
     background: var(--ifm-color-gray-800);
 }
 
-.editor-config-dropdown > li > span {
+.editor-config-dropdown>li>span {
     font-size: 10px;
 }
 
-.editor-config-dropdown > li > div {
+.editor-config-dropdown>li>div {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.editor-config-dropdown > li > div .font-size-button {
+.editor-config-dropdown>li>div .font-size-button {
     padding: 5px;
     margin-right: 5px;
     border-radius: 50%;
@@ -54,7 +53,7 @@
     line-height: 1;
 }
 
-.editor-config-dropdown > li > div .hidden-areas-toggle-button {
+.editor-config-dropdown>li>div .hidden-areas-toggle-button {
     padding: 5px;
     margin-right: 5px;
     font-size: 12;
@@ -86,4 +85,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: absolute;
+        top: 0;
+        width: 100%;
+        background: rgb(15 27 37 / 80%);
 }

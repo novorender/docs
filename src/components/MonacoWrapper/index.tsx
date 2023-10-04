@@ -24,9 +24,13 @@ import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
 import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear, faCircleExclamation, faCheck, faSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
+// @ts-expect-error just a raw DTS
 import WebAppDTS from "@site/static/web_api.d.ts?raw";
+// @ts-expect-error just a raw DTS
 import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
+// @ts-expect-error just a raw DTS
 import WebGlDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
+// @ts-expect-error just a raw DTS
 import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
@@ -89,6 +93,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
     const [moduleInternalValidationErrors, setModuleInternalValidationErrors] = useState<readonly Error[]>([]);
     const [moduleShapeValidationErrors, setModuleShapeValidationErrors] = useState<readonly Error[]>([]);
     const [generalSyntaxErrors, setGeneralSyntaxErrors] = useState<readonly Error[]>([]);
+    const [isDynamicModuleCompiled, setIsDynamicModuleCompiled] = useState<boolean>(false);
     const hostRef = useRef<IDemoHost<any>>(null);
     const canvasWrapper = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -102,7 +107,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
 
     useEffect(() => {
         (async () => await runDemo())();
-    }, [canvas, canvas2D, previewCanvas]);
+    }, [canvas.current, canvas2D.current, previewCanvas.current]);
 
     useEffect(() => {
         (async () => {
@@ -113,6 +118,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                     const module = await import(/* webpackIgnore: true */ dataUri);
                     setEditorStatus(EditorStatus.OKAY);
                     await hostRef.current.updateModule(module);
+                    setIsDynamicModuleCompiled(true);
                 } catch (error) {
                     setEditorStatus(EditorStatus.ERRORS);
                     setModuleInternalValidationErrors([error]);
@@ -136,7 +142,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
      * @param monaco Monaco Instance
      * @returns transpiled output as string
      */
-    const returnTranspiledOutput = async (editor, monaco: Monaco): Promise<string> => {
+    const returnTranspiledOutput = async (editor, monaco: Monaco): Promise<string | undefined> => {
         try {
             const model = editor.getModel()!;
             const uri = model.uri;
@@ -559,7 +565,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                     </div>
                   )} */}
                                 </div>
-                                {true ? (
+                                <div style={{ position: 'relative' }}>
                                     <Renderer
                                         canvasWrapperRef={canvasWrapper}
                                         canvasRef={canvas}
@@ -571,16 +577,18 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
                                         splitPaneDirectionVertical={splitPaneDirectionVertical}
                                         validationErrors={[...moduleInternalValidationErrors, ...moduleShapeValidationErrors, ...generalSyntaxErrors]}
                                     />
-                                ) : (
-                                    <div
+                                    {
+                                        !isDynamicModuleCompiled && <div
                                         style={{
                                             height: splitPaneDirectionVertical ? rendererHeight : editorHeight + rendererHeight,
                                         }}
                                         className="renderer-loading-message"
                                     >
-                                        Loading the renderer...
+                                            <FontAwesomeIcon icon={faGear} className="fa-icon size-14" spin />&nbsp;Working...
                                     </div>
-                                )}
+                                    }
+                                </div>
+
                             </Allotment>
                         )}
                     </div>

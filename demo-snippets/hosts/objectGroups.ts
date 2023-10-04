@@ -31,7 +31,7 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
         } catch (error) {
             moduleError = error;
         } finally {
-            this.context.reportErrors([]);
+            this.context.reportErrors(moduleError);
         }
     }
 
