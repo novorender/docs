@@ -16,5 +16,4 @@ export async function main(view: View) {
             }]
         }
     });
-    await view.run();
 }
