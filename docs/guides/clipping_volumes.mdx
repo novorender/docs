@@ -15,10 +15,12 @@ Clipping volumes does not currently apply to dynamic objects!
 :::
 
 Clipping volumes are formed by a set of planes, or [halfspaces](<https://en.wikipedia.org/wiki/Half-space_(geometry)>).
-Each halfspace is defined by a plane normal vector $nx,ny,nz$ and an offset (negative distance) along that vector $o$.
+Each halfspace is defined by a plane normal vector $\hat{N}$ and an offset (negative distance) along that vector, $O$.
 From this we can compute a signed distance to that plane for any given 3D coordinate $(x,y,z)$.
 
-> signed_distance$(x, y, z) = x*nx + y*ny + z*nz - o;$
+$$
+F(x, y, z) = x\hat{N}_x + y\hat{N}_y + z\hat{N}_z - O
+$$
 
 This can be expressed as a 4D dot product where the w component of the input is -1.
 
@@ -64,8 +66,8 @@ When combining multiple such half spaces, we must determine whether to use the i
 Put simply, intersection is the volume that lies on the positive side of all the planes, while union is the volume that lines on the positive side of any of the planes.
 
 ```typescript
-intersection = sd1 > 0 && sd2 > 0;
-union = sd1 > 0 || sd2 > 0;
+outside_volume = outside_plane_1 && outside_plane_2; // intersection 
+outside_volume = outside_plane_1 || outside_plane_2; // union
 ```
 
 :::info
