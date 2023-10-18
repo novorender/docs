@@ -23,6 +23,7 @@ export const {
   OrbitController,
   OrthoController,
   PanoramaController,
+  PitchRollYawOrientation,
   PointrateProfiler,
   ProfileModule,
   RenderContext,
