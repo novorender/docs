@@ -233,7 +233,6 @@ const config = {
                 excludePrivate: true,
                 hideBreadcrumbs: false,
                 hideGenerator: true,
-                skipErrorChecking: true,
                 navigation: {
                     includeCategories: true,
                     includeGroups: true,
