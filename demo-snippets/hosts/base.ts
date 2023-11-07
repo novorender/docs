@@ -16,7 +16,7 @@ export abstract class BaseDemoHost {
         this.view = new View(canvas, deviceProfile, imports);
     }
 
-    async run() {
+    async run(cb: (isReady: boolean) => void) {
         const { view } = this;
         this.abortController = new AbortController();
         await this.init?.();
@@ -29,6 +29,7 @@ export abstract class BaseDemoHost {
             }
         };
 
+        cb(true);
         await view.run(this.abortController.signal);
         view.dispose();
     }
@@ -36,16 +37,19 @@ export abstract class BaseDemoHost {
     init?(): Promise<void>;
     animate?(time: number): Promise<void>;
 
-    async loadScene(url: string) {
+    async loadScene(baseUrl: URL, sceneId: string, version: string = "index.json") {
         const { view } = this;
-        const config = await view.loadSceneFromURL(new URL(url));
+        const config = await view.loadScene(
+            baseUrl,
+            sceneId,
+            version);
         const { center, radius } = config.boundingSphere;
         view.activeController.autoFit(center, radius);
         const [cx, cy, cz] = config.center;
         vec3.set(this.center, cx, -cz, cy);
     }
 
-    async modifyRenderState(stateChanges: RenderStateChanges) {
+    modifyRenderState(stateChanges: RenderStateChanges) {
         const errors = this.view.validateRenderState(stateChanges);
         this.view.modifyRenderState(stateChanges);
         this.context.reportErrors(errors);

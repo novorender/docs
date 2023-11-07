@@ -1,4 +1,4 @@
-import { createAPI, type SceneData, type API } from "@novorender/data-js-api";
+import { createAPI, type SceneData } from "@novorender/data-js-api";
 import { View } from "@novorender/api";
 import { IDemoHost, IModule } from "../demo";
 import { BaseDemoHost } from "./base";
@@ -17,14 +17,16 @@ export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
         });
         let moduleError;
         try {
-            // Load scene metadata
+            // Load scene metadata  
             // Condos scene ID, but can be changed to any public scene ID
             const sceneData = await dataAPI.loadScene("95a89d20dd084d9486e383e131242c4c");
             this.sceneData = sceneData as SceneData;
             // Destructure relevant properties into variables
-            const { url } = this.sceneData;
-            // load the scene using URL gotten from `sceneData`
-            await this.loadScene(url);
+            const { url: _url } = sceneData as SceneData;
+            const url = new URL(_url);
+            const parentSceneId = url.pathname.replaceAll("/", "");
+            url.pathname = "";
+            await this.loadScene(url, parentSceneId);
         } catch (error) {
             moduleError = error;
         } finally {

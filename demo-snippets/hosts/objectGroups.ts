@@ -25,9 +25,11 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
             const sceneData = await this.dataAPI.loadScene("c132d3eecf4f4247ace112410f4219aa");
             this.sceneData = sceneData as SceneData;
             // Destructure relevant properties into variables
-            const { url } = this.sceneData;
-            // load the scene using URL gotten from `sceneData`
-            await this.loadScene(url);
+            const { url: _url } = sceneData as SceneData;
+            const url = new URL(_url);
+            const parentSceneId = url.pathname.replaceAll("/", "");
+            url.pathname = "";
+            await this.loadScene(url, parentSceneId);
         } catch (error) {
             moduleError = error;
         } finally {

@@ -1,4 +1,4 @@
-import type { DrawPart, DrawProduct, View, MeasureEntity, MeasureView, MeasurementValues } from "@novorender/api";
+import type { DrawPart, DrawProduct, View, MeasureEntity, MeasureView, MeasurementValues, DrawableEntity } from "@novorender/api";
 import { type ReadonlyVec2, type ReadonlyVec3, vec2, vec3 } from "gl-matrix";
 
 export async function main(view: View, canvas2D: HTMLCanvasElement) {
@@ -15,7 +15,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
 
     view.canvas.onclick = async (e: MouseEvent) => {
         const pickSample = await view.pick(e.offsetX, e.offsetY);
-        if (pickSample) {
+        if (pickSample && measureView) {
             const { objectId, position } = pickSample;
             if (selectEntity === 1) {
                 measureEntity1 = (await measureView.core.pickMeasureEntity(objectId, position)).entity;
@@ -36,7 +36,9 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     };
 
     view.animate = async () => {
-        await draw2d(canvas2D, context2D, view, measureView, result, measureEntity1, measureEntity2);
+        if (measureView) {
+            await draw2d(canvas2D, context2D, view, measureView, result, measureEntity1, measureEntity2);
+        }
     };
 }
 
@@ -56,7 +58,7 @@ async function draw2d(
 
     // Await all draw objects first to avoid flickering
     const [drawResult, drawProduct1, drawProduct2] = await Promise.all([
-        result && measureView.draw.getDrawEntity(result as any),
+        result && measureView.draw.getDrawEntity(result as DrawableEntity),
         measureEntity1 && measureView.draw.getDrawEntity(measureEntity1),
         measureEntity2 && measureView.draw.getDrawEntity(measureEntity2),
     ]);
@@ -419,7 +421,7 @@ function drawText(ctx: CanvasRenderingContext2D, vertices2D: ReadonlyVec2[], tex
         ctx.strokeText(text, vertices2D[0][0], vertices2D[0][1]);
         ctx.fillText(text, vertices2D[0][0], vertices2D[0][1]);
     } else if (vertices2D.length === 2) {
-        let dir = vertices2D[0][0] > vertices2D[1][0] ? vec2.sub(vec2.create(), vertices2D[0], vertices2D[1]) : vec2.sub(vec2.create(), vertices2D[1], vertices2D[0]);
+        const dir = vertices2D[0][0] > vertices2D[1][0] ? vec2.sub(vec2.create(), vertices2D[0], vertices2D[1]) : vec2.sub(vec2.create(), vertices2D[1], vertices2D[0]);
         const pixLen = ctx.measureText(text).width + 20;
         if (vec2.sqrLen(dir) > pixLen * pixLen) {
             const center = vec2.create();

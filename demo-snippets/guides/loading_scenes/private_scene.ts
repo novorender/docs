@@ -19,9 +19,16 @@ export async function main(view: View): Promise<void> {
     // Condos scene ID, but can be changed to any public scene ID
     const sceneData = await dataApi.loadScene("7a0a302fe9b24ddeb3c496fb36e932b0");
     // Destructure relevant properties into variables
-    const { url } = sceneData as SceneData;
+    const { url: _url } = sceneData as SceneData;
+    const url = new URL(_url);
+    const parentSceneId = url.pathname.replaceAll("/", "");
+    url.pathname = "";
     // load the scene using URL gotten from `sceneData`
-    const config = await view.loadSceneFromURL(new URL(url));
+    const config = await view.loadScene(
+        url,
+        parentSceneId,
+        "index.json"
+    );
     const { center, radius } = config.boundingSphere;
     view.activeController.autoFit(center, radius);
 }

@@ -23,7 +23,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
                 selectEntity = 1;
             }
 
-            if (context2D && (point1 || point2)) {
+            if (context2D && measureView && (point1 || point2)) {
                 drawLine(canvas2D, context2D, view, measureView, point1, point2);
 
             }
@@ -31,7 +31,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     };
 
     view.animate = () => {
-        if (context2D && (point1 || point2)) {
+        if (context2D && measureView && (point1 || point2)) {
             drawLine(canvas2D, context2D, view, measureView, point1, point2);
         }
     };
@@ -391,7 +391,7 @@ function drawText(ctx: CanvasRenderingContext2D, vertices2D: ReadonlyVec2[], tex
         ctx.strokeText(text, vertices2D[0][0], vertices2D[0][1]);
         ctx.fillText(text, vertices2D[0][0], vertices2D[0][1]);
     } else if (vertices2D.length === 2) {
-        let dir = vertices2D[0][0] > vertices2D[1][0] ? vec2.sub(vec2.create(), vertices2D[0], vertices2D[1]) : vec2.sub(vec2.create(), vertices2D[1], vertices2D[0]);
+        const dir = vertices2D[0][0] > vertices2D[1][0] ? vec2.sub(vec2.create(), vertices2D[0], vertices2D[1]) : vec2.sub(vec2.create(), vertices2D[1], vertices2D[0]);
         const pixLen = ctx.measureText(text).width + 20;
         if (vec2.sqrLen(dir) > pixLen * pixLen) {
             const center = vec2.create();

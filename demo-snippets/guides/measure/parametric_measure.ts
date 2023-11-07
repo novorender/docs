@@ -12,7 +12,7 @@ export async function main(view: View) {
 
     view.canvas.onclick = async (e: MouseEvent) => {
         const result = await view.pick(e.offsetX, e.offsetY);
-        if (result) {
+        if (result && measureView) {
             const { objectId, position } = result;
             if (selectEntity === 1) {
                 // Find measure entity at pick location

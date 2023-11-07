@@ -1,7 +1,8 @@
-import { IDemoContext, IDemoHost, IModule } from "../demo";
-import { RecursivePartial, RenderStateClipping, View } from "@novorender/api";
-import { vec3, ReadonlyVec3 } from "gl-matrix";
+import { IDemoHost, IModule } from "../demo";
+import { RecursivePartial, RenderStateClipping } from "@novorender/api";
+import { vec3 } from "gl-matrix";
 import { BaseDemoHost } from "./base";
+import { SceneData, createAPI } from "@novorender/data-js-api";
 
 type Args = [centerX: number, centerY: number, centerZ: number];
 type Ret = RecursivePartial<RenderStateClipping> | undefined;
@@ -11,7 +12,20 @@ export class ClippingDemoHost extends BaseDemoHost implements IDemoHost<Module> 
     readonly center = vec3.create();
 
     async init() {
-        await this.loadScene("https://api.novorender.com/assets/scenes/18f56c98c1e748feb8369a6d32fde9ef/");
+        // Initialize the data API with the Novorender data server service
+        const dataApi = createAPI({
+            serviceUrl: "https://data.novorender.com/api",
+        });
+
+        // Load scene metadata  
+        // Condos scene ID, but can be changed to any public scene ID
+        const sceneData = await dataApi.loadScene("3b5e65560dc4422da5c7c3f827b6a77c");
+        // Destructure relevant properties into variables
+        const { url: _url } = sceneData as SceneData;
+        const url = new URL(_url);
+        const parentSceneId = url.pathname.replaceAll("/", "");
+        url.pathname = "";
+        await this.loadScene(url, parentSceneId);
     }
 
     async updateModule(module: Module) {

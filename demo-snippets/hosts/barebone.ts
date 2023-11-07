@@ -12,10 +12,11 @@ export class BareboneDemoHost implements IDemoHost<Module> {
 
     constructor(readonly context: IDemoContext) {}
 
-    async run(): Promise<void> {
+    async run(cb: (isReady: boolean) => void): Promise<void> {
         const promise = new Promise<void>((resolve) => {
             this.resolveRun = resolve;
         });
+        cb(true);
         await promise;
     }
 

@@ -24,13 +24,9 @@ import RotationIconSvg from "@site/static/img/landscape-portrait.svg";
 import { faSquareArrowUpRight, faUpRightAndDownLeftFromCenter, faDownload, faCopy, faPenToSquare, faCircleInfo, faGear, faCircleExclamation, faCheck, faSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 /** Icons END */
 
-// @ts-expect-error just a raw DTS
 import WebAppDTS from "@site/static/web_api.d.ts?raw";
-// @ts-expect-error just a raw DTS
 import GlMatrixDTS from "@site/node_modules/gl-matrix/index.d.ts?raw";
-// @ts-expect-error just a raw DTS
 import WebGlDTS from "@site/node_modules/@novorender/webgl-api/index.d.ts?raw";
-// @ts-expect-error just a raw DTS
 import DataJsApiDTS from "@site/node_modules/@novorender/data-js-api/index.d.ts?raw";
 
 const editorOptions: editor.IEditorConstructionOptions = {
@@ -285,8 +281,9 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
             const host = new hostCtor(context);
             hostRef.current = host;
-            setIsReadyToUpdate(true);
-            await host.run();
+            await host.run((isReady) => {
+                setIsReadyToUpdate(isReady);
+            });
         }
     }
 

@@ -95,7 +95,7 @@ function getTotalBoundingSphere(nodes: HierarcicalObjectReference[]): BoundingSp
     const center = vec3.clone(spheres[0].center);
     let radius = spheres[0].radius;
 
-    for (let sphere of spheres) {
+    for (const sphere of spheres) {
         const delta = vec3.sub(vec3.create(), sphere.center, center);
         const dist = vec3.len(delta) + sphere.radius;
         if (dist > radius) {
