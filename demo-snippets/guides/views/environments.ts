@@ -4,7 +4,7 @@ const { mesh } = createSphereObject();
 
 export async function main(view: View) {
     const envIndexUrl = new URL("https://api.novorender.com/assets/env/index.json");
-    const envs = await view.availableEnvironments(envIndexUrl);
+    const envs = await View.availableEnvironments(envIndexUrl);
     const { url } = envs[2]; // just pick one
     view.modifyRenderState({
         background: { url, blur: 0 }, // may take a while to download

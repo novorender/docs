@@ -193,7 +193,7 @@ The view contains a function <CodeLink type="class" name="View.availableEnvironm
 We've already included some environments on our `api.novorender.com` server, so that's were we'll point it to.
 
 ```typescript
-const envs = await view.availableEnvironments("https://api.novorender.com/assets/env/index.json");
+const envs = await View.availableEnvironments("https://api.novorender.com/assets/env/index.json");
 const {url} = envs[0];
 view.modifyRenderState({ background: { url } });
 ```
