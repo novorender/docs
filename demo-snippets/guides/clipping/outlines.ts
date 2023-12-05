@@ -6,7 +6,7 @@ export function main(centerX: number, centerY: number, centerZ: number): Recursi
         planes: [
             {
                 normalOffset: [0, -1, 0, -centerY],
-                outline: { enabled: true, color: [0, 1, 1] },
+                outline: { enabled: true, lineColor: [0, 1, 1] },
             },
         ],
     };

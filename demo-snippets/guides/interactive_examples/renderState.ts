@@ -11,7 +11,7 @@ export function main(): RenderStateChanges {
             distance: 100,
         },
         background: {
-            color: [0, 0, 0.1, 1],
+            color: [0, 0, 0.1],
         },
         tonemapping: {
             exposure: -1,
