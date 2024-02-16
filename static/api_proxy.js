@@ -58,11 +58,8 @@ export const {
   manageOfflineStorage,
   mergeRecursive,
   modifyRenderState,
-  outlineLaser,
   packageVersion,
   rotationFromDirection,
   schemaVersion,
-  serviceWorkerFetch,
-  serviceWorkerHandleMessage,
   validateRenderState
 } = window["__novorender__"];
