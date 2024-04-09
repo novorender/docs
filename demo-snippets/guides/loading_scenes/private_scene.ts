@@ -39,6 +39,7 @@ async function login(): Promise<string> {
     const password = "demopassword";
 
     // POST to the dataserver service's /user/login endpoint
+    // We're using username+password here but you probably need OAuth for getting access token
     const res: { token: string; } = await fetch(DATA_API_SERVICE_URL + "/user/login", {
         method: "POST",
         headers: {

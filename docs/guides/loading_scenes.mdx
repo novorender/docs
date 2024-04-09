@@ -7,7 +7,10 @@ pagination_next: null
 pagination_prev: null
 ---
 
- 
+:::info
+
+It is recommended to use the Novorender OAuth instead of using username+password authentication for getting access token, documentation for using OAuth can be found [here](./using_oauth)
+:::
 
 To load your own scenes we recommend that you use the [`@novorender/data-js-api`](https://docs.novorender.com/docs/data-js-api) package, but you can also use the [Novorender data REST API](https://docs.novorender.com/docs/category/data-rest-api-v1) directly if you prefer.
 We will be using the npm package in all our examples.
@@ -24,22 +27,4 @@ Only scene related endpoints are covered by the NPM package, so for user / authe
 
 <PlaygroundComponent demoKey="loadingScenes.private_scene" />
 
-### Active Directory
-
-To get started authenticating with Active Directory we recommend you use [MSAL](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview) with the following config:
-
-```json
-{
-    "clientId": "074eb42a-f94a-4a97-b7ad-0a187eb57f96",
-    "authority": "https://login.microsoftonline.com/{YOUR_TENANT_ID}",
-    "scopes": ["api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/resource.read", "api://074eb42a-f94a-4a97-b7ad-0a187eb57f96/scene.edit"]
-}
-```
-
 Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of <code>POST [/api/user/login](https://docs.novorender.com/docs/rest-api/login)</code>.
-
-:::note
-
-The above documentation regarding Active Directory is only applicable when utilizing the legacy authentication APIs, also known as the [V1 REST API](https://docs.novorender.com/docs/category/data-rest-api-v1).
-
-:::
