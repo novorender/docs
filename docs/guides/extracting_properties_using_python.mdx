@@ -1,0 +1,235 @@
+---
+title: "Exporting scene properties to a spreadsheet"
+description: "Using python to extract and export scene properties to a excel spreadsheet"
+keywords: ["novorender web api docs", "web api", "task automation", "python", "searching"]
+pagination_next: null
+pagination_prev: null
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Introduction
+
+Automation of routine tasks can significantly improve efficiency, especially when dealing with repetitive processes. In this guide, we'll demonstrate how to leverage Python scripts to automate common tasks such as extracting properties from scene and exporting them to an excel spreadsheet. Feel free to use this example and extend it for your specific use case.
+
+### Prerequisites
+
+Before getting started, ensure that Python 3 is installed on your machine. You can verify its installation by running the following command in your terminal or CMD:
+
+```bash
+python3
+```
+
+## Installation
+
+First, we need to install the necessary Python modules: [`requests`](https://pypi.org/project/requests/) for making HTTP requests and [`openpyxl`](https://pypi.org/project/openpyxl/) for handling Excel files.
+
+```bash
+pip install requests openpyxl
+# or
+pip3 install requests openpyxl
+```
+
+<details>
+  <summary>A note about Python environments</summary>
+When you run `pip install some_lib`, it installs the library globally by default. This means the library becomes available to all Python projects and scripts on your system, regardless of where you run the `pip install` command from.
+
+However, installing packages globally is not always recommended, especially if you're working on multiple projects with different dependencies. In such cases, it's better to use virtual environments to create isolated environments for each project. This way, you can install dependencies specific to each project without affecting the global Python environment.
+
+To create a virtual environment, you can use the built-in `venv` module (available in Python 3.3 and later), here's an awesome article about it if you want to dig further https://realpython.com/python-virtual-environments-a-primer/
+</details>
+
+<hr />
+
+## Getting Started
+
+### Perform a Search
+
+We'll start by initiating a search request using the [Search API](https://docs.novorender.com/legacy/docs/rest-api/2.0/search). The following Python snippet demonstrates how to perform a search within a scene:
+
+```python title="index.py"
+import requests
+import json
+
+# API key
+apiKey = ""
+# scene ID
+sceneId = "6fbf7a4482ff45a3a520a5fe6203671c"
+# search API endpoint
+sceneUrl = f"https://data-v2.novorender.com/projects/{sceneId}/search"
+# Set this to an empty array if you want to search in all the models
+modelsToSearchFor = []
+
+searchPayload = [
+    {
+        "property": "GUID",
+        "exact": True
+    }
+]
+
+if modelsToSearchFor:
+    searchPayload.insert(0, {
+        "property": "path",
+        "value": modelsToSearchFor
+    })
+
+payload = json.dumps({
+  "search": searchPayload,
+  "full": True
+})
+headers = {
+  'Content-Type': 'application/json',
+  'X-Api-Key': apiKey
+}
+
+response = requests.request("POST", sceneUrl, headers=headers, data=payload)
+response = response.json()
+```
+
+:::note
+The example scene we're using is public and doesn't need an API key. However, for your own scenes, you'll need the 'apiKey' to authenticate requests. If you don't have one, please contact support for assistance in getting it.
+:::
+
+By default we search in all the models but if you want to narrow down search in certain models then add them in `modelsToSearchFor` list.
+
+It is highly recommended to read our guide on [searching](./searching) and [object metadata](./object_metadata) to make yourself familiar with various search techniques, also take a look at the [REST API documentation](https://docs.novorender.com/legacy/docs/rest-api/2.0/search) of search endpoint.
+
+### Output Data to Excel
+
+Once we have obtained the search results which is based on the [following schema](https://docs.novorender.com/legacy/docs/rest-api/2.0/search#responses), we can output the data to an Excel spreadsheet. Here's a snippet from our Python script to accomplish this:
+
+```python title="index.py"
+import os
+from datetime import datetime
+from openpyxl import Workbook
+
+# List of keys to extract from properties
+property_keys = ["GUID"]
+# Leave empty to save in the current directory
+output_directory = ""
+
+def extract_property(properties, key):
+    for prop_key, prop_value in properties:
+        if prop_key == key:
+            return prop_value
+    return None
+
+def generate_excel(data, property_keys, output_directory):
+    wb = Workbook()
+    ws = wb.active
+    
+    headers = ["Name", "Path"] + property_keys
+    ws.append(headers)
+    
+    for result in data["results"]:
+        name = result["name"]
+        path = result["path"]
+        values = [extract_property(result["properties"], key) for key in property_keys]
+        ws.append([name, path] + values)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_filename = f"output_{timestamp}.xlsx"
+    
+    output_path = os.path.join(output_directory, output_filename)
+    wb.save(output_path)
+
+generate_excel(response, property_keys, output_directory)
+```
+In the above code, we have defined two functions, let's break down the code step by step:
+
+- **`extract_property()`**:
+   - This function takes two arguments: `properties`, which is a list of property key-value pairs, and `key`, which is the key you want to extract the value for.
+   - It iterates over each key-value pair in `properties` and checks if the `prop_key` matches the provided `key`.
+   - If a match is found, it returns the corresponding value (`prop_value`). If no match is found, it returns `None`.
+
+    We use this function to extract the key/value pairs from object `properties` array.
+
+- **`generate_excel()`**:
+   - This function takes three arguments: `data`, which is the JSON data, `property_keys`, which is a list of property keys to extract, and `output_directory`, which is address of the directory to output the file.
+   - It creates a new Excel workbook and selects the active worksheet.
+   - It constructs the headers for the Excel file by concatenating the `["Name", "Path"]` list with the `property_keys` list. We always output `Name` and `Path`, that's why they're hardcoded but you can remove them if you not needed.
+   - It appends the headers to the worksheet.
+   - It iterates over each result in the JSON data, extracts the values corresponding to the `property_keys` using the `extract_property()` function, and appends them to the worksheet along with the `name` and `path`.
+   - Finally, it saves the workbook to the specified `output_directory`.
+
+    This function is used to output the extracted data to Excel spreadsheet (xlsx).
+
+
+### Full Example
+
+Here's what our full code looks like:
+```python title="index.py"
+import os
+import json
+import requests
+from datetime import datetime
+from openpyxl import Workbook
+
+# API key
+apiKey = ""
+# scene ID
+sceneId = "6fbf7a4482ff45a3a520a5fe6203671c"
+# search API endpoint
+sceneUrl = f"https://data-v2.novorender.com/projects/{sceneId}/search"
+# Set this to an empty array if you want to search in all the models
+modelsToSearchFor = []
+# List of keys to extract from properties
+property_keys = ["GUID"]
+# directory to save the file in, leave empty to save in current dir
+output_directory = ""
+
+searchPayload = [
+    {
+        "property": "GUID",
+        "exact": True
+    }
+]
+
+if modelsToSearchFor:
+    searchPayload.insert(0, {
+        "property": "path",
+        "value": modelsToSearchFor
+    })
+
+payload = json.dumps({
+  "search": searchPayload,
+  "full": True
+})
+headers = {
+  'Content-Type': 'application/json',
+  'X-Api-Key': apiKey
+}
+
+response = requests.request("POST", sceneUrl, headers=headers, data=payload)
+response = response.json()
+
+def extract_property(properties, key):
+    for prop_key, prop_value in properties:
+        if prop_key == key:
+            return prop_value
+    return None
+
+def generate_excel(data, property_keys, output_directory):
+    wb = Workbook()
+    ws = wb.active
+    
+    headers = ["Name", "Path"] + property_keys
+    ws.append(headers)
+    
+    for result in data["results"]:
+        name = result["name"]
+        path = result["path"]
+        values = [extract_property(result["properties"], key) for key in property_keys]
+        ws.append([name, path] + values)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_filename = f"output_{timestamp}.xlsx"
+    
+    output_path = os.path.join(output_directory, output_filename)
+    wb.save(output_path)
+
+generate_excel(response, property_keys, output_directory)
+```
+
+Open Terminal or CMD and run `python3 index.py` to run the script, you should see an Excel file in the current directory if everything goes well.
