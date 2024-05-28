@@ -1,10 +1,10 @@
 import { IDemoHost, IModule } from "../demo";
-import { RecursivePartial, RenderStateClipping } from "@novorender/api";
+import { RecursivePartial, RenderStateClipping, View } from "@novorender/api";
 import { vec3 } from "gl-matrix";
 import { BaseDemoHost } from "./base";
 import { SceneData, createAPI } from "@novorender/data-js-api";
 
-type Args = [centerX: number, centerY: number, centerZ: number];
+type Args = [centerX: number, centerY: number, centerZ: number, (View | undefined)?];
 type Ret = RecursivePartial<RenderStateClipping> | undefined;
 type Module = IModule<Ret, Args>;
 
@@ -31,7 +31,7 @@ export class ClippingDemoHost extends BaseDemoHost implements IDemoHost<Module> 
     async updateModule(module: Module) {
         // TODO: verify module shape first
         const [cx, cy, cz] = this.center;
-        const stateChanges = { clipping: module.main(cx, cy, cz) };
+        const stateChanges = { clipping: module.main(cx, cy, cz, this.view) };
         this.modifyRenderState(stateChanges);
     }
 }

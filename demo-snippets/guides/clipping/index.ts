@@ -11,6 +11,7 @@ import slab_inv from "./slab_inv.ts?raw";
 import box from "./box.ts?raw";
 import outlines from "./outlines.ts?raw";
 import visualize from "./visualize.ts?raw";
+import planeFromNormal from "./planeFromNormal.ts?raw";
 
 const dirName = "clipping";
 
@@ -25,4 +26,5 @@ export const clipping = {
     ...demo(dirName, "box", "Box Clipping Volume", box, ClippingDemoHost, { contentHeight: 350 }, "Six clipping planes forming a box volume."),
     ...demo(dirName, "outlines", "Clipping Plane Outlines", outlines, ClippingDemoHost, { contentHeight: 150 }, "Clipping plane intersection outlines."),
     ...demo(dirName, "visualize", "Clipping Plane Visualization", visualize, ClippingDemoHost, { contentHeight: 250 }, "Clipping plane visualizations."),
+    ...demo(dirName, "planeFromNormal", "Picking and making plane from normal", planeFromNormal, ClippingDemoHost, { contentHeight: 250 }, "Picking and making plane from normal."),
 };
