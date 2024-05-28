@@ -20,6 +20,7 @@ export const {
   MeasureView,
   MouseButtons,
   NullController,
+  OfflineErrorCode,
   OrbitController,
   OrthoController,
   PanoramaController,
