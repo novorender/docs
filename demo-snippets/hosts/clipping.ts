@@ -31,7 +31,7 @@ export class ClippingDemoHost extends BaseDemoHost implements IDemoHost<Module> 
     async updateModule(module: Module) {
         // TODO: verify module shape first
         const [cx, cy, cz] = this.center;
-        const stateChanges = { clipping: module.main(cx, cy, cz, this.view) };
+        const stateChanges = { clipping: module.main(cx, cy, cz, this.view), outlines: { enabled: true } };
         this.modifyRenderState(stateChanges);
     }
 }
