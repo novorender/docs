@@ -12,7 +12,16 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     const { camera } = renderState;
 
     function getPerpendicular(normal: ReadonlyVec3) {
-        return normal[2] < normal[0] ? vec3.fromValues(normal[1], -normal[0], 0) : vec3.fromValues(0, -normal[2], normal[1]);
+        // Choose a vector that is not parallel to the normal vector
+        let v = vec3.fromValues(1, 0, 0);
+        if (Math.abs(vec3.dot(v, normal)) > 0.98) {
+            v = vec3.fromValues(0, 1, 0);
+        }
+        // Compute a vector that is perpendicular to both normal and v
+        const perpendicularVector = vec3.create();
+        vec3.cross(perpendicularVector, normal, v);
+        // Normalize the perpendicular vector
+        return vec3.normalize(perpendicularVector, perpendicularVector);
     }
 
     view.canvas.onclick = async (e: MouseEvent) => {
@@ -36,6 +45,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     };
 
     let count = 0;
+    await sleep(500); // we need to sleep to make sure animate correctly overrides demo host's internal animate - you probably don't need this
     view.animate = async () => {
         if (laserPosition && normal) {
             // Make sure that one frame is rendered with the new outlines before measure
@@ -73,6 +83,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
             await drawLines();
         }
     });
+    async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
     // HiddenRangeEnded
 }
 

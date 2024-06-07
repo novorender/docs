@@ -30,6 +30,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement, center: Read
     };
 
     // HiddenRangeStarted
+    await sleep(500); // we need to sleep to make sure animate correctly overrides demo host's internal animate - you probably don't need this
     view.animate = async () => {
         if (outlineValues) {
             await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
@@ -50,6 +51,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement, center: Read
             await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
         }
     });
+    async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
     // HiddenRangeEnded
 }
 
