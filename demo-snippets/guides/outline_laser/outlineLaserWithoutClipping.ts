@@ -35,10 +35,10 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
         }
     };
 
-    // Make sure that one frame is rendered with the new outlines before measure
     let count = 0;
     view.animate = async () => {
         if (laserPosition && normal) {
+            // Make sure that one frame is rendered with the new outlines before measure
             if (count > 1) {
                 outlineValues1 = view.outlineLaser(laserPosition, "outline", 0);
                 // Slightly move the laser position to avoid clipping into the selected surface
