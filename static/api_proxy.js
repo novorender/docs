@@ -65,5 +65,6 @@ export const {
   packageVersion,
   rotationFromDirection,
   schemaVersion,
+  segmentPlaneIntersection,
   validateRenderState
 } = window["__novorender__"];

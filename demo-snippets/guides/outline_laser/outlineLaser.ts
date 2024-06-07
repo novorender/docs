@@ -17,7 +17,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement, center: Read
     view.canvas.onclick = async (e: MouseEvent) => {
         const result = await view.pick(e.offsetX, e.offsetY);
         if (result) {
-            outlineValues = view.outlineLaser(result.position, 0);
+            outlineValues = view.outlineLaser(result.position, "clipping", 0);
             currentPointIndex = 0;
             await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
         }

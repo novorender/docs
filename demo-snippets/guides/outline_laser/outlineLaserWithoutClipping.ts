@@ -1,52 +1,67 @@
-import { type DrawPart, type DrawProduct, type View } from "@novorender/api";
-import { type ReadonlyVec2, type ReadonlyVec3, vec2, vec3 } from "gl-matrix";
+import { type DrawPart, type DrawProduct, type View, segmentPlaneIntersection } from "@novorender/api";
+import { type ReadonlyVec2, type ReadonlyVec3, vec2, vec3, vec4 } from "gl-matrix";
 
 export async function main(view: View, canvas2D: HTMLCanvasElement) {
     const context2D = canvas2D.getContext("2d");
     let currentPointIndex = 0;
-    let outlineValues: OutlineIntersection | undefined;
+    let outlineValues1: OutlineIntersection | undefined;
+    let outlineValues2: OutlineIntersection | undefined;
+    const { renderState } = view;
+    const { camera } = renderState;
+
+    function getPerpendicular(normal: ReadonlyVec3) {
+        return normal[2] < normal[0] ? vec3.fromValues(normal[1], -normal[0], 0) : vec3.fromValues(0, -normal[2], normal[1]);
+    }
 
     view.canvas.onclick = async (e: MouseEvent) => {
         const result = await view.pick(e.offsetX, e.offsetY);
         if (result) {
+            const perpendicular = getPerpendicular(result.normal);
+            const surfacePlane = vec4.fromValues(result.normal[0], result.normal[1], result.normal[2], vec3.dot(result.normal, result.position));
             view.modifyRenderState({
                 outlines: {
                     enabled: true,
                     hidden: true,
-                    plane: [...result.normal, vec3.dot(result.normal, result.position)]
+                    planes: [
+                        surfacePlane,
+                        [...perpendicular, vec3.dot(perpendicular, result.position)]]
                 }
             });
-            outlineValues = view.outlineLaser(result.position);
-            currentPointIndex = 0;
-            await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
+            const laserPosition = camera.kind == "pinhole" ? segmentPlaneIntersection([camera.position, result.position], surfacePlane) : result.position;
+            if (laserPosition) {
+                outlineValues1 = view.outlineLaser(laserPosition, "outline", 0);
+                outlineValues2 = view.outlineLaser(laserPosition, "outline", 1);
+                currentPointIndex = 0;
+                console.log("outlineValues1 ", outlineValues1);
+                console.log("outlineValues2 ", outlineValues2);
+                await drawLines();
+            }
         }
     };
 
-    const drawLines = async (left: ReadonlyVec3 | undefined, right: ReadonlyVec3 | undefined, up: ReadonlyVec3 | undefined, down: ReadonlyVec3 | undefined) => {
-        if (outlineValues && context2D) {
-            await drawLine(canvas2D, context2D, view, left, right, up, down);
+    const drawLines = async () => {
+        if (outlineValues1 && outlineValues2 && context2D) {
+            const { left, right, up, down } = outlineValues1;
+            const { up: up1, down: down1 } = outlineValues2;
+            await drawLine(canvas2D, context2D, view, left[currentPointIndex], right[currentPointIndex], up[currentPointIndex], down[currentPointIndex], up1[currentPointIndex], down1[currentPointIndex]);
         }
     };
 
     // HiddenRangeStarted
     view.animate = async () => {
-        if (outlineValues) {
-            await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
-        }
+        await drawLines();
     };
 
     createFloorButtons(view.canvas.parentElement!, async (label: string) => {
-        console.log("clicked on btn ", label);
-        if (!outlineValues) { alert("Click anywhere on the model to select points first"); }
+        if (!outlineValues1) { alert("Click anywhere on the model to select points first"); }
         if (label === "Show Previous") {
-            console.log("Showing pre ", currentPointIndex);
             if (currentPointIndex > 0) {
                 --currentPointIndex;
-                await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
+                await drawLines();
             }
         } else {
             ++currentPointIndex;
-            await drawLines(outlineValues?.left[currentPointIndex], outlineValues?.right[currentPointIndex], outlineValues?.up[currentPointIndex], outlineValues?.down[currentPointIndex]);
+            await drawLines();
         }
     });
     // HiddenRangeEnded
@@ -64,7 +79,17 @@ export type OutlineIntersection = {
  * Utility functions copied from our frontend (https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts)
  */
 
-async function drawLine(canvas: HTMLCanvasElement, context2D: CanvasRenderingContext2D, view: View, point1: ReadonlyVec3 | undefined, point2: ReadonlyVec3 | undefined, point3: ReadonlyVec3 | undefined, point4: ReadonlyVec3 | undefined): Promise<void> {
+async function drawLine(
+    canvas: HTMLCanvasElement,
+    context2D: CanvasRenderingContext2D,
+    view: View,
+    point1: ReadonlyVec3 | undefined,
+    point2: ReadonlyVec3 | undefined,
+    point3: ReadonlyVec3 | undefined,
+    point4: ReadonlyVec3 | undefined,
+    point5: ReadonlyVec3 | undefined,
+    point6: ReadonlyVec3 | undefined
+): Promise<void> {
     // Extract needed camera settings
     const measureView = await view.measure;
     const { rotation, position } = view.renderState.camera;
@@ -72,10 +97,11 @@ async function drawLine(canvas: HTMLCanvasElement, context2D: CanvasRenderingCon
     const camSettings = { pos: position, dir: cameraDirection };
     const drawProd1 = point2 ? measureView?.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], false, false) : measureView?.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], false, false);
     const drawProd2 = point4 ? measureView?.draw.getDrawObjectFromPoints([point3 as ReadonlyVec3, point4], false, false) : measureView?.draw.getDrawObjectFromPoints([point3 as ReadonlyVec3], false, false);
-    if (drawProd1 && drawProd2) {
+    const drawProd3 = point6 ? measureView?.draw.getDrawObjectFromPoints([point5 as ReadonlyVec3, point6], false, false) : measureView?.draw.getDrawObjectFromPoints([point5 as ReadonlyVec3], false, false);
+    if (drawProd1 && drawProd2 && drawProd3) {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         // Draw result in green, all lines use 3 pixel width
-        drawProduct(context2D, camSettings, drawProd1, drawProd2, { type: "centerOfLine", unit: "m", customText: point2 ? [vec3.distance(point1 as ReadonlyVec3, point2).toFixed(3)] : [] });
+        drawProduct(context2D, camSettings, drawProd1, drawProd2, drawProd3);
     }
 }
 
@@ -106,7 +132,7 @@ interface LineCap {
     start?: CapStyle;
 }
 
-function drawProduct(ctx: CanvasRenderingContext2D, camera: CameraSettings, product1: DrawProduct, product2: DrawProduct, textSettings?: TextSettings, lineCap?: LineCap) {
+function drawProduct(ctx: CanvasRenderingContext2D, camera: CameraSettings, product1: DrawProduct, product2: DrawProduct, product3: DrawProduct, textSettings?: TextSettings, lineCap?: LineCap) {
     const pixelWidth = 3;
     for (const obj of product1.objects) {
         obj.parts.forEach((part) => {
@@ -122,6 +148,14 @@ function drawProduct(ctx: CanvasRenderingContext2D, camera: CameraSettings, prod
                 return;
             }
             drawPart(ctx, camera, part, { lineColor: "yellow", displayAllPoints: true }, pixelWidth, textSettings, lineCap);
+        });
+    }
+    for (const obj of product3.objects) {
+        obj.parts.forEach((part) => {
+            if (part.drawType === "text" && !textSettings) {
+                return;
+            }
+            drawPart(ctx, camera, part, { lineColor: "red", displayAllPoints: true }, pixelWidth, textSettings, lineCap);
         });
     }
 }

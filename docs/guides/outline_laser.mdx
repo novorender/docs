@@ -6,18 +6,27 @@ pagination_next: null
 pagination_prev: null
 ---
 
-Laser Measurement can be done on a clipping outline, both visualizing the outline and clipping by the plane are optional. To place a laser <CodeLink type="class" name="View.outlineLaser"/> should be used, select a point, this could be the position of a <CodeLink type="class" name="RenderContext.pick"/>, outline laser will then do a projection from the camera to the selected point and add a laser at the intersection of the chosen plane. The function will give a list of intersections with the outline in all directions (left, right, up, down) starting closest to the laser point.
+Laser Measurement can be done on a clipping outline, both visualizing the outline and clipping by the plane are optional.
+To place a laser <CodeLink type="class" name="View.outlineLaser"/> should be used. This function will give a list of intersections with the outline in all directions (left, right, up, down) starting closest to the laser point.
+The laser position in the demo is calculated by using the position of a <CodeLink type="class" name="RenderContext.pick"/> and the camera position as a segment and calculating the intersection by using <CodeLink type="function" name="segmentPlaneIntersection"/>.
+The laser can be used on both outline planes and clipping planes with outlines.
 
 ### Outline Laser Demo
 
 :::tip
-Click anywhere on the model to see the intersection.
+Click anywhere on the model to see the intersection, then click the 'Show Previous' or 'Show Next' buttons to cycle between points.
 :::
 <PlaygroundComponent demoKey="outlineLaserDemos.outlineLaser" />
 
 ### Outline Laser without Clipping Planes
 
 :::tip
-Click anywhere on the model to see the intersection.
+Click anywhere on the model to see the intersection, then click the 'Show Previous' or 'Show Next' buttons to cycle between points.
 :::
 <PlaygroundComponent demoKey="outlineLaserDemos.outlineLaserWithoutClipping" />
+
+
+##### See also
+- [Drawing Measure Line](./measure_line)
+- [Clipping Volumes](./clipping_volumes)
+- [Object metadata](./object_metadata)
