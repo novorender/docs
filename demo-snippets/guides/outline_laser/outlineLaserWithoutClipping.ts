@@ -6,6 +6,8 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     let currentPointIndex = 0;
     let outlineValues1: OutlineIntersection | undefined;
     let outlineValues2: OutlineIntersection | undefined;
+    let laserPosition: ReadonlyVec3 | undefined;
+    let normal: ReadonlyVec3 | undefined;
     const { renderState } = view;
     const { camera } = renderState;
 
@@ -16,6 +18,7 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     view.canvas.onclick = async (e: MouseEvent) => {
         const result = await view.pick(e.offsetX, e.offsetY);
         if (result) {
+            normal = result.normal;
             const perpendicular = getPerpendicular(result.normal);
             const surfacePlane = vec4.fromValues(result.normal[0], result.normal[1], result.normal[2], vec3.dot(result.normal, result.position));
             view.modifyRenderState({
@@ -27,16 +30,26 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
                         [...perpendicular, vec3.dot(perpendicular, result.position)]]
                 }
             });
-            const laserPosition = camera.kind == "pinhole" ? segmentPlaneIntersection([camera.position, result.position], surfacePlane) : result.position;
-            if (laserPosition) {
-                outlineValues1 = view.outlineLaser(laserPosition, "outline", 0);
-                outlineValues2 = view.outlineLaser(laserPosition, "outline", 1);
-                currentPointIndex = 0;
-                console.log("outlineValues1 ", outlineValues1);
-                console.log("outlineValues2 ", outlineValues2);
-                await drawLines();
-            }
+            laserPosition = camera.kind == "pinhole" ? segmentPlaneIntersection([camera.position, result.position], surfacePlane) : result.position;
+
         }
+    };
+
+    // Make sure that one frame is rendered with the new outlines before measure
+    let count = 0;
+    view.animate = async () => {
+        if (laserPosition && normal) {
+            if (count > 1) {
+                outlineValues1 = view.outlineLaser(laserPosition, "outline", 0);
+                // Slightly move the laser position to avoid clipping into the selected surface
+                outlineValues2 = view.outlineLaser(vec3.scaleAndAdd(vec3.create(), laserPosition, normal, 0.001), "outline", 1);
+                currentPointIndex = 0;
+                laserPosition = undefined;
+                count = 0;
+            }
+            count++;
+        }
+        await drawLines();
     };
 
     const drawLines = async () => {
@@ -48,10 +61,6 @@ export async function main(view: View, canvas2D: HTMLCanvasElement) {
     };
 
     // HiddenRangeStarted
-    view.animate = async () => {
-        await drawLines();
-    };
-
     createFloorButtons(view.canvas.parentElement!, async (label: string) => {
         if (!outlineValues1) { alert("Click anywhere on the model to select points first"); }
         if (label === "Show Previous") {
@@ -101,7 +110,7 @@ async function drawLine(
     if (drawProd1 && drawProd2 && drawProd3) {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         // Draw result in green, all lines use 3 pixel width
-        drawProduct(context2D, camSettings, drawProd1, drawProd2, drawProd3);
+        drawProduct(context2D, camSettings, drawProd1, drawProd2, drawProd3, { type: "centerOfLine", unit: "m", customText: point2 ? [vec3.distance(point1 as ReadonlyVec3, point2).toFixed(3)] : [] });
     }
 }
 
