@@ -54,21 +54,25 @@ Open the project in your favorite IDE and you should see a directory structure s
 
 ```
 📦 my-novorender-app
- ┣ 📂public
- ┃ ┗ 📜vite.svg ⛔
- ┣ 📂src
- ┃ ┣ 📜counter.ts ⛔
- ┃ ┣ 📜main.ts ⛔
- ┃ ┣ 📜style.css ⛔
- ┃ ┣ 📜typescript.svg ⛔
- ┃ ┗ 📜vite-env.d.ts
- ┣ 📜.gitignore
- ┣ 📜index.html
- ┣ 📜package.json
- ┗ 📜tsconfig.json
+ ┣ 📂 public
+ ┃ ┗ 📜 vite.svg ⛔
+ ┣ 📂 src
+ ┣ ┣ 📂 assets
+ ┃ ┣ ┗ 📜 react.svg ⛔
+ ┃ ┣ 📜 App.css
+ ┃ ┣ 📜 App.tsx
+ ┃ ┣ 📜 index.css
+ ┃ ┣ 📜 main.tsx
+ ┃ ┗ 📜 vite-env.d.ts
+ ┣ 📜 .gitignore
+ ┣ 📜 index.html
+ ┣ 📜 package.json
+ ┣ 📜 vite.config.ts
+ ┗ 📜 tsconfig.json
+ ...
 ```
 
-Let's clean up this project by removing some redundant files, so we don't have any unnecessary boilerplate code left, delete the files marked with ⛔ symbol. Afterward, create an empty file named `main.ts` within the `src` directory.
+Let's tidy up this project by removing redundant files and unnecessary boilerplate code. First, delete the files marked with the ⛔ symbol. Next, clear out any styles from `App.css` and `index.css`, and ensure the `return` statement in `App.tsx` is free of any JSX.
 
 ### Installing Web API
 Run the following command to install the Novorender Web API package:
@@ -119,16 +123,30 @@ Cross-Origin-Embedder-Policy: require-corp
 ```
 
 This can be done by adding the following headers in Vite config file.
-Create a new file named `vite.config.ts` in the project's root directory and paste the following code into it:
-```typescript title="vite.config.ts"
-export default {
-    server: {
-        headers: {
-            "Cross-Origin-Opener-Policy": "same-origin",
-            "Cross-Origin-Embedder-Policy": "require-corp",
-        }
+Place the following properties inside the `vite.config.ts` file:
+```json
+server: {
+  headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
     }
-}
+  }
+```
+
+the file should now look like this:
+```typescript title="vite.config.ts"
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+    }
+  }
+});
 ```
 
 <details>
@@ -184,34 +202,53 @@ These resources are crucial for setting up and configuring the view properly.
 
 #### Canvas
 To begin, let's create an HTML canvas element:
-```html title="index.html"
-<canvas id="canvas" style="width:100%; height:100%"></canvas>
+```tsx title="App.tsx"
+function App() {
+  return (
+    <>
+      <canvas style={{ width: "100%", height: "100%" }}></canvas>
+    </>
+  );
+}
 ```
 :::info
 It's crucial to set the CSS `width` and `height` properties on the canvas element to prevent runaway resize feedback loops. This ensures that the canvas has the correct dimensions and behaves as expected.
 :::
 
-Now, open the `src/main.ts` file and insert the following code to obtain a reference to the canvas element we created earlier:
-```typescript title="main.ts"
-const canvas = document.getElementById("canvas");
+Now, insert the following code in the same component to obtain a reference to the canvas element we created earlier:
+```tsx title="App.tsx"
+...
+function App() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  return (
+    <>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }}></canvas>
+    </>
+  );
+}
+...
 ```
 
 #### Device profile
 Get the device profile:
-```typescript title="main.ts"
+```typescript title="App.tsx"
+...
 import { getDeviceProfile } from "@novorender/api";
 
 const gpuTier = 2;
 const deviceProfile = getDeviceProfile(gpuTier);
+...
 ```
 
 #### Imports
 [Remember](#providing-required-resources) we copied some resources from `@novorender/api` to our `/public` dir? that's where they come into play.
-```typescript title="main.ts"
+```typescript title="App.tsx"
+...
 import { View } from "@novorender/api";
 
 const baseUrl = new URL("/novorender/api/", window.location.origin);
 const imports = await View.downloadImports({ baseUrl });
+...
 ```
 
 <details>
@@ -233,35 +270,55 @@ const imports = await View.downloadImports({ baseUrl, shaders });
 
 ### Creating View
 With all the necessary components in place, we can proceed to create and run our view:
-```typescript title="main.ts"
+```typescript title="App.tsx"
+...
 import { View } from "@novorender/api";
 
 const view = new View(canvas, deviceProfile, imports);
 await view.run();
+...
 ```
 
 Finally, call the <CodeLink type="class" name="view.dispose" /> method to clean up the view's GPU resources.
-```typescript title="main.ts"
+```typescript title="App.tsx"
+...
 view.dispose();
+...
 ```
 
 Let's consolidate all the steps and components we've discussed and see the result:
-```typescript title="main.ts"
+```tsx title="App.tsx"
+import { useEffect, useRef } from "react";
 import { View, getDeviceProfile } from "@novorender/api";
 
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const gpuTier = 2;
+const deviceProfile = getDeviceProfile(gpuTier);
+const baseUrl = new URL("/novorender/api/", window.location.origin);
 
-async function main(canvas: HTMLCanvasElement) {
-    const gpuTier = 2;
-    const deviceProfile = getDeviceProfile(gpuTier);
-    const baseUrl = new URL("/novorender/api/", window.location.origin);
+function App() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      main(canvasRef.current);
+    }
+  }, []);
+
+  async function main(canvas: HTMLCanvasElement) {
     const imports = await View.downloadImports({ baseUrl });
     const view = new View(canvas, deviceProfile, imports);
     await view.run();
     view.dispose();
+  }
+
+  return (
+    <>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }}></canvas>
+    </>
+  );
 }
 
-main(canvas);
+export default App;
 ```
 
 :::tip
@@ -283,7 +340,7 @@ Upon successful execution, you should now see an image with a subtle gray gradie
 ![application screenshot initial view](/img/guides/tutorial-001.png)
 
 Let's make it a little more interactive by modifying `renderState` and adding a <CodeLink type="interface" name="RenderStateGrid" />.
-```typescript title="main.ts"
+```typescript title="App.tsx"
 ...
 const view = new View(canvas, deviceProfile, imports);
 view.modifyRenderState({ grid: { enabled: true } });
