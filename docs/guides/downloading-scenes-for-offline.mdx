@@ -117,36 +117,6 @@ const offlineWorkerState = await view.manageOfflineStorage();
 btnIncrementalDownload.onclick = async () => {
     // highlight-next-line
     const scene = await offlineWorkerState.addScene(parentSceneId);
-
-    const sceneData = await dataApi.loadScene(sceneId);
-    if ("error" in sceneData) {
-        return;
-    }
-
-    const persisted = await navigator.storage.persisted();
-    if (!persisted) {
-        await navigator.storage.persist();
-    }
-
-    const meta = localStorage.getItem(parentSceneId);
-    const viewerScene = {
-        id: sceneId,
-        name: sceneData.title,
-        lastSynced: new Date().toISOString(),
-    };
-
-    const toStore = {
-        id: parentSceneId,
-        name: parentSceneId,
-        lastSynced: meta?.lastSynced ?? "",
-        viewerScenes: meta
-            ? meta.viewerScenes.find((vs) => vs.id === sceneId)
-                ? meta.viewerScenes.map((vs) => (vs.id === sceneId ? viewerScene : vs))
-                : meta.viewerScenes.concat(viewerScene)
-            : [viewerScene],
-    };
-
-    localStorage.setItem(parentSceneId, JSON.stringify(toStore));
 };
 ...
 ```
@@ -166,40 +136,24 @@ btnFullDownload.onclick = async () => {
     // highlight-next-line
     const scene = await offlineWorkerState.addScene(parentSceneId);
 
-    const sceneData = await dataApi.loadScene(sceneId);
-    if ("error" in sceneData) {
-        return;
-    }
-
+    // Check if the current storage is already persistent
     const persisted = await navigator.storage.persisted();
+    // The `navigator.storage.persisted()` method returns a Promise that resolves
+    // to a boolean value indicating whether the storage is currently persistent.
+
     if (!persisted) {
+        // Requesting persistence to ensure data remains available across sessions.
         await navigator.storage.persist();
     }
-
-    const meta = localStorage.getItem(parentSceneId);
-    const viewerScene = {
-        id: sceneId,
-        name: sceneData.title,
-        lastSynced: new Date().toISOString(),
-    };
-
-    const toStore = {
-        id: parentSceneId,
-        name: parentSceneId,
-        lastSynced: meta?.lastSynced ?? "",
-        viewerScenes: meta
-            ? meta.viewerScenes.find((vs) => vs.id === sceneId)
-                ? meta.viewerScenes.map((vs) => (vs.id === sceneId ? viewerScene : vs))
-                : meta.viewerScenes.concat(viewerScene)
-            : [viewerScene],
-    };
-
-    localStorage.setItem(parentSceneId, JSON.stringify(toStore));
     
     // implement a proper `AbortController` in your production code
     const abortController = new AbortController();
+    // The url to the scene index.json file, complete with sas key.
+    const indexUrl = new URL(view.renderState.scene.url);
+    indexUrl.pathname += "index.json";
+
     // highlight-next-line
-    scene.sync(getSceneIndexUrl(view), abortController.signal);
+    scene.sync(indexUrl, abortController.signal);
 };
 ...
 ```
@@ -243,11 +197,11 @@ Then, assign this logger to the scene like this:
 await offlineWorkerState?.addScene(parentSceneId);
 // highlight-next-line
 scene.logger = createLogger(parentSceneId);
-scene.sync(getSceneIndexUrl(view), abortController.signal);
+scene.sync(indexUrl, abortController.signal);
 ...
 ```
 
-The `logger` implementation can do more than just logging to the console, such as updating the UI or showing alerts. You can check out Novoweb's logger implementation [here](https://github.com/novorender/novoweb/blob/develop/src/features/offline/useHandleOffline.ts#L359) or see the documentation for more details on the <CodeLink type="interface" name="Logger"/> interface.
+The `logger` implementation can do more than just logging to the console, such as updating the UI or showing alerts. You can check out Novoweb's logger implementation [here](https://github.com/novorender/novoweb/blob/820162835e2b4d2fe32c990a1dad41abda0d1a4f/src/features/offline/useHandleOffline.ts#L359) or see the documentation for more details on the <CodeLink type="interface" name="Logger"/> interface.
 
 ### Source Code
 
