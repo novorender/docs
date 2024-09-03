@@ -97,7 +97,7 @@ Let's proceed with downloading the loaded scene so it can be used offline. There
 2. **Full Download/Sync**:  
    The Web API downloads the entire scene in one go, allowing you to use or view it offline without any delay.
 
-To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addscene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="view.manageofflinestorage"/>. We'll see all these in action in the rest of the guide.
+To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addScene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="view.manageOfflineStorage"/>. We'll see all these in action in the rest of the guide.
 
 :::info
 Almost all the code you see in this guide is taken from the [Novorender Web App](https://github.com/novorender/novoweb), which is open source and available on GitHub. We encourage you to check out the [offline component code](https://github.com/novorender/novoweb/tree/develop/src/features/offline), which is much more robust and handles many other cases, such as checking for available storage size.
@@ -206,7 +206,7 @@ btnFullDownload.onclick = async () => {
 
 ### Deleting Offline Scenes
 
-You can use the <CodeLink type="class" name="OfflineScene.delete"/> function to delete a single scene or use <CodeLink type="class" name="OfflineViewState.deleteall"/> to delete all offline data and remove every offline scene.
+You can use the <CodeLink type="class" name="OfflineScene.delete"/> function to delete a single scene or use <CodeLink type="class" name="OfflineViewState.deleteAll"/> to delete all offline data and remove every offline scene.
 
 ### Logging
 
