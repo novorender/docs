@@ -23,7 +23,7 @@ const baseGithub = "https://github.com/novorender";
 const config = {
     title: "Novorender",
     tagline: "Novorender API Docs",
-    url: "https://novorender.com/",
+    url: "https://docs.novorender.com/",
     baseUrl: "/",
     onBrokenLinks: "warn",
     onBrokenMarkdownLinks: "warn",
