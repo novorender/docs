@@ -14,7 +14,7 @@ export async function main(view: View, sceneData: SceneData) {
             // This will find all objects on the 2nd floor
             const iterator = db.search(
                 {
-                    parentPath: "Farger.IFC/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
+                    parentPath: "Condos.ifc/3/Surface:2481563/Apartment with 12 condos/2ND FLOOR",
                 },
                 signal,
             );
