@@ -29,6 +29,7 @@ export const {
   ProfileModule,
   RenderContext,
   RoadModule,
+  ScreenSpaceConversions,
   SpecialFlightController,
   TonemappingMode,
   View,
