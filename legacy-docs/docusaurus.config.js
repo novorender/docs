@@ -259,7 +259,7 @@ const config = {
                 docsPluginId: "classic",
                 config: {
                     rest_api_versioned: {
-                        specPath: "https://data-v2.novorender.com/swagger/v1/swagger.json",
+                        specPath: "https://api-old-wa-test.azurewebsites.net/swagger/v1/swagger.json",
                         outputDir: "docs/rest-api",
                         sidebarOptions: {
                             groupPathsBy: "tag",
@@ -285,7 +285,7 @@ const config = {
     themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
     customFields: {
         swaggerUI: `https://data-v2.novorender.com/swagger`,
-        swaggerJSON_V1: `https://data-v2.novorender.com/swagger/v1/swagger.json`,
+        swaggerJSON_V1: `https://api-old-wa-test.azurewebsites.net/swagger/v1/swagger.json`,
         swaggerJSON_V2: `https://data-v2.novorender.com/swagger/v2/swagger.json`,
     },
 };

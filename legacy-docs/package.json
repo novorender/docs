@@ -27,7 +27,8 @@
         "clean-api-docs:version": "docusaurus clean-api-docs:version",
         "gen-all": "docusaurus gen-api-docs all && docusaurus gen-api-docs:version rest_api_versioned:all",
         "clean-all": "docusaurus clean-api-docs all && docusaurus clean-api-docs:version rest_api_versioned:all",
-        "re-gen": "npm run clean-all && npm run gen-all"
+        "re-gen": "npm run clean-all && npm run gen-all",
+        "re-gen-v2": "docusaurus clean-api-docs:version rest_api_versioned:2.0 && docusaurus gen-api-docs:version rest_api_versioned:2.0"
     },
     "dependencies": {
         "@cmfcmf/docusaurus-search-local": "1.1.0",
@@ -63,9 +64,9 @@
         "buffer": "6.0.3",
         "copy-webpack-plugin": "11.0.0",
         "css-minimizer-webpack-plugin": "4.1.0",
-        "docusaurus-plugin-openapi-docs": "2.0.0-beta.3",
+        "docusaurus-plugin-openapi-docs": "2.2.3",
         "docusaurus-plugin-typedoc": "0.19.2",
-        "docusaurus-theme-openapi-docs": "2.0.0-beta.3",
+        "docusaurus-theme-openapi-docs": "2.2.3",
         "eslint": "^8.35.0",
         "eslint-plugin-react": "^7.32.2",
         "lint-staged": "13.2.3",
