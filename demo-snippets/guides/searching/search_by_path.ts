@@ -29,6 +29,7 @@ export async function main(view: View, sceneData: SceneData) {
             const renderStateHighlightGroups: RenderStateHighlightGroups = {
                 defaultAction: "hide",
                 groups: [{ action: createNeutralHighlight(), objectIds: result }],
+                defaultPointVisualization: undefined
             };
 
             // Finally, modify the renderState

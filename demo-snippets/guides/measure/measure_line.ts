@@ -42,7 +42,7 @@ function drawLine(canvas: HTMLCanvasElement, context2D: CanvasRenderingContext2D
     const { rotation, position } = view.renderState.camera;
     const cameraDirection = vec3.transformQuat(vec3.create(), vec3.fromValues(0, 0, -1), rotation);
     const camSettings = { pos: position, dir: cameraDirection };
-    const drawProd = point2 ? measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], false, false) : measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], false, false);
+    const drawProd = point2 ? measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3, point2], { angles: false, closed: false }) : measureView.draw.getDrawObjectFromPoints([point1 as ReadonlyVec3], { angles: false, closed: false });
     if (drawProd) {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         // Draw result in green, all lines use 3 pixel width
