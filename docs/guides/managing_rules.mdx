@@ -1,0 +1,643 @@
+---
+title: "Enhancing Data Quality with Rules"
+description: "Learn how to use Novorender's powerful rules system to automate BIM workflows, ensure data consistency, and enrich model data through REST API."
+keywords: ["novorender api docs", "rulesets", "rules", "data validation", "BIM", "building information model"]
+pagination_next: null
+pagination_prev: null
+---
+
+## Introduction
+
+In the context of Building Information Modeling (BIM), maintaining data consistency and automating workflows are essential for effective project management. The Novorender platform allows users to upload their models and leverage our [REST API](https://docs.novorender.com/legacy/docs/category/data-rest-api-v2) to manage various aspects of these models, including the powerful rules system.
+
+By utilizing rules within Novorender, users can significantly enhance how building information models are processed and refined. The rules system provides a robust framework for automating post-processing tasks, ensuring consistency, and streamlining workflows. Here are some key use cases demonstrating the capabilities of the rules system:
+
+- **Automated Data Cleaning**: Users can create rules that automatically standardize property names across different model sources, ensuring consistent data representation throughout the project. This automation can save time and minimize errors by adjusting properties across numerous elements without manual intervention.
+
+- **Smart Filtering and Categorization**: The rules system allows for intelligent filtering and categorization of model elements. Users can implement rules that automatically classify components based on specified criteria, such as tagging doors over a certain height or categorizing spaces based on their dimensions.
+
+- **Workflow Automation**: Repetitive tasks can be automated through the rules system, reducing manual effort and the risk of human error. For example, you can set up rules that generate cost estimates based on properties or flag potential clash issues before they escalate into larger problems.
+
+- **CSV Integration for Enhanced Data Enrichment**: A standout feature of the rules system is its ability to integrate external CSV data with models uploaded to Novorender. Users can match keys from CSV files to existing properties in the model, allowing for automatic enrichment with vital data such as maintenance schedules, cost data, or performance metrics.
+
+The rules system serves as a powerful post-processing tool, enabling users to modify properties, adjust the model structure, and refine geometry after the model has been uploaded. Rulesets, consisting of one or more rules, filters, and actions, are executed sequentially, allowing complex data manipulations based on earlier results.
+
+In this guide, we will explore how to create, add, and modify rulesets using the Novorender [REST API](https://docs.novorender.com/legacy/docs/category/data-rest-api-v2), empowering you to leverage these features for effective management of your BIM projects.
+
+## API Operations for Managing Rulesets
+
+Novorender provides specific API endpoints for retrieving and modifying rulesets associated with your models. Below are the available operations for working with rulesets:
+
+- [**Get Folder Rules**](https://docs.novorender.com/legacy/docs/rest-api/2.0/get-folders-rules)  
+  Use this endpoint to retrieve the rulesets applied to a specific folder or project.
+
+- [**Update Folder Rules**](https://docs.novorender.com/legacy/docs/rest-api/2.0/update-folders-rules)  
+  This endpoint allows you to update the rulesets for a folder or project.
+
+:::tip
+To get or update the rulesets for the entire project (root folder), use the `%20` character in place of the `:folderId` parameter.  
+The `%20` character represents a space in URLs, which is used to refer to the root folder when working with rulesets at the project level.
+:::
+
+In the next section, we'll discuss the JSON structure and payload that can be passed to the `PATCH` endpoint to create or modify rulesets.
+
+The `PATCH` endpoint accepts the following JSON payload:
+
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [] // all types of rules go here...
+}
+```
+
+In this payload:
+- `version` specifies the version of the ruleset structure.
+- `regexDocumentation` links to a resource explaining the ECMAScript regex syntax that can be used within rules.
+- `ruleSets` is an array that contains different types of rulesets, which we will explore in the next section.
+
+## Available Ruleset Types in Novorender
+
+Novorender offers several ruleset types for managing and manipulating BIM models through the OPEN API. Each ruleset type allows you to automate different tasks, from filtering model elements to modifying properties. Below are the currently available ruleset types:
+
+### 1. Common
+
+**Common rulesets** follow a consistent pattern of object filters, rules, and result actions. This versatile framework is designed to accommodate most rule types. 
+
+Both object filters and rules share the same structure, allowing you to define property names and values that are checked against regular expressions (regex) and/or numerical ranges (min/max). These expressions can be combined using logical operators like `"and (&)"` or `"or (|)"`. For example, the following filter identifies all `IfcWindows` that are made of `Glass`:
+```json
+{ 
+  "property": "IfcClass",
+  "regex": "IfcWindow"
+},
+"&",
+{
+  "property": "Material",
+  "regex": "Glass"
+}
+```
+
+Filtered objects can be checked by rules. The following rule checks if the filtered objects are placed above 5 meters:
+```json
+{
+  "property": "Location/Global Z",
+  "min": 5
+}
+```
+
+Objects that pass both the filter and rules are processed by optional true and false actions, which may differ based on the rule result. The available action types include:
+
+- **Generate Property**  
+  Create a custom property based on the rule result. You can specify both the property name and value.
+  ```json
+  "result": {
+      "outputProperty": "Test",
+      "true": {
+          "action": "property",
+          "value": "Over 5 meters"
+      },
+      "false": {
+          "action": "property",
+          "value": "Below 5 meters"
+      }
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.0",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "outputProperty": "test",
+              "true": {
+                "action": "property",
+                "value": "Over 5 meters"
+              },
+              "false": {
+                "action": "property",
+                "value": "Below 5 meters"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+- **Merge**  
+  Combine an object with its properties into its parent node. This is particularly useful for `.rvm` files, which often result in deeply nested hierarchies where most properties reside higher up in the model tree.
+  ```json
+  "result": {
+      "false": {
+          "action": "merge"
+      }
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.0",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "outputProperty": "test",
+              "false": {
+                "action": "merge"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+- **Replace**  
+  Modify selected object parts based on regex matches.  
+  *Example use case*: Automatically update incorrect SharePoint links by changing the root part of the URL.
+  ```json
+  "result": {
+      "outputProperty": "IfcClass",
+      "true": {
+          "action": "replace",
+          "value": "Special",
+          "match": "Standard"
+      }
+  }
+  ```
+
+  <details>
+  <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.0",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "true": {
+                "action": "replace",
+                "value": "Standard",
+                "match": "Special"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+- **Generate GUID**  
+  Generate a globally unique identifier (GUID) for objects based on properties matched in the rule.
+  
+  ```json
+  "result": {
+      "true": {
+          "action": "generateGuid"
+      }
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.0",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "true": {
+                "action": "generateGuid"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+  :::info
+  Generating a GUID on `result.false` does not work, as it requires values from the match to generate the GUID.
+  :::
+
+- **Regenerate BREP**  
+  Force the system to regenerate boundary representation (BREP) data. This is useful when the system can generate more accurate parametric data than the input source, such as tessellated IFC/DWG objects.
+  
+  ```json
+  "result": {
+      "true": {
+          "action": "regenBrep"
+      }
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.0",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "true": {
+                  "action": "regenBrep"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+:::tip
+Both `result.true` and `result.false` are optional, so utilize them whenever necessary.
+:::
+
+---
+
+### 2. Delete Objects
+
+Object deletion involves special handling due to the complexity of modifying the glTF format. When deleting objects, the system regenerates the entire glTF structure without the deleted elements to maintain model integrity.
+
+```json
+{
+    "outputPropertySet": "Ruleset",
+    "rules": [
+        {
+            "type": "deleteObjects",
+            "rules": [
+                {
+                    "property": "IfcClass",
+                    "regex": "IfcDoor"
+                }
+            ]
+        }
+    ]
+}
+```
+
+<details>
+      <summary>Example JSON payload</summary>
+
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "comment": "Rule 1 comment text",
+      "type": "deleteObjects",
+      "rules": [
+        {
+          "property": "IfcClass",
+          "regex": "IfcDoor"
+        }
+      ]
+    }
+  ]
+}
+```
+
+:::info
+Each `deleteObjects` rule should be a separate entry within the `ruleSets` array. For example, if you have two rules, you will need to push two separate objects:
+  
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "comment": "Rule 1 comment text",
+      "type": "deleteObjects",
+      "rules": [
+        {
+          "property": "IfcClass",
+          "regex": "IfcDoor"
+        }
+      ]
+    },
+    {
+      "comment": "Rule 2 comment text",
+      "type": "deleteObjects",
+      "rules": [
+        {
+          "property": "IfcClass",
+          "regex": "IfcBuilding"
+        }
+      ]
+    }
+  ]
+}
+```
+:::
+</details>
+
+---
+
+### 3. Double-sided Materials
+
+This rule makes all materials double-sided. While it's generally better to work with accurate data than to disable face culling, this rule is available when necessary.
+
+```json
+{
+    "outputPropertySet": "Ruleset",
+    "rules": [
+        {
+            "type": "doubleSidedMaterial"
+        }
+    ]
+}
+```
+
+<details>
+      <summary>Example JSON payload</summary>
+
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "comment": "Rule 1 comment text",
+      "type": "doubleSidedMaterial"
+    }
+  ]
+}
+```
+
+:::info
+Each `doubleSidedMaterial` rule should be a separate entry within the `ruleSets` array. For example, if you have two rules, you will need to push two separate objects:
+  
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "comment": "Rule 1 comment text",
+      "type": "doubleSidedMaterial"
+    },
+    {
+      "comment": "Rule 2 comment text",
+      "type": "doubleSidedMaterial"
+    }
+  ]
+}
+```
+:::
+</details>
+
+---
+
+### 4. Generate CSV Values
+
+The rules system supports importing data from CSV files. Developers can match a key from the CSV file to an existing Novorender property, and the rule will generate the remaining CSV properties for the corresponding object.
+
+```json
+{
+  "outputPropertySet": "CSV",
+  "rules": [
+    {
+      "rule": [
+        {
+          "csv": "Test-csv.csv",
+          "property": "Email",
+          "key": "Email"
+        }
+      ]
+    }
+  ]
+}
+```
+
+<details>
+      <summary>Example JSON payload</summary>
+
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "type": "csvProperties",
+      "outputPropertySet": "CSV",
+      "rules": [
+        {
+          "rule": [
+            {
+              "property": "Email",
+              "csv": "Test-csv.csv"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+</details>
+
+:::info
+Ensure that the file referenced in the `csv` property is already uploaded to the folder in which you want to define the rulesets.
+:::
+
+---
+
+### 5. Search and Replace
+
+The search and replace rule scans property values within the model and replaces them based on user-defined search and replace strings. This is useful for bulk property updates where only two strings are needed: the search string and the replace string.
+
+```json
+{
+    "outputPropertySet": "Ruleset",
+    "type": "searchAndReplace",
+    "rules": [
+        {
+            "search": "StandardWall",
+            "replace": "Wall"
+        }
+    ]
+}
+```
+
+<details>
+      <summary>Example JSON payload</summary>
+
+```json
+{
+  "version": "1.0",
+  "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+  "ruleSets": [
+    {
+      "type": "searchAndReplace",
+      "outputPropertySet": "Ruleset",
+      "rules": [
+        {
+          "comment": "Rule 1 comment text",
+          "search": "StandardWall",
+          "replace": "Wall"
+        }
+      ]
+    }
+  ]
+}
+```
+</details>
