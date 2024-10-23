@@ -415,7 +415,7 @@ Both `result.true` and `result.false` are optional, so utilize them whenever nec
 
 ### 2. Delete Objects
 
-Object deletion involves special handling due to the complexity of modifying the glTF format. When deleting objects, the system regenerates the entire glTF structure without the deleted elements to maintain model integrity.
+You can delete objects from the imported data before they are processed in the Novorender scene. Although filters in Novorender are often sufficient, deleting objects can be especially useful when the imported files contain large quantities of objects that will never be used. Removing unnecessary objects not only reduces loading and processing times but also enhances overall performance and visual detail when viewing the scene.
 
 ```json
 {
@@ -559,14 +559,18 @@ The rules system supports importing data from CSV files. Developers can match a 
       "rule": [
         {
           "csv": "Test-csv.csv",
-          "property": "Email",
-          "key": "Email"
+          "property": "Email", // CSV key
+          "key": "Test" // Novorender property name
         }
       ]
     }
   ]
 }
 ```
+
+:::info
+The optional payload property `key` is used to specify which property in Novorender should be linked to a property (`property`) from the CSV file. If left empty or undefined, it is assumed that the Novorender property name matches the CSV property name (`property`).
+:::
 
 <details>
       <summary>Example JSON payload</summary>
