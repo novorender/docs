@@ -559,8 +559,8 @@ The rules system supports importing data from CSV files. Developers can match a 
       "rule": [
         {
           "csv": "Test-csv.csv",
-          "property": "Email", // CSV key
-          "key": "Test" // Novorender property name
+          "key": "Email", // CSV key
+          "property": "Test" // Novorender property name
         }
       ]
     }
@@ -569,7 +569,7 @@ The rules system supports importing data from CSV files. Developers can match a 
 ```
 
 :::info
-The optional payload property `key` is used to specify which property in Novorender should be linked to a property (`property`) from the CSV file. If left empty or undefined, it is assumed that the Novorender property name matches the CSV property name (`property`).
+The optional payload property (`property`) is used to specify which property in Novorender should be linked to a key (`key`) from the CSV file. If left empty or undefined, it is assumed that the Novorender property name matches the CSV property name (`key`).
 :::
 
 <details>
@@ -645,3 +645,7 @@ The search and replace rule scans property values within the model and replaces 
 }
 ```
 </details>
+
+:::tip
+The structure of `rulesets: []` is flexible, as we do not enforce strict schema checks on it. This allows you to add arbitrary or additional properties to rulesets, such as unique IDs for each ruleset or rule, or any other custom property that may be helpful for your specific scenario.
+:::
