@@ -56,6 +56,10 @@ In this payload:
 - `regexDocumentation` links to a resource explaining the ECMAScript regex syntax that can be used within rules.
 - `ruleSets` is an array that contains different types of rulesets, which we will explore in the next section.
 
+:::tip
+The structure of `rulesets: []` is flexible, as we do not enforce strict schema checks on it. This allows you to add arbitrary or additional properties to rulesets, such as unique IDs for each ruleset or rule, or any other custom property that may be helpful for your specific scenario.
+:::
+
 ## Available Ruleset Types in Novorender
 
 Novorender offers several ruleset types for managing and manipulating BIM models through the OPEN API. Each ruleset type allows you to automate different tasks, from filtering model elements to modifying properties. Below are the currently available ruleset types:
@@ -645,7 +649,3 @@ The search and replace rule scans property values within the model and replaces 
 }
 ```
 </details>
-
-:::tip
-The structure of `rulesets: []` is flexible, as we do not enforce strict schema checks on it. This allows you to add arbitrary or additional properties to rulesets, such as unique IDs for each ruleset or rule, or any other custom property that may be helpful for your specific scenario.
-:::
