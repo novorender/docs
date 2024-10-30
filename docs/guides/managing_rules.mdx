@@ -167,7 +167,8 @@ Objects that pass both the filter and rules are processed by optional true and f
   ```json
   "result": {
       "false": {
-          "action": "merge"
+          "action": "merge",
+          "copyProperties": true
       }
   }
   ```
@@ -211,7 +212,8 @@ Objects that pass both the filter and rules are processed by optional true and f
             "result": {
               "outputProperty": "test",
               "false": {
-                "action": "merge"
+                "action": "merge",
+                "copyProperties": true
               }
             }
           }
@@ -221,6 +223,10 @@ Objects that pass both the filter and rules are processed by optional true and f
   }
   ```
   </details>
+
+  :::tip
+  You can use the `copyProperties: boolean` option to control whether properties are retained or discarded during the merge. Setting this to `false` can help streamline your data by eliminating unnecessary properties that may otherwise clutter valuable information in the final output.
+  :::
 
 - **Replace**  
   Modify selected object parts based on regex matches.  
