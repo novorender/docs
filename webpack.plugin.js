@@ -38,23 +38,23 @@ const webpackPlugin = (context, options) => {
                         ],
                     }),
                 ],
-                resolve: {
-                    fallback: {
-                        // eslint-disable-next-line no-undef
-                        stream: require.resolve("stream-browserify"),
-                        // eslint-disable-next-line no-undef
-                        path: require.resolve("path-browserify"),
-                        // eslint-disable-next-line no-undef
-                        buffer: require.resolve("buffer/"),
-                        // eslint-disable-next-line no-undef
-                        util: require.resolve("util/"),
-                        // eslint-disable-next-line no-undef
-                        url: require.resolve("url/"),
-                    },
-                    alias: {
-                        process: "process/browser.js",
-                    },
-                },
+                // resolve: {
+                //     fallback: {
+                //         // eslint-disable-next-line no-undef
+                //         stream: require.resolve("stream-browserify"),
+                //         // eslint-disable-next-line no-undef
+                //         path: require.resolve("path-browserify"),
+                //         // eslint-disable-next-line no-undef
+                //         buffer: require.resolve("buffer/"),
+                //         // eslint-disable-next-line no-undef
+                //         util: require.resolve("util/"),
+                //         // eslint-disable-next-line no-undef
+                //         url: require.resolve("url/"),
+                //     },
+                //     alias: {
+                //         process: "process/browser.js",
+                //     },
+                // },
                 module: {},
                 devServer: {
                     headers: {

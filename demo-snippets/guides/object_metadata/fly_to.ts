@@ -1,7 +1,6 @@
 import { createColorSetHighlight, type BoundingSphere, type View } from "@novorender/api";
-import type { HierarcicalObjectReference } from "@novorender/webgl-api";
-import type { SceneData } from "@novorender/data-js-api";
-import { vec3, type ReadonlyVec3 } from "gl-matrix";
+import type { SceneData, HierarcicalObjectReference } from "@novorender/data-js-api";
+import { vec3 } from "gl-matrix";
 
 export async function main(view: View, sceneData: SceneData) {
     const { db } = sceneData;
@@ -61,7 +60,7 @@ export async function main(view: View, sceneData: SceneData) {
             const objectData = await db?.getObjectMetdata(result.objectId);
             // No calculation needed for single object
             if (objectData.bounds?.sphere) {
-                const sphere = { ...objectData.bounds.sphere, center: flip(objectData.bounds.sphere.center) };
+                const sphere = { ...objectData.bounds.sphere, center: objectData.bounds.sphere.center };
                 view.activeController.zoomTo(sphere);
             }
         };
@@ -84,7 +83,7 @@ function getTotalBoundingSphere(nodes: HierarcicalObjectReference[]): BoundingSp
     for (const node of nodes) {
         const sphere = node.bounds?.sphere;
         if (sphere) {
-            spheres.push({ ...sphere, center: flip(sphere.center) });
+            spheres.push({ ...sphere, center: sphere.center });
         }
     }
 
@@ -107,10 +106,3 @@ function getTotalBoundingSphere(nodes: HierarcicalObjectReference[]): BoundingSp
     return { center, radius };
 }
 
-/**
- * Utility function to flip the coordinate system
- */
-function flip(v: ReadonlyVec3): ReadonlyVec3 {
-    const flipped: [number, number, number] = [v[0], -v[2], v[1]];
-    return flipped;
-}

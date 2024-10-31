@@ -80,7 +80,7 @@ To help construct this object, we've added a helper function <CodeLink type="cla
 This uses a <CodeLink type="type" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
 
 Most of the guides on bundling will simply copy or map `node_modules/@novorender/api/public/` into a browser accessible path: `/public/novorender/api/`.
-If you followed this recipe, you can simply set the <CodeLink type="type" name="ViewImportmap.baseUrl"/> property of the import map as below.
+If you followed this recipe, you can simply set the <CodeLink type="interface" name="Core3DImportMap.baseUrl"/> property of the import map as below.
 
 ```typescript
 const baseUrl = new URL("/public/novorender/api/", window.location.origin);

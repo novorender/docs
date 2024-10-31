@@ -49,7 +49,7 @@ export default function Home(): JSX.Element {
                         and Innovation.
                     </h1>
                     <div className="action-btn-container fade-in-fwd">
-                        <Link to={`/docs/web_api/`} className="button-get-started pulse">
+                        <Link to={`/docs/web_api`} className="button-get-started pulse">
                             Get Started!
                         </Link>
                         <p>or</p>

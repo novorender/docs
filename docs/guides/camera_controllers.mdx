@@ -141,7 +141,7 @@ Both of them support an animated motion from the current position to the desired
 
 <CodeLink type="class" name="BaseController.zoomTo" /> brings a bounding sphere into view in a sort of "zoom to fit" manner. This is useful for displaying an object or area with a known bounding sphere.
 
-<CodeLink type="class" name="BaseController.flyTo" /> moves the camera to the desired position, and optionally rotation.
+<CodeLink type="class" name="BaseController.moveTo" /> moves the camera to the desired position, and optionally rotation.
 
 ## Other kinds of camera controllers
 
@@ -180,4 +180,4 @@ The first controller in the list is initially active, i.e. the default.
 
 Your camera controller must inherit from `BaseController` and at the very least implement the abstract methods.
 Alternatively you can inherit from one of the existing concrete controller classes.
-More details of how this works is covered in a separate guide: [Custom Camera Controller](custom-camera-controller.md).
+More details of how this works is covered in a separate guide: [Custom Camera Controller](./custom-camera-controller).

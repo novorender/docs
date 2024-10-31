@@ -1,4 +1,3 @@
-import React from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import Link from "@docusaurus/Link";
 
@@ -11,25 +10,25 @@ export default function CodeLink({ type, name }: { readonly type: TypeString; re
     const link = typeName + (propNames.length > 0 ? propNames.join("") : "");
     switch (type) {
         case "class":
-            path = `Classes/class.${link}`;
+            path = `classes/${link}`;
             break;
         case "interface":
-            path = `Interfaces/interface.${link}`;
+            path = `interfaces/${link}`;
             break;
         case "type":
-            path = `Type Aliases/type-alias.${link}`;
+            path = `type-aliases/${link}`;
             break;
         case "function":
-            path = `Functions/function.${link}`;
+            path = `functions/${link}`;
             break;
         case "enum":
-            path = `Enumerations/enumeration.${link}`;
+            path = `enumerations/${link}`;
             break;
         case "variable":
-            path = `Variables/variable.${link}`;
+            path = `variables/${link}`;
             break;
     }
-    const url = useBaseUrl(`docs/web_api/${path}`);
+    const url = useBaseUrl(`docs/web_api/api_reference/${path}`);
     return (
         <Link to={url}>
             <code>{name}</code>

@@ -88,7 +88,7 @@ function drawProduct(ctx: CanvasRenderingContext2D, camera: CameraSettings, prod
             let startCol = "red";
             let endCol = "lime";
             const cylinderLine = obj.parts[0];
-            if (cylinderLine.elevation && cylinderLine.vertices2D) {
+            if (cylinderLine.elevation && cylinderLine.vertices2D && !Array.isArray(cylinderLine.elevation)) {
                 if (cylinderLine.elevation.from > cylinderLine.elevation.to) {
                     const tmp = startCol;
                     startCol = endCol;

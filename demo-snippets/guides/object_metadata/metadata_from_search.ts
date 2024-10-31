@@ -1,6 +1,5 @@
 import { createColorSetHighlight, type View } from "@novorender/api";
-import type { SceneData } from "@novorender/data-js-api";
-import type { ObjectData } from "@novorender/webgl-api";
+import type { SceneData, ObjectData } from "@novorender/data-js-api";
 
 export async function main(view: View, sceneData: SceneData) {
     const { db } = sceneData;
