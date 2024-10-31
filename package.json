@@ -7,7 +7,7 @@
     "postinstall": "node scripts/extract-exports.js && npm run merge-decl-files",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run validate-snippets && docusaurus build",
+    "build": "npm run validate-snippets && npm run re-gen-api-docs && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -18,7 +18,10 @@
     "make-local-api-build": "cd @novorender && npm i && npm start",
     "merge-decl-files": "node scripts/merge-decl-files.js",
     "validate-snippets": "npx --no-install tsc -p demo-snippets/tsconfig.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gen-api-docs": "docusaurus gen-api-docs all",
+    "clean-api-docs": "docusaurus clean-api-docs all",
+    "re-gen-api-docs": "npm run clean-api-docs && npm run gen-api-docs"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "^1.2.0",
@@ -54,7 +57,9 @@
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
     "copy-webpack-plugin": "^12.0.2",
+    "docusaurus-plugin-openapi-docs": "^4.1.0",
     "docusaurus-plugin-typedoc": "^1.0.5",
+    "docusaurus-theme-openapi-docs": "^4.1.0",
     "dts-bundle": "^0.7.3",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.2",

@@ -5,6 +5,7 @@
 /build
 /docs/web_api/api_reference
 /docs/data_js_api/api_reference
+/docs/data_rest_api_v2
 
 # Generated files
 .docusaurus

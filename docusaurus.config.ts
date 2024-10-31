@@ -1,9 +1,10 @@
 import { themes as prismThemes } from 'prism-react-renderer';
-import type { Config } from '@docusaurus/types';
-import type * as Preset from '@docusaurus/preset-classic';
 import { webpackPlugin } from "./webpack.plugin";
 import { execSync } from "child_process";
 import npm2yarn from '@docusaurus/remark-plugin-npm2yarn';
+import type { Config } from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
+import type * as OpenApiPlugin from "docusaurus-plugin-openapi-docs";
 
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -35,7 +36,7 @@ const config: Config = {
   markdown: {
     mermaid: true
   },
-  themes: ["@docusaurus/theme-live-codeblock", "@docusaurus/theme-mermaid"],
+  themes: ["@docusaurus/theme-live-codeblock", "@docusaurus/theme-mermaid", "docusaurus-theme-openapi-docs"],
   presets: [
     [
       'classic',
@@ -43,6 +44,7 @@ const config: Config = {
         debug: true,
         docs: {
           sidebarPath: './sidebars.ts',
+          docItemComponent: "@theme/ApiItem", // Derived from docusaurus-theme-openapi
           editUrl: `${baseGithub}/docs/edit/main`,
           showLastUpdateTime: true,
           remarkPlugins: [
@@ -279,6 +281,23 @@ const config: Config = {
         },
         plugin: ["typedoc-plugin-frontmatter"]
       }
+    ],
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: "data-rest-api", // plugin id
+        docsPluginId: "classic", // configured for preset-classic
+        config: {
+          dataRestApiV2: {
+            specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
+            outputDir: "docs/data_rest_api_v2",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+              categoryLinkSource: "tag"
+            },
+          } satisfies OpenApiPlugin.Options,
+        }
+      },
     ],
     [require.resolve("@cmfcmf/docusaurus-search-local"), {}],
     ["drawio", {}]
