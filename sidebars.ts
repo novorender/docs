@@ -1,5 +1,5 @@
 import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
-import dataRestApiV2Sidebar from "./docs/data_rest_api_v2/sidebar";
+import dataRestApiV2Sidebar from "./docs/data_rest_api/v2/sidebar";
 
 /**
  * Creating a sidebar enables you to:
@@ -65,7 +65,7 @@ const sidebars: SidebarsConfig = {
         }
       ],
     },
-    { type: "link", label: "Data Rest API", href: "/docs/category/data_rest_api_v2" },
+    { type: "link", label: "Data Rest API", href: "/docs/category/data_rest_api/v2" },
     {
       type: "category",
       label: "Guides",
@@ -85,7 +85,7 @@ const sidebars: SidebarsConfig = {
         type: "generated-index",
         title: "Data Rest API V2",
         description: "The Novorender REST API allows you to interact with your 3D models uploaded to Novorender.",
-        slug: "/category/data_rest_api_v2",
+        slug: "/category/data_rest_api/v2",
       },
       items: dataRestApiV2Sidebar,
     }

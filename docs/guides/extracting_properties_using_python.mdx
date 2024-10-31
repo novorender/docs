@@ -46,7 +46,7 @@ To create a virtual environment, you can use the built-in `venv` module (availab
 
 ### Perform a Search
 
-We'll start by initiating a search request using the [Search API](https://docs.novorender.com/legacy/docs/rest-api/2.0/search). The following Python snippet demonstrates how to perform a search within a scene:
+We'll start by initiating a search request using the [Search API](/docs/data_rest_api/v2/search). The following Python snippet demonstrates how to perform a search within a scene:
 
 ```python title="index.py"
 import requests
@@ -93,11 +93,11 @@ The example scene we're using is public and doesn't need an API key. However, fo
 
 By default we search in all the models but if you want to narrow down search in certain models then add them in `modelsToSearchFor` list.
 
-It is highly recommended to read our guide on [searching](./searching) and [object metadata](./object_metadata) to make yourself familiar with various search techniques, also take a look at the [REST API documentation](https://docs.novorender.com/legacy/docs/rest-api/2.0/search) of search endpoint.
+It is highly recommended to read our guide on [searching](./searching) and [object metadata](./object_metadata) to make yourself familiar with various search techniques, also take a look at the [REST API documentation](/docs/data_rest_api/v2/search) of search endpoint.
 
 ### Output Data to Excel
 
-Once we have obtained the search results which is based on the [following schema](https://docs.novorender.com/legacy/docs/rest-api/2.0/search#responses), we can output the data to an Excel spreadsheet. Here's a snippet from our Python script to accomplish this:
+Once we have obtained the search results which is based on the [following schema](/docs/data_rest_api/v2/search#responses), we can output the data to an Excel spreadsheet. Here's a snippet from our Python script to accomplish this:
 
 ```python title="index.py"
 import os

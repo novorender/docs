@@ -110,15 +110,6 @@ const config: Config = {
           label: "Playground",
         },
         { to: '/blog', label: 'Blog', position: 'left' },
-        // {
-        //   type: "dropdown",
-        //   position: "right",
-        //   label: "Stable",
-        //   items: [
-        //     { to: "/", label: "Stable (current)" },
-        //     { type: "html", value: `<a class="dropdown__link" href="#" onClick="window.location.href = window.location.origin + '/legacy'">Legacy</a>` },
-        //   ],
-        // },
         {
           href: `${baseGithub}/ts`,
           className: "header-github-link",
@@ -285,12 +276,12 @@ const config: Config = {
     [
       'docusaurus-plugin-openapi-docs',
       {
-        id: "data-rest-api", // plugin id
+        id: "data-rest-api",
         docsPluginId: "classic", // configured for preset-classic
         config: {
           dataRestApiV2: {
             specPath: "https://data-v2.novorender.com/swagger/v2/swagger.json",
-            outputDir: "docs/data_rest_api_v2",
+            outputDir: "docs/data_rest_api/v2",
             sidebarOptions: {
               groupPathsBy: "tag",
               categoryLinkSource: "tag"

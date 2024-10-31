@@ -89,7 +89,7 @@ export default function Home(): JSX.Element {
                     Fine-tuned Geometric Controls, and an array of other transformative features. Elevate your 3D experience with Novorender's API and empower your creations beyond imagination.
                 </p>
                 <p>
-                    Seamlessly integrate your 3D workflow with widely embraced 3rd party services by harnessing Novorender's <Link to="https://docs.novorender.com/legacy/docs/category/data-rest-api-v2">Open API</Link>. Forge connections with industry stalwarts like{" "}
+                    Seamlessly integrate your 3D workflow with widely embraced 3rd party services by harnessing Novorender's <Link to="/docs/category/data_rest_api/v2">Open API</Link>. Forge connections with industry stalwarts like{" "}
                     <Link to="https://novorender.com/integrations/active-directory-ad/">Active Directory (AD)</Link>, <Link to="https://novorender.com/integrations/autodesk-bim360/">Autodesk BIM360</Link>, <Link to="https://novorender.com/integrations/jira/">Jira</Link>,{" "}
                     <Link to="https://novorender.com/integrations/microsoft-teams/">Microsoft Teams</Link>, <Link to="https://novorender.com/integrations/power-bi/">Power BI</Link>, <Link to="https://novorender.com/integrations/naviswork/">Navisworks</Link>, and an{" "}
                     <Link to="https://novorender.com/integrations/">extensive lineup</Link> of other influential platforms. Elevate your collaboration and efficiency through the power of Novorender's API, expanding your horizons to a realm of limitless possibilities.
