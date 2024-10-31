@@ -245,7 +245,40 @@ const config: Config = {
           return execSync("cd @novorender && git rev-parse HEAD").toString().trim();
         })(),
         plugin: ["typedoc-plugin-frontmatter"]
-      },
+      }
+    ],
+    [
+      "docusaurus-plugin-typedoc",
+      /** @type {import('docusaurus-plugin-typedoc').PluginOptions} */
+      {
+        id: "data_js_api",
+        frontmatterGlobals: {
+          description: "A Data JS API for managing scalable Novorender 3D rendering in the cloud.",
+          custom_edit_url: "",
+        },
+        /** TypeDoc Options */
+        entryPoints: ["type-definitions/data-js-api.ts"],
+        out: "docs/data_js_api/api_reference",
+        logLevel: "Error",
+        tsconfig: "type-definitions/tsconfig.json",
+        readme: require.resolve("@novorender/data-js-api/README.md"),
+        disableSources: true,
+        excludeInternal: true,
+        excludePrivate: true,
+        hideBreadcrumbs: false,
+        groupOrder: ["Classes", "Interfaces", "Enums"],
+        hideGenerator: true,
+        indexFormat: "table",
+        sidebar: { pretty: true },
+        parametersFormat: "table",
+        enumMembersFormat: "table",
+        useCodeBlocks: true,
+        navigation: {
+          includeCategories: true,
+          includeGroups: true,
+        },
+        plugin: ["typedoc-plugin-frontmatter"]
+      }
     ],
     [require.resolve("@cmfcmf/docusaurus-search-local"), {}],
     ["drawio", {}]

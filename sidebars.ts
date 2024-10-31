@@ -47,6 +47,25 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Data JS API",
+      link: {
+        type: "doc",
+        id: "data_js_api/api_reference/index",
+      },
+      items: [
+        {
+          type: "category",
+          label: "API Reference",
+          link: {
+            type: "doc",
+            id: "data_js_api/api_reference/index",
+          },
+          items: [require('./docs/data_js_api/api_reference/typedoc-sidebar.cjs')],
+        }
+      ],
+    },
+    {
+      type: "category",
       label: "Guides",
       link: {
         type: "generated-index",
