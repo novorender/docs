@@ -82,7 +82,7 @@ const config: Config = {
   ],
   themeConfig: {
     metadata: [{ name: "keywords", content: "novorender, novorender docs, novorender documentation, novorender/api, novorender web api, webgl, webgl 2, novorender rest api docs, api docs" }],
-    // image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social_card.jpg',
     navbar: {
       title: '',
       logo: {
