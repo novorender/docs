@@ -12,7 +12,7 @@ pagination_prev: null
 It is recommended to use the Novorender OAuth instead of using username+password authentication for getting access token, documentation for using OAuth can be found [here](./using_oauth)
 :::
 
-To load your own scenes we recommend that you use the [`@novorender/data-js-api`](https://docs.novorender.com/docs/data-js-api) package, but you can also use the [Novorender data REST API](https://docs.novorender.com/docs/category/data-rest-api-v1) directly if you prefer.
+To load your own scenes we recommend that you use the [`@novorender/data-js-api`](https://docs.novorender.com/docs/data-js-api) package, but you can also use the [Data REST API](/docs/category/data_rest_api/v2) directly if you prefer.
 We will be using the npm package in all our examples.
 
 ## Public scenes
@@ -27,4 +27,4 @@ Only scene related endpoints are covered by the NPM package, so for user / authe
 
 <PlaygroundComponent demoKey="loadingScenes.private_scene" />
 
-Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of <code>POST [/api/user/login](https://docs.novorender.com/docs/rest-api/login)</code>.
+Once you have authenticated and acquired an access token you can follow the [example for username/password flow](#username--password), just use the access token you got from AD instead of `POST - /api/user/login`.

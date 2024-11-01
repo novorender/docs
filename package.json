@@ -6,7 +6,7 @@
     "preinstall": "npm run make-local-api-build",
     "postinstall": "node scripts/extract-exports.js && npm run merge-decl-files",
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
+    "start": "docusaurus start --port 3001",
     "build": "npm run validate-snippets && npm run re-gen-api-docs && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
