@@ -3,11 +3,9 @@
 
 # Production
 /build
-/docs/api
-/docs/webgl-api
-/docs/data-js-api
-/docs/measure-api
-/docs/web_api
+/docs/web_api/api_reference
+/docs/data_js_api/api_reference
+/docs/data_rest_api/v2
 
 # Generated files
 .docusaurus

@@ -1,6 +1,6 @@
 import { createCubeObject, type RenderStateDynamicInstance, type RenderStateChanges, type RenderStateDynamicObject } from "@novorender/api";
 
-export function main(): RenderStateChanges {
+export function main() {
     const cube = createCubeObject();
     const instances: RenderStateDynamicInstance[] = [];
     const dim = 10;
@@ -17,5 +17,5 @@ export function main(): RenderStateChanges {
         mesh: cube.mesh,
         instances, // generated instances
     };
-    return { dynamic: { objects: [instancedCube] } };
+    return { dynamic: { objects: [instancedCube] } } as RenderStateChanges;
 }

@@ -1,4 +1,4 @@
-import { View, createCubeObject, type RenderStateDynamicObject } from "@novorender/api";
+import { RenderStateChanges, View, createCubeObject, type RenderStateDynamicObject } from "@novorender/api";
 
 export function main(view: View) {
     const { mesh } = createCubeObject();
@@ -14,7 +14,7 @@ export function main(view: View) {
         view.modifyRenderState({
             dynamic: { objects: [scaledCube] },
             // tonemapping: { mode: TonemappingMode.normal },
-        });
+        } as RenderStateChanges);
     }
     update();
 

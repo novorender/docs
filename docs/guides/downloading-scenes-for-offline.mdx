@@ -12,24 +12,24 @@ In this guide, we'll explore how to use the offline module to download a scene f
 
 :::caution Before We Begin
 This guide assumes that you have a basic understanding of the Novorender Web API, including setting it up and loading scenes. If you are unfamiliar with these concepts, please check out the resources below first:
-- [Getting Started](/docs/tutorial/getting_started)
+- [Getting Started](/docs/web_api/tutorial/getting_started)
 - [Loading Scenes](/docs/guides/loading_scenes)
 :::
 
 ### Setting Up and Loading a Scene
 
-We'll start with a basic TypeScript project using Vite. We assume you already have a basic TypeScript project in place with the Novorender Web API installed and ready to go. If you don't have a project yet, please refer to the [following guide](/docs/tutorial/vite_getting_started) to learn how to set up the Novorender Web API in a TypeScript project.
+We'll start with a basic TypeScript project using Vite. We assume you already have a basic TypeScript project in place with the Novorender Web API installed and ready to go. If you don't have a project yet, please refer to the [following guide](/docs/web_api/tutorial/vite_getting_started) to learn how to set up the Novorender Web API in a TypeScript project.
 
 #### Loading the Scene
 
-First, we need to install the Novorender [Data JS API](https://docs.novorender.com/legacy/docs/data-js-api). This API is required to load the scene's metadata. Run the following command to install the package:
+First, we need to install the Novorender [Data JS API](/docs/data_js_api/api_reference/). This API is required to load the scene's metadata. Run the following command to install the package:
 
 ```bash npm2yarn
 npm install --save @novorender/data-js-api
 ```
 
 :::tip
-Since the [Data JS API](https://docs.novorender.com/legacy/docs/data-js-api) package is a wrapper around Novorender's [REST API](https://docs.novorender.com/legacy/docs/category/data-rest-api-v1), you can directly use the REST API to load scene metadata if you prefer.
+Since the [Data JS API](/docs/data_js_api/api_reference/) package is a wrapper around Novorender's [REST API](/docs/category/data_rest_api/v2), you can directly use the REST API to load scene metadata if you prefer.
 :::
 
 To load a scene, use the code below. We'll download this demo scene for offline usage later in this guide.
@@ -85,7 +85,7 @@ view.dispose();
 
 Running the above code should result in the scene being loaded in the view, as shown in the image below:
 
-![Default condos scene loaded into the view](../../static/assets/condos-offline-1.png)
+![Default condos scene loaded into the view](/assets/condos-offline-1.png)
 
 ### Downloading the Scene for Offline Usage
 
@@ -97,7 +97,7 @@ Let's proceed with downloading the loaded scene so it can be used offline. There
 2. **Full Download/Sync**:  
    The Web API downloads the entire scene in one go, allowing you to use or view it offline without any delay.
 
-To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addScene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="view.manageOfflineStorage"/>. We'll see all these in action in the rest of the guide.
+To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addScene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="View.manageOfflineStorage"/>. We'll see all these in action in the rest of the guide.
 
 :::info
 Almost all the code you see in this guide is taken from the [Novorender Web App](https://github.com/novorender/novoweb), which is open source and available on GitHub. We encourage you to check out the [offline component code](https://github.com/novorender/novoweb/tree/develop/src/features/offline), which is much more robust and handles many other cases, such as checking for available storage size.
