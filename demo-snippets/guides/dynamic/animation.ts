@@ -2,7 +2,7 @@ import { createCubeObject, type RenderStateDynamicInstance, type RenderStateChan
 
 const { mesh } = createCubeObject();
 
-export function update(time: number): RenderStateChanges {
+export function update(time: number) {
     const angle = ((time / 1000) * Math.PI * 2) / 6; // 10 RPM
     const instance: RenderStateDynamicInstance = {
         position: [0, 0, 0],
@@ -10,5 +10,5 @@ export function update(time: number): RenderStateChanges {
     };
     return {
         dynamic: { objects: [{ mesh, instances: [instance] }] },
-    };
+    } as RenderStateChanges;
 }

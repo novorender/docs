@@ -1,6 +1,6 @@
 import type { RenderStateDynamicGeometry, RenderStateChanges, RenderStateDynamicMesh, RenderStateDynamicMaterialUnlit, RenderStateDynamicObject } from "@novorender/api";
 
-export function main(): RenderStateChanges {
+export function main() {
     const vertices = new Float32Array([
         0, 2, 0, // xyz #0
         -1, 0, 0, // xyz #1
@@ -23,8 +23,9 @@ export function main(): RenderStateChanges {
         mesh,
         instances: [{ position: [0, 0, 0] }],
     };
+
     return {
         grid: { enabled: true },
         dynamic: { objects: [triangleObject] },
-    };
+    } as RenderStateChanges;
 }
