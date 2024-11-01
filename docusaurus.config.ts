@@ -91,7 +91,6 @@ const config: Config = {
         srcDark: "img/novorender_logo_RGB_2021_white.png",
       },
       hideOnScroll: true,
-
       items: [
         {
           to: "docs/web_api/",

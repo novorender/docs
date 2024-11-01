@@ -37,7 +37,7 @@ export default function Home(): JSX.Element {
     }, [location]);
 
     return (
-        <Layout title={`Novorender API Docs`} description="Novorender API Documentation">
+        <Layout title={`Novorender API Docs`} description="Comprehensive documentation for the Novorender API: learn to integrate, customize, and optimize 3D models with detailed guides, API references, and practical examples.">
             {/* SECTION 1 */}
             <header className="hero header-banner">
                 <div className="header-container container">
