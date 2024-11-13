@@ -45,7 +45,7 @@ The `PATCH` endpoint accepts the following JSON payload:
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [] // all types of rules go here...
 }
@@ -91,85 +91,18 @@ Filtered objects can be checked by rules. The following rule checks if the filte
 
 Objects that pass both the filter and rules are processed by optional true and false actions, which may differ based on the rule result. The available action types include:
 
-- **Generate Property**  
-  Create a custom property based on the rule result. You can specify both the property name and value.
-  ```json
-  "result": {
-      "outputProperty": "Test",
-      "true": {
-          "action": "property",
-          "value": "Over 5 meters"
-      },
-      "false": {
-          "action": "property",
-          "value": "Below 5 meters"
-      }
-  }
-  ```
-
-  <details>
-        <summary>Example JSON payload</summary>
-
-  ```json
-  {
-    "version": "1.0",
-    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
-    "ruleSets": [
-      {
-        "type": "common",
-        "outputPropertySet": "Ruleset",
-        "rules": [
-          {
-            "comment": "Rule 1 comment text",
-            "objectFilter": [
-              {
-                "objectFilterSet": [
-                  {
-                    "property": "IfcClass",
-                    "regex": "IfcWindow"
-                  },
-                  "&",
-                  {
-                    "property": "Material",
-                    "regex": "Glass"
-                  }
-                ]
-              }
-            ],
-            "rule": [
-              {
-                "property": "Location/Global Z",
-                "regex": "",
-                "min": 5
-              }
-            ],
-            "result": {
-              "outputProperty": "test",
-              "true": {
-                "action": "property",
-                "value": "Over 5 meters"
-              },
-              "false": {
-                "action": "property",
-                "value": "Below 5 meters"
-              }
-            }
-          }
-        ]
-      }
-    ]
-  }
-  ```
-  </details>
-
 - **Merge**  
   Combine an object with its properties into its parent node. This is particularly useful for `.rvm` files, which often result in deeply nested hierarchies where most properties reside higher up in the model tree.
   ```json
-  "result": {
-      "false": {
-          "action": "merge",
-          "copyProperties": true
+  {
+    ...
+      "result": {
+          "false": {
+              "action": "merge",
+              "copyProperties": true
+          }
       }
+    ...
   }
   ```
 
@@ -178,7 +111,7 @@ Objects that pass both the filter and rules are processed by optional true and f
 
   ```json
   {
-    "version": "1.0",
+    "version": "1.1",
     "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
     "ruleSets": [
       {
@@ -232,13 +165,17 @@ Objects that pass both the filter and rules are processed by optional true and f
   Modify selected object parts based on regex matches.  
   *Example use case*: Automatically update incorrect SharePoint links by changing the root part of the URL.
   ```json
-  "result": {
-      "outputProperty": "IfcClass",
-      "true": {
-          "action": "replace",
-          "value": "Special",
-          "match": "Standard"
+  {
+    ...
+      "result": {
+          "outputProperty": "IfcClass",
+          "true": {
+              "action": "replace",
+              "value": "Special",
+              "match": "Standard"
+          }
       }
+    ...
   }
   ```
 
@@ -247,7 +184,7 @@ Objects that pass both the filter and rules are processed by optional true and f
 
   ```json
   {
-    "version": "1.0",
+    "version": "1.1",
     "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
     "ruleSets": [
       {
@@ -297,10 +234,14 @@ Objects that pass both the filter and rules are processed by optional true and f
   Generate a globally unique identifier (GUID) for objects based on properties matched in the rule.
   
   ```json
-  "result": {
-      "true": {
-          "action": "generateGuid"
+  {
+    ...
+      "result": {
+          "true": {
+              "action": "generateGuid"
+          }
       }
+    ...
   }
   ```
 
@@ -309,7 +250,7 @@ Objects that pass both the filter and rules are processed by optional true and f
 
   ```json
   {
-    "version": "1.0",
+    "version": "1.1",
     "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
     "ruleSets": [
       {
@@ -361,10 +302,14 @@ Objects that pass both the filter and rules are processed by optional true and f
   Force the system to regenerate boundary representation (BREP) data. This is useful when the system can generate more accurate parametric data than the input source, such as tessellated IFC/DWG objects.
   
   ```json
-  "result": {
-      "true": {
-          "action": "regenBrep"
+  {
+    ...
+      "result": {
+          "true": {
+              "action": "regenBrep"
+          }
       }
+    ...
   }
   ```
 
@@ -373,7 +318,7 @@ Objects that pass both the filter and rules are processed by optional true and f
 
   ```json
   {
-    "version": "1.0",
+    "version": "1.1",
     "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
     "ruleSets": [
       {
@@ -417,6 +362,169 @@ Objects that pass both the filter and rules are processed by optional true and f
   ```
   </details>
 
+- **Generate Property**  
+  Create a custom property based on the rule result. You can specify both the property name and value.
+  ```json
+  {
+    ...
+      "result": {
+          "outputProperty": "Test",
+          "true": {
+              "action": "property",
+              "value": "Over 5 meters"
+          },
+          "false": {
+              "action": "property",
+              "value": "Below 5 meters"
+          }
+      }
+    ...
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+    "version": "1.1",
+    "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+    "ruleSets": [
+      {
+        "type": "common",
+        "outputPropertySet": "Ruleset",
+        "rules": [
+          {
+            "comment": "Rule 1 comment text",
+            "objectFilter": [
+              {
+                "objectFilterSet": [
+                  {
+                    "property": "IfcClass",
+                    "regex": "IfcWindow"
+                  },
+                  "&",
+                  {
+                    "property": "Material",
+                    "regex": "Glass"
+                  }
+                ]
+              }
+            ],
+            "rule": [
+              {
+                "property": "Location/Global Z",
+                "regex": "",
+                "min": 5
+              }
+            ],
+            "result": {
+              "outputProperty": "test",
+              "true": {
+                "action": "property",
+                "value": "Over 5 meters"
+              },
+              "false": {
+                "action": "property",
+                "value": "Below 5 meters"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  </details>
+
+- **Generate properties based on other properties**  
+  This rule type allows you to dynamically create or edit properties by referencing other existing properties in Novorender. This is particularly useful for linking to external data sources or adding standardized codes for processes based on model attributes, without needing external edits to the model data.
+
+    - **Creating and Editing URLs:**
+      In some cases, teams may need to link to external data sources directly from their Novorender models. For example, XYZ has a significant amount of maintenance data stored in their SharePoint. However, some models may still link to the client’s SharePoint instead. With property-based rules, they can correct these links to point to their own SharePoint URLs, streamlining access to maintenance data.
+
+        **Use Cases:**
+        - **Case 1:** Generate a SharePoint URL based on an object’s unique identifier.
+          - **URL Format:** `xyz365.sharepoint.com/... + object_id - property`
+        - **Case 2:** Create a more customized SharePoint URL by adding discipline, area, or other specific attributes to the link.
+          - **URL Format:** `xyz365.sharepoint.com/... + object_id - property + discipline - property + area - property`
+
+    - **Adding Process Coding for Standardization:**
+    Infrastructure projects often involve specialized codes for work processes (e.g., excavation, rock blasting, trenching, road layering). Senior team members—who may not use BIM software regularly—need access to these codes for work planning and oversight. By adding rules to enrich data based on other properties, process coding can be standardized and easily applied across projects, saving designers considerable time.
+
+    **Example Setup:**  
+    For an infrastructure project, a rule can be created such that if **Property A** equals “material_type” and “layer_thickness,” then **Property B** automatically generates a process code, streamlining setup and increasing consistency across multiple projects.
+
+    :::info
+    This rule uses the same `action: "property"` as the `Generate Property` rule discussed above. However, instead of specifying a fixed `value`, it allows for a dynamic combination of prefixes, postfixes, and captured values, separated by customizable delimiters. Note that this option is only useful if at least one rule uses `capture`.
+    :::
+  
+  ```json
+  {
+    ...
+      "rule": [
+          {
+              "property": "IfcClass",
+              "regex": "Wall",
+              "capture": true // To enable `useCapture` in the `result`, some or all rules must be configured with `capture: true`
+          }
+      ],
+      "result": {
+          "outputProperty": "Rule1",
+          "true": {
+              "action": "property",
+              "useCapture": {
+                  "prefix": "prefix_",
+                  "postfix": "_postfix",
+                  "separator": "%2"
+              }
+          }
+      }
+    ...
+  }
+  ```
+
+  <details>
+        <summary>Example JSON payload</summary>
+
+  ```json
+  {
+      "version": "1.1",
+      "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
+      "ruleSets": [
+          {
+              "type": "common",
+              "outputPropertySet": "Parametric data",
+              "rules": [
+                  {
+                      "comment": "Parametric data for construction elements",
+                      "objectFilter": [],
+                      "rule": [
+                          {
+                              "property": "IfcClass",
+                              "regex": "Wall",
+                              "capture": true
+                          }
+                      ],
+                      "result": {
+                          "outputProperty": "Rule1",
+                          "true": {
+                              "action": "property",
+                              "useCapture": {
+                                  "prefix": "prefix_",
+                                  "postfix": "_postfix",
+                                  "separator": "%2"
+                              }
+                          }
+                      }
+                  }
+              ]
+          }
+      ]
+  }
+  ```
+  </details>
+
 :::tip
 Both `result.true` and `result.false` are optional, so utilize them whenever necessary.
 :::
@@ -449,7 +557,7 @@ You can delete objects from the imported data before they are processed in the N
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
@@ -471,7 +579,7 @@ Each `deleteObjects` rule should be a separate entry within the `ruleSets` array
   
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
@@ -522,7 +630,7 @@ This rule makes all materials double-sided. While it's generally better to work 
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
@@ -538,7 +646,7 @@ Each `doubleSidedMaterial` rule should be a separate entry within the `ruleSets`
   
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
@@ -587,7 +695,7 @@ The optional payload property (`property`) is used to specify which property in 
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
@@ -637,7 +745,7 @@ The search and replace rule scans property values within the model and replaces 
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "regexDocumentation": "https://cplusplus.com/reference/regex/ECMAScript/",
   "ruleSets": [
     {
