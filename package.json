@@ -21,7 +21,8 @@
     "prepare": "husky",
     "gen-api-docs": "docusaurus gen-api-docs all",
     "clean-api-docs": "docusaurus clean-api-docs all",
-    "re-gen-api-docs": "npm run clean-api-docs && npm run gen-api-docs"
+    "re-gen-api-docs": "npm run clean-api-docs && npm run gen-api-docs",
+    "update-api-submodule": "git submodule update --remote --merge"
   },
   "dependencies": {
     "@cmfcmf/docusaurus-search-local": "^1.2.0",
@@ -57,9 +58,9 @@
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
     "copy-webpack-plugin": "^12.0.2",
-    "docusaurus-plugin-openapi-docs": "^4.1.0",
+    "docusaurus-plugin-openapi-docs": "^4.2.0",
     "docusaurus-plugin-typedoc": "^1.0.5",
-    "docusaurus-theme-openapi-docs": "^4.1.0",
+    "docusaurus-theme-openapi-docs": "^4.2.0",
     "dts-bundle": "^0.7.3",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.2",
