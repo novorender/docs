@@ -1,4 +1,4 @@
-import { createSphereObject, View } from "@novorender/api";
+import { createSphereObject, RenderStateChanges, View } from "@novorender/api";
 
 const { mesh } = createSphereObject();
 
@@ -15,5 +15,5 @@ export async function main(view: View) {
                 instances: [{ position: [0, 0, 0], scale: 3 }]
             }]
         }
-    });
+    } as RenderStateChanges);
 }
