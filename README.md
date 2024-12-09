@@ -52,7 +52,6 @@ Deployment is automated using **GitHub Actions**. The relevant workflows are loc
 
 We use the following tools to maintain code quality and style:
 
-- **[Prettier](https://prettier.io/):** Ensures consistent code formatting.
 - **[ESLint](https://eslint.org/):** Identifies and fixes potential issues in the code.
 
 A **[Husky](https://typicode.github.io/husky/)** pre-commit hook ensures that code adheres to the established linting rules before being committed.
