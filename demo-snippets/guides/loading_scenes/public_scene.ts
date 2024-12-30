@@ -4,7 +4,7 @@ import type { View } from "@novorender/api";
 export async function main(view: View): Promise<void> {
     // Initialize the data API with the Novorender data server service
     const dataApi = createAPI({
-        serviceUrl: "https://data.novorender.com/api",
+        serviceUrl: "https://data-v2.novorender.com/api",
     });
 
     // Load scene metadata

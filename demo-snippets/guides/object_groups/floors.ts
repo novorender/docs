@@ -44,20 +44,29 @@ async function handleVisibilityChanges(dataApi: API, groups: ObjectGroup[]): Pro
     // when needed as to not bloat the .loadScene() response
     const groupIdRequests: Promise<void>[] = groups.map(async (group) => {
         if ((group.selected || group.hidden) && !group.ids) {
-            group.ids = await dataApi.getGroupIds(SCENE_ID, group.id).catch(() => {
-                console.warn("failed to load ids for group - ", group.id);
-                return [];
-            });
+            group.ids = await fetch(`https://data-v2.novorender.com/explorer/${SCENE_ID}/groups/${group.id}/ids`)
+                .then(response => {
+                    if (!response.ok) {
+                        console.warn("Failed to load ids for group - ", group.id);
+                        return [];
+                    }
+                    return response.json();
+                })
+                .catch(() => {
+                    console.warn("Failed to load ids for group - ", group.id);
+                    return [];
+                });
+
         }
     });
 
-    // Increment current refillId and assign local copy
+    // // Increment current refillId and assign local copy
     const id = ++refillId;
 
-    // Wait for IDs to be loaded if necessary
+    // // Wait for IDs to be loaded if necessary
     await Promise.all(groupIdRequests);
 
-    // Abort changes if they are stale
+    // // Abort changes if they are stale
     if (id !== refillId) {
         return {};
     }
