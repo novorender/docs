@@ -190,10 +190,10 @@ Arturo's [open source IBL baker](https://github.com/arturoc/skylights) may help 
 Here, we'll show you how to pick and download one of the default environments.
 
 The view contains a function <CodeLink type="class" name="View.availableEnvironments"/> that will retrieve a list of available environments from the specified source.
-We've already included some environments on our `api.novorender.com` server, so that's were we'll point it to.
+We've already included some environments on our `assets.novorender.com` server, so that's were we'll point it to.
 
 ```typescript
-const envs = await View.availableEnvironments("https://api.novorender.com/assets/env/index.json");
+const envs = await View.availableEnvironments("https://assets.novorender.com/env/index.json");
 const {url} = envs[0];
 view.modifyRenderState({ background: { url } });
 ```
