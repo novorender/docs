@@ -14,7 +14,7 @@ export class ClippingDemoHost extends BaseDemoHost implements IDemoHost<Module> 
     async init() {
         // Initialize the data API with the Novorender data server service
         const dataApi = createAPI({
-            serviceUrl: "https://data-v2.novorender.com/api",
+            serviceUrl: "https://data-v2.novorender.com",
         });
 
         // Load scene metadata  
