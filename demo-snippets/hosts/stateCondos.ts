@@ -5,7 +5,7 @@ export class StateCondosDemoHost extends StateDemoHost {
     async init(): Promise<void> {
         // Initialize the data API with the Novorender data server service
         const dataApi = createAPI({
-            serviceUrl: "https://data-v2.novorender.com/api",
+            serviceUrl: "https://data-v2.novorender.com",
         });
 
         // Load scene metadata

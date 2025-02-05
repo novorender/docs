@@ -13,7 +13,7 @@ export class SearchDemoHost extends BaseDemoHost implements IDemoHost<Module> {
     async init() {
         // Initialize the data API with the Novorender data server service
         const dataAPI = createAPI({
-            serviceUrl: "https://data.novorender.com/api",
+            serviceUrl: "https://data-v2.novorender.com",
         });
         let moduleError;
         try {

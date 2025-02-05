@@ -12,7 +12,8 @@ import { Allotment } from "allotment";
 import { Popover } from "react-tiny-popover";
 import Renderer from "@site/src/components/Renderer";
 import { IDemoHost, type IDempProps, createDemoContext } from "@site/demo-snippets/demo";
-const { devDependencies } = require("../../../package.json");
+import pkg  from "../../../package.json";
+const { devDependencies } = pkg;
 
 /** CSS */
 import "./index.styles.css";
@@ -174,7 +175,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         if (hasMainChanged) {
             // Block navigation and register a callback that
             // fires when a navigation attempt is blocked.
-            unblock = history.block((tx) => {
+            unblock = history.block(() => {
                 // Navigation was blocked! Let's show a confirmation dialog
                 // so the user can decide if they actually want to navigate
                 // away and discard changes they've made in the current page.
@@ -201,7 +202,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         };
     }, []);
 
-    const unloadEventHandler = (e) => {
+    const unloadEventHandler = (e: BeforeUnloadEvent) => {
         if (hasMainChanged) {
             e.preventDefault();
             return (e.returnValue = "");
@@ -231,7 +232,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
             // Add additional d.ts files to the JavaScript language service.
             dts_files.forEach((dts) => monaco.languages.typescript.typescriptDefaults.addExtraLib(dts));
             monaco.languages.typescript.typescriptDefaults.addExtraLib(
-                `/**
+            `/**
              * @description opens an alert that displays provided content
              * @param content string to show in the alert
              */

@@ -14,7 +14,7 @@ export class ObjectGroupsDemoHost extends BaseDemoHost implements IDemoHost<Modu
     async init() {
         // Initialize the data API with the Novorender data server service
         this.dataAPI = createAPI({
-            serviceUrl: "https://data-v2.novorender.com/api",
+            serviceUrl: "https://data-v2.novorender.com",
         });
         let moduleError;
 
