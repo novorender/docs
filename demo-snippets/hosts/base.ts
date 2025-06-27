@@ -11,9 +11,8 @@ export abstract class BaseDemoHost {
         const {
             canvasElements: { primaryCanvas: canvas },
             deviceProfile,
-            imports,
         } = this.context;
-        this.view = new View(canvas, deviceProfile, imports);
+        this.view = new View(canvas, deviceProfile);
     }
 
     async run(cb: (isReady: boolean) => void) {
@@ -37,12 +36,13 @@ export abstract class BaseDemoHost {
     init?(): Promise<void>;
     animate?(time: number): Promise<void>;
 
-    async loadScene(baseUrl: URL, sceneId: string, version: string = "index.json") {
+    async loadScene(
+        baseUrl: URL,
+        sceneId: string,
+        version: string = "index.json"
+    ) {
         const { view } = this;
-        const config = await view.loadScene(
-            baseUrl,
-            sceneId,
-            version);
+        const config = await view.loadScene(baseUrl, sceneId, version);
         const { center, radius } = config.boundingSphere;
         view.activeController.autoFit(center, radius);
         const [cx, cy, cz] = config.center;

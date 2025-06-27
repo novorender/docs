@@ -18,7 +18,7 @@ A measure entity can also be a single point, this is usually used if no parametr
 The normal way of getting measure entities is to used the <CodeLink type="class" name="CoreModule.pickMeasureEntity"/> function on the <CodeLink type="class" name="View.measure"/>object. This will use world coordinates and <CodeLink type="interface" name="PickSample.objectid"/> to find the closest edge surface or point. It will return the picked point if no parametric data is found near the input point. <CodeLink type="interface" name="PickSample.objectid"/> and <CodeLink type="interface" name="PickSample.position"/> can be used from the <CodeLink type="class" name="View.pick"/> function on <CodeLink type="class" name="View"/>
 
 ```typescript
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 const result = await view.pick(x, y);
 
 if (result) {
@@ -47,7 +47,7 @@ What property the resulting object has will depend on the input arguments. There
 to support additional options such as where a cylinder should measure from
 
 ```typescript
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 const result1 = await view.pick(x1, y1);
 const result2 = await view.pick(x2, y2);
 

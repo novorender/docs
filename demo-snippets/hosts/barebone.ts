@@ -1,7 +1,11 @@
 import { IDemoContext, IDemoHost, IModule } from "../demo";
-import { DeviceProfile, Core3DImports } from "@novorender/api";
+import { DeviceProfile } from "@novorender/api";
 
-type Args = [canvas: HTMLCanvasElement, deviceProfile: DeviceProfile, imports: Core3DImports, signal: AbortSignal];
+type Args = [
+    canvas: HTMLCanvasElement,
+    deviceProfile: DeviceProfile,
+    signal: AbortSignal,
+];
 type Ret = Promise<void>;
 type Module = IModule<Ret, Args>;
 
@@ -24,7 +28,6 @@ export class BareboneDemoHost implements IDemoHost<Module> {
         const {
             canvasElements: { primaryCanvas: canvas },
             deviceProfile,
-            imports,
         } = this.context;
         this.abortController?.abort();
         this.abortController = new AbortController();
@@ -32,7 +35,7 @@ export class BareboneDemoHost implements IDemoHost<Module> {
         let moduleError;
         try {
             await this.mainPromise;
-            this.mainPromise = module.main(canvas, deviceProfile, imports, signal);
+            this.mainPromise = module.main(canvas, deviceProfile, signal);
         } catch (error) {
             moduleError = error;
         } finally {

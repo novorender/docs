@@ -69,39 +69,12 @@ Overestimating your GPU capabilities will render slowly and can cause the browse
 When in doubt, go low!
 :::
 
-### Imports
-
-Sadly, bundlers are still a thing.
-Exactly how to wrangle your bundler of choice can vary quite a bit.
-You/it may choose to inline some of these resources as base64 strings, or append a hash to their URL to support updates/caching.
-The view expects that you provide it with all imports through a <CodeLink type="type" name="ViewImports"/> object.
-
-To help construct this object, we've added a helper function <CodeLink type="class" name="View.downloadImports"/>.
-This uses a <CodeLink type="type" name="ViewImportmap"/> object to let you tell it exactly where to find any unloaded resources, or the loaded resources themselves, in case you inlined them somehow.
-
-Most of the guides on bundling will simply copy or map `node_modules/@novorender/api/public/` into a browser accessible path: `/public/novorender/api/`.
-If you followed this recipe, you can simply set the <CodeLink type="interface" name="Core3DImportMap.baseUrl"/> property of the import map as below.
-
-```typescript
-const baseUrl = new URL("/public/novorender/api/", window.location.origin);
-const imports = await View.downloadImports({baseUrl});
-```
-
-You could of course give the full URL with domain and port number, but this could make it hard to share the same code for `localhost` debugging and production, hence the `location.origin` base url.
-
-:::tip
-You can also use [`import.meta.url`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta) for base URL but this will only work inside ESM modules.
-If your code is not running as ESM or `import.meta.url` doesn't work, you can keep using [`window.location.origin`](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin).
-:::
-
-For any other variants, you'll have to manually specify the url and/or reference to each resource, making sure you get the exact url the bundler generated, e.g. including hash etc.
-
 ## View life cycle
 
 With all those plumbing chores out of the way, we're finally ready to create our view:
 
 ```typescript
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 ```
 
 This will create a GPU context and initialize things, but nothing really happens until you run the view.
@@ -131,7 +104,7 @@ Alternatively, you can use the new `using` keyword from
 [TC39 Proposal](https://github.com/tc39/proposal-explicit-resource-management) if your browser supports it.
 
 ```typescript
-using view = new View(canvas, deviceProfile, imports);
+using view = new View(canvas, deviceProfile);
 await view.run(abortController.signal);
 ```
 

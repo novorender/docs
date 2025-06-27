@@ -1,4 +1,4 @@
-import { type DeviceProfile, type ViewImports, type ViewImportmap } from "@novorender/api";
+import { type DeviceProfile } from "@novorender/api";
 import type { IPosition } from "monaco-editor";
 
 export interface IModule<R = void, P extends any[] = []> {
@@ -23,31 +23,19 @@ export interface ICanvas {
 export interface IDemoContext<T = any> {
     readonly canvasElements: ICanvas;
     readonly deviceProfile: DeviceProfile;
-    readonly imports: ViewImports;
     reportErrors(...errors: any[]): void;
 }
 
-/** Core imports, you can provide your own to `createDemoContext` if want */
-export let coreImportsPromise: Promise<ViewImports>;
-// for fixing docusaurus build
-if (typeof window !== "undefined" && typeof navigator !== 'undefined') {
+export async function createDemoContext(
+    canvasElements: ICanvas,
+    reportErrors: (...errors: any[]) => void
+): Promise<IDemoContext> {
     // must be imported dynamically to fix SSG build
-    import("@novorender/api").then(({ View }) => {
-        const baseUrl = new URL(".", location.origin);
-        const coreImportsMap: ViewImportmap = { baseUrl };
-        coreImportsPromise = View.downloadImports(coreImportsMap);
-    });
-}
-
-export async function createDemoContext(canvasElements: ICanvas, reportErrors: (...errors: any[]) => void, importsPromise: Promise<ViewImports> = coreImportsPromise): Promise<IDemoContext> {
-
-    // must be imported dynamically to fix SSG build
-    const { getDeviceProfile } = await import("@novorender/api")
+    const { getDeviceProfile } = await import("@novorender/api");
 
     const gpuTier = 2; // laptop with reasonably new/powerful GPU.
     const deviceProfile = getDeviceProfile(gpuTier);
-    const imports = await importsPromise;
-    return { canvasElements, deviceProfile, imports, reportErrors };
+    return { canvasElements, deviceProfile, reportErrors };
 }
 
 export interface IDempProps {

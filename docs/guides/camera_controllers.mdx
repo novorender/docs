@@ -172,7 +172,7 @@ function myCameraControllers(input: ControllerInput, pick: PickContext) {
 This must then be passed on to the <CodeLink type="class" name="View.new"/> constructor.
 
 ```typescript
-const view = new View(canvas, deviceProfile, imports, myCameraControllers);
+const view = new View(canvas, deviceProfile, myCameraControllers);
 const myController = view.controllers.mine;
 ```
 

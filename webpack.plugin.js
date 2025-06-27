@@ -21,21 +21,18 @@ const webpackPlugin = (context, options) => {
                     new DefinePlugin({
                         "process.env.DEBUG": "runtime_process_env.DEBUG",
                         // eslint-disable-next-line no-undef
-                        WEB_API_VERSION: JSON.stringify(require("./@novorender/package.json").version),
+                        WEB_API_VERSION: JSON.stringify(
+                            require("./@novorender/package.json").version
+                        ),
                         // eslint-disable-next-line no-undef
-                        WEB_API_TYPESCRIPT_VERSION: JSON.stringify(require("./@novorender/package.json").devDependencies["typescript"])
+                        WEB_API_TYPESCRIPT_VERSION: JSON.stringify(
+                            require("./@novorender/package.json")
+                                .devDependencies["typescript"]
+                        ),
                     }),
                     new ProvidePlugin({
                         // eslint-disable-next-line no-undef
                         process: require.resolve("process/browser"),
-                    }),
-                    new CopyPlugin({
-                        patterns: [
-                            {
-                                from: "node_modules/@novorender/api/public/*",
-                                to: "[name][ext]",
-                            },
-                        ],
                     }),
                 ],
                 // resolve: {

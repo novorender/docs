@@ -1,7 +1,11 @@
-import { View, type DeviceProfile, type ViewImports } from "@novorender/api";
+import { View, type DeviceProfile } from "@novorender/api";
 
-export async function main(canvas: HTMLCanvasElement, deviceProfile: DeviceProfile, imports: ViewImports, signal: AbortSignal) {
-    const view = new View(canvas, deviceProfile, imports);
+export async function main(
+    canvas: HTMLCanvasElement,
+    deviceProfile: DeviceProfile,
+    signal: AbortSignal
+) {
+    const view = new View(canvas, deviceProfile);
     view.modifyRenderState({ grid: { enabled: true } });
     await view.run(signal);
     view.dispose();
