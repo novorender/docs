@@ -228,6 +228,7 @@ const config: Config = {
                 },
                 /** TypeDoc Options */
                 entryPoints: ["@novorender/src/web_app/index.ts"],
+                router: "member-custom",
                 out: "docs/web_api/api_reference",
                 logLevel: "Error",
                 tsconfig: "@novorender/tsconfig.json",
@@ -252,7 +253,10 @@ const config: Config = {
                         .toString()
                         .trim();
                 })(),
-                plugin: ["typedoc-plugin-frontmatter"],
+                plugin: [
+                    "typedoc-plugin-frontmatter",
+                    "./type-definitions/typedoc-ignore-call-signatures.mjs",
+                ],
             },
         ],
         [
