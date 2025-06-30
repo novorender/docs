@@ -123,7 +123,7 @@ const config: Config = {
                 },
                 { to: "/blog", label: "Blog", position: "left" },
                 {
-                    href: `${baseGithub}/ts`,
+                    href: `${baseGithub}/novorender-api`,
                     className: "header-github-link",
                     position: "right",
                     "aria-label": "GitHub repository",

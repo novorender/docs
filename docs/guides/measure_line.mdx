@@ -9,8 +9,8 @@ pagination_prev: null
  
 
 Web API's Measure module allows for multiple 3d points to be transformed to an on screen-linestrip or polygon. This is used in the [Novoweb](https://explorer.novorender.com/) to display area and measurement between multiple points.
-To get draw objects from a list of points use <CodeLink type="class" name="DrawModule.getdrawobjectfrompoints" /> on the measure View, there are also options to display angle between the lines and whether or not to close it to create a polygon. The position from <CodeLink type="class" name="View.pick"/> function can be stored to create lines between multiple clicked points.
-It can be used with utility functions found in the open source Novoweb [github repository](https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts).
+To get draw objects from a list of points use <CodeLink type="class" name="DrawModule.getDrawObjectFromPoints" /> on the measure View, there are also options to display angle between the lines and whether or not to close it to create a polygon. The position from <CodeLink type="class" name="View.pick"/> function can be stored to create lines between multiple clicked points.
+It can be used with utility functions found in the Novoweb [github repository](https://github.com/novorender/novoweb/blob/develop/src/features/engine2D/utils.ts).
 These functions are placed in the frontend code to make it easy for developers to change the style of 2d drawings to fit their own application.
 These functions can also be found at the bottom of the [interactive demo](#demo).
 
@@ -36,7 +36,7 @@ if (selectEntity === 1) {
 }
 ```
 
-then use the <CodeLink type="class" name="DrawModule.getdrawobjectfrompoints" /> function to convert a list of points to a drawable linestrip
+then use the <CodeLink type="class" name="DrawModule.getDrawObjectFromPoints" /> function to convert a list of points to a drawable linestrip
 
 ```typescript
 const measureView = await view.measure;
