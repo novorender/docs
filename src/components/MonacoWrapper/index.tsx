@@ -280,6 +280,7 @@ export default function MonacoWrapper({ code, demoName, dirName, fileName, descr
         if (canvas.current && canvas2D.current && previewCanvas.current) {
             const context = await createDemoContext({ primaryCanvas: canvas.current, canvas2D: canvas2D.current, previewCanvas: previewCanvas.current }, reportErrors);
             const host = new hostCtor(context);
+            hostRef.current?.exit();
             hostRef.current = host;
             await host.run((isReady) => {
                 setIsReadyToUpdate(isReady);
