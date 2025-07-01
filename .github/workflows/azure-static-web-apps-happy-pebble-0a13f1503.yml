@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: novorender/novorender-api
+          ref: main
           path: "@novorender"
       - name: Build And Deploy
         id: builddeploy
