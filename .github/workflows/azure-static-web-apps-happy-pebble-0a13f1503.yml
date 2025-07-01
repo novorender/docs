@@ -22,8 +22,6 @@ jobs:
         with:
           repository: novorender/novorender-api
           path: "@novorender"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: false
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
