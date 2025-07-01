@@ -1,7 +1,7 @@
 // @ts-check
 import * as td from "typedoc";
 /**
- * Before updating to data-v2 when using typedoc 0.26.0 we got hierarchy like this:
+ * Before updating to api-v2 when using typedoc 0.26.0 we got hierarchy like this:
  * - Data JS API
  *   - API Reference
  *     - Namespaces
