@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-22.04
     name: Build and Deploy Job
     steps:
+      # Github actions have issues with fetching private submodules https://github.com/actions/checkout/issues/287
+      # so try to fetch it separately
       - name: Clone main repo
         uses: actions/checkout@v4
       - name: Clone novorender-api
@@ -22,6 +24,7 @@ jobs:
         with:
           repository: novorender/novorender-api
           ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: "@novorender"
       - name: Build And Deploy
         id: builddeploy
