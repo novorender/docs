@@ -163,17 +163,19 @@ export default function Root({ children }) {
 function ThemeWorkaround() {
     const isBrowser = useIsBrowser();
 
-    // docusaurus-search-local sets data-theme for the body element
+    // @cmfcmf/docusaurus-search-local sets data-theme for the body element
     // and it does it incorrectly, because it relies on `useIsBrowser`
     // returning the true value the first time, but it returns false
     // if the app is not yet hydrated, and it always sets "light" theme to the body.
     // So it gets out of sync with html element. Here we plumb it.
+    // Instead of syncing body with document manually - trigger change for the document
+    // so docusaurus-search-local updates the local state.
     // Somehow I couldn't find other people having this issue.
     useEffect(() => {
-        document.body.dataset.theme =
-            document.documentElement.dataset.theme === "dark"
-                ? "dark"
-                : "light";
+        const theme = document.documentElement.getAttribute("data-theme");
+        if (theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+        }
     }, [isBrowser]);
 
     return null;
