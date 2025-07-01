@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
+import BrowserOnly from "@docusaurus/BrowserOnly";
 import { PlaygroundContext } from "./context";
 import Head from "@docusaurus/Head";
 import * as glMatrix from "gl-matrix";
@@ -14,7 +15,6 @@ if (ExecutionEnvironment.canUseDOM) {
 // Default implementation, that you can customize
 export default function Root({ children }) {
     const [runningPlaygroundId, setRunningPlaygroundId] = useState("");
-    const isBrowser = useIsBrowser();
 
     /**
      * @description login with demo user to store the token localstorage
@@ -145,6 +145,24 @@ export default function Root({ children }) {
             },
         });
 
+    return (
+        <>
+            <Head>
+                <script type="importmap">{importMap()}</script>
+            </Head>
+            <PlaygroundContext.Provider
+                value={{ runningPlaygroundId, setRunningPlaygroundId }}
+            >
+                {children}
+            </PlaygroundContext.Provider>
+            <BrowserOnly>{() => <ThemeWorkaround />}</BrowserOnly>
+        </>
+    );
+}
+
+function ThemeWorkaround() {
+    const isBrowser = useIsBrowser();
+
     // docusaurus-search-local sets data-theme for the body element
     // and it does it incorrectly, because it relies on `useIsBrowser`
     // returning the true value the first time, but it returns false
@@ -158,16 +176,5 @@ export default function Root({ children }) {
                 : "light";
     }, [isBrowser]);
 
-    return (
-        <>
-            <Head>
-                <script type="importmap">{importMap()}</script>
-            </Head>
-            <PlaygroundContext.Provider
-                value={{ runningPlaygroundId, setRunningPlaygroundId }}
-            >
-                {children}
-            </PlaygroundContext.Provider>
-        </>
-    );
+    return null;
 }
