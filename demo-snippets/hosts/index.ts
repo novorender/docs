@@ -8,3 +8,4 @@ export * from "./view";
 export * from "./viewCondos";
 export * from "./search";
 export * from "./objectGroups";
+export * from "./modelPreview";

@@ -1,0 +1,25 @@
+---
+title: "Model preview"
+description: "Learn how to set up a simple model preview in the scene context."
+keywords: ["novorender api docs", "view", "gltf", "dynamic objects"]
+pagination_next: null
+pagination_prev: null
+---
+
+Imagine you have a scene with a couple of models and then someone uploads a new model,
+but this model seems to be out of place.
+It would be nice if you could easily put the model where it should be without changing the original file.
+
+When a new file is added to the scene - there's a step in the pipeline that creates a low detail .glb file for the model.
+That's the file we're going to use. It becomes available once original file conversion completes.
+
+## Locating the file
+
+First we need to find the file. To do this we'll use [REST API](/docs/category/data_rest_api/v2).
+To make request it's easier to use [DataApi.fetch](/docs/data_js_api/api_reference/namespaces/DataJsAPI/interfaces/API#fetch).
+
+```typescript
+const 
+```
+
+<PlaygroundComponent demoKey="modelPreview.preview" />

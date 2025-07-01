@@ -9,5 +9,6 @@ export * from "./searching";
 export * from "./measure";
 export * from "./object_metadata";
 export * from "./object_groups";
+export * from "./model_preview";
 export * from "./views";
 export * from "./outline_laser";
