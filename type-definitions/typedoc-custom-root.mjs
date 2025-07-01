@@ -44,6 +44,6 @@ export function load(app) {
             namespaces.escapedName =
             e.project.packageName =
                 "namespaces";
-        dataJsApi.name = namespaces.escapedName = "DataJsAPI";
+        dataJsApi.name = dataJsApi.escapedName = "DataJsAPI";
     });
 }
