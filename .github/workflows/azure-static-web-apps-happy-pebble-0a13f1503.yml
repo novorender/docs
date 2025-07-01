@@ -15,10 +15,15 @@ jobs:
     runs-on: ubuntu-22.04
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v4
+      - name: Clone main repo
+        uses: actions/checkout@v4
+      - name: Clone novorender-api
+        uses: actions/checkout@v4
         with:
-          submodules: true
+          repository: novorender/novorender-api
+          path: "@novorender"
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
