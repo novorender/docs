@@ -43,7 +43,7 @@ export function load(app) {
         namespaces.name =
             namespaces.escapedName =
             e.project.packageName =
-                "namespaces";
+                "Namespaces";
         dataJsApi.name = dataJsApi.escapedName = "DataJsAPI";
     });
 }
