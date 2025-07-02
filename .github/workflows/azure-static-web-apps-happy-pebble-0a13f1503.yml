@@ -21,6 +21,10 @@ jobs:
         with:
           submodules: true
           token: ${{ secrets.cicd }}
+      - name: Configure npm
+        run: |
+            echo "@novorender:registry=https://npm.pkg.github.com" >> .npmrc
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
