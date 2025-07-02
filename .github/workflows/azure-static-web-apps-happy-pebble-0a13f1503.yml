@@ -17,15 +17,10 @@ jobs:
     steps:
       # Github actions have issues with fetching private submodules https://github.com/actions/checkout/issues/287
       # so try to fetch it separately
-      - name: Clone main repo
-        uses: actions/checkout@v4
-      - name: Clone novorender-api
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          repository: novorender/novorender-api
-          ref: main
+          submodules: true
           token: ${{ secrets.cicd }}
-          path: "@novorender"
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
