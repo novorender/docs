@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-22.04
     name: Build and Deploy Job
     steps:
-      # Github actions have issues with fetching private submodules https://github.com/actions/checkout/issues/287
-      # so try to fetch it separately
       - uses: actions/checkout@v4
         with:
           submodules: true
