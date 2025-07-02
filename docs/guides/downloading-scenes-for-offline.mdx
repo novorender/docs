@@ -58,12 +58,10 @@ const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 // Assumed GPU tier for a reasonably new/powerful GPU.
 const gpuTier = 2;  
 const deviceProfile = getDeviceProfile(gpuTier);
-const baseUrl = new URL("/novorender/api/", window.location.origin); // or whereever you copied the public/ files from the package.
 const serviceUrl = "https://data.novorender.com/api";
 const sceneId = "95a89d20dd084d9486e383e131242c4c"; // Default Condos scene ID, which is public.
 
-const imports = await View.downloadImports({ baseUrl });
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 const dataApi = createAPI({ serviceUrl });
 // Load scene metadata
 const sceneData = await dataApi.loadScene(sceneId);
@@ -97,10 +95,10 @@ Let's proceed with downloading the loaded scene so it can be used offline. There
 2. **Full Download/Sync**:  
    The Web API downloads the entire scene in one go, allowing you to use or view it offline without any delay.
 
-To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addScene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="View.manageOfflineStorage"/>. We'll see all these in action in the rest of the guide.
+To perform incremental syncing, we only need to add (<CodeLink type="class" name="OfflineViewState.addScene"/>) the scene to the <CodeLink type="class" name="OfflineViewState"/>. For a full download, use the <CodeLink type="class" name="OfflineScene.sync"/> method on that scene. To access the view, use <CodeLink type="class" name="View.getOfflineViewState"/>. We'll see all these in action in the rest of the guide.
 
 :::info
-Almost all the code you see in this guide is taken from the [Novorender Web App](https://github.com/novorender/novoweb), which is open source and available on GitHub. We encourage you to check out the [offline component code](https://github.com/novorender/novoweb/tree/develop/src/features/offline), which is much more robust and handles many other cases, such as checking for available storage size.
+Almost all the code you see in this guide is taken from the [Novorender Web App](https://github.com/novorender/novoweb), which is available on GitHub. We encourage you to check out the [offline component code](https://github.com/novorender/novoweb/tree/develop/src/features/offline), which is much more robust and handles many other cases, such as checking for available storage size.
 :::
 
 #### Incremental Download
@@ -112,7 +110,7 @@ Below is the code required to enable incremental downloading of your scene:
 // Get button reference from the HTML document
 const btnIncrementalDownload = document.getElementById("btnIncrementalDownload") as HTMLButtonElement;
 // Get the offline view state context used for offline storage management.
-const offlineWorkerState = await view.manageOfflineStorage();
+const offlineWorkerState = await view.getOfflineViewState();
 
 btnIncrementalDownload.onclick = async () => {
     // highlight-next-line
@@ -130,7 +128,7 @@ To enable a full download of a scene, use the <CodeLink type="class" name="Offli
 // Get button reference from the HTML document
 const btnFullDownload = document.getElementById("btnFullDownload") as HTMLButtonElement;
 // Get the offline view state context used for offline storage management.
-const offlineWorkerState = await view.manageOfflineStorage();
+const offlineWorkerState = await view.getOfflineViewState();
 
 btnFullDownload.onclick = async () => {
     // highlight-next-line

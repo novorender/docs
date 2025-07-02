@@ -85,7 +85,7 @@ export default function Home(): JSX.Element {
                     of use cases, propelling your projects into a new era of efficiency and innovation.
                 </p>
                 <p>
-                    Leverage the potential of Novorender's Open Source API to craft robust functionalities for your 3D models. Unleash capabilities like Clash Detection, Precise Area Measurements, Dynamic Parametric Assessments, Smart Clipping Planes, Insightful Cross Sections,
+                    Leverage the potential of Novorender's API to craft robust functionalities for your 3D models. Unleash capabilities like Clash Detection, Precise Area Measurements, Dynamic Parametric Assessments, Smart Clipping Planes, Insightful Cross Sections,
                     Fine-tuned Geometric Controls, and an array of other transformative features. Elevate your 3D experience with Novorender's API and empower your creations beyond imagination.
                 </p>
                 <p>

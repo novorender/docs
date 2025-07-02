@@ -18,8 +18,8 @@ export async function main(view: View, sceneData: SceneData) {
 
         const searchResult: ObjectData[] = [];
 
-        // Use the first 5 results to keep the properties in the property box relatively short
-        for (let i = 0; i < 5; i++) {
+        // Use the first 10 results to keep the properties in the property box relatively short
+        for (let i = 0; i < 10; i++) {
             const iteratorResult = await iterator.next();
             if (iteratorResult.done) {
                 break;
@@ -27,7 +27,8 @@ export async function main(view: View, sceneData: SceneData) {
             // Because we have set the search option "full: true"
             // .loadMetadata() will not result in any more requests being made
             // Try flipping it to false and see the difference in the network request log
-            const objectWithMetadata = await iteratorResult.value.loadMetaData();
+            const objectWithMetadata =
+                await iteratorResult.value.loadMetaData();
             searchResult.push(objectWithMetadata);
         }
 

@@ -124,25 +124,6 @@ The NPM package contains pre-built [ESM](https://developer.mozilla.org/en-US/doc
 :::info
 A copy of all the original typescript source code along with sourcemaps is included too. We consider the source code an important part of our documentation.
 :::
-Besides installing the package, you must make sure the files in the `public/` directory of this package are available to your server, this is covered in next section.
-
-### Copying required resources
-Before we move forward to actually implementing the Novorender Web API, we need to find some way to copy the resources from `node_modules/@novorender/api/public`, let's use [CopyWebpackPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) to accomplish this.
-
-Put the following code into `webpack.config.js`:
-```javascript title="webpack.config.js"
-// import the copy plugin
-const CopyPlugin = require("copy-webpack-plugin");
-
-...
-// add into into `plugins` array:
-new CopyPlugin({
-    patterns: [
-        { from: "node_modules/@novorender/api/public/*", to: "novorender/api/[name][ext]" }
-    ]
-}),
-...
-```
 
 ### Server requirements
 
@@ -189,8 +170,6 @@ It's important to note that the method described above for enabling Cross-Origin
 
 4. Any resources loaded from a separate domain has be configured with [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to allow your domain.
 
-5. Service workers script at the appropriate location, preferably at the root of your domain. See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) for more.
-
 ### Typescript
 
 Using our APIs from javascript is possible but *strongly discouraged*. We rely heavily on typescript to help users catch common errors at edit/compile time. Technical support will only be provided for typescript users.
@@ -218,7 +197,6 @@ Now that we have a proper project in place, we can go ahead implementing the act
 Before we create a [view](https://docs.novorender.com/docs/guides/views), we need to provide it with some [resources](https://docs.novorender.com/docs/guides/views#prerequisites);
 - Canvas
 - Device profile
-- Imports
 
 These resources are crucial for setting up and configuring the view properly.
 
@@ -255,38 +233,12 @@ const gpuTier = 2;
 const deviceProfile = getDeviceProfile(gpuTier);
 ```
 
-#### Imports
-[Remember](#providing-required-resources) we copied some resources from `@novorender/api/public` dir? that's where they come into play.
-```typescript title="main.ts"
-import { View } from "@novorender/api";
-
-const baseUrl = new URL("/novorender/api/", window.location.origin);
-const imports = await View.downloadImports({ baseUrl });
-```
-
-<details>
-      <summary>Getting Error: `Cannot find module '/novorender/api/shaders.js`</summary>
-      <div>In certain build environments or bundlers, you might encounter complaints about `shaders.js` not being found. In such cases, you will need to provide the `shaders` separately to resolve this issue.</div>
-
-```typescript
-// @ts-expect-error
-import { shaders } from "@novorender/api/public/shaders";
-
-const imports = await View.downloadImports({ baseUrl, shaders });
-```
-
-:::info
-`// @ts-expect-error` is essential because TypeScript might incorrectly assume that the `@novorender/api` doesn't expose this module, even though it does and this will tell TypeScript to suppress that error from being reported.
-:::
-
-</details>
-
 ### Creating View
 With all the necessary components in place, we can proceed to create and run our view:
 ```typescript title="main.ts"
 import { View } from "@novorender/api";
 
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 await view.run();
 ```
 
@@ -304,9 +256,7 @@ const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 async function main(canvas: HTMLCanvasElement) {
     const gpuTier = 2;
     const deviceProfile = getDeviceProfile(gpuTier);
-    const baseUrl = new URL("/novorender/api/", window.location.origin);
-    const imports = await View.downloadImports({ baseUrl });
-    const view = new View(canvas, deviceProfile, imports);
+    const view = new View(canvas, deviceProfile);
     await view.run();
     view.dispose();
 }
@@ -335,7 +285,7 @@ Upon successful execution, you should now see an image with a subtle gray gradie
 Let's make it a little more interactive by modifying `renderState` and adding a <CodeLink type="interface" name="RenderStateGrid" />.
 ```typescript title="main.ts"
 ...
-const view = new View(canvas, deviceProfile, imports);
+const view = new View(canvas, deviceProfile);
 view.modifyRenderState({ grid: { enabled: true } });
 await view.run();
 ...

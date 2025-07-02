@@ -1,6 +1,9 @@
 import { type RecursivePartial, type RenderStateClipping, ClippingMode } from "@novorender/api";
 
 export function main(centerX: number, centerY: number, centerZ: number): RecursivePartial<RenderStateClipping> {
+    // Set samplesMSAA larger than 1 for the planes to have transparency
+    // view.modifyRenderState({ output: { samplesMSAA: 2 } });
+
     return {
         enabled: true,
         draw: true,

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
+import BrowserOnly from "@docusaurus/BrowserOnly";
 import { PlaygroundContext } from "./context";
 import Head from "@docusaurus/Head";
 import * as glMatrix from "gl-matrix";
+import useIsBrowser from "@docusaurus/useIsBrowser";
 
 if (ExecutionEnvironment.canUseDOM) {
     window["runtime_process_env"] = {
@@ -68,8 +70,19 @@ export default function Root({ children }) {
          * components aren't available
          * just do `openAlert('whatever content...')` to show an alert
          */
-        window["openAlert"] = (content: string, type: "primary" | "secondary" | "success" | "info" | "warning" | "danger" = "info") => {
-            const existing_alert = document.querySelector(".custom-alert-container");
+        window["openAlert"] = (
+            content: string,
+            type:
+                | "primary"
+                | "secondary"
+                | "success"
+                | "info"
+                | "warning"
+                | "danger" = "info"
+        ) => {
+            const existing_alert = document.querySelector(
+                ".custom-alert-container"
+            );
             if (existing_alert) {
                 document.body.removeChild(existing_alert);
             }
@@ -81,12 +94,15 @@ export default function Root({ children }) {
             close_btn.addEventListener("click", () => {
                 document.body.removeChild(ele);
             });
-            ele.classList.add("alert", `alert--${type}`, "custom-alert-container");
+            ele.classList.add(
+                "alert",
+                `alert--${type}`,
+                "custom-alert-container"
+            );
             ele.appendChild(close_btn);
             ele.append(content);
             document.body.appendChild(ele);
         };
-
 
         // Quick workaround to hide some elements on docs readme file
         // might need to find a better way
@@ -98,7 +114,6 @@ export default function Root({ children }) {
         //         hideElementsOnReadme(pathname);
         //     }, 0);
         // });
-
     }, []);
 
     // const hideElementsOnReadme = (pathname: string) => {
@@ -121,14 +136,47 @@ export default function Root({ children }) {
     //     }
     // }
 
-    const importMap = () => JSON.stringify({ imports: { "@novorender/api": "/api_proxy.js", "gl-matrix": "/gl_matrix_proxy.js", "@novorender/data-js-api": "/data_api_proxy.js" } });
+    const importMap = () =>
+        JSON.stringify({
+            imports: {
+                "@novorender/api": "/api_proxy.js",
+                "gl-matrix": "/gl_matrix_proxy.js",
+                "@novorender/data-js-api": "/data_api_proxy.js",
+            },
+        });
 
     return (
         <>
             <Head>
                 <script type="importmap">{importMap()}</script>
             </Head>
-            <PlaygroundContext.Provider value={{ runningPlaygroundId, setRunningPlaygroundId }}>{children}</PlaygroundContext.Provider>
+            <PlaygroundContext.Provider
+                value={{ runningPlaygroundId, setRunningPlaygroundId }}
+            >
+                {children}
+            </PlaygroundContext.Provider>
+            <BrowserOnly>{() => <ThemeWorkaround />}</BrowserOnly>
         </>
     );
+}
+
+function ThemeWorkaround() {
+    const isBrowser = useIsBrowser();
+
+    // @cmfcmf/docusaurus-search-local sets data-theme for the body element
+    // and it does it incorrectly, because it relies on `useIsBrowser`
+    // returning the true value the first time, but it returns false
+    // if the app is not yet hydrated, and it always sets "light" theme to the body.
+    // So it gets out of sync with html element. Here we plumb it.
+    // Instead of syncing body with document manually - trigger change for the document
+    // so docusaurus-search-local updates the local state.
+    // Somehow I couldn't find other people having this issue.
+    useEffect(() => {
+        const theme = document.documentElement.getAttribute("data-theme");
+        if (theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+        }
+    }, [isBrowser]);
+
+    return null;
 }
