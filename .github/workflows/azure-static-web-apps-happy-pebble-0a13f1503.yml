@@ -8,17 +8,23 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
-
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-22.04
     name: Build and Deploy Job
     steps:
+      # Github actions have issues with fetching private submodules https://github.com/actions/checkout/issues/287
+      # so try to fetch it separately
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Build And Deploy
+          token: ${{ secrets.cicd }}
+      - name: Configure npm
+        run: |
+          echo "@novorender:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+      - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
