@@ -24,6 +24,10 @@ jobs:
           token: ${{ secrets.cicd }}
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
+      - name: Configure npm
+        run: |
+          echo "@novorender:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
       - name: Install Node.js dependencies
         run: npm ci --verbose
       - name: Build
