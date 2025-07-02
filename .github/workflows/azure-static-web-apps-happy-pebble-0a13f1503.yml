@@ -24,7 +24,7 @@ jobs:
         with:
           repository: novorender/novorender-api
           ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.cicd }}
           path: "@novorender"
       - name: Build And Deploy
         id: builddeploy
