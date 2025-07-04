@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-          token: ${{ secrets.cicd }}
+          token: ${{ secrets.DOCS_CICD }}
       - name: Configure npm
         run: |
           echo "@novorender:registry=https://npm.pkg.github.com" >> .npmrc
