@@ -9,6 +9,12 @@ pagination_prev: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+:::caution Deprecated
+The `POST /projects/{sceneId}/search`, `GET /projects/{sceneId}/metadata/{objectId}` and `POST /projects/{sceneId}/resolve` routes, and the `db.search()` calls that use them, are deprecated. They keep working on every scene, and no removal date has been set.
+
+For new integrations, use the BIM query routes under `/projects/{sceneId}/bim/versions/current/objects`, such as `POST .../objects/search`. They use a different request format. They answer 404 for a scene that has no BIM index yet, so keep using the routes above for those scenes until they are rebuilt.
+:::
+
 ## Introduction
 
 Automation of routine tasks can significantly improve efficiency, especially when dealing with repetitive processes. In this guide, we'll demonstrate how to leverage Python scripts to automate common tasks such as extracting properties from scene and exporting them to an excel spreadsheet. Feel free to use this example and extend it for your specific use case.
