@@ -9,6 +9,12 @@ pagination_prev: null
 
  
 
+:::caution Deprecated
+The `POST /projects/{sceneId}/search`, `GET /projects/{sceneId}/metadata/{objectId}` and `POST /projects/{sceneId}/resolve` routes, and the `db.search()` calls that use them, are deprecated. They keep working on every scene, and no removal date has been set.
+
+For new integrations, use the BIM query routes under `/projects/{sceneId}/bim/versions/current/objects`, such as `POST .../objects/search`. They use a different request format. They answer 404 for a scene that has no BIM index yet, so keep using the routes above for those scenes until they are rebuilt.
+:::
+
 Searching will be integral part of most applications using Novorender.
 In the example below we demonstrate a few different search patterns where the resulting objects are isolated in the view.  
 Make sure to also check out the <code>[db.search()](/docs/data_js_api/api_reference/namespaces/DataJsAPI/interfaces/ObjectDB#search)</code> documentation.
